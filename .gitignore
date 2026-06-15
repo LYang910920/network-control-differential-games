@@ -1,0 +1,39 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# Python environments and local dependency installs
+.venv/
+venv/
+env/
+examples/reference/pydeps/
+
+# Matplotlib and local cache folders
+.cache/
+.mplconfig/
+examples/**/.cache/
+examples/**/.mplconfig/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# Rerun output folders. Curated results are kept under results/reference_repos
+# and the named lecture result folders already committed in examples/lecture.
+examples/lecture/results/rerun_*/
+examples/lecture/results/test_*/
+examples/reference/results/test_*/
+examples/reference/results/reference_repos_rerun/
+
+# Third-party repositories are fetched on demand to preserve upstream license
+# context and avoid vendoring external datasets by default.
+examples/reference/reference_repositories/
