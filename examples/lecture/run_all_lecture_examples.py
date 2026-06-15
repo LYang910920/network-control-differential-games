@@ -20,11 +20,24 @@ HERE = Path(__file__).resolve().parent
 
 
 def run(cmd: list[str], env: dict[str, str]) -> None:
-    print("$ " + " ".join(cmd))
+    print("$ " + " ".join(cmd), flush=True)
     subprocess.run(cmd, cwd=HERE, env=env, check=True)
 
 
+def require_outputs(paths: list[Path]) -> None:
+    missing = [path for path in paths if not path.exists()]
+    empty = [path for path in paths if path.exists() and path.stat().st_size == 0]
+    if missing or empty:
+        details = []
+        if missing:
+            details.append("missing: " + ", ".join(str(path) for path in missing))
+        if empty:
+            details.append("empty: " + ", ".join(str(path) for path in empty))
+        raise RuntimeError("Expected output check failed; " + "; ".join(details))
+
+
 def make_contact_sheet(items: list[tuple[str, Path]], out_path: Path, cols: int = 3) -> None:
+    require_outputs([path for _, path in items])
     rows = (len(items) + cols - 1) // cols
     fig, axes = plt.subplots(rows, cols, figsize=(4.8 * cols, 3.5 * rows))
     flat_axes = axes.ravel() if hasattr(axes, "ravel") else [axes]
@@ -100,34 +113,45 @@ def main() -> None:
         "--output-dir", str(out / "examples_adjacency"),
     ], env)
 
-    make_contact_sheet(
-        [
-            ("simple demo: degree", out / "simple_demo" / "degree_distribution.png"),
-            ("simple demo: control", out / "simple_demo" / "degree_k_control.png"),
-            ("simple edge: degree", out / "simple_edges" / "degree_distribution.png"),
-            ("simple edge: control", out / "simple_edges" / "degree_k_control.png"),
-            ("simple adjacency: degree", out / "simple_adjacency" / "degree_distribution.png"),
-            ("simple adjacency: control", out / "simple_adjacency" / "degree_k_control.png"),
-        ],
-        out / "simple_contact_sheet.png",
-    )
-    make_contact_sheet(
-        [
-            ("demo: degree", out / "examples_demo" / "degree_distribution.png"),
-            ("demo: control", out / "examples_demo" / "degree_control.png"),
-            ("demo: game", out / "examples_demo" / "degree_game.png"),
-            ("demo: node control", out / "examples_demo" / "node_control.png"),
-            ("demo: node game", out / "examples_demo" / "node_game.png"),
-            ("demo: hybrid", out / "examples_demo" / "hybrid_impulse.png"),
-            ("edge: degree", out / "examples_edges" / "degree_distribution.png"),
-            ("edge: control", out / "examples_edges" / "degree_control.png"),
-            ("edge: game", out / "examples_edges" / "degree_game.png"),
-            ("adjacency: degree", out / "examples_adjacency" / "degree_distribution.png"),
-            ("adjacency: control", out / "examples_adjacency" / "degree_control.png"),
-            ("adjacency: game", out / "examples_adjacency" / "degree_game.png"),
-        ],
-        out / "examples_contact_sheet.png",
-    )
+    simple_items = [
+        ("simple demo: degree", out / "simple_demo" / "degree_distribution.png"),
+        ("simple demo: control", out / "simple_demo" / "degree_k_control.png"),
+        ("simple edge: degree", out / "simple_edges" / "degree_distribution.png"),
+        ("simple edge: control", out / "simple_edges" / "degree_k_control.png"),
+        ("simple adjacency: degree", out / "simple_adjacency" / "degree_distribution.png"),
+        ("simple adjacency: control", out / "simple_adjacency" / "degree_k_control.png"),
+    ]
+    example_items = [
+        ("demo: degree", out / "examples_demo" / "degree_distribution.png"),
+        ("demo: control", out / "examples_demo" / "degree_control.png"),
+        ("demo: game", out / "examples_demo" / "degree_game.png"),
+        ("demo: node control", out / "examples_demo" / "node_control.png"),
+        ("demo: node game", out / "examples_demo" / "node_game.png"),
+        ("demo: hybrid", out / "examples_demo" / "hybrid_impulse.png"),
+        ("edge: degree", out / "examples_edges" / "degree_distribution.png"),
+        ("edge: control", out / "examples_edges" / "degree_control.png"),
+        ("edge: game", out / "examples_edges" / "degree_game.png"),
+        ("adjacency: degree", out / "examples_adjacency" / "degree_distribution.png"),
+        ("adjacency: control", out / "examples_adjacency" / "degree_control.png"),
+        ("adjacency: game", out / "examples_adjacency" / "degree_game.png"),
+    ]
+
+    csv_outputs = [
+        out / name / "degree_distribution.csv"
+        for name in (
+            "simple_demo",
+            "simple_edges",
+            "simple_adjacency",
+            "examples_demo",
+            "examples_edges",
+            "examples_adjacency",
+        )
+    ]
+    require_outputs([path for _, path in simple_items + example_items] + csv_outputs)
+
+    make_contact_sheet(simple_items, out / "simple_contact_sheet.png")
+    make_contact_sheet(example_items, out / "examples_contact_sheet.png")
+    require_outputs([out / "simple_contact_sheet.png", out / "examples_contact_sheet.png"])
 
     print(f"\nDone. Outputs written to: {out}")
 

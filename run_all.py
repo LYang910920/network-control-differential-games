@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parent
 
 
 def run(cmd: list[str], cwd: Path, env: dict[str, str]) -> None:
-    print(f"\n[{cwd.relative_to(ROOT)}] $ " + " ".join(cmd))
+    print(f"\n[{cwd.relative_to(ROOT)}] $ " + " ".join(cmd), flush=True)
     subprocess.run(cmd, cwd=cwd, env=env, check=True)
 
 

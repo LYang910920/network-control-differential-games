@@ -21,7 +21,10 @@ Use this track first. The scripts are small, self-contained, and written to show
 Typical run from the repository root:
 
 ```bash
-python3 run_all.py --skip-reference
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python run_all.py --skip-reference
 ```
 
 Outputs:
@@ -51,7 +54,7 @@ Use this track after the lecture examples. It keeps source snapshots from three 
 Typical run from the repository root:
 
 ```bash
-python3 run_all.py --skip-lecture
+python run_all.py --skip-lecture
 ```
 
 Outputs:

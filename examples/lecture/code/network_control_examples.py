@@ -232,7 +232,6 @@ def edge_list_to_graph_igraph(args: argparse.Namespace) -> nx.Graph:
     return G
 
 
-
 def graph_file_to_graph(path: Path, directed: bool) -> nx.Graph:
     """Load common graph formats with NetworkX: GraphML, GEXF, GML, Pajek/NET."""
     suffix = path.suffix.lower()
@@ -247,6 +246,7 @@ def graph_file_to_graph(path: Path, directed: bool) -> nx.Graph:
     else:
         raise ValueError("--graph-file supports .graphml, .gexf, .gml, .net, and .pajek")
     return nx.DiGraph(G) if directed else nx.Graph(G)
+
 
 def keep_top_degree_nodes(G: nx.Graph, max_nodes: int) -> nx.Graph:
     """Induced subgraph on highest weighted-degree nodes, for readable demos."""

@@ -39,13 +39,15 @@ reference/
 ## Install
 
 ```bash
-python3 -m pip install -r requirements.txt
+python3 -m venv ../../.venv
+source ../../.venv/bin/activate
+python -m pip install -r ../../requirements.txt
 ```
 
-If `python-igraph` is inconvenient to install globally, install it locally:
+If `python-igraph` is inconvenient to install in the active environment, install it locally:
 
 ```bash
-python3 -m pip install --target pydeps python-igraph
+python -m pip install --target pydeps python-igraph
 ```
 
 The runner will automatically look for `pydeps/`.
@@ -72,7 +74,7 @@ By default this downloads full upstream clones to `reference_repositories_upstre
 ## Run the smoke tests
 
 ```bash
-python3 run_reference_smoke.py
+python run_reference_smoke.py
 ```
 
 Outputs are written to:
@@ -84,13 +86,13 @@ results/reference_repos_rerun/
 Choose a destination:
 
 ```bash
-python3 run_reference_smoke.py --output-dir results/my_run
+python run_reference_smoke.py --output-dir results/my_run
 ```
 
 If your downloaded repositories are somewhere else, pass the parent directory that contains `reference_repositories/`:
 
 ```bash
-python3 run_reference_smoke.py \
+python run_reference_smoke.py \
   --package-dir /path/to/package_or_reference_workspace \
   --output-dir results/my_run
 ```

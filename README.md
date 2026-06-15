@@ -25,35 +25,38 @@ The repository is meant to be an educational bridge: start from the mathematical
 From the repository root:
 
 ```bash
-python3 -m pip install -r requirements.txt
-python3 run_all.py
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python run_all.py
 ```
 
-If `python-igraph` is hard to install globally, install it locally for the reference runner:
+If `python-igraph` is hard to install in the active environment, install it locally for the reference runner:
 
 ```bash
-python3 -m pip install --target examples/reference/pydeps python-igraph
-python3 run_all.py
+python -m pip install --target examples/reference/pydeps python-igraph
+python run_all.py
 ```
 
 Run only the lecture examples:
 
 ```bash
-python3 run_all.py --skip-reference
+python run_all.py --skip-reference
 ```
 
 Run only the reference smoke tests:
 
 ```bash
-python3 run_all.py --skip-lecture
+python run_all.py --skip-lecture
 ```
 
 ## Recommended Learning Path
 
 1. Open [`docs/lecture_note.pdf`](docs/lecture_note.pdf) for the mathematical setup.
-2. Run the lecture examples first with `python3 run_all.py --skip-reference`.
+2. Run the lecture examples first with `python run_all.py --skip-reference`.
 3. Read [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) while comparing it with [`examples/lecture/code/`](examples/lecture/code/).
-4. Run the reference smoke tests with `python3 run_all.py --skip-lecture`.
+4. Run the reference smoke tests with `python run_all.py --skip-lecture`.
 5. Use [`examples/reference/reference_repository_guide.md`](examples/reference/reference_repository_guide.md) to map the paper-level code back to the simplified examples.
 
 ## Output Preview
@@ -70,9 +73,9 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 
 | Command | Output location |
 | --- | --- |
-| `python3 run_all.py --skip-reference` | `examples/lecture/results/rerun_YYYYMMDD_HHMMSS/` |
-| `python3 run_all.py --skip-lecture` | `examples/reference/results/reference_repos_rerun/` |
-| `python3 run_all.py` | both locations above |
+| `python run_all.py --skip-reference` | `examples/lecture/results/rerun_YYYYMMDD_HHMMSS/` |
+| `python run_all.py --skip-lecture` | `examples/reference/results/reference_repos_rerun/` |
+| `python run_all.py` | both locations above |
 
 ## Repository Layout
 
@@ -157,15 +160,15 @@ For differential games, the computed controls are open-loop Nash candidates sati
 If a run fails with `ModuleNotFoundError`, install the root requirements in the Python environment you are actually using:
 
 ```bash
-python3 -m pip install -r requirements.txt
-python3 -c "import networkx, scipy, pandas, matplotlib; print('core dependencies ok')"
+python -m pip install -r requirements.txt
+python -c "import networkx, scipy, pandas, matplotlib; print('core dependencies ok')"
 ```
 
 If `python-igraph` is the only difficult package, use the local install path:
 
 ```bash
-python3 -m pip install --target examples/reference/pydeps python-igraph
-python3 run_all.py --skip-lecture
+python -m pip install --target examples/reference/pydeps python-igraph
+python run_all.py --skip-lecture
 ```
 
 ## Public-repository Notes

@@ -21,13 +21,15 @@ lecture/
 ## Install
 
 ```bash
-python3 -m pip install -r requirements.txt
+python3 -m venv ../../.venv
+source ../../.venv/bin/activate
+python -m pip install -r ../../requirements.txt
 ```
 
 ## Run all examples
 
 ```bash
-python3 run_all_lecture_examples.py
+python run_all_lecture_examples.py
 ```
 
 By default, outputs are written to:
@@ -39,7 +41,7 @@ results/rerun_YYYYMMDD_HHMMSS/
 Specify a destination:
 
 ```bash
-python3 run_all_lecture_examples.py --output-root results/my_run
+python run_all_lecture_examples.py --output-root results/my_run
 ```
 
 ## Run simple degree-k control only
@@ -47,13 +49,13 @@ python3 run_all_lecture_examples.py --output-root results/my_run
 Built-in demo graph:
 
 ```bash
-python3 code/simple_degree_k_control.py --output-dir results/simple_demo_new
+python code/simple_degree_k_control.py --output-dir results/simple_demo_new
 ```
 
 Sample edge list:
 
 ```bash
-python3 code/simple_degree_k_control.py \
+python code/simple_degree_k_control.py \
   --edge-list sample_data/sample_edges.csv \
   --delimiter , \
   --has-header \
@@ -65,7 +67,7 @@ python3 code/simple_degree_k_control.py \
 Sample adjacency matrix:
 
 ```bash
-python3 code/simple_degree_k_control.py \
+python code/simple_degree_k_control.py \
   --adjacency-csv sample_data/sample_adjacency.csv \
   --output-dir results/simple_adjacency_new
 ```
@@ -75,25 +77,25 @@ python3 code/simple_degree_k_control.py \
 All compact examples:
 
 ```bash
-python3 code/network_control_examples.py --output-dir results/examples_demo_new
+python code/network_control_examples.py --output-dir results/examples_demo_new
 ```
 
 Only degree-level control/game:
 
 ```bash
-python3 code/network_control_examples.py --examples degree --output-dir results/degree_only
+python code/network_control_examples.py --examples degree --output-dir results/degree_only
 ```
 
 Only node-level control/game:
 
 ```bash
-python3 code/network_control_examples.py --examples node --output-dir results/node_only
+python code/network_control_examples.py --examples node --output-dir results/node_only
 ```
 
 Only hybrid impulse simulation:
 
 ```bash
-python3 code/network_control_examples.py --examples hybrid --output-dir results/hybrid_only
+python code/network_control_examples.py --examples hybrid --output-dir results/hybrid_only
 ```
 
 ## Existing results

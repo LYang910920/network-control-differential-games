@@ -30,6 +30,33 @@ if PYDEPS.exists():
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def require_outputs(paths: list[Path]) -> None:
+    missing = [path for path in paths if not path.exists()]
+    empty = [path for path in paths if path.exists() and path.stat().st_size == 0]
+    if missing or empty:
+        details = []
+        if missing:
+            details.append("missing: " + ", ".join(str(path) for path in missing))
+        if empty:
+            details.append("empty: " + ", ".join(str(path) for path in empty))
+        raise RuntimeError("Expected output check failed; " + "; ".join(details))
+
+
+def require_reference_repos() -> None:
+    expected = [
+        REF_DIR / "OpinionMalware_TIFS_2025_Code" / "opinionMalware.py",
+        REF_DIR / "PropagandaWar_TIFS_2024_Code" / "propWar.py",
+        REF_DIR / "Propaganda_TCSS_2025_Code" / "prop_propaganda.py",
+    ]
+    missing = [path for path in expected if not path.exists()]
+    if missing:
+        raise FileNotFoundError(
+            "Missing reference source files: "
+            + ", ".join(str(path) for path in missing)
+            + ". Refresh snapshots with download_reference_repositories.sh or restore reference_repositories/."
+        )
+
+
 def empirical_degree_distribution(graph: nx.Graph) -> tuple[np.ndarray, np.ndarray]:
     degrees = np.array([d for _, d in graph.degree()], dtype=int)
     k, counts = np.unique(degrees, return_counts=True)
@@ -361,6 +388,7 @@ def make_contact_sheet() -> None:
         ("PropagandaWar", OUT_DIR / "propaganda_war.png"),
         ("Propaganda TCSS", OUT_DIR / "propaganda_tcss.png"),
     ]
+    require_outputs([path for _, path in images])
     fig, axes = plt.subplots(3, 1, figsize=(9, 10.5))
     for ax, (title, path) in zip(axes, images):
         ax.imshow(plt.imread(path))
@@ -401,6 +429,7 @@ def main() -> None:
     if args.pydeps.exists():
         sys.path.insert(0, str(args.pydeps.resolve()))
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    require_reference_repos()
 
     rows = []
     rows.append({"repo": "OpinionMalware_TIFS_2025_Code", **run_opinion_malware()})
@@ -408,6 +437,21 @@ def main() -> None:
     rows.append({"repo": "Propaganda_TCSS_2025_Code", **run_propaganda_tcss()})
     pd.DataFrame(rows).to_csv(OUT_DIR / "smoke_run_summary.csv", index=False)
     make_contact_sheet()
+    require_outputs(
+        [
+            OUT_DIR / "opinion_malware_payoff.csv",
+            OUT_DIR / "opinion_malware_timeseries.csv",
+            OUT_DIR / "opinion_malware.png",
+            OUT_DIR / "propaganda_war_payoff.csv",
+            OUT_DIR / "propaganda_war_timeseries.csv",
+            OUT_DIR / "propaganda_war.png",
+            OUT_DIR / "propaganda_tcss_payoff.csv",
+            OUT_DIR / "propaganda_tcss_timeseries.csv",
+            OUT_DIR / "propaganda_tcss.png",
+            OUT_DIR / "smoke_run_summary.csv",
+            OUT_DIR / "reference_repo_contact_sheet.png",
+        ]
+    )
     print(f"saved outputs to {OUT_DIR}")
     print(pd.DataFrame(rows).to_string(index=False))
 
