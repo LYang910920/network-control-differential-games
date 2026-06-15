@@ -4,6 +4,12 @@ Teaching notes, runnable examples, and reference-code smoke tests for network op
 
 This repository is public, but it does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See [Copyright and License Notes](COPYRIGHT_AND_LICENSE.md) and [Third-party Notices](THIRD_PARTY_NOTICES.md).
 
+## Author Note
+
+This tutorial was created from my research experience in optimal control, differential games, hybrid/impulsive control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
+
+The repository is meant to be an educational bridge: start from the mathematical conditions, run small teaching examples, and then inspect how similar ideas appear in paper-level research code.
+
 ## Start Here
 
 | Goal | Where to go | What you get |

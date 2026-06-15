@@ -27,7 +27,7 @@
   urlcolor=blue!55!black,
   citecolor=blue!55!black,
   pdftitle={Network Optimal Control and Differential Games: Code Walkthrough and Model Adaptation Guide},
-  pdfauthor={Self-contained tutorial document}
+  pdfauthor={Lu-Xing Yang}
 }
 
 \setlength{\headheight}{14pt}
@@ -89,7 +89,7 @@
 
 \title{\bfseries Network Optimal Control and Differential Games\\[2mm]
 \large Code Walkthrough and Model Adaptation Guide}
-\author{Self-contained tutorial document}
+\author{Lu-Xing Yang}
 \date{\today}
 
 \begin{document}
@@ -98,6 +98,9 @@
 \begin{abstract}
 This document explains how to run and modify two Python teaching scripts for network optimal control, differential games, and hybrid or impulsive interventions. It covers how to read realistic network data, compute an empirical degree distribution, convert a network into the adjacency matrix required by node-level models, implement degree-class and node-level dynamics, and modify the state equation, Jacobian, objective functional, Hamiltonian update rule, and impulse jump structure for other models. The numerical solvers are based on Pontryagin's maximum principle (PMP) and the forward-backward sweep method. In the game examples, the computed controls should be interpreted as open-loop Nash candidates satisfying necessary optimality conditions, not as automatically guaranteed global optima. For research use, they should be checked against no-control, constant-control, random-control, and unilateral-deviation baselines.
 \end{abstract}
+
+\paragraph{Author note.}
+This guide was created from my research experience in optimal control, differential games, hybrid/impulsive control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
 
 \tableofcontents
 \newpage
