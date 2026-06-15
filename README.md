@@ -1,46 +1,69 @@
 # Network Optimal Control and Differential Games
 
-This repository collects teaching materials and runnable examples for network optimal control, differential games, and hybrid or impulsive intervention models.
+Teaching notes, runnable examples, and reference-code smoke tests for network optimal control, differential games, and hybrid or impulsive interventions.
 
-It is organized for two purposes:
+This repository is public, but it does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See [Copyright and License Notes](COPYRIGHT_AND_LICENSE.md) and [Third-party Notices](THIRD_PARTY_NOTICES.md).
 
-1. Run the self-contained lecture examples quickly.
-2. Use lightweight smoke runs to understand how the paper-level reference repositories map to the lecture code.
+## Start Here
 
-## Quick Start
+| Goal | Where to go | What you get |
+| --- | --- | --- |
+| Read the math | [`docs/lecture_note.pdf`](docs/lecture_note.pdf) | Optimal control, differential games, hybrid control, network models |
+| Learn how the code maps to the math | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | Run commands, model conventions, Jacobians, Hamiltonian updates, adaptation checklist |
+| Run the clean teaching examples | [`examples/lecture/`](examples/lecture/) | Degree-k control, degree game, node-level control/game, hybrid impulse simulation |
+| Inspect paper-level code patterns | [`examples/reference/`](examples/reference/) | Smoke runs for three reference repositories using small local sample data |
+| Check copyright/citations | [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | Public-repo license boundaries and upstream attribution |
 
-Install the lecture-example dependencies:
+## Quick Run
+
+From the repository root:
 
 ```bash
-cd examples/lecture
 python3 -m pip install -r requirements.txt
-python3 run_all_lecture_examples.py
+python3 run_all.py
 ```
 
-Run the reference-repository smoke tests:
+If `python-igraph` is hard to install globally, install it locally for the reference runner:
 
 ```bash
-cd ../reference
-python3 -m pip install -r requirements.txt
-python3 run_reference_smoke.py
+python3 -m pip install --target examples/reference/pydeps python-igraph
+python3 run_all.py
 ```
 
-If `python-igraph` is difficult to install globally, install it locally:
+Run only the lecture examples:
 
 ```bash
-cd examples/reference
-python3 -m pip install --target pydeps python-igraph
-python3 run_reference_smoke.py --pydeps pydeps
+python3 run_all.py --skip-reference
 ```
+
+Run only the reference smoke tests:
+
+```bash
+python3 run_all.py --skip-lecture
+```
+
+## Output Preview
+
+Lecture examples:
+
+![Lecture companion examples](examples/lecture/results/examples_contact_sheet.png)
+
+Reference-repository smoke runs:
+
+![Reference smoke runs](examples/reference/results/reference_repos/reference_repo_contact_sheet.png)
 
 ## Repository Layout
 
 ```text
 .
 ├── README.md
+├── requirements.txt
+├── run_all.py
 ├── COPYRIGHT_AND_LICENSE.md
 ├── THIRD_PARTY_NOTICES.md
+├── CITATION.md
 ├── docs/
+│   ├── README.md
 │   ├── lecture_note.pdf
 │   ├── lecture_note.tex
 │   ├── code_walkthrough_and_model_adaptation_guide.pdf
@@ -48,87 +71,49 @@ python3 run_reference_smoke.py --pydeps pydeps
 └── examples/
     ├── lecture/
     │   ├── README.md
-    │   ├── requirements.txt
     │   ├── run_all_lecture_examples.py
     │   ├── code/
     │   ├── sample_data/
     │   └── results/
     └── reference/
         ├── README.md
-        ├── requirements.txt
-        ├── download_reference_repositories.sh
         ├── run_reference_smoke.py
-        ├── patches/
+        ├── reference_repositories/
         ├── sample_data/
+        ├── patches/
         └── results/
 ```
 
-## Documents
+## What Is Included
 
-- [Lecture note PDF](docs/lecture_note.pdf)
-- [Lecture note LaTeX](docs/lecture_note.tex)
-- [Code walkthrough and model adaptation guide PDF](docs/code_walkthrough_and_model_adaptation_guide.pdf)
-- [Code walkthrough and model adaptation guide LaTeX](docs/code_walkthrough_and_model_adaptation_guide.tex)
+### Lecture examples
 
-The walkthrough guide is used as the organizing reference for this repository. In particular, the code and README structure follow this sequence:
+The lecture examples are self-contained and should be the first code you run.
 
-1. Environment setup and basic execution.
-2. Network data input: edge lists, adjacency CSV files, directed degree modes.
-3. Core model conventions: degree-level arrays versus node-level arrays.
-4. Simple degree-k optimal control.
-5. Compact extension: degree games, node games, hybrid impulses.
-6. Model adaptation checklist: RHS, Jacobian, objective, Hamiltonian update, constraints, baselines.
-7. Mapping from teaching examples to reference research repositories.
+- `simple_degree_k_control.py`: a compact degree-k SIS optimal-control example.
+- `network_control_examples.py`: degree-level games, node-level control/game models, and a hybrid impulse simulation.
+- `sample_data/`: a small edge list and adjacency matrix.
+- `results/`: precomputed figures and degree-distribution CSV files.
 
-## Lecture Examples
+Go deeper in [examples/lecture/README.md](examples/lecture/README.md).
 
-Go to:
+### Reference source snapshots
 
-```bash
-cd examples/lecture
-```
+The reference folder includes source-code snapshots from three upstream research repositories:
 
-Run everything:
+- `OpinionMalware_TIFS_2025_Code`
+- `PropagandaWar_TIFS_2024_Code`
+- `Propaganda_TCSS_2025_Code`
 
-```bash
-python3 run_all_lecture_examples.py
-```
+Each snapshot keeps its upstream `README` and `LICENSE`. Full paper datasets are not included. The smoke runner uses small local sample data so the workflows can run without redistributing external datasets.
 
-Useful outputs already included:
-
-- [Simple-example overview](examples/lecture/results/simple_contact_sheet.png)
-- [Companion-example overview](examples/lecture/results/examples_contact_sheet.png)
-
-The lecture examples are the best place to start because they are self-contained and use small built-in or sample networks.
-
-## Reference Repository Smoke Runs
-
-Go to:
-
-```bash
-cd examples/reference
-```
-
-Run the lightweight smoke tests:
-
-```bash
-python3 run_reference_smoke.py
-```
-
-The reference source snapshots are already included under `reference_repositories/`. Use `download_reference_repositories.sh` only if you want to refresh them from upstream.
-
-Useful outputs already included:
-
-- [Reference repo smoke-run overview](examples/reference/results/reference_repos/reference_repo_contact_sheet.png)
-- [Smoke-run summary CSV](examples/reference/results/reference_repos/smoke_run_summary.csv)
-
-The smoke runner intentionally uses small networks and short horizons. It is meant to verify code paths and explain model mapping, not to reproduce full paper-scale experiments.
+Go deeper in [examples/reference/README.md](examples/reference/README.md).
 
 ## Model Adaptation Checklist
 
-When adapting the code to a new model, work in this order:
+When adapting the examples to a new model, work in this order:
 
-1. Decide degree-level, node-level, or hybrid/impulse modeling.
+1. Choose the modeling level: degree-level, node-level, or hybrid/impulse.
 2. Replace the state equation `f(x, u)`.
 3. Update the Jacobian `f_x`.
 4. Update the objective or payoff.
@@ -137,28 +122,12 @@ When adapting the code to a new model, work in this order:
 7. Run short-horizon tests first.
 8. Add no-control, constant-control, random-control, or unilateral-deviation baselines.
 
-For differential games, treat the computed controls as open-loop Nash candidates satisfying necessary conditions. They should be checked against unilateral deviations before being interpreted as numerically convincing Nash strategies.
+For differential games, the computed controls are open-loop Nash candidates satisfying necessary conditions. Treat them as numerical candidates until unilateral-deviation checks support the interpretation.
 
-## Copyright and Publication Notes
+## Public-repository Notes
 
-Read [COPYRIGHT_AND_LICENSE.md](COPYRIGHT_AND_LICENSE.md) before publishing this repository publicly.
-
-Short version:
-
-- This repo does not grant a blanket open-source license by default.
-- The tutorial documents are included as user-supplied educational materials; confirm authorship and redistribution rights before making a public GitHub repo.
-- The three reference repositories are third-party works. Source snapshots are included with their upstream README and LICENSE files preserved.
-- Full paper datasets are not vendored; the smoke tests use small local sample data.
-
-## Suggested GitHub Workflow
-
-```bash
-git init
-git add .
-git commit -m "Organize network control tutorial materials"
-git branch -M main
-git remote add origin <YOUR_GITHUB_REPO_URL>
-git push -u origin main
-```
-
-Before pushing to a public repository, review `docs/` and decide whether the PDFs/LaTeX should be public or kept in a private repo.
+- No project-wide license is granted by default.
+- Tutorial PDFs and LaTeX sources are included as educational materials; confirm redistribution rights before reusing them elsewhere.
+- Third-party source snapshots retain their upstream licenses and citations.
+- Full paper datasets are intentionally not vendored.
+- Generated figures and CSV files are included for quick inspection and reproducibility checks.
