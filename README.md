@@ -2,7 +2,7 @@
 
 Teaching notes, runnable examples, and reference-code smoke tests for network optimal control, differential games, and hybrid or impulsive interventions.
 
-This repository is public, but it does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See [Copyright and License Notes](COPYRIGHT_AND_LICENSE.md) and [Third-party Notices](THIRD_PARTY_NOTICES.md).
+This repository is public, but it does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See [Repository License Notice](LICENSE), [Copyright and License Notes](COPYRIGHT_AND_LICENSE.md), and [Third-party Notices](THIRD_PARTY_NOTICES.md).
 
 ## Author Note
 
@@ -18,7 +18,7 @@ The repository is meant to be an educational bridge: start from the mathematical
 | Learn how the code maps to the math | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | Run commands, model conventions, Jacobians, Hamiltonian updates, adaptation checklist |
 | Run the clean teaching examples | [`examples/lecture/`](examples/lecture/) | Degree-k control, degree game, node-level control/game, hybrid impulse simulation |
 | Inspect paper-level code patterns | [`examples/reference/`](examples/reference/) | Smoke runs for three reference repositories tied to two IEEE TIFS papers and one IEEE TCSS paper |
-| Check copyright/citations | [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | Public-repo license boundaries and upstream attribution |
+| Check copyright/citations | [`LICENSE`](LICENSE), [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | Public-repo license boundaries and upstream attribution |
 
 ## Quick Run
 
@@ -81,6 +81,7 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 ├── README.md
 ├── requirements.txt
 ├── run_all.py
+├── LICENSE
 ├── COPYRIGHT_AND_LICENSE.md
 ├── THIRD_PARTY_NOTICES.md
 ├── CITATION.md
@@ -126,11 +127,11 @@ Go deeper in [examples/lecture/README.md](examples/lecture/README.md).
 
 The reference folder includes source-code snapshots from three upstream research repositories. These repositories correspond to my co-authored cyber/network-control publications: two papers in IEEE TIFS and one paper in IEEE TCSS.
 
-| Reference repository | Publication venue | Topic |
-| --- | --- | --- |
-| `OpinionMalware_TIFS_2025_Code` | IEEE TIFS, 2025 | Malware-opinion dynamics with optimal impulse control |
-| `PropagandaWar_TIFS_2024_Code` | IEEE TIFS, 2024 | Hybrid-control differential game for propaganda war |
-| `Propaganda_TCSS_2025_Code` | IEEE TCSS, 2025 | Impulse strategies for suppressing cyber propaganda with awareness |
+| Reference repository | Upstream | License | Publication venue | Topic |
+| --- | --- | --- | --- | --- |
+| [`OpinionMalware_TIFS_2025_Code`](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code) | [Apache-2.0](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/LICENSE) | IEEE TIFS, 2025 | Malware-opinion dynamics with optimal impulse control |
+| [`PropagandaWar_TIFS_2024_Code`](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/) | [GitHub](https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code) | [Apache-2.0](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/LICENSE) | IEEE TIFS, 2024 | Hybrid-control differential game for propaganda war |
+| [`Propaganda_TCSS_2025_Code`](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code) | [MIT](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/LICENSE) | IEEE TCSS, 2025 | Impulse strategies for suppressing cyber propaganda with awareness |
 
 Each snapshot keeps its upstream `README` and `LICENSE`. Full paper datasets are not included. The smoke runner uses small local sample data so the workflows can run without redistributing external datasets.
 
@@ -169,7 +170,7 @@ python3 run_all.py --skip-lecture
 
 ## Public-repository Notes
 
-- No project-wide license is granted by default.
+- No project-wide open-source license is granted by default; see [`LICENSE`](LICENSE).
 - Tutorial PDFs and LaTeX sources are included as educational materials; confirm redistribution rights before reusing them elsewhere.
 - Third-party source snapshots retain their upstream licenses and citations.
 - Full paper datasets are intentionally not vendored.

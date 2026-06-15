@@ -18,7 +18,9 @@ The companion scripts in this package use the same workflow with shorter equatio
 
 ## 1. OpinionMalware_TIFS_2025_Code
 
-Repository: https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code
+Repository: [XiaojuanCheng/OpinionMalware_TIFS_2025_Code](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code)
+
+Local snapshot: [`reference_repositories/OpinionMalware_TIFS_2025_Code`](reference_repositories/OpinionMalware_TIFS_2025_Code/)
 
 Publication context: IEEE TIFS, 2025.
 
@@ -38,7 +40,9 @@ How to read it with the lecture note:
 
 ## 2. PropagandaWar_TIFS_2024_Code
 
-Repository: https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code
+Repository: [XiaojuanCheng/PropagandaWar_TIFS_2024_Code](https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code)
+
+Local snapshot: [`reference_repositories/PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/)
 
 Publication context: IEEE TIFS, 2024.
 
@@ -59,7 +63,9 @@ How to read it with the lecture note:
 
 ## 3. Propaganda_TCSS_2025_Code
 
-Repository: https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code
+Repository: [XiaojuanCheng/Propaganda_TCSS_2025_Code](https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code)
+
+Local snapshot: [`reference_repositories/Propaganda_TCSS_2025_Code`](reference_repositories/Propaganda_TCSS_2025_Code/)
 
 Publication context: IEEE TCSS, 2025.
 

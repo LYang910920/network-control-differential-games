@@ -12,9 +12,9 @@ Only source files, upstream README files, and upstream LICENSE files are include
 
 The code remains under the original upstream licenses:
 
-- `OpinionMalware_TIFS_2025_Code`: Apache License 2.0
-- `PropagandaWar_TIFS_2024_Code`: Apache License 2.0
-- `Propaganda_TCSS_2025_Code`: MIT License
+- [`OpinionMalware_TIFS_2025_Code`](OpinionMalware_TIFS_2025_Code/): [Apache License 2.0](OpinionMalware_TIFS_2025_Code/LICENSE)
+- [`PropagandaWar_TIFS_2024_Code`](PropagandaWar_TIFS_2024_Code/): [Apache License 2.0](PropagandaWar_TIFS_2024_Code/LICENSE)
+- [`Propaganda_TCSS_2025_Code`](Propaganda_TCSS_2025_Code/): [MIT License](Propaganda_TCSS_2025_Code/LICENSE)
 
 See:
 

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Lu-Xing Yang.
+# No project-wide open-source license is granted; see repository COPYRIGHT_AND_LICENSE.md.
+
 from __future__ import annotations
 
 import importlib

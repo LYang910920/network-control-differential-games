@@ -6,8 +6,9 @@ The source snapshots remain the work of their original authors and retain their 
 
 ## OpinionMalware_TIFS_2025_Code
 
-- Upstream repository: https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code
-- License in upstream repository: Apache License 2.0
+- Local snapshot: [`examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code`](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/)
+- Upstream repository: [XiaojuanCheng/OpinionMalware_TIFS_2025_Code](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code)
+- License in local snapshot: [Apache License 2.0](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/LICENSE)
 - Main files discussed here:
   - `network.py`
   - `opinionMalware.py`
@@ -23,8 +24,9 @@ DOI: 10.1109/TIFS.2025.3630005
 
 ## PropagandaWar_TIFS_2024_Code
 
-- Upstream repository: https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code
-- License in upstream repository: Apache License 2.0
+- Local snapshot: [`examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code`](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/)
+- Upstream repository: [XiaojuanCheng/PropagandaWar_TIFS_2024_Code](https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code)
+- License in local snapshot: [Apache License 2.0](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/LICENSE)
 - Main files discussed here:
   - `demo_network.py`
   - `propWar.py`
@@ -41,8 +43,9 @@ DOI: 10.1109/TIFS.2024.3468903
 
 ## Propaganda_TCSS_2025_Code
 
-- Upstream repository: https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code
-- License in upstream repository: MIT License
+- Local snapshot: [`examples/reference/reference_repositories/Propaganda_TCSS_2025_Code`](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/)
+- Upstream repository: [XiaojuanCheng/Propaganda_TCSS_2025_Code](https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code)
+- License in local snapshot: [MIT License](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/LICENSE)
 - Main files discussed here:
   - `prop_network.py`
   - `prop_propaganda.py`

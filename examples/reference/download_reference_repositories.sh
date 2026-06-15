@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright (c) 2026 Lu-Xing Yang.
+# No project-wide open-source license is granted; see repository COPYRIGHT_AND_LICENSE.md.
+
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

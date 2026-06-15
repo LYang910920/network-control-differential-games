@@ -6,7 +6,7 @@ This repository is organized as a personal educational and research workspace.
 
 No project-wide open-source license is granted by default.
 
-Unless a file or upstream project explicitly says otherwise, all rights are reserved by the relevant rights holder. This is intentionally conservative because the repository combines:
+The root [`LICENSE`](LICENSE) file is a repository-level notice, not a permissive open-source license. Unless a file or upstream project explicitly says otherwise, all rights are reserved by the relevant rights holder. This is intentionally conservative because the repository combines:
 
 - user-supplied tutorial documents;
 - generated or adapted teaching code;
@@ -31,6 +31,10 @@ Because this repository is public, keep these PDF and LaTeX files here only if y
 
 The teaching example code under `examples/lecture/code/` comes from the tutorial package supplied by the repository owner. If you want this repository to be public and reusable by others, choose an explicit license for your own tutorial code and document it here.
 
+At present, the repository-level notice keeps this first-party teaching code and runner code under an all-rights-reserved default unless a future file or license notice explicitly grants broader rights.
+
+First-party runner and teaching scripts include a short copyright notice pointing back to this file. Third-party source snapshots should keep their original upstream license headers and should not be overwritten with this repository's notice.
+
 Recommended options:
 
 - Keep all rights reserved for a private teaching repository.
@@ -51,6 +55,12 @@ This repo provides:
 - generated smoke-run figures and CSV summaries.
 
 The included third-party source snapshots retain their original `LICENSE`, `README`, and citation files. Do not remove upstream attribution.
+
+Direct local license files:
+
+- [`OpinionMalware_TIFS_2025_Code/LICENSE`](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/LICENSE)
+- [`PropagandaWar_TIFS_2024_Code/LICENSE`](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/LICENSE)
+- [`Propaganda_TCSS_2025_Code/LICENSE`](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/LICENSE)
 
 The default `.gitignore` excludes full-paper data folders under:
 

@@ -8,11 +8,11 @@ It is designed for orientation and code walkthroughs. It is not a full reproduct
 
 The three reference repositories correspond to the author's co-authored cyber/network-control publications: two IEEE TIFS papers and one IEEE TCSS paper.
 
-| Reference repository | Publication venue | Research topic |
-| --- | --- | --- |
-| `OpinionMalware_TIFS_2025_Code` | IEEE TIFS, 2025 | Coupled malware-opinion dynamics with optimal impulse control |
-| `PropagandaWar_TIFS_2024_Code` | IEEE TIFS, 2024 | Cost-effective hybrid control strategies for a propaganda-war game |
-| `Propaganda_TCSS_2025_Code` | IEEE TCSS, 2025 | Impulse strategies for suppressing cyber propaganda with awareness |
+| Reference repository | Upstream | License | Publication venue | Research topic |
+| --- | --- | --- | --- | --- |
+| [`OpinionMalware_TIFS_2025_Code`](reference_repositories/OpinionMalware_TIFS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code) | [Apache-2.0](reference_repositories/OpinionMalware_TIFS_2025_Code/LICENSE) | IEEE TIFS, 2025 | Coupled malware-opinion dynamics with optimal impulse control |
+| [`PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/) | [GitHub](https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code) | [Apache-2.0](reference_repositories/PropagandaWar_TIFS_2024_Code/LICENSE) | IEEE TIFS, 2024 | Cost-effective hybrid control strategies for a propaganda-war game |
+| [`Propaganda_TCSS_2025_Code`](reference_repositories/Propaganda_TCSS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code) | [MIT](reference_repositories/Propaganda_TCSS_2025_Code/LICENSE) | IEEE TCSS, 2025 | Impulse strategies for suppressing cyber propaganda with awareness |
 
 ## Contents
 
