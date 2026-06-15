@@ -34,6 +34,8 @@ examples/lecture/results/test_*/
 examples/reference/results/test_*/
 examples/reference/results/reference_repos_rerun/
 
-# Third-party repositories are fetched on demand to preserve upstream license
-# context and avoid vendoring external datasets by default.
-examples/reference/reference_repositories/
+# Do not commit local full-paper datasets unless their redistribution rights
+# are clear. The repository keeps third-party source files and licenses, but
+# avoids vendoring large or externally sourced experiment data by default.
+examples/reference/reference_repositories/**/data/
+examples/reference/reference_repositories_upstream/

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_DIR="${1:-$ROOT_DIR/reference_repositories}"
+TARGET_DIR="${1:-$ROOT_DIR/reference_repositories_upstream}"
 mkdir -p "$TARGET_DIR"
 cd "$TARGET_DIR"
 

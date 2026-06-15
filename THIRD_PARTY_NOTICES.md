@@ -58,7 +58,13 @@ DOI: 10.1109/TCSS.2024.3522889
 
 ## How this repository uses them
 
-This repository does not need to vendor the upstream repositories by default. Instead, it provides:
+This repository includes source-code snapshots from the upstream repositories under:
+
+```text
+examples/reference/reference_repositories/
+```
+
+Each snapshot keeps the upstream `README` and `LICENSE` files. Full paper datasets are not vendored. The repository also provides:
 
 ```text
 examples/reference/download_reference_repositories.sh
@@ -66,6 +72,6 @@ examples/reference/run_reference_smoke.py
 examples/reference/patches/opinion_malware_numpy_networkx_compat.patch
 ```
 
-The smoke runner imports the upstream code after the repositories are downloaded locally. It uses small networks and short horizons to verify that the model workflow can be executed in a teaching environment.
+The smoke runner imports the included source snapshots and uses small local sample data plus short horizons to verify that the model workflow can be executed in a teaching environment.
 
-If you intentionally commit downloaded copies of these repositories, preserve their upstream `LICENSE` and `README` files and keep these notices.
+If you refresh the snapshots from upstream, preserve the upstream `LICENSE` and `README` files and keep these notices.

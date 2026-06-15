@@ -13,7 +13,12 @@ reference/
 ├── download_reference_repositories.sh
 ├── run_reference_smoke.py
 ├── reference_repository_guide.md
+├── reference_repositories/
+│   ├── OpinionMalware_TIFS_2025_Code/
+│   ├── PropagandaWar_TIFS_2024_Code/
+│   └── Propaganda_TCSS_2025_Code/
 ├── sample_data/
+│   ├── opinion_malware_edges.edges
 │   └── sample_adjacency.csv
 ├── patches/
 │   └── opinion_malware_numpy_networkx_compat.patch
@@ -35,13 +40,9 @@ python3 -m pip install --target pydeps python-igraph
 
 The runner will automatically look for `pydeps/`.
 
-## Download upstream repositories
+## Reference source code
 
-```bash
-bash download_reference_repositories.sh
-```
-
-This creates:
+This repository includes source snapshots in:
 
 ```text
 reference_repositories/
@@ -50,7 +51,13 @@ reference_repositories/
 └── Propaganda_TCSS_2025_Code/
 ```
 
-The upstream repositories are excluded from Git by default. This keeps third-party source code and datasets out of your own repository history unless you intentionally vendor them.
+The snapshots include source files plus upstream README and LICENSE files. Full paper datasets are intentionally not included. To refresh the snapshots from upstream, run:
+
+```bash
+bash download_reference_repositories.sh
+```
+
+By default this downloads full upstream clones to `reference_repositories_upstream/` so it does not overwrite the curated source snapshots in `reference_repositories/`.
 
 ## Run the smoke tests
 
@@ -100,10 +107,10 @@ results/reference_repos/propaganda_tcss_timeseries.csv
 
 ### OpinionMalware_TIFS_2025_Code
 
-- Uses the upstream `email-univ` data after downloading the upstream repo.
-- Samples 60 nodes.
+- Uses the local `sample_data/opinion_malware_edges.edges` graph so this repository can run without redistributing upstream datasets.
+- Uses a 20-node sample graph; the runner is configured to allow up to 60 nodes when a larger local sample is provided.
 - Runs the coupled malware state `c(t)`, opinion state `o(t)`, adjoint equations, impulse strategy update, and payoff calculation.
-- Requires a small compatibility patch on newer NumPy/NetworkX versions because the original code expects `.A1` on matrix-like objects. `run_reference_smoke.py` applies this patch automatically to the downloaded local copy before importing it.
+- Requires a small compatibility patch on newer NumPy/NetworkX versions because the original code expects `.A1` on matrix-like objects. `run_reference_smoke.py` applies this patch automatically to the local source copy before importing it.
 
 Patch:
 

@@ -22,7 +22,6 @@ Run the reference-repository smoke tests:
 ```bash
 cd ../reference
 python3 -m pip install -r requirements.txt
-bash download_reference_repositories.sh
 python3 run_reference_smoke.py
 ```
 
@@ -110,17 +109,13 @@ Go to:
 cd examples/reference
 ```
 
-Download upstream repositories:
-
-```bash
-bash download_reference_repositories.sh
-```
-
 Run the lightweight smoke tests:
 
 ```bash
 python3 run_reference_smoke.py
 ```
+
+The reference source snapshots are already included under `reference_repositories/`. Use `download_reference_repositories.sh` only if you want to refresh them from upstream.
 
 Useful outputs already included:
 
@@ -152,8 +147,8 @@ Short version:
 
 - This repo does not grant a blanket open-source license by default.
 - The tutorial documents are included as user-supplied educational materials; confirm authorship and redistribution rights before making a public GitHub repo.
-- The three reference repositories are third-party works. They are downloaded from upstream sources and retain their original licenses and citations.
-- The default `.gitignore` excludes downloaded third-party repositories so that your repo does not accidentally vendor external code or datasets.
+- The three reference repositories are third-party works. Source snapshots are included with their upstream README and LICENSE files preserved.
+- Full paper datasets are not vendored; the smoke tests use small local sample data.
 
 ## Suggested GitHub Workflow
 

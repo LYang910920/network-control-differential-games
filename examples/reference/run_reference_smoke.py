@@ -68,7 +68,7 @@ def run_opinion_malware() -> dict[str, float]:
     sys.path.insert(0, str(repo))
     om = importlib.import_module("opinionMalware")
 
-    file_path = repo / "data" / "email-univ" / "email-univ.edges"
+    file_path = PACKAGE_DIR / "sample_data" / "opinion_malware_edges.edges"
     _, social_network, scale_free_network = om.create_multiplex_network_with_connected_nodes_edges(
         str(file_path), max_nodes=60, seed=3, map=True, visualize=False
     )

@@ -43,21 +43,22 @@ The three reference repositories are third-party works by their original authors
 
 This repo provides:
 
+- source snapshots under `examples/reference/reference_repositories/`;
 - upstream links;
 - a download script;
 - a lightweight smoke-run script;
 - a compatibility patch;
 - generated smoke-run figures and CSV summaries.
 
-Downloaded third-party repositories should retain their original `LICENSE`, `README`, and citation files. Do not remove upstream attribution.
+The included third-party source snapshots retain their original `LICENSE`, `README`, and citation files. Do not remove upstream attribution.
 
-The default `.gitignore` excludes:
+The default `.gitignore` excludes full-paper data folders under:
 
 ```text
-examples/reference/reference_repositories/
+examples/reference/reference_repositories/**/data/
 ```
 
-This avoids accidentally vendoring third-party code and datasets into your own repository history. If you intentionally vendor third-party repositories, include their original license files and keep their attribution intact.
+This avoids accidentally vendoring external datasets into your own repository history. If you intentionally add datasets later, confirm their redistribution rights first.
 
 ## Generated Results
 
@@ -70,5 +71,5 @@ For a public GitHub repository, the safest default is:
 1. Keep the tutorial documents only if you own or have redistribution rights.
 2. Keep the lecture example code if you choose a license for it.
 3. Keep the reference smoke runner and patch.
-4. Do not commit downloaded third-party repositories unless you intentionally vendor them with their licenses.
+4. Keep third-party source snapshots only with their upstream licenses and attribution intact.
 5. Cite the upstream papers and repositories in `THIRD_PARTY_NOTICES.md`.
