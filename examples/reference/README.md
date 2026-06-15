@@ -110,10 +110,13 @@ Key files:
 ```text
 results/reference_repos/reference_repo_contact_sheet.png
 results/reference_repos/smoke_run_summary.csv
+results/reference_repos/smoke_run_report.md
 results/reference_repos/opinion_malware_timeseries.csv
 results/reference_repos/propaganda_war_timeseries.csv
 results/reference_repos/propaganda_tcss_timeseries.csv
 ```
+
+For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `smoke_run_report.md` into its output directory.
 
 ## What each smoke run does
 

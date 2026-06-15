@@ -18,6 +18,7 @@ The repository is meant to be an educational bridge: start from the mathematical
 | Learn how the code maps to the math | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | Run commands, model conventions, Jacobians, Hamiltonian updates, adaptation checklist |
 | Run the clean teaching examples | [`examples/lecture/`](examples/lecture/) | Degree-k control, degree game, node-level control/game, hybrid impulse simulation |
 | Inspect paper-level code patterns | [`examples/reference/`](examples/reference/) | Smoke runs for three reference repositories tied to two IEEE TIFS papers and one IEEE TCSS paper |
+| Interpret generated figures | [`examples/lecture/FIGURE_GUIDE.md`](examples/lecture/FIGURE_GUIDE.md), [`examples/reference/FIGURE_GUIDE.md`](examples/reference/FIGURE_GUIDE.md) | Which plots show convergence, state evolution, and control/strategy evolution |
 | Check copyright/citations | [`LICENSE`](LICENSE), [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | Public-repo license boundaries and upstream attribution |
 
 ## Quick Run
@@ -76,6 +77,8 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 | `python run_all.py --skip-reference` | `examples/lecture/results/rerun_YYYYMMDD_HHMMSS/` |
 | `python run_all.py --skip-lecture` | `examples/reference/results/reference_repos_rerun/` |
 | `python run_all.py` | both locations above |
+
+The lecture runner writes `figure_explanations.md` in each lecture output folder. The reference runner writes `smoke_run_report.md` in each reference output folder. In these notes, iteration-axis plots are used to inspect convergence of an algorithmic update loop, while time-axis plots show system state evolution or the computed control/game strategy over the simulation horizon.
 
 ## Repository Layout
 

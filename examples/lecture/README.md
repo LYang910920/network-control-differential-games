@@ -109,6 +109,8 @@ results/examples_contact_sheet.png
 
 The detailed subdirectories contain individual PNG files and degree-distribution CSV files.
 
+For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `figure_explanations.md` into its output directory.
+
 ## What to learn here
 
 1. How to compute empirical degree classes `k`, counts `N_k`, probabilities `P(k)`, and average degree `<k>`.
