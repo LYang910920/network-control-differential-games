@@ -1,6 +1,6 @@
 # Guide to the reference repositories
 
-This guide explains how the reference research-code repositories connect to the lecture note and the two companion Python scripts.  The goal is to help the reader move from the small teaching examples to paper-level code without losing the mathematical structure.
+This guide explains how the reference research-code repositories connect to the lecture note and the two companion Python scripts. The three repositories correspond to the author's co-authored cyber/network-control publications: two IEEE TIFS papers and one IEEE TCSS paper. The goal is to help the reader move from the small teaching examples to paper-level code without losing the mathematical structure.
 
 ## Common computational pattern
 
@@ -20,6 +20,8 @@ The companion scripts in this package use the same workflow with shorter equatio
 
 Repository: https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code
 
+Publication context: IEEE TIFS, 2025.
+
 Main files:
 
 - `network.py`: network construction, connected-component extraction, scale-free layer construction, and adjacency normalization.
@@ -37,6 +39,8 @@ How to read it with the lecture note:
 ## 2. PropagandaWar_TIFS_2024_Code
 
 Repository: https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code
+
+Publication context: IEEE TIFS, 2024.
 
 Main files:
 
@@ -56,6 +60,8 @@ How to read it with the lecture note:
 ## 3. Propaganda_TCSS_2025_Code
 
 Repository: https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code
+
+Publication context: IEEE TCSS, 2025.
 
 Main files:
 

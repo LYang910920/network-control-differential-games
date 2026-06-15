@@ -17,7 +17,7 @@ The repository is meant to be an educational bridge: start from the mathematical
 | Read the math | [`docs/lecture_note.pdf`](docs/lecture_note.pdf) | Optimal control, differential games, hybrid control, network models |
 | Learn how the code maps to the math | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | Run commands, model conventions, Jacobians, Hamiltonian updates, adaptation checklist |
 | Run the clean teaching examples | [`examples/lecture/`](examples/lecture/) | Degree-k control, degree game, node-level control/game, hybrid impulse simulation |
-| Inspect paper-level code patterns | [`examples/reference/`](examples/reference/) | Smoke runs for three reference repositories using small local sample data |
+| Inspect paper-level code patterns | [`examples/reference/`](examples/reference/) | Smoke runs for three reference repositories tied to two IEEE TIFS papers and one IEEE TCSS paper |
 | Check copyright/citations | [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | Public-repo license boundaries and upstream attribution |
 
 ## Quick Run
@@ -124,11 +124,13 @@ Go deeper in [examples/lecture/README.md](examples/lecture/README.md).
 
 ### Reference source snapshots
 
-The reference folder includes source-code snapshots from three upstream research repositories:
+The reference folder includes source-code snapshots from three upstream research repositories. These repositories correspond to my co-authored cyber/network-control publications: two papers in IEEE TIFS and one paper in IEEE TCSS.
 
-- `OpinionMalware_TIFS_2025_Code`
-- `PropagandaWar_TIFS_2024_Code`
-- `Propaganda_TCSS_2025_Code`
+| Reference repository | Publication venue | Topic |
+| --- | --- | --- |
+| `OpinionMalware_TIFS_2025_Code` | IEEE TIFS, 2025 | Malware-opinion dynamics with optimal impulse control |
+| `PropagandaWar_TIFS_2024_Code` | IEEE TIFS, 2024 | Hybrid-control differential game for propaganda war |
+| `Propaganda_TCSS_2025_Code` | IEEE TCSS, 2025 | Impulse strategies for suppressing cyber propaganda with awareness |
 
 Each snapshot keeps its upstream `README` and `LICENSE`. Full paper datasets are not included. The smoke runner uses small local sample data so the workflows can run without redistributing external datasets.
 

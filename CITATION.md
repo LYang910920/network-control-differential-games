@@ -18,4 +18,6 @@ If you use or discuss the reference repositories, cite the original papers and u
 THIRD_PARTY_NOTICES.md
 ```
 
+The reference repositories correspond to the author's co-authored publications: two papers in IEEE TIFS and one paper in IEEE TCSS.
+
 For reference-code use, cite both this repository and the original upstream papers/repositories.

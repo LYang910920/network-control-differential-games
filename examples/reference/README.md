@@ -4,6 +4,16 @@ This directory contains a lightweight runner for the three paper-level reference
 
 It is designed for orientation and code walkthroughs. It is not a full reproduction of the papers' large-scale experiments.
 
+## Publication context
+
+The three reference repositories correspond to the author's co-authored cyber/network-control publications: two IEEE TIFS papers and one IEEE TCSS paper.
+
+| Reference repository | Publication venue | Research topic |
+| --- | --- | --- |
+| `OpinionMalware_TIFS_2025_Code` | IEEE TIFS, 2025 | Coupled malware-opinion dynamics with optimal impulse control |
+| `PropagandaWar_TIFS_2024_Code` | IEEE TIFS, 2024 | Cost-effective hybrid control strategies for a propaganda-war game |
+| `Propaganda_TCSS_2025_Code` | IEEE TCSS, 2025 | Impulse strategies for suppressing cyber propaganda with awareness |
+
 ## Contents
 
 ```text

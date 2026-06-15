@@ -1,6 +1,8 @@
 # Third-party Notices
 
-This repository references three external research-code repositories. They remain the work of their original authors and retain their original licenses.
+This repository references three external research-code repositories. They correspond to the author's co-authored cyber/network-control publications: two papers in IEEE Transactions on Information Forensics and Security (IEEE TIFS) and one paper in IEEE Transactions on Computational Social Systems (IEEE TCSS).
+
+The source snapshots remain the work of their original authors and retain their original licenses.
 
 ## OpinionMalware_TIFS_2025_Code
 

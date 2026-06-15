@@ -38,7 +38,7 @@ Path:
 examples/reference/
 ```
 
-Use this track after the lecture examples. It keeps source snapshots from three upstream research repositories and runs small smoke tests with local sample data.
+Use this track after the lecture examples. It keeps source snapshots from three upstream research repositories and runs small smoke tests with local sample data. The three reference repositories correspond to the author's co-authored cyber/network-control papers: two in IEEE TIFS and one in IEEE TCSS.
 
 | File or folder | Purpose |
 | --- | --- |
@@ -69,4 +69,3 @@ examples/reference/results/reference_repos_rerun/
 | Backward adjoints | short PMP adjoint routines | longer model-specific adjoint systems |
 | Control update | bounded Hamiltonian update | continuous or impulse strategy search |
 | Validation | simple baselines and plots | smoke tests, payoff summaries, unilateral-deviation checks where available |
-

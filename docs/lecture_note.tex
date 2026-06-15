@@ -1010,7 +1010,7 @@ python code/network_control_examples.py --adjacency-csv data/A.csv
 
 \subsection{How the Reference Repositories Fit In}
 
-The three reference repositories follow a common research-code pattern: network preprocessing, forward dynamics, backward adjoints, control or strategy update, payoff evaluation, and comparison/baseline experiments.  The companion code uses the same pattern with smaller equations and shorter functions.
+The three reference repositories correspond to the author's co-authored cyber/network-control publications: two papers in IEEE TIFS and one paper in IEEE TCSS. They follow a common research-code pattern: network preprocessing, forward dynamics, backward adjoints, control or strategy update, payoff evaluation, and comparison/baseline experiments. The companion code uses the same pattern with smaller equations and shorter functions.
 
 \begin{table}[h!]
 \centering
@@ -1019,9 +1019,9 @@ The three reference repositories follow a common research-code pattern: network 
 \toprule
 \textbf{Repository} & \textbf{Representative files/functions} & \textbf{Interpretation in this note} \\
 \midrule
-\texttt{OpinionMalware\_TIFS\_2025\_Code} & \path{network.py}, \path{opinionMalware.py}; network construction, normalization, coupled forward malware/opinion dynamics, backward adjoints, impulse strategy search, payoff. & Node-level coupled dynamics with impulses. The hybrid simulation in the companion code is a minimal bridge before reading the full malware-opinion model. \\
-\texttt{PropagandaWar\_TIFS\_2024\_Code} & \path{demo_network.py}, \path{propWar.py}, \path{comparison.py}; graph loading, degree distribution, forward/backward Nash sweep, hybrid strategy update, random-strategy comparison. & Closest to the degree-$k$ differential-game example. The same blocks appear: $P(k)$ preprocessing, state equations, adjoints, bounded strategy updates, and payoff comparison. \\
-\texttt{Propaganda\_TCSS\_2025\_Code} & \path{prop_network.py}, \path{prop_propaganda.py}, \path{prop_cntrlComparison.py}, \path{prop_noAwareness.py}; network loading, impulse policy search, profit/payoff, random and no-awareness baselines. & Impulse-control workflow and ablation studies. The companion function \path{simulate_hybrid_impulse} gives the basic state-jump structure before the full paper-specific implementation. \\
+OpinionMalware (IEEE TIFS 2025) & Repository \path{OpinionMalware_TIFS_2025_Code}; \path{network.py}, \path{opinionMalware.py}; network construction, normalization, coupled forward malware/opinion dynamics, backward adjoints, impulse strategy search, payoff. & Node-level coupled dynamics with impulses. The hybrid simulation in the companion code is a minimal bridge before reading the full malware-opinion model. \\
+PropagandaWar (IEEE TIFS 2024) & Repository \path{PropagandaWar_TIFS_2024_Code}; \path{demo_network.py}, \path{propWar.py}, \path{comparison.py}; graph loading, degree distribution, forward/backward Nash sweep, hybrid strategy update, random-strategy comparison. & Closest to the degree-$k$ differential-game example. The same blocks appear: $P(k)$ preprocessing, state equations, adjoints, bounded strategy updates, and payoff comparison. \\
+Propaganda (IEEE TCSS 2025) & Repository \path{Propaganda_TCSS_2025_Code}; \path{prop_network.py}, \path{prop_propaganda.py}, \path{prop_cntrlComparison.py}, \path{prop_noAwareness.py}; network loading, impulse policy search, profit/payoff, random and no-awareness baselines. & Impulse-control workflow and ablation studies. The companion function \path{simulate_hybrid_impulse} gives the basic state-jump structure before the full paper-specific implementation. \\
 \bottomrule
 \end{tabularx}
 \end{table}
