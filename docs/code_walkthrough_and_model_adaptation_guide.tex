@@ -135,20 +135,32 @@ The intended reading order is:
 % -----------------------------------------------------------------------------
 \section{Environment Setup and Basic Execution}
 
-After unzipping the tutorial package, move into the package root. A virtual environment is recommended:
+From the public repository root, a virtual environment is recommended:
 
 \begin{lstlisting}[style=bash]
-unzip Network_Optimal_Control_Differential_Games_Tutorial_Package.zip
-cd network_control_game_lecture_package
+git clone https://github.com/LYang910920/network-control-differential-games.git
+cd network-control-differential-games
 
 python -m venv .venv
 source .venv/bin/activate        # macOS / Linux
 # .venv\Scripts\activate         # Windows PowerShell
 
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 \end{lstlisting}
 
-Run the simple degree-\(k\) example first:
+Run all lecture examples from the repository root:
+
+\begin{lstlisting}[style=bash]
+python run_all.py --skip-reference
+\end{lstlisting}
+
+For the direct script commands below, move into the lecture-example folder:
+
+\begin{lstlisting}[style=bash]
+cd examples/lecture
+\end{lstlisting}
+
+Then run the simple degree-\(k\) example first:
 
 \begin{lstlisting}[style=bash]
 python code/simple_degree_k_control.py
@@ -1086,10 +1098,10 @@ Repository & Main idea and file structure \\
 
 The teaching package keeps the first example short and then gives a compact extension script. The reference repositories show how the same ideas can be expanded into paper-level experiments: multiple state variables, richer objective functions, impulse schedules, CSV output for each iteration, random-strategy validation, and dataset-specific parameter blocks.
 
-To download the reference repositories from the package, run:
+To download the upstream reference repositories from the package, run:
 
 \begin{lstlisting}[style=bash]
-bash scripts/download_reference_repositories.sh
+bash ../reference/download_reference_repositories.sh
 \end{lstlisting}
 
 % -----------------------------------------------------------------------------
@@ -1176,10 +1188,10 @@ python code/network_control_examples.py \
   --degree-mode in
 \end{lstlisting}
 
-Download the reference repositories:
+Download the upstream reference repositories:
 
 \begin{lstlisting}[style=bash]
-bash scripts/download_reference_repositories.sh
+bash ../reference/download_reference_repositories.sh
 \end{lstlisting}
 
 % -----------------------------------------------------------------------------

@@ -376,7 +376,7 @@ def main() -> None:
         "--package-dir",
         type=Path,
         default=PACKAGE_DIR,
-        help="Path to network_control_game_lecture_package containing reference_repositories/.",
+        help="Path to the examples/reference folder containing reference_repositories/.",
     )
     parser.add_argument(
         "--output-dir",

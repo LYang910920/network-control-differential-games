@@ -19,6 +19,6 @@ code_walkthrough_and_model_adaptation_guide.tex
 
 ## Copyright note
 
-These are user-supplied educational materials. Before making this repository public, confirm that you have the right to redistribute both the PDFs and their LaTeX sources.
+These are user-supplied educational materials. Because this repository is public, keep these files here only if you have the right to redistribute both the PDFs and their LaTeX sources.
 
-If rights are uncertain, keep the repository private or remove these files before pushing to a public remote.
+If rights are uncertain, remove these files from the public repository or move the repository back to private.

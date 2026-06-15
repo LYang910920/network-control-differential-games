@@ -29,6 +29,8 @@ examples/**/.mplconfig/
 
 # Rerun output folders. Curated results are kept under results/reference_repos
 # and the named lecture result folders already committed in examples/lecture.
+simple_outputs/
+example_outputs/
 examples/lecture/results/rerun_*/
 examples/lecture/results/test_*/
 examples/reference/results/test_*/

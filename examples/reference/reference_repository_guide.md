@@ -77,6 +77,6 @@ How to read it with the lecture note:
 
 1. Run `code/simple_degree_k_control.py` to understand the degree-k PMP workflow.
 2. Read `code/network_control_examples.py` section by section.
-3. Download the reference repositories using `scripts/download_reference_repositories.sh`.
+3. Refresh the upstream reference repositories, if needed, with `download_reference_repositories.sh` from this directory.
 4. Compare each reference repository with the workflow above.
 5. Replace the simplified dynamics in the companion scripts with paper-specific dynamics only after the graph preprocessing and PMP structure are clear.

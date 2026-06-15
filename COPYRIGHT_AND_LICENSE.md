@@ -25,7 +25,7 @@ docs/code_walkthrough_and_model_adaptation_guide.pdf
 docs/code_walkthrough_and_model_adaptation_guide.tex
 ```
 
-Before publishing this repository publicly, confirm that you have the right to redistribute these PDF and LaTeX files. If in doubt, keep the repository private or remove the PDF/LaTeX documents before pushing.
+Because this repository is public, keep these PDF and LaTeX files here only if you have the right to redistribute them. If in doubt, remove the PDF/LaTeX documents from the public repository or move the repository back to private.
 
 ## Lecture Example Code
 

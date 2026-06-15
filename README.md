@@ -42,6 +42,14 @@ Run only the reference smoke tests:
 python3 run_all.py --skip-lecture
 ```
 
+## Recommended Learning Path
+
+1. Open [`docs/lecture_note.pdf`](docs/lecture_note.pdf) for the mathematical setup.
+2. Run the lecture examples first with `python3 run_all.py --skip-reference`.
+3. Read [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) while comparing it with [`examples/lecture/code/`](examples/lecture/code/).
+4. Run the reference smoke tests with `python3 run_all.py --skip-lecture`.
+5. Use [`examples/reference/reference_repository_guide.md`](examples/reference/reference_repository_guide.md) to map the paper-level code back to the simplified examples.
+
 ## Output Preview
 
 Lecture examples:
@@ -51,6 +59,14 @@ Lecture examples:
 Reference-repository smoke runs:
 
 ![Reference smoke runs](examples/reference/results/reference_repos/reference_repo_contact_sheet.png)
+
+After a fresh run, new outputs are written to timestamped or rerun folders:
+
+| Command | Output location |
+| --- | --- |
+| `python3 run_all.py --skip-reference` | `examples/lecture/results/rerun_YYYYMMDD_HHMMSS/` |
+| `python3 run_all.py --skip-lecture` | `examples/reference/results/reference_repos_rerun/` |
+| `python3 run_all.py` | both locations above |
 
 ## Repository Layout
 
@@ -69,6 +85,7 @@ Reference-repository smoke runs:
 │   ├── code_walkthrough_and_model_adaptation_guide.pdf
 │   └── code_walkthrough_and_model_adaptation_guide.tex
 └── examples/
+    ├── README.md
     ├── lecture/
     │   ├── README.md
     │   ├── run_all_lecture_examples.py
@@ -85,6 +102,8 @@ Reference-repository smoke runs:
 ```
 
 ## What Is Included
+
+For a code-first map of the examples, see [`examples/README.md`](examples/README.md).
 
 ### Lecture examples
 
@@ -123,6 +142,22 @@ When adapting the examples to a new model, work in this order:
 8. Add no-control, constant-control, random-control, or unilateral-deviation baselines.
 
 For differential games, the computed controls are open-loop Nash candidates satisfying necessary conditions. Treat them as numerical candidates until unilateral-deviation checks support the interpretation.
+
+## Troubleshooting
+
+If a run fails with `ModuleNotFoundError`, install the root requirements in the Python environment you are actually using:
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 -c "import networkx, scipy, pandas, matplotlib; print('core dependencies ok')"
+```
+
+If `python-igraph` is the only difficult package, use the local install path:
+
+```bash
+python3 -m pip install --target examples/reference/pydeps python-igraph
+python3 run_all.py --skip-lecture
+```
 
 ## Public-repository Notes
 
