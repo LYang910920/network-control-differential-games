@@ -8,35 +8,34 @@ It is designed for orientation and code walkthroughs. It is not a full reproduct
 
 The three reference repositories correspond to the author's co-authored cyber/network-control publications: two IEEE TIFS papers and one IEEE TCSS paper.
 
-| Reference repository | Upstream | License | Publication venue | Modeling level | Control/game type |
-| --- | --- | --- | --- | --- | --- |
-| [`OpinionMalware_TIFS_2025_Code`](reference_repositories/OpinionMalware_TIFS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code) | [Apache-2.0](reference_repositories/OpinionMalware_TIFS_2025_Code/LICENSE) | IEEE TIFS, 2025 | Node-level coupled malware-opinion model | Optimal impulse control |
-| [`PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/) | [GitHub](https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code) | [Apache-2.0](reference_repositories/PropagandaWar_TIFS_2024_Code/LICENSE) | IEEE TIFS, 2024 | Degree-level red/blue population model | Hybrid/impulsive differential game |
-| [`Propaganda_TCSS_2025_Code`](reference_repositories/Propaganda_TCSS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code) | [MIT](reference_repositories/Propaganda_TCSS_2025_Code/LICENSE) | IEEE TCSS, 2025 | Node-level awareness-aware propagation model | Optimal impulse control |
+| Repository | Venue | Model class |
+| --- | --- | --- |
+| [`OpinionMalware_TIFS_2025_Code`](reference_repositories/OpinionMalware_TIFS_2025_Code/) | IEEE TIFS 2025 | Node-level malware-opinion optimal impulse control |
+| [`PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/) | IEEE TIFS 2024 | Degree-level hybrid/impulsive differential game |
+| [`Propaganda_TCSS_2025_Code`](reference_repositories/Propaganda_TCSS_2025_Code/) | IEEE TCSS 2025 | Node-level awareness-aware optimal impulse control |
 
 For a more explicit classification, see [`MODEL_TAXONOMY.md`](MODEL_TAXONOMY.md).
+
+Upstream links and licenses:
+
+| Repository | Upstream | License |
+| --- | --- | --- |
+| `OpinionMalware_TIFS_2025_Code` | [GitHub](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code) | [Apache-2.0](reference_repositories/OpinionMalware_TIFS_2025_Code/LICENSE) |
+| `PropagandaWar_TIFS_2024_Code` | [GitHub](https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code) | [Apache-2.0](reference_repositories/PropagandaWar_TIFS_2024_Code/LICENSE) |
+| `Propaganda_TCSS_2025_Code` | [GitHub](https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code) | [MIT](reference_repositories/Propaganda_TCSS_2025_Code/LICENSE) |
 
 ## Contents
 
 ```text
 reference/
 ├── README.md
-├── requirements.txt
-├── download_reference_repositories.sh
 ├── MODEL_TAXONOMY.md
 ├── run_reference_smoke.py
 ├── reference_repository_guide.md
 ├── reference_repositories/
-│   ├── OpinionMalware_TIFS_2025_Code/
-│   ├── PropagandaWar_TIFS_2024_Code/
-│   └── Propaganda_TCSS_2025_Code/
 ├── sample_data/
-│   ├── opinion_malware_edges.edges
-│   └── sample_adjacency.csv
 ├── patches/
-│   └── opinion_malware_numpy_networkx_compat.patch
 └── results/
-    └── reference_repos/
 ```
 
 ## Install

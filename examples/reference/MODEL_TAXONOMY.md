@@ -4,11 +4,11 @@ This document classifies the three reference repositories by modeling level, con
 
 ## Quick Classification
 
-| Reference repository | Venue | Modeling level | Control/game type | Network representation | Best matching lecture example |
-| --- | --- | --- | --- | --- | --- |
-| [`OpinionMalware_TIFS_2025_Code`](reference_repositories/OpinionMalware_TIFS_2025_Code/) | IEEE TIFS 2025 | Node-level coupled malware-opinion model | Optimal impulse control | Multiplex/social network adjacency matrices | Node-level control + hybrid impulse examples |
-| [`PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/) | IEEE TIFS 2024 | Degree-level red/blue population model | Hybrid/impulsive differential game | Empirical degree distributions for red and blue networks | Degree-level game example |
-| [`Propaganda_TCSS_2025_Code`](reference_repositories/Propaganda_TCSS_2025_Code/) | IEEE TCSS 2025 | Node-level awareness-aware propagation model | Optimal impulse control | Adjacency matrix / graph-derived node interactions | Node-level control + impulse examples |
+| Repository | Short label |
+| --- | --- |
+| [`OpinionMalware_TIFS_2025_Code`](reference_repositories/OpinionMalware_TIFS_2025_Code/) | Node-level malware-opinion optimal impulse control |
+| [`PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/) | Degree-level hybrid/impulsive differential game |
+| [`Propaganda_TCSS_2025_Code`](reference_repositories/Propaganda_TCSS_2025_Code/) | Node-level awareness-aware optimal impulse control |
 
 ## Main Distinction
 
@@ -22,33 +22,36 @@ The second split is the decision structure:
 - **Optimal impulse control** computes intervention magnitudes or schedules for one decision maker.
 - **Differential games** compute interacting strategies for multiple players. `PropagandaWar_TIFS_2024_Code` is the main hybrid/impulsive differential-game reference.
 
-## Repository-by-Repository Notes
+## Repository Notes
 
 ### OpinionMalware_TIFS_2025_Code
 
 - **Modeling level:** node-level.
-- **State variables:** malware and opinion states, represented in the smoke run as mean malware `c(t)` and opinion `o(t)`.
 - **Decision structure:** optimal impulse control.
+- **Network representation:** multiplex/social network adjacency matrices.
+- **State variables:** malware and opinion states, summarized as mean malware `c(t)` and opinion `o(t)`.
 - **Core code path:** `network.py` builds and normalizes networks; `opinionMalware.py` runs forward states, backward adjoints, impulse strategy search, and payoff evaluation.
-- **Smoke-run figure:** the left panel shows payoff over iterations, the middle panel shows malware/opinion state trajectories over time, and the right panel shows impulse-control schedules over time.
+- **Closest lecture example:** node-level control + hybrid impulse examples.
 
 ### PropagandaWar_TIFS_2024_Code
 
 - **Modeling level:** degree-level.
-- **State variables:** red and blue population states indexed by degree classes, such as `kr`, `pkr`, `kb`, and `pkb`.
 - **Decision structure:** hybrid/impulsive differential game.
+- **Network representation:** empirical degree distributions for red and blue networks.
+- **State variables:** red and blue population states indexed by degree classes, such as `kr`, `pkr`, `kb`, and `pkb`.
 - **Core code path:** `demo_network.py` computes degree distributions; `propWar.py` runs the red/blue forward-backward game; `comparison.py` supports unilateral-deviation checks.
-- **Smoke-run figure:** the left panel shows red/blue payoff updates across iterations, the middle panel shows degree-level state trajectories over time, and the right panel shows red/blue strategy variables over time.
+- **Closest lecture example:** degree-level game example.
 
 This is the reference repository to read first if the goal is to understand how a degree-level network model becomes an impulsive or hybrid differential game.
 
 ### Propaganda_TCSS_2025_Code
 
 - **Modeling level:** node-level.
-- **State variables:** awareness-aware propagation states, summarized in the smoke run as `Sa(t)`, `Su(t)`, and `R(t)`.
 - **Decision structure:** optimal impulse control.
+- **Network representation:** adjacency matrix / graph-derived node interactions.
+- **State variables:** awareness-aware propagation states, summarized as `Sa(t)`, `Su(t)`, and `R(t)`.
 - **Core code path:** `prop_network.py` loads graph data; `prop_propaganda.py` runs forward states, backward adjoints, impulse policy search, and profit evaluation.
-- **Smoke-run figure:** the left panel shows profit over policy iterations, the middle panel shows state averages over time, and the right panel shows impulse-control schedules over time.
+- **Closest lecture example:** node-level control + impulse examples.
 
 ## Suggested Reading Order By Goal
 

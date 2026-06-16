@@ -12,14 +12,14 @@ The repository is meant to be an educational bridge: start from the mathematical
 
 ## Start Here
 
-| Goal | Where to go | What you get |
-| --- | --- | --- |
-| Read the math | [`docs/lecture_note.pdf`](docs/lecture_note.pdf) | Optimal control, differential games, hybrid control, network models |
-| Learn how the code maps to the math | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | Run commands, model conventions, Jacobians, Hamiltonian updates, adaptation checklist |
-| Run the clean teaching examples | [`examples/lecture/`](examples/lecture/) | Degree-k control, degree game, node-level control/game, hybrid impulse simulation |
-| Inspect paper-level code patterns | [`examples/reference/`](examples/reference/) | Smoke runs for three reference repositories tied to two IEEE TIFS papers and one IEEE TCSS paper |
-| Interpret generated figures | [`examples/lecture/FIGURE_GUIDE.md`](examples/lecture/FIGURE_GUIDE.md), [`examples/reference/FIGURE_GUIDE.md`](examples/reference/FIGURE_GUIDE.md) | Which plots show convergence, state evolution, and control/strategy evolution |
-| Check copyright/citations | [`LICENSE`](LICENSE), [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | Public-repo license boundaries and upstream attribution |
+| Start with | Use it for |
+| --- | --- |
+| [`docs/lecture_note.pdf`](docs/lecture_note.pdf) | Mathematical setup |
+| [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | How code maps to the math |
+| [`examples/lecture/`](examples/lecture/) | Clean teaching examples |
+| [`examples/reference/`](examples/reference/) | Paper-level reference smoke runs |
+| [`examples/reference/MODEL_TAXONOMY.md`](examples/reference/MODEL_TAXONOMY.md) | Classifying the three reference repositories |
+| [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md) | License and attribution boundaries |
 
 ## Quick Run
 
@@ -58,7 +58,7 @@ python run_all.py --skip-lecture
 2. Run the lecture examples first with `python run_all.py --skip-reference`.
 3. Read [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) while comparing it with [`examples/lecture/code/`](examples/lecture/code/).
 4. Run the reference smoke tests with `python run_all.py --skip-lecture`.
-5. Use [`examples/reference/reference_repository_guide.md`](examples/reference/reference_repository_guide.md) to map the paper-level code back to the simplified examples.
+5. Use [`examples/reference/MODEL_TAXONOMY.md`](examples/reference/MODEL_TAXONOMY.md) first, then [`examples/reference/reference_repository_guide.md`](examples/reference/reference_repository_guide.md), to map the paper-level code back to the simplified examples.
 
 ## Output Preview
 
@@ -80,37 +80,23 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 
 The lecture runner writes `figure_explanations.md` in each lecture output folder. The reference runner writes `smoke_run_report.md` in each reference output folder. In these notes, iteration-axis plots are used to inspect convergence of an algorithmic update loop, while time-axis plots show system state evolution or the computed control/game strategy over the simulation horizon.
 
-## Repository Layout
+## Core Layout
 
 ```text
 .
 ├── README.md
 ├── requirements.txt
 ├── run_all.py
-├── LICENSE
-├── COPYRIGHT_AND_LICENSE.md
-├── THIRD_PARTY_NOTICES.md
-├── CITATION.md
 ├── docs/
-│   ├── README.md
 │   ├── lecture_note.pdf
-│   ├── lecture_note.tex
-│   ├── code_walkthrough_and_model_adaptation_guide.pdf
-│   └── code_walkthrough_and_model_adaptation_guide.tex
+│   └── code_walkthrough_and_model_adaptation_guide.pdf
 └── examples/
-    ├── README.md
     ├── lecture/
-    │   ├── README.md
-    │   ├── run_all_lecture_examples.py
     │   ├── code/
-    │   ├── sample_data/
     │   └── results/
     └── reference/
-        ├── README.md
-        ├── run_reference_smoke.py
+        ├── MODEL_TAXONOMY.md
         ├── reference_repositories/
-        ├── sample_data/
-        ├── patches/
         └── results/
 ```
 
@@ -133,11 +119,11 @@ Go deeper in [examples/lecture/README.md](examples/lecture/README.md).
 
 The reference folder includes source-code snapshots from three upstream research repositories. These repositories correspond to my co-authored cyber/network-control publications: two papers in IEEE TIFS and one paper in IEEE TCSS.
 
-| Reference repository | Upstream | License | Publication venue | Modeling level | Control/game type |
-| --- | --- | --- | --- | --- | --- |
-| [`OpinionMalware_TIFS_2025_Code`](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code) | [Apache-2.0](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/LICENSE) | IEEE TIFS, 2025 | Node-level coupled malware-opinion model | Optimal impulse control |
-| [`PropagandaWar_TIFS_2024_Code`](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/) | [GitHub](https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code) | [Apache-2.0](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/LICENSE) | IEEE TIFS, 2024 | Degree-level red/blue population model | Hybrid/impulsive differential game |
-| [`Propaganda_TCSS_2025_Code`](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code) | [MIT](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/LICENSE) | IEEE TCSS, 2025 | Node-level awareness-aware propagation model | Optimal impulse control |
+| Repository | Class |
+| --- | --- |
+| `OpinionMalware_TIFS_2025_Code` | Node-level malware-opinion optimal impulse control |
+| `PropagandaWar_TIFS_2024_Code` | Degree-level hybrid/impulsive differential game |
+| `Propaganda_TCSS_2025_Code` | Node-level awareness-aware optimal impulse control |
 
 Each snapshot keeps its upstream `README` and `LICENSE`. Full paper datasets are not included. The smoke runner uses small local sample data so the workflows can run without redistributing external datasets.
 

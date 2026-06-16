@@ -46,6 +46,7 @@ Use this track after the lecture examples. It keeps source snapshots from three 
 | File or folder | Purpose |
 | --- | --- |
 | `reference_repositories/` | Curated third-party source snapshots with upstream README/LICENSE files |
+| `MODEL_TAXONOMY.md` | Classifies the three reference repositories by model level and control/game type |
 | `run_reference_smoke.py` | Runs short checks across the three reference repositories |
 | `reference_repository_guide.md` | Explains how each reference repo maps to the lecture workflow |
 | `sample_data/` | Small local graphs used instead of full paper datasets |
