@@ -133,15 +133,15 @@ Go deeper in [examples/lecture/README.md](examples/lecture/README.md).
 
 The reference folder includes source-code snapshots from three upstream research repositories. These repositories correspond to my co-authored cyber/network-control publications: two papers in IEEE TIFS and one paper in IEEE TCSS.
 
-| Reference repository | Upstream | License | Publication venue | Topic |
-| --- | --- | --- | --- | --- |
-| [`OpinionMalware_TIFS_2025_Code`](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code) | [Apache-2.0](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/LICENSE) | IEEE TIFS, 2025 | Malware-opinion dynamics with optimal impulse control |
-| [`PropagandaWar_TIFS_2024_Code`](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/) | [GitHub](https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code) | [Apache-2.0](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/LICENSE) | IEEE TIFS, 2024 | Hybrid-control differential game for propaganda war |
-| [`Propaganda_TCSS_2025_Code`](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code) | [MIT](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/LICENSE) | IEEE TCSS, 2025 | Impulse strategies for suppressing cyber propaganda with awareness |
+| Reference repository | Upstream | License | Publication venue | Modeling level | Control/game type |
+| --- | --- | --- | --- | --- | --- |
+| [`OpinionMalware_TIFS_2025_Code`](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code) | [Apache-2.0](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/LICENSE) | IEEE TIFS, 2025 | Node-level coupled malware-opinion model | Optimal impulse control |
+| [`PropagandaWar_TIFS_2024_Code`](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/) | [GitHub](https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code) | [Apache-2.0](examples/reference/reference_repositories/PropagandaWar_TIFS_2024_Code/LICENSE) | IEEE TIFS, 2024 | Degree-level red/blue population model | Hybrid/impulsive differential game |
+| [`Propaganda_TCSS_2025_Code`](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/) | [GitHub](https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code) | [MIT](examples/reference/reference_repositories/Propaganda_TCSS_2025_Code/LICENSE) | IEEE TCSS, 2025 | Node-level awareness-aware propagation model | Optimal impulse control |
 
 Each snapshot keeps its upstream `README` and `LICENSE`. Full paper datasets are not included. The smoke runner uses small local sample data so the workflows can run without redistributing external datasets.
 
-Go deeper in [examples/reference/README.md](examples/reference/README.md).
+Go deeper in [examples/reference/README.md](examples/reference/README.md) and [examples/reference/MODEL_TAXONOMY.md](examples/reference/MODEL_TAXONOMY.md).
 
 ## Model Adaptation Checklist
 

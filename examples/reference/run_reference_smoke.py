@@ -454,14 +454,22 @@ Each reference figure now has three panels:
 | State panel | time | Shows system state evolution under the computed control/game strategy. These are the main model trajectories. |
 | Control/strategy panel | time | Shows how the computed intervention, impulse, attack, or defense policy changes over the simulation horizon. |
 
+## Model classification
+
+| Repository | Modeling level | Control/game type | Main idea |
+| --- | --- | --- | --- |
+| `OpinionMalware_TIFS_2025_Code` | Node-level coupled malware-opinion model | Optimal impulse control | Track malware and opinion states on coupled network layers. |
+| `PropagandaWar_TIFS_2024_Code` | Degree-level red/blue population model | Hybrid/impulsive differential game | Aggregate graph structure into degree distributions, then compute interacting red/blue strategies. |
+| `Propaganda_TCSS_2025_Code` | Node-level awareness-aware propagation model | Optimal impulse control | Track awareness-aware propagation states and compute impulse interventions. |
+
 ## Figure-specific notes
 
-| File | Interpretation |
-| --- | --- |
-| `opinion_malware.png` | Left: payoff over forward-backward iterations. Middle: mean malware state `c(t)` and opinion state `o(t)` over time; vertical lines mark impulse times. Right: computed impulse-control schedules `u1(t)` and `u2(t)`. |
-| `propaganda_war.png` | Left: red and blue player payoffs over game iterations. Middle: degree-level red/blue propaganda states over time. Right: computed red/blue strategy variables over time. |
-| `propaganda_tcss.png` | Left: profit over impulse-policy iterations. Middle: awareness/unawareness/removed state averages over time. Right: computed impulse-control schedules `ca(t)` and `cu(t)`. |
-| `reference_repo_contact_sheet.png` | Compact visual index for the three reference smoke runs. |
+| File | Model class | Interpretation |
+| --- | --- | --- |
+| `opinion_malware.png` | Node-level optimal impulse control | Left: payoff over forward-backward iterations. Middle: mean malware state `c(t)` and opinion state `o(t)` over time; vertical lines mark impulse times. Right: computed impulse-control schedules `u1(t)` and `u2(t)`. |
+| `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-level red/blue propaganda states over time. Right: computed red/blue strategy variables over time. |
+| `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Left: profit over impulse-policy iterations. Middle: awareness/unawareness/removed state averages over time. Right: computed impulse-control schedules `ca(t)` and `cu(t)`. |
+| `reference_repo_contact_sheet.png` | Mixed overview | Compact visual index for the three reference smoke runs. |
 
 ## CSV outputs
 

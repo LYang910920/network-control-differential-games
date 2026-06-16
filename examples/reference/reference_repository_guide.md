@@ -16,6 +16,16 @@ All three repositories follow the same broad workflow:
 
 The companion scripts in this package use the same workflow with shorter equations and clearer variable names.
 
+## Classification map
+
+| Reference repository | Modeling level | Control/game structure | First thing to inspect |
+| --- | --- | --- | --- |
+| `OpinionMalware_TIFS_2025_Code` | Node-level coupled malware-opinion model | Optimal impulse control | `network.py`, then `opinionMalware.py` |
+| `PropagandaWar_TIFS_2024_Code` | Degree-level red/blue population model | Hybrid/impulsive differential game | `demo_network.py`, then `propWar.py` |
+| `Propaganda_TCSS_2025_Code` | Node-level awareness-aware propagation model | Optimal impulse control | `prop_network.py`, then `prop_propaganda.py` |
+
+Use this classification before reading individual files. In particular, the IEEE TIFS 2024 repository is the degree-level example: it aggregates graph structure into degree distributions and then computes red/blue strategies in a hybrid or impulsive differential game.
+
 ## 1. OpinionMalware_TIFS_2025_Code
 
 Repository: [XiaojuanCheng/OpinionMalware_TIFS_2025_Code](https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code)
@@ -23,6 +33,8 @@ Repository: [XiaojuanCheng/OpinionMalware_TIFS_2025_Code](https://github.com/Xia
 Local snapshot: [`reference_repositories/OpinionMalware_TIFS_2025_Code`](reference_repositories/OpinionMalware_TIFS_2025_Code/)
 
 Publication context: IEEE TIFS, 2025.
+
+Classification: node-level coupled malware-opinion model with optimal impulse control.
 
 Main files:
 
@@ -46,6 +58,8 @@ Local snapshot: [`reference_repositories/PropagandaWar_TIFS_2024_Code`](referenc
 
 Publication context: IEEE TIFS, 2024.
 
+Classification: degree-level red/blue population model with a hybrid/impulsive differential game.
+
 Main files:
 
 - `demo_network.py`: graph loading and degree-distribution computation.
@@ -55,6 +69,7 @@ Main files:
 How to read it with the lecture note:
 
 - `graphs(...)`, `graphs_tmx(...)`, and `my_degree(...)` correspond to network loading and empirical degree distribution.
+- Degree arrays such as `kr`, `pkr`, `kb`, and `pkb` are the key bridge from graph data to the degree-level model.
 - Forward routines correspond to controlled state dynamics.
 - Backward routines correspond to PMP adjoint equations.
 - Optimal-strategy routines correspond to bounded Hamiltonian maximization or minimization.
@@ -68,6 +83,8 @@ Repository: [XiaojuanCheng/Propaganda_TCSS_2025_Code](https://github.com/Xiaojua
 Local snapshot: [`reference_repositories/Propaganda_TCSS_2025_Code`](reference_repositories/Propaganda_TCSS_2025_Code/)
 
 Publication context: IEEE TCSS, 2025.
+
+Classification: node-level awareness-aware propagation model with optimal impulse control.
 
 Main files:
 

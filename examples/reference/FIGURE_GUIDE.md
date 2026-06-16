@@ -21,11 +21,11 @@ Each reference figure has three panels:
 
 ## Repository-specific Interpretation
 
-| Figure | What to look for |
-| --- | --- |
-| `opinion_malware.png` | Payoff over iterations; mean malware and opinion states over time; impulse-control schedules `u1(t)` and `u2(t)`. |
-| `propaganda_war.png` | Red/blue game payoffs over iterations; red/blue degree-level states over time; red/blue strategy variables over time. |
-| `propaganda_tcss.png` | Profit over policy iterations; awareness/unawareness/removed state averages over time; impulse-control schedules `ca(t)` and `cu(t)`. |
-| `reference_repo_contact_sheet.png` | A visual index for comparing all three reference smoke runs. |
+| Figure | Model class | What to look for |
+| --- | --- | --- |
+| `opinion_malware.png` | Node-level optimal impulse control | Payoff over iterations; mean malware and opinion states over time; impulse-control schedules `u1(t)` and `u2(t)`. |
+| `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Red/blue game payoffs over iterations; red/blue degree-level states over time; red/blue strategy variables over time. |
+| `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Profit over policy iterations; awareness/unawareness/removed state averages over time; impulse-control schedules `ca(t)` and `cu(t)`. |
+| `reference_repo_contact_sheet.png` | Mixed overview | A visual index for comparing all three reference smoke runs. |
 
 The reference smoke runs are not full paper-scale reproductions. They use small local graphs and short horizons to check that the reference code imports, runs, exports CSV summaries, and produces interpretable figures.
