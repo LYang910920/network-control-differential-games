@@ -701,51 +701,87 @@ def simulate_hybrid_impulse(A: np.ndarray, T=12.0, impulse_times=(3.0, 6.0, 9.0)
 def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
     plt.figure(figsize=FIGSIZE_SINGLE)
     ax = plt.gca()
-    plot_time_series(ax, result.t, result.x @ D.pk, "mean infection")
-    plot_time_series(ax, result.t, result.controls["control"] @ D.pk, "mean control")
+    plot_time_series(ax, result.t, result.x @ D.pk, "state: degree-weighted mean infection", linestyle="-")
+    plot_time_series(
+        ax,
+        result.t,
+        result.controls["control"] @ D.pk,
+        "continuous control: degree-weighted mean",
+        linestyle="-.",
+    )
     for j in sorted(set([0, len(D.k) // 2, len(D.k) - 1])):
-        plot_time_series(ax, result.t, result.x[:, j], f"x_k, k={int(D.k[j])}", linestyle="--", linewidth=1.5)
+        plot_time_series(ax, result.t, result.x[:, j], f"state: degree k={int(D.k[j])}", linestyle="--", linewidth=1.5)
     apply_clean_axes(ax, xlabel="time", ylabel="state / control",
-                     title=f"Degree-k optimal control; cost={result.value['cost']:.2f}")
-    ax.legend(frameon=False)
+                     title=f"Degree-k continuous optimal control; cost={result.value['cost']:.2f}")
+    ax.legend(frameon=False, fontsize=8)
     savefig(out_dir / "degree_control.png")
 
 
 def plot_degree_game(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
     plt.figure(figsize=FIGSIZE_SINGLE)
     ax = plt.gca()
-    plot_time_series(ax, result.t, result.x @ D.pk, "mean infection")
-    plot_time_series(ax, result.t, result.controls["attack"] @ D.pk, "mean attack")
-    plot_time_series(ax, result.t, result.controls["defense"] @ D.pk, "mean defense")
+    plot_time_series(ax, result.t, result.x @ D.pk, "state: degree-weighted mean infection", linestyle="-")
+    plot_time_series(
+        ax,
+        result.t,
+        result.controls["attack"] @ D.pk,
+        "continuous attack strategy: degree-weighted mean",
+        linestyle="--",
+    )
+    plot_time_series(
+        ax,
+        result.t,
+        result.controls["defense"] @ D.pk,
+        "continuous defense strategy: degree-weighted mean",
+        linestyle="-.",
+    )
     high = int(np.argmax(D.k))
-    plot_time_series(ax, result.t, result.x[:, high], f"x_k, high k={int(D.k[high])}", linestyle="--", linewidth=1.5)
+    plot_time_series(ax, result.t, result.x[:, high], f"state: high degree k={int(D.k[high])}", linestyle=":", linewidth=1.8)
     apply_clean_axes(ax, xlabel="time", ylabel="state / control",
-                     title=f"Degree-k differential game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
-    ax.legend(frameon=False)
+                     title=f"Degree-k continuous differential game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
+    ax.legend(frameon=False, fontsize=8)
     savefig(out_dir / "degree_game.png")
 
 
 def plot_node_control(result: TimeSeries, out_dir: Path) -> None:
     plt.figure(figsize=FIGSIZE_SINGLE)
     ax = plt.gca()
-    plot_time_series(ax, result.t, result.x.mean(axis=1), "mean infection")
-    plot_time_series(ax, result.t, result.x.max(axis=1), "max infection")
-    plot_time_series(ax, result.t, result.controls["control"].mean(axis=1), "mean control")
+    plot_time_series(ax, result.t, result.x.mean(axis=1), "state: node mean infection (all nodes)", linestyle="-")
+    plot_time_series(ax, result.t, result.x.max(axis=1), "state: max infection over nodes", linestyle="--")
+    plot_time_series(
+        ax,
+        result.t,
+        result.controls["control"].mean(axis=1),
+        "continuous control: node mean",
+        linestyle="-.",
+    )
     apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
-                     title=f"Node-level optimal control; cost={result.value['cost']:.2f}")
-    ax.legend(frameon=False)
+                     title=f"Node-level continuous optimal control; cost={result.value['cost']:.2f}")
+    ax.legend(frameon=False, fontsize=8)
     savefig(out_dir / "node_control.png")
 
 
 def plot_node_game(result: TimeSeries, out_dir: Path) -> None:
     plt.figure(figsize=FIGSIZE_SINGLE)
     ax = plt.gca()
-    plot_time_series(ax, result.t, result.x.mean(axis=1), "mean infection")
-    plot_time_series(ax, result.t, result.controls["attack"].mean(axis=1), "mean attack")
-    plot_time_series(ax, result.t, result.controls["defense"].mean(axis=1), "mean defense")
+    plot_time_series(ax, result.t, result.x.mean(axis=1), "state: node mean infection (all nodes)", linestyle="-")
+    plot_time_series(
+        ax,
+        result.t,
+        result.controls["attack"].mean(axis=1),
+        "continuous attack strategy: node mean",
+        linestyle="--",
+    )
+    plot_time_series(
+        ax,
+        result.t,
+        result.controls["defense"].mean(axis=1),
+        "continuous defense strategy: node mean",
+        linestyle="-.",
+    )
     apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
-                     title=f"Node-level game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
-    ax.legend(frameon=False)
+                     title=f"Node-level continuous differential game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
+    ax.legend(frameon=False, fontsize=8)
     savefig(out_dir / "node_game.png")
 
 
@@ -758,18 +794,25 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
 
     fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_STACKED, sharex=True, height_ratios=[2.0, 1.0])
     ax_state, ax_control = axes
-    plot_time_series(ax_state, result.t, result.x.mean(axis=1), "mean infection")
-    plot_time_series(ax_state, result.t, result.x.max(axis=1), "max infection")
+    plot_time_series(ax_state, result.t, result.x.mean(axis=1), "state: node mean infection (all nodes)", linestyle="-")
+    plot_time_series(ax_state, result.t, result.x.max(axis=1), "state: max infection over nodes", linestyle="--")
     mark_event_times(ax_state, impulse_times, label="impulse time")
     apply_clean_axes(
         ax_state,
         ylabel="state",
-        title=f"Hybrid control on {controlled_count} high-degree nodes",
+        title=f"Hybrid control: continuous + impulse on {controlled_count} high-degree nodes",
     )
-    ax_state.legend(frameon=False, ncol=3)
+    ax_state.legend(frameon=False, ncol=2, fontsize=8)
 
-    plot_time_series(ax_control, result.t, continuous_control, "continuous control", color="tab:blue")
-    plot_impulse_events(ax_control, impulse_times, impulse_heights, "impulse fraction", color="tab:red")
+    plot_time_series(
+        ax_control,
+        result.t,
+        continuous_control,
+        "continuous control: constant smoke level",
+        color="tab:blue",
+        linestyle="-.",
+    )
+    plot_impulse_events(ax_control, impulse_times, impulse_heights, "impulse control: discrete fraction", color="tab:red")
     ax_control.set_ylim(0.0, max(0.65, float(np.max(impulse_heights)) + 0.08))
     apply_clean_axes(
         ax_control,
@@ -777,7 +820,7 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
         ylabel="control",
         title=f"continuous level={result.value['continuous_control']:.2f}; impulse fraction={impulse_fraction:.2f}",
     )
-    ax_control.legend(frameon=False, ncol=2)
+    ax_control.legend(frameon=False, ncol=2, fontsize=8)
     fig.tight_layout()
     fig.savefig(out_dir / "hybrid_impulse.png", dpi=180)
     plt.close(fig)

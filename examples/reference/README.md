@@ -120,7 +120,7 @@ results/reference_repos/propaganda_tcss_timeseries.csv
 
 For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `smoke_run_report.md` into its output directory.
 
-Plot convention: continuous states, controls, and game strategies are drawn as curves. Discrete impulse or pulse interventions are drawn as vertical event lines, and state panels mark the same event times.
+Plot convention: continuous controls and game strategies are time-indexed curves; impulse controls act only at discrete event times and are drawn as vertical lines; hybrid control combines both. State labels indicate whether each trajectory is a node mean over all nodes or a degree-weighted mean over degree classes. The TCSS smoke-run parameters are intentionally small-scale but chosen so impulse-induced state changes are visible.
 
 ## What each smoke run does
 

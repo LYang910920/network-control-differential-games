@@ -105,13 +105,14 @@ def plot_impulse_events(
     event_indices: np.ndarray | list[int] | None = None,
     tol: float = 1e-9,
     linewidth: float = 2.2,
+    linestyle: str = "-",
 ) -> np.ndarray:
     indices = event_indices_from_values(values, event_indices=event_indices, tol=tol)
     if len(indices) == 0:
         return indices
     event_t = np.asarray(t, dtype=float)[indices]
     heights = np.asarray(values, dtype=float)[indices]
-    ax.vlines(event_t, 0.0, heights, color=color, linewidth=linewidth, label=label)
+    ax.vlines(event_t, 0.0, heights, color=color, linewidth=linewidth, linestyles=linestyle, label=label)
     ax.scatter(event_t, heights, color=color, s=24, zorder=3)
     return indices
 
@@ -254,19 +255,19 @@ def run_opinion_malware() -> dict[str, float]:
 
     fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
     axes[0].plot(np.arange(maxiter + 1), J, marker="o", linewidth=LINE_WIDTH)
-    apply_clean_axes(axes[0], xlabel="iteration", ylabel="J", title="OpinionMalware payoff")
+    apply_clean_axes(axes[0], xlabel="iteration", ylabel="J", title="OpinionMalware impulse-control payoff")
 
-    plot_time_series(axes[1], t, om.c.mean(axis=1), "mean c")
-    plot_time_series(axes[1], t, om.o.mean(axis=1), "mean o")
-    mark_event_times(axes[1], t, imp_a, color="tab:red", label="u1 impulse")
-    mark_event_times(axes[1], t, imp_b, color="tab:green", label="u2 impulse")
-    apply_clean_axes(axes[1], xlabel="time", title="state trajectories")
+    plot_time_series(axes[1], t, om.c.mean(axis=1), "state: mean malware c (all nodes)", linestyle="-")
+    plot_time_series(axes[1], t, om.o.mean(axis=1), "state: mean opinion o (all nodes)", linestyle="--")
+    mark_event_times(axes[1], t, imp_a, color="tab:red", label="u1 impulse time")
+    mark_event_times(axes[1], t, imp_b, color="tab:green", label="u2 impulse time")
+    apply_clean_axes(axes[1], xlabel="time", title="node-level mean states (all nodes)")
     axes[1].legend(frameon=False, fontsize=8)
 
-    plot_impulse_events(axes[2], t, om.u1, "u1 impulse", color="tab:red", event_indices=imp_a)
-    plot_impulse_events(axes[2], t, om.u2, "u2 impulse", color="tab:green", event_indices=imp_b)
+    plot_impulse_events(axes[2], t, om.u1, "impulse control u1 (discrete)", color="tab:red", event_indices=imp_a)
+    plot_impulse_events(axes[2], t, om.u2, "impulse control u2 (discrete)", color="tab:green", event_indices=imp_b, linestyle="--")
     axes[2].set_ylim(0.0, max(0.65, float(max(np.max(om.u1), np.max(om.u2))) + 0.08))
-    apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="discrete impulse controls")
+    apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="impulse controls: discrete event lines")
     axes[2].legend(frameon=False, fontsize=8)
     fig.tight_layout()
     fig.savefig(OUT_DIR / "opinion_malware.png", dpi=180)
@@ -369,24 +370,24 @@ def run_propaganda_war() -> dict[str, float]:
     fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
     axes[0].plot(np.arange(pw.maxiter + 1), jr, marker="o", linewidth=LINE_WIDTH, label="J red")
     axes[0].plot(np.arange(pw.maxiter + 1), jb, marker="o", linewidth=LINE_WIDTH, label="J blue")
-    apply_clean_axes(axes[0], xlabel="iteration", title="PropagandaWar game payoff")
+    apply_clean_axes(axes[0], xlabel="iteration", title="PropagandaWar hybrid differential-game payoff")
     axes[0].legend(frameon=False, fontsize=8)
 
-    plot_time_series(axes[1], t, pw.pr @ pw.pkr, "red P")
-    plot_time_series(axes[1], t, pw.cr @ pw.pkr, "red C")
-    plot_time_series(axes[1], t, pw.pb @ pw.pkb, "blue P")
-    plot_time_series(axes[1], t, pw.cb @ pw.pkb, "blue C")
+    plot_time_series(axes[1], t, pw.pr @ pw.pkr, "state: red P (degree mean)", linestyle="-")
+    plot_time_series(axes[1], t, pw.cr @ pw.pkr, "state: red C (degree mean)", linestyle="--")
+    plot_time_series(axes[1], t, pw.pb @ pw.pkb, "state: blue P (degree mean)", linestyle="-.")
+    plot_time_series(axes[1], t, pw.cb @ pw.pkb, "state: blue C (degree mean)", linestyle=":")
     mark_event_times(axes[1], t, red_pulses, color="tab:red", label="red pulse")
     mark_event_times(axes[1], t, blue_pulses, color="tab:blue", label="blue pulse")
-    apply_clean_axes(axes[1], xlabel="time", title="degree-level states")
-    axes[1].legend(frameon=False, ncol=2, fontsize=8)
+    apply_clean_axes(axes[1], xlabel="time", title="degree-level states (degree-weighted means)")
+    axes[1].legend(frameon=False, ncol=1, fontsize=7, loc="center left")
 
-    plot_time_series(axes[2], t, pw.ur, "ur continuous", color="tab:red", linestyle="-")
-    plot_time_series(axes[2], t, pw.ub, "ub continuous", color="tab:blue", linestyle="--")
-    plot_impulse_events(axes[2], t, pw.vr, "vr impulse", color="tab:orange", event_indices=red_pulses)
-    plot_impulse_events(axes[2], t, pw.vb, "vb impulse", color="tab:cyan", event_indices=blue_pulses)
+    plot_time_series(axes[2], t, pw.ur, "continuous ur(t)", color="tab:red", linestyle="-")
+    plot_time_series(axes[2], t, pw.ub, "continuous ub(t)", color="tab:blue", linestyle="--")
+    plot_impulse_events(axes[2], t, pw.vr, "impulse vr(tau)", color="tab:orange", event_indices=red_pulses)
+    plot_impulse_events(axes[2], t, pw.vb, "impulse vb(tau)", color="tab:cyan", event_indices=blue_pulses, linestyle="--")
     axes[2].set_ylim(0.0, max(1.15, float(max(np.max(pw.ur), np.max(pw.ub), np.max(pw.vr), np.max(pw.vb))) + 0.12))
-    apply_clean_axes(axes[2], xlabel="time", ylabel="strategy value", title="continuous and impulse strategies")
+    apply_clean_axes(axes[2], xlabel="time", ylabel="strategy value", title="hybrid control: continuous + impulse strategies")
     axes[2].legend(frameon=False, ncol=2, fontsize=8)
     fig.tight_layout()
     fig.savefig(OUT_DIR / "propaganda_war.png", dpi=180)
@@ -405,18 +406,18 @@ def run_propaganda_tcss() -> dict[str, float]:
     A[A < 0] = 0
     np.fill_diagonal(A, 0)
     n = A.shape[0]
-    T = 0.8
+    T = 1.0
     h = 0.02
     t_interval = int(T / h) + 1
     maxiter = 5
     pulse_interval = 10
-    beta1, beta2, eta, delta, gamma_a, gamma_u, omega = 0.001, 0.002, 0.001, 0.001, 0.002, 0.001, 0.01
-    cg = cf = 1
-    a_low, a_upp, u_low, u_upp = 0.1, 0.8, 0.3, 1.0
+    beta1, beta2, eta, delta, gamma_a, gamma_u, omega = 0.003, 0.004, 0.0015, 0.001, 0.004, 0.003, 0.03
+    cg = cf = 2.0
+    a_low, a_upp, u_low, u_upp = 1.8, 3.0, 2.0, 3.4
 
-    sa = np.full((t_interval, n), 0.2)
-    su = np.full((t_interval, n), 0.2)
-    r = np.full((t_interval, n), 0.5)
+    sa = np.full((t_interval, n), 0.32)
+    su = np.full((t_interval, n), 0.30)
+    r = np.full((t_interval, n), 0.12)
     lambda_a = np.zeros((t_interval, n))
     lambda_u = np.zeros((t_interval, n))
     mu = np.zeros((t_interval, n))
@@ -465,19 +466,36 @@ def run_propaganda_tcss() -> dict[str, float]:
 
     fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
     axes[0].plot(np.arange(maxiter + 1), J, marker="o", linewidth=LINE_WIDTH)
-    apply_clean_axes(axes[0], xlabel="iteration", ylabel="J", title="TCSS OIC profit")
+    apply_clean_axes(axes[0], xlabel="iteration", ylabel="J", title="TCSS optimal impulse-control profit")
 
-    plot_time_series(axes[1], t, sa.mean(axis=1), "Sa")
-    plot_time_series(axes[1], t, su.mean(axis=1), "Su")
-    plot_time_series(axes[1], t, r.mean(axis=1), "R")
+    plot_time_series(axes[1], t, sa.mean(axis=1), "state: mean Sa (all nodes)", linestyle="-")
+    plot_time_series(axes[1], t, su.mean(axis=1), "state: mean Su (all nodes)", linestyle="--")
+    plot_time_series(axes[1], t, r.mean(axis=1), "state: mean R (all nodes)", linestyle="-.")
     mark_event_times(axes[1], t, pulse_events, color="0.35", label="pulse time")
-    apply_clean_axes(axes[1], xlabel="time", title="node-level states")
+    apply_clean_axes(axes[1], xlabel="time", title="node-level mean states (all nodes)")
     axes[1].legend(frameon=False, fontsize=8)
 
-    plot_impulse_events(axes[2], t, ca, "ca impulse", color="tab:red", event_indices=pulse_events, linewidth=4.0)
-    plot_impulse_events(axes[2], t, cu, "cu impulse", color="tab:blue", event_indices=pulse_events, linewidth=2.0)
-    axes[2].set_ylim(0.0, max(0.45, float(max(np.max(ca), np.max(cu))) + 0.08))
-    apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="discrete impulse controls")
+    plot_impulse_events(
+        axes[2],
+        t,
+        ca,
+        "impulse control ca(tau)",
+        color="tab:red",
+        event_indices=pulse_events,
+        linewidth=4.0,
+    )
+    plot_impulse_events(
+        axes[2],
+        t,
+        cu,
+        "impulse control cu(tau)",
+        color="tab:blue",
+        event_indices=pulse_events,
+        linewidth=2.0,
+        linestyle="--",
+    )
+    axes[2].set_ylim(0.0, max(2.25, float(max(np.max(ca), np.max(cu))) + 0.12))
+    apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="impulse controls: discrete event lines")
     axes[2].legend(frameon=False, fontsize=8)
     fig.tight_layout()
     fig.savefig(OUT_DIR / "propaganda_tcss.png", dpi=180)
@@ -539,10 +557,10 @@ Each reference figure now has three panels:
 | Panel type | X-axis | Purpose |
 | --- | --- | --- |
 | Payoff/profit panel | iteration | Shows the numerical optimization or game-strategy iteration. This is a smoke-level convergence diagnostic: the curve should be finite and should not break or explode. |
-| State panel | time | Shows system state evolution under the computed control/game strategy. These are the main model trajectories. |
-| Control/strategy panel | time | Continuous controls/strategies are curves. Discrete impulse interventions are vertical lines at event times; they are not continuous trajectories. |
+| State panel | time | Shows system state evolution under the computed control/game strategy. Labels state whether trajectories are node means over all nodes or degree-weighted means over degree classes. |
+| Control/strategy panel | time | Continuous controls/strategies are time-indexed curves. Impulse controls/strategies are vertical event lines. Hybrid examples show both. |
 
-In the state panels, vertical markers show impulse or pulse times. State curves may change direction or jump at these times because the model applies a discrete intervention in addition to the continuous dynamics.
+Continuous control can vary with time. Impulse control acts only at discrete event times and may make the state jump or change direction. Hybrid control combines the two. In the state panels, vertical markers show impulse or pulse times. The TCSS smoke-run parameters are intentionally chosen to make impulse-induced state changes visible in a small local graph.
 
 ## Model classification
 
@@ -556,9 +574,9 @@ In the state panels, vertical markers show impulse or pulse times. State curves 
 
 | File | Model class | Interpretation |
 | --- | --- | --- |
-| `opinion_malware.png` | Node-level optimal impulse control | Left: payoff over forward-backward iterations. Middle: mean malware state `c(t)` and opinion state `o(t)` over time; vertical markers show `u1`/`u2` impulse times. Right: `u1` and `u2` are plotted only as discrete impulse magnitudes. |
-| `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-level red/blue propaganda states with pulse markers. Right: `ur`/`ub` are continuous strategies; `vr`/`vb` are discrete impulse strategies. |
-| `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Left: profit over impulse-policy iterations. Middle: awareness/unawareness/removed state averages with pulse markers. Right: `ca` and `cu` are plotted only as discrete impulse magnitudes. |
+| `opinion_malware.png` | Node-level optimal impulse control | Left: payoff over forward-backward iterations. Middle: node-mean malware state `c(t)` and opinion state `o(t)` over all nodes; vertical markers show `u1`/`u2` impulse times. Right: `u1` and `u2` are plotted only as discrete impulse magnitudes. |
+| `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-weighted red/blue propaganda state means with pulse markers. Right: `ur`/`ub` are continuous strategies; `vr`/`vb` are discrete impulse strategies. |
+| `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Left: profit over impulse-policy iterations. Middle: node-mean awareness/unawareness/removed states over all nodes with pulse markers. Right: `ca` and `cu` are plotted only as discrete impulse magnitudes. |
 | `reference_repo_contact_sheet.png` | Mixed overview | Compact visual index for the three reference smoke runs. |
 
 ## CSV outputs
