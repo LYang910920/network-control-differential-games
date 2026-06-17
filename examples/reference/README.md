@@ -120,6 +120,8 @@ results/reference_repos/propaganda_tcss_timeseries.csv
 
 For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `smoke_run_report.md` into its output directory.
 
+Plot convention: continuous states, controls, and game strategies are drawn as curves. Discrete impulse or pulse interventions are drawn as vertical event lines, and state panels mark the same event times.
+
 ## What each smoke run does
 
 ### OpinionMalware_TIFS_2025_Code

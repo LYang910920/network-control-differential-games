@@ -5,8 +5,15 @@ from __future__ import annotations
 
 import importlib
 import argparse
+import os
 import sys
 from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+os.environ.setdefault("MPLCONFIGDIR", str((HERE / ".mplconfig").resolve()))
+os.environ.setdefault("XDG_CACHE_HOME", str((HERE / ".cache").resolve()))
+Path(os.environ["MPLCONFIGDIR"]).mkdir(parents=True, exist_ok=True)
+Path(os.environ["XDG_CACHE_HOME"]).mkdir(parents=True, exist_ok=True)
 
 import matplotlib
 
@@ -17,17 +24,96 @@ import numpy as np
 import pandas as pd
 
 
-HERE = Path(__file__).resolve().parent
 ROOT_DIR = HERE.parents[1]
 PACKAGE_DIR = HERE
 REF_DIR = PACKAGE_DIR / "reference_repositories"
 OUT_DIR = HERE / "results" / "reference_repos_rerun"
 PYDEPS = HERE / "pydeps"
+LINE_WIDTH = 2.0
+FIGSIZE_REFERENCE = (14.4, 3.9)
 
 if PYDEPS.exists():
     sys.path.insert(0, str(PYDEPS))
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def apply_clean_axes(ax, *, xlabel: str | None = None, ylabel: str | None = None,
+                     title: str | None = None) -> None:
+    if xlabel:
+        ax.set_xlabel(xlabel)
+    if ylabel:
+        ax.set_ylabel(ylabel)
+    if title:
+        ax.set_title(title)
+    ax.grid(True, alpha=0.25, linewidth=0.8)
+
+
+def plot_time_series(ax, t: np.ndarray, y: np.ndarray, label: str, **kwargs) -> None:
+    kwargs.setdefault("linewidth", LINE_WIDTH)
+    ax.plot(t, y, label=label, **kwargs)
+
+
+def event_indices_from_values(
+    values: np.ndarray,
+    *,
+    event_indices: np.ndarray | list[int] | None = None,
+    tol: float = 1e-9,
+    drop_endpoints: bool = True,
+) -> np.ndarray:
+    values = np.asarray(values, dtype=float)
+    if event_indices is None:
+        indices = np.flatnonzero(np.abs(values) > tol)
+    else:
+        indices = np.asarray(event_indices, dtype=int)
+    indices = indices[(indices >= 0) & (indices < len(values))]
+    if drop_endpoints:
+        indices = indices[(indices != 0) & (indices != len(values) - 1)]
+    return np.unique(indices)
+
+
+def pulse_indices(interval: int, length: int) -> np.ndarray:
+    if interval <= 0 or length <= 0:
+        return np.array([], dtype=int)
+    return event_indices_from_values(
+        np.ones(length, dtype=float),
+        event_indices=np.arange(interval, length, interval),
+        drop_endpoints=True,
+    )
+
+
+def mark_event_times(ax, t: np.ndarray, indices: np.ndarray | list[int], *,
+                     color: str = "0.35", label: str | None = None) -> None:
+    for count, idx in enumerate(np.asarray(indices, dtype=int)):
+        ax.axvline(
+            t[idx],
+            color=color,
+            linestyle=":",
+            linewidth=1.2,
+            alpha=0.50,
+            label=label if count == 0 else None,
+        )
+
+
+def plot_impulse_events(
+    ax,
+    t: np.ndarray,
+    values: np.ndarray,
+    label: str,
+    *,
+    color: str = "tab:red",
+    event_indices: np.ndarray | list[int] | None = None,
+    tol: float = 1e-9,
+    linewidth: float = 2.2,
+) -> np.ndarray:
+    indices = event_indices_from_values(values, event_indices=event_indices, tol=tol)
+    if len(indices) == 0:
+        return indices
+    event_t = np.asarray(t, dtype=float)[indices]
+    heights = np.asarray(values, dtype=float)[indices]
+    ax.vlines(event_t, 0.0, heights, color=color, linewidth=linewidth, label=label)
+    ax.scatter(event_t, heights, color=color, s=24, zorder=3)
+    return indices
 
 
 def require_outputs(paths: list[Path]) -> None:
@@ -166,25 +252,22 @@ def run_opinion_malware() -> dict[str, float]:
         }
     ).to_csv(OUT_DIR / "opinion_malware_timeseries.csv", index=False)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.2, 3.8))
-    axes[0].plot(np.arange(maxiter + 1), J, marker="o")
-    axes[0].set_xlabel("iteration")
-    axes[0].set_ylabel("J")
-    axes[0].set_title("OpinionMalware payoff")
-    axes[1].plot(t, om.c.mean(axis=1), label="mean c")
-    axes[1].plot(t, om.o.mean(axis=1), label="mean o")
-    for tau in imp_a:
-        axes[1].axvline(tau * om.h, color="tab:red", alpha=0.25, linewidth=1)
-    for tau in imp_b:
-        axes[1].axvline(tau * om.h, color="tab:green", alpha=0.25, linewidth=1)
-    axes[1].set_xlabel("time")
-    axes[1].set_title("state trajectories")
-    axes[1].legend()
-    axes[2].plot(t, om.u1, label="u1")
-    axes[2].plot(t, om.u2, label="u2")
-    axes[2].set_xlabel("time")
-    axes[2].set_title("impulse-control schedule")
-    axes[2].legend()
+    fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
+    axes[0].plot(np.arange(maxiter + 1), J, marker="o", linewidth=LINE_WIDTH)
+    apply_clean_axes(axes[0], xlabel="iteration", ylabel="J", title="OpinionMalware payoff")
+
+    plot_time_series(axes[1], t, om.c.mean(axis=1), "mean c")
+    plot_time_series(axes[1], t, om.o.mean(axis=1), "mean o")
+    mark_event_times(axes[1], t, imp_a, color="tab:red", label="u1 impulse")
+    mark_event_times(axes[1], t, imp_b, color="tab:green", label="u2 impulse")
+    apply_clean_axes(axes[1], xlabel="time", title="state trajectories")
+    axes[1].legend(frameon=False, fontsize=8)
+
+    plot_impulse_events(axes[2], t, om.u1, "u1 impulse", color="tab:red", event_indices=imp_a)
+    plot_impulse_events(axes[2], t, om.u2, "u2 impulse", color="tab:green", event_indices=imp_b)
+    axes[2].set_ylim(0.0, max(0.65, float(max(np.max(om.u1), np.max(om.u2))) + 0.08))
+    apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="discrete impulse controls")
+    axes[2].legend(frameon=False, fontsize=8)
     fig.tight_layout()
     fig.savefig(OUT_DIR / "opinion_malware.png", dpi=180)
     plt.close(fig)
@@ -264,6 +347,8 @@ def run_propaganda_war() -> dict[str, float]:
         jb[idx + 1] = pw.payoffBlue()
 
     t = np.arange(pw.t_interval) * pw.h
+    red_pulses = pulse_indices(pw.pulse_interval_r, pw.t_interval)
+    blue_pulses = pulse_indices(pw.pulse_interval_b, pw.t_interval)
     pd.DataFrame({"iteration": np.arange(pw.maxiter + 1), "J_red": jr, "J_blue": jb}).to_csv(
         OUT_DIR / "propaganda_war_payoff.csv", index=False
     )
@@ -281,26 +366,28 @@ def run_propaganda_war() -> dict[str, float]:
         }
     ).to_csv(OUT_DIR / "propaganda_war_timeseries.csv", index=False)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.2, 3.8))
-    axes[0].plot(np.arange(pw.maxiter + 1), jr, marker="o", label="J red")
-    axes[0].plot(np.arange(pw.maxiter + 1), jb, marker="o", label="J blue")
-    axes[0].set_xlabel("iteration")
-    axes[0].set_title("PropagandaWar game payoff")
-    axes[0].legend()
-    axes[1].plot(t, pw.pr @ pw.pkr, label="red P")
-    axes[1].plot(t, pw.cr @ pw.pkr, label="red C")
-    axes[1].plot(t, pw.pb @ pw.pkb, label="blue P")
-    axes[1].plot(t, pw.cb @ pw.pkb, label="blue C")
-    axes[1].set_xlabel("time")
-    axes[1].set_title("degree-level states")
-    axes[1].legend(ncol=2)
-    axes[2].plot(t, pw.ur, label="ur")
-    axes[2].plot(t, pw.ub, label="ub")
-    axes[2].plot(t, pw.vr, label="vr")
-    axes[2].plot(t, pw.vb, label="vb")
-    axes[2].set_xlabel("time")
-    axes[2].set_title("red/blue strategies")
-    axes[2].legend(ncol=2)
+    fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
+    axes[0].plot(np.arange(pw.maxiter + 1), jr, marker="o", linewidth=LINE_WIDTH, label="J red")
+    axes[0].plot(np.arange(pw.maxiter + 1), jb, marker="o", linewidth=LINE_WIDTH, label="J blue")
+    apply_clean_axes(axes[0], xlabel="iteration", title="PropagandaWar game payoff")
+    axes[0].legend(frameon=False, fontsize=8)
+
+    plot_time_series(axes[1], t, pw.pr @ pw.pkr, "red P")
+    plot_time_series(axes[1], t, pw.cr @ pw.pkr, "red C")
+    plot_time_series(axes[1], t, pw.pb @ pw.pkb, "blue P")
+    plot_time_series(axes[1], t, pw.cb @ pw.pkb, "blue C")
+    mark_event_times(axes[1], t, red_pulses, color="tab:red", label="red pulse")
+    mark_event_times(axes[1], t, blue_pulses, color="tab:blue", label="blue pulse")
+    apply_clean_axes(axes[1], xlabel="time", title="degree-level states")
+    axes[1].legend(frameon=False, ncol=2, fontsize=8)
+
+    plot_time_series(axes[2], t, pw.ur, "ur continuous", color="tab:red", linestyle="-")
+    plot_time_series(axes[2], t, pw.ub, "ub continuous", color="tab:blue", linestyle="--")
+    plot_impulse_events(axes[2], t, pw.vr, "vr impulse", color="tab:orange", event_indices=red_pulses)
+    plot_impulse_events(axes[2], t, pw.vb, "vb impulse", color="tab:cyan", event_indices=blue_pulses)
+    axes[2].set_ylim(0.0, max(1.15, float(max(np.max(pw.ur), np.max(pw.ub), np.max(pw.vr), np.max(pw.vb))) + 0.12))
+    apply_clean_axes(axes[2], xlabel="time", ylabel="strategy value", title="continuous and impulse strategies")
+    axes[2].legend(frameon=False, ncol=2, fontsize=8)
     fig.tight_layout()
     fig.savefig(OUT_DIR / "propaganda_war.png", dpi=180)
     plt.close(fig)
@@ -361,6 +448,7 @@ def run_propaganda_tcss() -> dict[str, float]:
         J[idx + 1] = pp.profit_sim(r, ca, cu, t_interval, pulse_interval, h, omega)
 
     t = np.arange(t_interval) * h
+    pulse_events = pulse_indices(pulse_interval, t_interval)
     pd.DataFrame({"iteration": np.arange(maxiter + 1), "J": J}).to_csv(
         OUT_DIR / "propaganda_tcss_payoff.csv", index=False
     )
@@ -375,22 +463,22 @@ def run_propaganda_tcss() -> dict[str, float]:
         }
     ).to_csv(OUT_DIR / "propaganda_tcss_timeseries.csv", index=False)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.2, 3.8))
-    axes[0].plot(np.arange(maxiter + 1), J, marker="o")
-    axes[0].set_xlabel("iteration")
-    axes[0].set_ylabel("J")
-    axes[0].set_title("TCSS OIC profit")
-    axes[1].plot(t, sa.mean(axis=1), label="Sa")
-    axes[1].plot(t, su.mean(axis=1), label="Su")
-    axes[1].plot(t, r.mean(axis=1), label="R")
-    axes[1].set_xlabel("time")
-    axes[1].set_title("node-level states")
-    axes[1].legend()
-    axes[2].plot(t, ca, label="ca")
-    axes[2].plot(t, cu, label="cu")
-    axes[2].set_xlabel("time")
-    axes[2].set_title("impulse-control schedule")
-    axes[2].legend()
+    fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
+    axes[0].plot(np.arange(maxiter + 1), J, marker="o", linewidth=LINE_WIDTH)
+    apply_clean_axes(axes[0], xlabel="iteration", ylabel="J", title="TCSS OIC profit")
+
+    plot_time_series(axes[1], t, sa.mean(axis=1), "Sa")
+    plot_time_series(axes[1], t, su.mean(axis=1), "Su")
+    plot_time_series(axes[1], t, r.mean(axis=1), "R")
+    mark_event_times(axes[1], t, pulse_events, color="0.35", label="pulse time")
+    apply_clean_axes(axes[1], xlabel="time", title="node-level states")
+    axes[1].legend(frameon=False, fontsize=8)
+
+    plot_impulse_events(axes[2], t, ca, "ca impulse", color="tab:red", event_indices=pulse_events, linewidth=4.0)
+    plot_impulse_events(axes[2], t, cu, "cu impulse", color="tab:blue", event_indices=pulse_events, linewidth=2.0)
+    axes[2].set_ylim(0.0, max(0.45, float(max(np.max(ca), np.max(cu))) + 0.08))
+    apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="discrete impulse controls")
+    axes[2].legend(frameon=False, fontsize=8)
     fig.tight_layout()
     fig.savefig(OUT_DIR / "propaganda_tcss.png", dpi=180)
     plt.close(fig)
@@ -452,7 +540,9 @@ Each reference figure now has three panels:
 | --- | --- | --- |
 | Payoff/profit panel | iteration | Shows the numerical optimization or game-strategy iteration. This is a smoke-level convergence diagnostic: the curve should be finite and should not break or explode. |
 | State panel | time | Shows system state evolution under the computed control/game strategy. These are the main model trajectories. |
-| Control/strategy panel | time | Shows how the computed intervention, impulse, attack, or defense policy changes over the simulation horizon. |
+| Control/strategy panel | time | Continuous controls/strategies are curves. Discrete impulse interventions are vertical lines at event times; they are not continuous trajectories. |
+
+In the state panels, vertical markers show impulse or pulse times. State curves may change direction or jump at these times because the model applies a discrete intervention in addition to the continuous dynamics.
 
 ## Model classification
 
@@ -466,9 +556,9 @@ Each reference figure now has three panels:
 
 | File | Model class | Interpretation |
 | --- | --- | --- |
-| `opinion_malware.png` | Node-level optimal impulse control | Left: payoff over forward-backward iterations. Middle: mean malware state `c(t)` and opinion state `o(t)` over time; vertical lines mark impulse times. Right: computed impulse-control schedules `u1(t)` and `u2(t)`. |
-| `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-level red/blue propaganda states over time. Right: computed red/blue strategy variables over time. |
-| `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Left: profit over impulse-policy iterations. Middle: awareness/unawareness/removed state averages over time. Right: computed impulse-control schedules `ca(t)` and `cu(t)`. |
+| `opinion_malware.png` | Node-level optimal impulse control | Left: payoff over forward-backward iterations. Middle: mean malware state `c(t)` and opinion state `o(t)` over time; vertical markers show `u1`/`u2` impulse times. Right: `u1` and `u2` are plotted only as discrete impulse magnitudes. |
+| `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-level red/blue propaganda states with pulse markers. Right: `ur`/`ub` are continuous strategies; `vr`/`vb` are discrete impulse strategies. |
+| `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Left: profit over impulse-policy iterations. Middle: awareness/unawareness/removed state averages with pulse markers. Right: `ca` and `cu` are plotted only as discrete impulse magnitudes. |
 | `reference_repo_contact_sheet.png` | Mixed overview | Compact visual index for the three reference smoke runs. |
 
 ## CSV outputs

@@ -67,6 +67,11 @@ from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 
 
+LINE_WIDTH = 2.0
+FIGSIZE_SINGLE = (7.4, 4.2)
+FIGSIZE_STACKED = (7.4, 5.8)
+
+
 # ---------------------------------------------------------------------------
 # Data containers
 # ---------------------------------------------------------------------------
@@ -162,6 +167,49 @@ def savefig(path: Path) -> None:
     plt.savefig(path, dpi=180)
     plt.close()
     print(f"saved {path}")
+
+
+def apply_clean_axes(ax, *, xlabel: str | None = None, ylabel: str | None = None,
+                     title: str | None = None) -> None:
+    """Apply the same readable axis style to all generated figures."""
+    if xlabel:
+        ax.set_xlabel(xlabel)
+    if ylabel:
+        ax.set_ylabel(ylabel)
+    if title:
+        ax.set_title(title)
+    ax.grid(True, alpha=0.25, linewidth=0.8)
+
+
+def plot_time_series(ax, t: np.ndarray, y: np.ndarray, label: str, **kwargs) -> None:
+    """Plot a continuous trajectory with the repository's default line style."""
+    kwargs.setdefault("linewidth", LINE_WIDTH)
+    ax.plot(t, y, label=label, **kwargs)
+
+
+def mark_event_times(ax, event_times: np.ndarray, *, color: str = "0.35",
+                     label: str | None = None) -> None:
+    """Mark impulse times on a state axis without implying continuous control."""
+    for idx, tau in enumerate(np.asarray(event_times, dtype=float)):
+        ax.axvline(
+            tau,
+            color=color,
+            linestyle=":",
+            linewidth=1.3,
+            alpha=0.55,
+            label=label if idx == 0 else None,
+        )
+
+
+def plot_impulse_events(ax, event_times: np.ndarray, heights: np.ndarray, label: str,
+                        *, color: str = "tab:red") -> None:
+    """Plot impulse magnitudes only at discrete event times."""
+    event_times = np.asarray(event_times, dtype=float)
+    heights = np.asarray(heights, dtype=float)
+    if len(event_times) == 0:
+        return
+    ax.vlines(event_times, 0.0, heights, color=color, linewidth=2.2, label=label)
+    ax.scatter(event_times, heights, color=color, s=24, zorder=3)
 
 
 # ---------------------------------------------------------------------------
@@ -375,11 +423,11 @@ def save_degree_distribution(D: DegreeData, out_dir: Path) -> None:
     """Save degree distribution as CSV and figure."""
     out_dir.mkdir(parents=True, exist_ok=True)
     pd.DataFrame({"k": D.k.astype(int), "N_k": D.Nk, "P(k)": D.pk}).to_csv(out_dir / "degree_distribution.csv", index=False)
-    plt.figure(figsize=(6.8, 4.0))
-    plt.bar(D.k, D.pk)
-    plt.xlabel("degree k")
-    plt.ylabel("P(k)")
-    plt.title(f"Empirical degree distribution; average degree={D.kbar:.2f}")
+    plt.figure(figsize=FIGSIZE_SINGLE)
+    ax = plt.gca()
+    ax.bar(D.k, D.pk, color="tab:blue", alpha=0.85)
+    apply_clean_axes(ax, xlabel="degree k", ylabel="P(k)",
+                     title=f"Empirical degree distribution; average degree={D.kbar:.2f}")
     savefig(out_dir / "degree_distribution.png")
 
 
@@ -609,19 +657,40 @@ def simulate_hybrid_impulse(A: np.ndarray, T=12.0, impulse_times=(3.0, 6.0, 9.0)
     x = np.full(n, 0.03)
     x[high_degree_nodes(A, 2)] = 0.15
 
+    impulse_times_arr = np.asarray(impulse_times, dtype=float)
+    impulse_times_arr = np.unique(np.sort(impulse_times_arr[(impulse_times_arr > 0.0) & (impulse_times_arr < T)]))
+    segment_bounds = [0.0, *impulse_times_arr.tolist(), T]
     all_t, all_x = [], []
-    for t0, t1 in zip([0.0, *impulse_times], [*impulse_times, T]):
+    for t0, t1 in zip(segment_bounds[:-1], segment_bounds[1:]):
         grid = np.linspace(t0, t1, max(2, int(30 * (t1 - t0)) + 1))
         segment = clip(solve_grid(lambda _, y: node_rhs(y, u, A, beta, delta), x, grid))
-        all_t.extend(grid[:-1])
-        all_x.extend(segment[:-1])
+        start = 0 if not all_t else 1
+        all_t.extend(grid[start:])
+        all_x.extend(segment[start:])
         x = segment[-1].copy()
-        if t1 in impulse_times:
+        if np.any(np.isclose(t1, impulse_times_arr)):
+            # Store the post-jump state at the same time to make the jump visible.
             x[controlled] *= 1.0 - impulse_fraction
+            all_t.append(t1)
+            all_x.append(x.copy())
 
-    all_t.append(T)
-    all_x.append(x)
-    return TimeSeries(t=np.asarray(all_t), x=np.vstack(all_x), controls={"controlled_nodes": controlled}, value={})
+    t = np.asarray(all_t, dtype=float)
+    impulse_heights = np.full(len(impulse_times_arr), impulse_fraction, dtype=float)
+    return TimeSeries(
+        t=t,
+        x=np.vstack(all_x),
+        controls={
+            "controlled_nodes": controlled,
+            "continuous_control": np.full_like(t, continuous_u, dtype=float),
+            "impulse_times": impulse_times_arr,
+            "impulse_heights": impulse_heights,
+        },
+        value={
+            "continuous_control": continuous_u,
+            "impulse_fraction": impulse_fraction,
+            "controlled_count": float(len(controlled)),
+        },
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -630,67 +699,89 @@ def simulate_hybrid_impulse(A: np.ndarray, T=12.0, impulse_times=(3.0, 6.0, 9.0)
 
 
 def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
-    plt.figure(figsize=(7, 4.1))
-    plt.plot(result.t, result.x @ D.pk, label="mean infection")
-    plt.plot(result.t, result.controls["control"] @ D.pk, label="mean control")
+    plt.figure(figsize=FIGSIZE_SINGLE)
+    ax = plt.gca()
+    plot_time_series(ax, result.t, result.x @ D.pk, "mean infection")
+    plot_time_series(ax, result.t, result.controls["control"] @ D.pk, "mean control")
     for j in sorted(set([0, len(D.k) // 2, len(D.k) - 1])):
-        plt.plot(result.t, result.x[:, j], "--", label=f"x_k, k={int(D.k[j])}")
-    plt.xlabel("time")
-    plt.ylabel("state / control")
-    plt.title(f"Degree-k optimal control; cost={result.value['cost']:.2f}")
-    plt.legend()
+        plot_time_series(ax, result.t, result.x[:, j], f"x_k, k={int(D.k[j])}", linestyle="--", linewidth=1.5)
+    apply_clean_axes(ax, xlabel="time", ylabel="state / control",
+                     title=f"Degree-k optimal control; cost={result.value['cost']:.2f}")
+    ax.legend(frameon=False)
     savefig(out_dir / "degree_control.png")
 
 
 def plot_degree_game(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
-    plt.figure(figsize=(7, 4.1))
-    plt.plot(result.t, result.x @ D.pk, label="mean infection")
-    plt.plot(result.t, result.controls["attack"] @ D.pk, label="mean attack")
-    plt.plot(result.t, result.controls["defense"] @ D.pk, label="mean defense")
+    plt.figure(figsize=FIGSIZE_SINGLE)
+    ax = plt.gca()
+    plot_time_series(ax, result.t, result.x @ D.pk, "mean infection")
+    plot_time_series(ax, result.t, result.controls["attack"] @ D.pk, "mean attack")
+    plot_time_series(ax, result.t, result.controls["defense"] @ D.pk, "mean defense")
     high = int(np.argmax(D.k))
-    plt.plot(result.t, result.x[:, high], "--", label=f"x_k, high k={int(D.k[high])}")
-    plt.xlabel("time")
-    plt.ylabel("state / control")
-    plt.title(f"Degree-k differential game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
-    plt.legend()
+    plot_time_series(ax, result.t, result.x[:, high], f"x_k, high k={int(D.k[high])}", linestyle="--", linewidth=1.5)
+    apply_clean_axes(ax, xlabel="time", ylabel="state / control",
+                     title=f"Degree-k differential game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
+    ax.legend(frameon=False)
     savefig(out_dir / "degree_game.png")
 
 
 def plot_node_control(result: TimeSeries, out_dir: Path) -> None:
-    plt.figure(figsize=(7, 4.1))
-    plt.plot(result.t, result.x.mean(axis=1), label="mean infection")
-    plt.plot(result.t, result.x.max(axis=1), label="max infection")
-    plt.plot(result.t, result.controls["control"].mean(axis=1), label="mean control")
-    plt.xlabel("time")
-    plt.ylabel("aggregate value")
-    plt.title(f"Node-level optimal control; cost={result.value['cost']:.2f}")
-    plt.legend()
+    plt.figure(figsize=FIGSIZE_SINGLE)
+    ax = plt.gca()
+    plot_time_series(ax, result.t, result.x.mean(axis=1), "mean infection")
+    plot_time_series(ax, result.t, result.x.max(axis=1), "max infection")
+    plot_time_series(ax, result.t, result.controls["control"].mean(axis=1), "mean control")
+    apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
+                     title=f"Node-level optimal control; cost={result.value['cost']:.2f}")
+    ax.legend(frameon=False)
     savefig(out_dir / "node_control.png")
 
 
 def plot_node_game(result: TimeSeries, out_dir: Path) -> None:
-    plt.figure(figsize=(7, 4.1))
-    plt.plot(result.t, result.x.mean(axis=1), label="mean infection")
-    plt.plot(result.t, result.controls["attack"].mean(axis=1), label="mean attack")
-    plt.plot(result.t, result.controls["defense"].mean(axis=1), label="mean defense")
-    plt.xlabel("time")
-    plt.ylabel("aggregate value")
-    plt.title(f"Node-level game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
-    plt.legend()
+    plt.figure(figsize=FIGSIZE_SINGLE)
+    ax = plt.gca()
+    plot_time_series(ax, result.t, result.x.mean(axis=1), "mean infection")
+    plot_time_series(ax, result.t, result.controls["attack"].mean(axis=1), "mean attack")
+    plot_time_series(ax, result.t, result.controls["defense"].mean(axis=1), "mean defense")
+    apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
+                     title=f"Node-level game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
+    ax.legend(frameon=False)
     savefig(out_dir / "node_game.png")
 
 
 def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
-    plt.figure(figsize=(7, 4.1))
-    plt.plot(result.t, result.x.mean(axis=1), label="mean infection")
-    plt.plot(result.t, result.x.max(axis=1), label="max infection")
-    for tau in (3.0, 6.0, 9.0):
-        plt.axvline(tau, linestyle="--", linewidth=1)
-    plt.xlabel("time")
-    plt.ylabel("state")
-    plt.title(f"Hybrid impulse control on {len(result.controls['controlled_nodes'])} high-degree nodes")
-    plt.legend()
-    savefig(out_dir / "hybrid_impulse.png")
+    impulse_times = result.controls["impulse_times"]
+    impulse_heights = result.controls["impulse_heights"]
+    continuous_control = result.controls["continuous_control"]
+    controlled_count = int(result.value["controlled_count"])
+    impulse_fraction = result.value["impulse_fraction"]
+
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_STACKED, sharex=True, height_ratios=[2.0, 1.0])
+    ax_state, ax_control = axes
+    plot_time_series(ax_state, result.t, result.x.mean(axis=1), "mean infection")
+    plot_time_series(ax_state, result.t, result.x.max(axis=1), "max infection")
+    mark_event_times(ax_state, impulse_times, label="impulse time")
+    apply_clean_axes(
+        ax_state,
+        ylabel="state",
+        title=f"Hybrid control on {controlled_count} high-degree nodes",
+    )
+    ax_state.legend(frameon=False, ncol=3)
+
+    plot_time_series(ax_control, result.t, continuous_control, "continuous control", color="tab:blue")
+    plot_impulse_events(ax_control, impulse_times, impulse_heights, "impulse fraction", color="tab:red")
+    ax_control.set_ylim(0.0, max(0.65, float(np.max(impulse_heights)) + 0.08))
+    apply_clean_axes(
+        ax_control,
+        xlabel="time",
+        ylabel="control",
+        title=f"continuous level={result.value['continuous_control']:.2f}; impulse fraction={impulse_fraction:.2f}",
+    )
+    ax_control.legend(frameon=False, ncol=2)
+    fig.tight_layout()
+    fig.savefig(out_dir / "hybrid_impulse.png", dpi=180)
+    plt.close(fig)
+    print(f"saved {out_dir / 'hybrid_impulse.png'}")
 
 
 # ---------------------------------------------------------------------------

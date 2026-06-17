@@ -78,7 +78,7 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 | `python run_all.py --skip-lecture` | `examples/reference/results/reference_repos_rerun/` |
 | `python run_all.py` | both locations above |
 
-The lecture runner writes `figure_explanations.md` in each lecture output folder. The reference runner writes `smoke_run_report.md` in each reference output folder. In these notes, iteration-axis plots are used to inspect convergence of an algorithmic update loop, while time-axis plots show system state evolution or the computed control/game strategy over the simulation horizon.
+The lecture runner writes `figure_explanations.md` in each lecture output folder. The reference runner writes `smoke_run_report.md` in each reference output folder. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, while time-axis plots show state evolution or computed control/game strategies. Curves indicate continuous states or controls; vertical lines indicate discrete impulse or pulse interventions.
 
 ## Core Layout
 

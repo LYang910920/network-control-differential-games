@@ -17,7 +17,9 @@ Each reference figure now has three panels:
 | --- | --- | --- |
 | Payoff/profit panel | iteration | Shows the numerical optimization or game-strategy iteration. This is a smoke-level convergence diagnostic: the curve should be finite and should not break or explode. |
 | State panel | time | Shows system state evolution under the computed control/game strategy. These are the main model trajectories. |
-| Control/strategy panel | time | Shows how the computed intervention, impulse, attack, or defense policy changes over the simulation horizon. |
+| Control/strategy panel | time | Continuous controls/strategies are curves. Discrete impulse interventions are vertical lines at event times; they are not continuous trajectories. |
+
+In the state panels, vertical markers show impulse or pulse times. State curves may change direction or jump at these times because the model applies a discrete intervention in addition to the continuous dynamics.
 
 ## Model classification
 
@@ -31,9 +33,9 @@ Each reference figure now has three panels:
 
 | File | Model class | Interpretation |
 | --- | --- | --- |
-| `opinion_malware.png` | Node-level optimal impulse control | Left: payoff over forward-backward iterations. Middle: mean malware state `c(t)` and opinion state `o(t)` over time; vertical lines mark impulse times. Right: computed impulse-control schedules `u1(t)` and `u2(t)`. |
-| `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-level red/blue propaganda states over time. Right: computed red/blue strategy variables over time. |
-| `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Left: profit over impulse-policy iterations. Middle: awareness/unawareness/removed state averages over time. Right: computed impulse-control schedules `ca(t)` and `cu(t)`. |
+| `opinion_malware.png` | Node-level optimal impulse control | Left: payoff over forward-backward iterations. Middle: mean malware state `c(t)` and opinion state `o(t)` over time; vertical markers show `u1`/`u2` impulse times. Right: `u1` and `u2` are plotted only as discrete impulse magnitudes. |
+| `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-level red/blue propaganda states with pulse markers. Right: `ur`/`ub` are continuous strategies; `vr`/`vb` are discrete impulse strategies. |
+| `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Left: profit over impulse-policy iterations. Middle: awareness/unawareness/removed state averages with pulse markers. Right: `ca` and `cu` are plotted only as discrete impulse magnitudes. |
 | `reference_repo_contact_sheet.png` | Mixed overview | Compact visual index for the three reference smoke runs. |
 
 ## CSV outputs
