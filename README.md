@@ -33,7 +33,13 @@ python -m pip install -r requirements.txt
 python run_all.py
 ```
 
-If `python-igraph` is hard to install in the active environment, install it locally for the reference runner:
+`python-igraph` is used by the lecture scalability experiment and by the reference smoke runner. If it is hard to install in the active environment, you can still run the non-scalability lecture examples:
+
+```bash
+python examples/lecture/code/run_all_lecture_examples.py --skip-scalability
+```
+
+For reference-only smoke runs, you can also install `python-igraph` into the local reference dependency folder:
 
 ```bash
 python -m pip install --target examples/reference/pydeps python-igraph
@@ -68,13 +74,19 @@ Only representative previews are shown here. The detailed per-model figures, CSV
 
 ![Lecture companion examples](examples/lecture/results/companion_contact_sheet.png)
 
+This contact sheet is a compact visual index for the teaching examples: degree-level control/game, node-level control/game, convergence diagnostics, and one hybrid control example. Time-axis plots show state/control evolution; iteration-axis plots show FBS convergence.
+
 **Scalability: degree-level FBS on synthetic scale-free networks from 100 to 2000 nodes**
 
-![Degree-level FBS scalability](examples/lecture/results/scalability_degree_sf/degree_control_scalability.png)
+![Degree-level FBS scalability](examples/lecture/results/scalability_degree_sf/degree_control_scalability_100_2000.png)
+
+This plot reports 60 runs: 20 synthetic scale-free network sizes from 100 to 2000 nodes, with three repeats per size. The left panel shows median/min-max FBS solve time; the right panel explains why degree-level runtime grows slowly by tracking degree-class state dimension and FBS iterations.
 
 **Reference smoke runs: paper-level code checks for TIFS/TCSS repositories**
 
 ![Reference smoke runs](examples/reference/results/reference_repos/reference_repo_contact_sheet.png)
+
+These smoke runs use small local sample data to check the three reference repositories without redistributing full paper datasets. They are grouped separately from the lecture examples because they are paper-level code snapshots with their own upstream licenses.
 
 After a fresh run, new outputs are written to timestamped or rerun folders:
 
@@ -84,7 +96,7 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 | `python run_all.py --skip-lecture` | `examples/reference/results/reference_repos_rerun/` |
 | `python run_all.py` | both locations above |
 
-The lecture runner writes `experiment_index.md`, `figure_explanations.md`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a degree-weighted mean, or a selected degree class.
+The lecture runner writes a generated `README.md`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a degree-weighted mean, or a selected degree class.
 
 ## Core Layout
 
@@ -158,10 +170,10 @@ If a run fails with `ModuleNotFoundError`, install the root requirements in the 
 
 ```bash
 python -m pip install -r requirements.txt
-python -c "import networkx, scipy, pandas, matplotlib; print('core dependencies ok')"
+python -c "import igraph, networkx, scipy, pandas, matplotlib; print('core dependencies ok')"
 ```
 
-If `python-igraph` is the only difficult package, use the local install path:
+If `python-igraph` is the only difficult package and you only need the reference smoke runner, use the local install path:
 
 ```bash
 python -m pip install --target examples/reference/pydeps python-igraph

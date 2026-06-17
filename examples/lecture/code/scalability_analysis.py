@@ -16,10 +16,12 @@ runtime changes as the underlying network grows.
 from __future__ import annotations
 
 import argparse
+import random
 import sys
 import time
 from pathlib import Path
 
+import igraph as ig
 import matplotlib
 
 matplotlib.use("Agg")
@@ -37,7 +39,7 @@ if str(EXAMPLES_DIR) not in sys.path:
     sys.path.insert(0, str(EXAMPLES_DIR))
 
 from network_control_examples import (  # noqa: E402
-    degree_distribution_from_graph,
+    DegreeData,
     graph_to_model_matrix,
     solve_degree_control,
     solve_node_control,
@@ -54,16 +56,31 @@ def parse_sizes(raw: str) -> list[int]:
     return sizes
 
 
-def synthetic_scale_free_graph(nodes: int, attachment_m: int, seed: int) -> nx.Graph:
+def synthetic_scale_free_graph(nodes: int, attachment_m: int, seed: int) -> ig.Graph:
     m = max(1, min(attachment_m, nodes - 1))
-    graph = nx.barabasi_albert_graph(nodes, m, seed=seed)
-    nx.set_edge_attributes(graph, 1.0, "weight")
+    ig.set_random_number_generator(random.Random(seed))
+    graph = ig.Graph.Barabasi(n=nodes, m=m, directed=False)
+    graph.es["weight"] = [1.0] * graph.ecount()
     return graph
 
 
-def run_degree_trial(graph: nx.Graph, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
+def degree_distribution_from_igraph(graph: ig.Graph) -> DegreeData:
+    degree = np.asarray(graph.degree(), dtype=int)
+    k, Nk = np.unique(degree, return_counts=True)
+    pk = Nk / Nk.sum()
+    return DegreeData(k=k.astype(float), Nk=Nk.astype(int), pk=pk.astype(float), kbar=float(k @ pk), node_degree=degree)
+
+
+def igraph_to_networkx(graph: ig.Graph) -> nx.Graph:
+    converted = nx.Graph()
+    converted.add_nodes_from(range(graph.vcount()))
+    converted.add_edges_from((source, target, {"weight": 1.0}) for source, target in graph.get_edgelist())
+    return converted
+
+
+def run_degree_trial(graph: ig.Graph, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
     prep_start = time.perf_counter()
-    degree_data = degree_distribution_from_graph(graph)
+    degree_data = degree_distribution_from_igraph(graph)
     prep_seconds = time.perf_counter() - prep_start
 
     solve_start = time.perf_counter()
@@ -84,9 +101,9 @@ def run_degree_trial(graph: nx.Graph, *, steps: int, iterations: int, tol: float
     }
 
 
-def run_node_trial(graph: nx.Graph, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
+def run_node_trial(graph: ig.Graph, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
     prep_start = time.perf_counter()
-    A, _ = graph_to_model_matrix(graph, directed=False, normalize="max-degree")
+    A, _ = graph_to_model_matrix(igraph_to_networkx(graph), directed=False, normalize="max-degree")
     prep_seconds = time.perf_counter() - prep_start
 
     solve_start = time.perf_counter()
@@ -121,7 +138,7 @@ def run_scalability_experiment(args: argparse.Namespace) -> pd.DataFrame:
             row: dict[str, float | int | str] = {
                 "network_model": "Barabasi-Albert scale-free",
                 "nodes": nodes,
-                "edges": graph.number_of_edges(),
+                "edges": graph.ecount(),
                 "attachment_m": args.attachment_m,
                 "repeat": repeat,
                 "seed": seed,
@@ -156,7 +173,13 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
     return grouped
 
 
-def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str) -> None:
+def plot_filename(model_level: str, summary: pd.DataFrame) -> str:
+    node_min = int(summary["nodes"].min())
+    node_max = int(summary["nodes"].max())
+    return f"{model_level}_control_scalability_{node_min}_{node_max}.png"
+
+
+def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str) -> Path:
     fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.2))
     color = "tab:blue" if model_level == "degree" else "tab:orange"
     node_min = int(summary["nodes"].min())
@@ -222,12 +245,13 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
 
     fig.suptitle(f"Scalability analysis on synthetic scale-free networks ({node_min}-{node_max} nodes)")
     fig.tight_layout()
-    path = out_dir / f"{model_level}_control_scalability.png"
+    path = out_dir / plot_filename(model_level, summary)
     fig.savefig(path, dpi=180)
     plt.close(fig)
+    return path
 
 
-def write_report(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str) -> None:
+def write_report(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str, plot_path: Path) -> None:
     largest = summary.sort_values("nodes").iloc[-1]
     text = f"""# Scalability Analysis
 
@@ -244,7 +268,7 @@ This run measures `{model_level}`-level forward-backward sweep (FBS) optimal con
 
 | File | Meaning |
 | --- | --- |
-| `{model_level}_control_scalability.png` | Runtime and state-dimension/iteration trends as SF network size grows. |
+| `{plot_path.name}` | Runtime and state-dimension/iteration trends as SF network size grows. |
 | `{model_level}_control_scalability.csv` | One row per size and repeat. |
 | `{model_level}_control_scalability_summary.csv` | Median/min/max runtime and convergence summary by size. |
 
@@ -281,8 +305,11 @@ def main() -> None:
     summary_path = args.output_dir / f"{args.model_level}_control_scalability_summary.csv"
     df.to_csv(raw_path, index=False)
     summary.to_csv(summary_path, index=False)
-    plot_scalability(summary, df, args.output_dir, args.model_level)
-    write_report(summary, df, args.output_dir, args.model_level)
+    legacy_plot = args.output_dir / f"{args.model_level}_control_scalability.png"
+    if legacy_plot.exists():
+        legacy_plot.unlink()
+    plot_path = plot_scalability(summary, df, args.output_dir, args.model_level)
+    write_report(summary, df, args.output_dir, args.model_level, plot_path)
     print(f"saved scalability outputs to {args.output_dir}")
 
 

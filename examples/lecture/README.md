@@ -104,7 +104,7 @@ python code/network_control_examples.py --examples hybrid --output-dir results/h
 
 ## Run scalability analysis
 
-Degree-level FBS timing on synthetic scale-free networks from 100 to 2000 nodes in steps of 100:
+Degree-level FBS timing on synthetic scale-free networks from 100 to 2000 nodes in steps of 100. The synthetic Barabasi-Albert graphs are generated with `python-igraph`; the rest of the model code uses NumPy/SciPy/Pandas/Matplotlib and NetworkX where those libraries make the code clearer.
 
 ```bash
 python code/scalability_analysis.py --output-dir results/scalability_degree_sf_new
@@ -123,13 +123,13 @@ Useful precomputed figures:
 ```text
 results/simple_contact_sheet.png
 results/companion_contact_sheet.png
-results/experiment_index.md
+results/README.md
 results/companion_builtin_sf/fbs_convergence.png
 results/companion_builtin_sf/degree_control_trajectory.png
 results/companion_builtin_sf/degree_game_trajectory.png
 results/companion_builtin_sf/node_control_trajectory.png
 results/companion_builtin_sf/hybrid_impulse_trajectory.png
-results/scalability_degree_sf/degree_control_scalability.png
+results/scalability_degree_sf/degree_control_scalability_100_2000.png
 ```
 
 The detailed subdirectories are grouped by purpose:
@@ -142,7 +142,7 @@ The detailed subdirectories are grouped by purpose:
 
 Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.
 
-For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `figure_explanations.md` and `experiment_index.md` into its output directory.
+For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes a generated `README.md` into its output directory.
 
 ## What to learn here
 
