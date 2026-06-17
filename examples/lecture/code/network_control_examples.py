@@ -643,17 +643,26 @@ def solve_node_game(A: np.ndarray, steps: int = 30, iterations: int = 6) -> Time
 
 
 def simulate_hybrid_impulse(A: np.ndarray, T=12.0, impulse_times=(3.0, 6.0, 9.0)) -> TimeSeries:
-    """Continuous node control plus state jumps on high-degree nodes.
+    """Time-varying continuous node control plus state jumps on high-degree nodes.
 
     This is a transparent simulation template for hybrid dynamics.  It does not
     solve the full hybrid PMP; it shows how to combine solve_ivp segments with
     impulse maps x(tau+) = G(x(tau-), z_tau).
     """
-    beta, delta, continuous_u, impulse_fraction = 0.95, 0.15, 0.35, 0.55
+    beta, delta, impulse_fraction = 0.95, 0.15, 0.55
     n = A.shape[0]
     controlled = high_degree_nodes(A, max(1, n // 4))
-    u = np.zeros(n)
-    u[controlled] = continuous_u
+
+    def continuous_u_level(tau: float) -> float:
+        phase = tau / max(T, 1e-12)
+        level = 0.16 + 0.24 * phase + 0.08 * np.sin(2.0 * np.pi * phase)
+        return float(clip(level, 0.10, 0.52))
+
+    def rhs_with_time_varying_control(tau: float, y: np.ndarray) -> np.ndarray:
+        u = np.zeros(n)
+        u[controlled] = continuous_u_level(tau)
+        return node_rhs(y, u, A, beta, delta)
+
     x = np.full(n, 0.03)
     x[high_degree_nodes(A, 2)] = 0.15
 
@@ -663,7 +672,7 @@ def simulate_hybrid_impulse(A: np.ndarray, T=12.0, impulse_times=(3.0, 6.0, 9.0)
     all_t, all_x = [], []
     for t0, t1 in zip(segment_bounds[:-1], segment_bounds[1:]):
         grid = np.linspace(t0, t1, max(2, int(30 * (t1 - t0)) + 1))
-        segment = clip(solve_grid(lambda _, y: node_rhs(y, u, A, beta, delta), x, grid))
+        segment = clip(solve_grid(rhs_with_time_varying_control, x, grid))
         start = 0 if not all_t else 1
         all_t.extend(grid[start:])
         all_x.extend(segment[start:])
@@ -676,17 +685,19 @@ def simulate_hybrid_impulse(A: np.ndarray, T=12.0, impulse_times=(3.0, 6.0, 9.0)
 
     t = np.asarray(all_t, dtype=float)
     impulse_heights = np.full(len(impulse_times_arr), impulse_fraction, dtype=float)
+    continuous_control = np.array([continuous_u_level(tau) for tau in t], dtype=float)
     return TimeSeries(
         t=t,
         x=np.vstack(all_x),
         controls={
             "controlled_nodes": controlled,
-            "continuous_control": np.full_like(t, continuous_u, dtype=float),
+            "continuous_control": continuous_control,
             "impulse_times": impulse_times_arr,
             "impulse_heights": impulse_heights,
         },
         value={
-            "continuous_control": continuous_u,
+            "continuous_control_min": float(np.min(continuous_control)),
+            "continuous_control_max": float(np.max(continuous_control)),
             "impulse_fraction": impulse_fraction,
             "controlled_count": float(len(controlled)),
         },
@@ -791,6 +802,8 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
     continuous_control = result.controls["continuous_control"]
     controlled_count = int(result.value["controlled_count"])
     impulse_fraction = result.value["impulse_fraction"]
+    continuous_min = result.value["continuous_control_min"]
+    continuous_max = result.value["continuous_control_max"]
 
     fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_STACKED, sharex=True, height_ratios=[2.0, 1.0])
     ax_state, ax_control = axes
@@ -808,7 +821,7 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
         ax_control,
         result.t,
         continuous_control,
-        "continuous control: constant smoke level",
+        "continuous control: time-varying level",
         color="tab:blue",
         linestyle="-.",
     )
@@ -818,7 +831,7 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
         ax_control,
         xlabel="time",
         ylabel="control",
-        title=f"continuous level={result.value['continuous_control']:.2f}; impulse fraction={impulse_fraction:.2f}",
+        title=f"continuous range={continuous_min:.2f}-{continuous_max:.2f}; impulse fraction={impulse_fraction:.2f}",
     )
     ax_control.legend(frameon=False, ncol=2, fontsize=8)
     fig.tight_layout()

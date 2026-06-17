@@ -12,7 +12,7 @@ This guide explains how to read the figures produced by the lecture examples.
 
 ## Plotting Convention
 
-- Continuous controls or strategies are time-indexed curves. They may vary smoothly with time, or appear constant in a smoke run if the chosen control level is constant.
+- Continuous controls or strategies are time-indexed curves sampled on the simulation grid. Projected controls can have flat bound segments, and the generated examples use line styles and parameter choices that make their time variation visible.
 - Impulse controls act only at discrete event times. They are drawn as vertical event lines, not as connected curves.
 - Hybrid control combines continuous control with impulse interventions. In hybrid plots, state curves may jump at impulse times because a discrete map is applied between continuous ODE segments.
 - State labels specify the aggregation level: node mean over all nodes, degree-weighted mean over degree classes, or a selected degree class `k`.
