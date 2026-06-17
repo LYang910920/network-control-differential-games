@@ -16,6 +16,7 @@ Use this track first. The scripts are small, self-contained, and written to show
 | --- | --- | --- |
 | `code/simple_degree_k_control.py` | Minimal degree-k SIS optimal-control example | First PMP/control run |
 | `code/network_control_examples.py` | Degree games, node-level models, hybrid impulse simulation | Compare model variants |
+| `code/scalability_analysis.py` | Synthetic scale-free runtime experiment | Check FBS runtime versus network size |
 | `run_all_lecture_examples.py` | Runs all lecture examples and saves figures | Reproduce the included plots |
 
 Typical run from the repository root:
@@ -72,4 +73,4 @@ examples/reference/results/reference_repos_rerun/
 | Forward dynamics | compact ODE/state functions | paper-specific propagation dynamics |
 | Backward adjoints | short PMP adjoint routines | longer model-specific adjoint systems |
 | Control update | bounded Hamiltonian update | continuous or impulse strategy search |
-| Validation | deterministic/random baseline plots | smoke tests, payoff summaries, and model-specific deterministic/random baseline checks |
+| Validation | deterministic/random baseline plots plus scalability timing | smoke tests, payoff summaries, and model-specific deterministic/random baseline checks |

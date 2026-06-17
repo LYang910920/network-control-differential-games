@@ -11,7 +11,8 @@ lecture/
 ├── run_all_lecture_examples.py
 ├── code/
 │   ├── simple_degree_k_control.py
-│   └── network_control_examples.py
+│   ├── network_control_examples.py
+│   └── scalability_analysis.py
 ├── sample_data/
 │   ├── sample_edges.csv
 │   └── sample_adjacency.csv
@@ -49,7 +50,7 @@ python run_all_lecture_examples.py --output-root results/my_run
 Built-in demo graph:
 
 ```bash
-python code/simple_degree_k_control.py --output-dir results/simple_demo_new
+python code/simple_degree_k_control.py --output-dir results/simple_builtin_sf_new
 ```
 
 Sample edge list:
@@ -61,7 +62,7 @@ python code/simple_degree_k_control.py \
   --has-header \
   --source-col source \
   --target-col target \
-  --output-dir results/simple_edges_new
+  --output-dir results/simple_sample_edges_new
 ```
 
 Sample adjacency matrix:
@@ -69,7 +70,7 @@ Sample adjacency matrix:
 ```bash
 python code/simple_degree_k_control.py \
   --adjacency-csv sample_data/sample_adjacency.csv \
-  --output-dir results/simple_adjacency_new
+  --output-dir results/simple_sample_adjacency_new
 ```
 
 ## Run compact companion examples
@@ -77,7 +78,7 @@ python code/simple_degree_k_control.py \
 All compact examples:
 
 ```bash
-python code/network_control_examples.py --output-dir results/examples_demo_new
+python code/network_control_examples.py --output-dir results/companion_builtin_sf_new
 ```
 
 Only degree-level control/game:
@@ -98,23 +99,47 @@ Only hybrid impulse simulation:
 python code/network_control_examples.py --examples hybrid --output-dir results/hybrid_only
 ```
 
+## Run scalability analysis
+
+Degree-level FBS timing on synthetic scale-free networks from 100 to 1000 nodes:
+
+```bash
+python code/scalability_analysis.py --output-dir results/scalability_degree_sf_new
+```
+
+The default run uses sizes `100,200,300,500,1000` with three repeats per size. To change it:
+
+```bash
+python code/scalability_analysis.py --sizes 100,200,300,500,1000 --repeats 3
+```
+
 ## Existing results
 
 Useful precomputed figures:
 
 ```text
 results/simple_contact_sheet.png
-results/examples_contact_sheet.png
-results/examples_demo/fbs_convergence.png
-results/examples_demo/degree_control_baseline_comparison.png
-results/examples_demo/degree_game_baseline_comparison.png
-results/examples_demo/node_control_baseline_comparison.png
-results/examples_demo/node_game_baseline_comparison.png
+results/companion_contact_sheet.png
+results/experiment_index.md
+results/companion_builtin_sf/fbs_convergence.png
+results/companion_builtin_sf/degree_control_trajectory.png
+results/companion_builtin_sf/degree_game_trajectory.png
+results/companion_builtin_sf/node_control_trajectory.png
+results/companion_builtin_sf/hybrid_impulse_trajectory.png
+results/scalability_degree_sf/degree_control_scalability.png
 ```
 
-The detailed subdirectories contain individual PNG files, degree-distribution CSV files, FBS convergence diagnostics, and baseline-comparison summaries. Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.
+The detailed subdirectories are grouped by purpose:
 
-For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `figure_explanations.md` into its output directory.
+| Folder pattern | Purpose |
+| --- | --- |
+| `simple_*` | Minimal degree-k continuous optimal-control smoke runs. |
+| `companion_*` | Degree-level, node-level, game, and hybrid examples on the same input graph. |
+| `scalability_degree_sf` | Degree-level FBS runtime from 100 to 1000 synthetic scale-free nodes. |
+
+Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.
+
+For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `figure_explanations.md` and `experiment_index.md` into its output directory.
 
 ## What to learn here
 
@@ -123,3 +148,4 @@ For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh 
 3. How a forward-backward sweep solves the PMP state/adjoint/control update loop.
 4. How attacker-defender differential games extend the same workflow.
 5. How hybrid impulse simulations combine continuous ODE segments with jump updates.
+6. How degree-level aggregation changes the runtime profile as synthetic networks grow.

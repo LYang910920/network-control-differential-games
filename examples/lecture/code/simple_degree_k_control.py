@@ -255,6 +255,11 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
                  t: np.ndarray, X: np.ndarray, U: np.ndarray, cost: float,
                  delta_history: np.ndarray, converged: bool, tolerance: float = 1e-4) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
+    for legacy_name in ("degree_k_control.png", "baseline_comparison.png"):
+        legacy_path = out_dir / legacy_name
+        if legacy_path.exists():
+            legacy_path.unlink()
+
     pd.DataFrame({"k": k.astype(int), "N_k": counts, "P(k)": p}).to_csv(out_dir / "degree_distribution.csv", index=False)
 
     plt.figure(figsize=(6.8, 4.0))
@@ -276,7 +281,7 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
     plt.title(f"Degree-k continuous optimal control; cost={cost:.2f}")
     plt.legend(frameon=False, fontsize=8)
     plt.tight_layout()
-    plt.savefig(out_dir / "degree_k_control.png", dpi=180)
+    plt.savefig(out_dir / "degree_control_trajectory.png", dpi=180)
     plt.close()
 
     pd.DataFrame(
@@ -311,7 +316,7 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
     write_baseline_table(baseline_rows, out_dir / "baseline_summary.csv")
     save_control_baseline_plot(
         baseline_rows,
-        out_dir / "baseline_comparison.png",
+        out_dir / "degree_control_baseline_comparison.png",
         title="Degree-k continuous control vs baselines",
         ylabel="cost (lower is better)",
         random_label=f"{RANDOM_BASELINE_COUNT} random smooth controls",

@@ -985,7 +985,7 @@ def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> Non
     apply_clean_axes(ax, xlabel="time", ylabel="state / control",
                      title=f"Degree-k continuous optimal control; cost={result.value['cost']:.2f}")
     ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "degree_control.png")
+    savefig(out_dir / "degree_control_trajectory.png")
 
 
 def plot_degree_game(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
@@ -1011,7 +1011,7 @@ def plot_degree_game(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
     apply_clean_axes(ax, xlabel="time", ylabel="state / control",
                      title=f"Degree-k continuous differential game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
     ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "degree_game.png")
+    savefig(out_dir / "degree_game_trajectory.png")
 
 
 def plot_node_control(result: TimeSeries, out_dir: Path) -> None:
@@ -1029,7 +1029,7 @@ def plot_node_control(result: TimeSeries, out_dir: Path) -> None:
     apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
                      title=f"Node-level continuous optimal control; cost={result.value['cost']:.2f}")
     ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "node_control.png")
+    savefig(out_dir / "node_control_trajectory.png")
 
 
 def plot_node_game(result: TimeSeries, out_dir: Path) -> None:
@@ -1053,7 +1053,7 @@ def plot_node_game(result: TimeSeries, out_dir: Path) -> None:
     apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
                      title=f"Node-level continuous differential game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
     ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "node_game.png")
+    savefig(out_dir / "node_game_trajectory.png")
 
 
 def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
@@ -1095,9 +1095,9 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
     )
     ax_control.legend(frameon=False, ncol=2, fontsize=8)
     fig.tight_layout()
-    fig.savefig(out_dir / "hybrid_impulse.png", dpi=180)
+    fig.savefig(out_dir / "hybrid_impulse_trajectory.png", dpi=180)
     plt.close(fig)
-    print(f"saved {out_dir / 'hybrid_impulse.png'}")
+    print(f"saved {out_dir / 'hybrid_impulse_trajectory.png'}")
 
 
 # ---------------------------------------------------------------------------
@@ -1107,6 +1107,19 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
 
 def run(args: argparse.Namespace) -> None:
     out_dir = Path(args.output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for legacy_name in (
+        "degree_control.png",
+        "degree_game.png",
+        "node_control.png",
+        "node_game.png",
+        "hybrid_impulse.png",
+        "baseline_comparison.png",
+    ):
+        legacy_path = out_dir / legacy_name
+        if legacy_path.exists():
+            legacy_path.unlink()
+
     net = load_network(args)
     D = degree_distribution_from_graph(net.full_graph, mode=args.degree_mode)
 

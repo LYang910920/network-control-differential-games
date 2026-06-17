@@ -64,7 +64,11 @@ python run_all.py --skip-lecture
 
 Lecture examples:
 
-![Lecture companion examples](examples/lecture/results/examples_contact_sheet.png)
+![Lecture companion examples](examples/lecture/results/companion_contact_sheet.png)
+
+Scalability analysis:
+
+![Degree-level FBS scalability](examples/lecture/results/scalability_degree_sf/degree_control_scalability.png)
 
 Reference-repository smoke runs:
 
@@ -78,7 +82,7 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 | `python run_all.py --skip-lecture` | `examples/reference/results/reference_repos_rerun/` |
 | `python run_all.py` | both locations above |
 
-The lecture runner writes `figure_explanations.md`, `fbs_convergence.png`, and model-specific baseline comparison figures in each lecture output folder. The reference runner writes `smoke_run_report.md`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, while time-axis plots show state evolution or computed control/game strategies. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a degree-weighted mean, or a selected degree class.
+The lecture runner writes `experiment_index.md`, `figure_explanations.md`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a degree-weighted mean, or a selected degree class.
 
 ## Core Layout
 
@@ -110,6 +114,7 @@ The lecture examples are self-contained and should be the first code you run.
 
 - `simple_degree_k_control.py`: a compact degree-k SIS optimal-control example.
 - `network_control_examples.py`: degree-level games, node-level control/game models, and a hybrid impulse simulation.
+- `scalability_analysis.py`: degree-level FBS runtime on synthetic scale-free networks from 100 to 1000 nodes.
 - `sample_data/`: a small edge list and adjacency matrix.
 - `results/`: precomputed figures and degree-distribution CSV files.
 
@@ -141,6 +146,7 @@ When adapting the examples to a new model, work in this order:
 6. Check state and control constraints.
 7. Run short-horizon tests first.
 8. Add no-control, constant-control, random-control, or unilateral-deviation baselines.
+9. Run a small scalability check before increasing the node-level state dimension.
 
 For differential games, the computed controls are open-loop Nash candidates satisfying necessary conditions. Treat them as numerical candidates until unilateral-deviation checks support the interpretation.
 
