@@ -1,0 +1,15 @@
+example,scenario,metric,value,better
+degree_control,computed FBS control,cost,29.340459384667774,lower
+degree_control,no control,cost,34.36543331552858,lower
+degree_control,constant mean control,cost,29.534632245975693,lower
+node_control,computed FBS control,cost,20.792469816047983,lower
+node_control,no control,cost,83.04394497954404,lower
+node_control,constant mean control,cost,29.881128071932604,lower
+degree_game,computed Nash candidate,attacker payoff,36.459527826758425,higher
+degree_game,attacker zero; defense fixed,attacker payoff,33.48446114044957,higher
+degree_game,computed Nash candidate,defender payoff,-53.8380037301412,higher
+degree_game,defense zero; attack fixed,defender payoff,-61.05845913814452,higher
+node_game,computed Nash candidate,attacker payoff,12.291447302190445,higher
+node_game,attacker zero; defense fixed,attacker payoff,9.288479085772119,higher
+node_game,computed Nash candidate,defender payoff,-61.01359882800841,higher
+node_game,defense zero; attack fixed,defender payoff,-201.69641412128195,higher

@@ -1,0 +1,4 @@
+scenario,metric,value,better
+computed FBS control,cost,19.004019341060626,lower
+no control,cost,30.22653902164402,lower
+constant mean control,cost,20.256733460804554,lower

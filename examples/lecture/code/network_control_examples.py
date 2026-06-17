@@ -134,6 +134,17 @@ def integral(y: np.ndarray, t: np.ndarray) -> float:
     return float(np.trapezoid(y, t) if hasattr(np, "trapezoid") else np.trapz(y, t))
 
 
+def convergence_values(delta_history: list[float], tol: float) -> dict[str, float]:
+    """Small numeric summary for forward-backward sweep diagnostics."""
+    final_delta = float(delta_history[-1]) if delta_history else float("nan")
+    return {
+        "iterations": float(len(delta_history)),
+        "final_delta": final_delta,
+        "converged": float(final_delta < tol),
+        "tolerance": float(tol),
+    }
+
+
 def as_function(t: np.ndarray, Y: np.ndarray) -> Callable[[float], np.ndarray]:
     """Vector-valued interpolation Y(tau) on the simulation grid."""
     return interp1d(t, Y, axis=0, bounds_error=False, fill_value="extrapolate")
@@ -460,12 +471,13 @@ def degree_jacobian(x: np.ndarray, u: np.ndarray, D: DegreeData, beta: float, de
     return J
 
 
-def solve_degree_control(D: DegreeData, steps: int = 45, iterations: int = 15) -> TimeSeries:
+def solve_degree_control(D: DegreeData, steps: int = 45, iterations: int = 40, tol: float = 1e-4) -> TimeSeries:
     """PMP forward-backward sweep for u_k(t)."""
     beta, delta, q, r, u_max = 0.65, 0.18, 3.0, 2.5, 1.2
     t = np.linspace(0, 14.0, steps + 1)
     u = np.zeros((len(t), len(D.k)))
     x0 = clip(0.02 + 0.08 * D.k / max(D.k.max(), 1.0), 0, 0.18)
+    delta_history: list[float] = []
 
     for _ in range(iterations):
         old_u = u.copy()
@@ -479,11 +491,20 @@ def solve_degree_control(D: DegreeData, steps: int = 45, iterations: int = 15) -
 
         lam = solve_grid(adjoint, np.zeros(len(D.k)), t, backward=True)
         u = relax(clip(lam * x / (r * np.maximum(D.pk, 1e-12)), 0, u_max), old_u)
-        if np.max(abs(u - old_u)) < 1e-4:
+        delta_u = float(np.max(abs(u - old_u)))
+        delta_history.append(delta_u)
+        if delta_u < tol:
             break
 
+    u_fun = as_function(t, u)
+    x = clip(solve_grid(lambda tau, y: degree_rhs(y, u_fun(tau), D, beta, delta), x0, t))
     cost = integral(q * (x @ D.pk) + 0.5 * r * ((u * u) @ D.pk), t)
-    return TimeSeries(t=t, x=x, controls={"control": u}, value={"cost": cost})
+    return TimeSeries(
+        t=t,
+        x=x,
+        controls={"control": u, "fbs_delta": np.asarray(delta_history, dtype=float)},
+        value={"cost": cost, **convergence_values(delta_history, tol)},
+    )
 
 
 def degree_game_rhs(x, attack, defend, D, beta, delta):
@@ -499,7 +520,7 @@ def degree_game_jacobian(x, attack, defend, D, beta, delta):
     return J
 
 
-def solve_degree_game(D: DegreeData, steps: int = 45, iterations: int = 15) -> TimeSeries:
+def solve_degree_game(D: DegreeData, steps: int = 45, iterations: int = 45, tol: float = 1e-4) -> TimeSeries:
     """Open-loop Nash forward-backward sweep by degree class k."""
     beta, delta = 0.60, 0.15
     reward_A, loss_D, cost_A, cost_D = 4.0, 5.0, 3.0, 4.0
@@ -508,6 +529,7 @@ def solve_degree_game(D: DegreeData, steps: int = 45, iterations: int = 15) -> T
     attack = np.zeros((len(t), len(D.k)))
     defend = np.zeros_like(attack)
     x0 = clip(0.02 + 0.08 * D.k / max(D.k.max(), 1.0), 0, 0.18)
+    delta_history: list[float] = []
 
     for _ in range(iterations):
         old_a, old_d = attack.copy(), defend.copy()
@@ -531,12 +553,21 @@ def solve_degree_game(D: DegreeData, steps: int = 45, iterations: int = 15) -> T
         marginal_attack = beta * D.k[None, :] * (1 - x) * theta
         attack = relax(clip(lam_A * marginal_attack / (cost_A * np.maximum(D.pk, 1e-12)), 0, a_max), old_a)
         defend = relax(clip(-lam_D * x / (cost_D * np.maximum(D.pk, 1e-12)), 0, d_max), old_d)
-        if max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d))) < 1e-4:
+        delta_controls = float(max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d))))
+        delta_history.append(delta_controls)
+        if delta_controls < tol:
             break
 
+    a_fun, d_fun = as_function(t, attack), as_function(t, defend)
+    x = clip(solve_grid(lambda tau, y: degree_game_rhs(y, a_fun(tau), d_fun(tau), D, beta, delta), x0, t))
     JA = integral(reward_A * (x @ D.pk) - 0.5 * cost_A * ((attack * attack) @ D.pk), t)
     JD = integral(-loss_D * (x @ D.pk) - 0.5 * cost_D * ((defend * defend) @ D.pk), t)
-    return TimeSeries(t=t, x=x, controls={"attack": attack, "defense": defend}, value={"JA": JA, "JD": JD})
+    return TimeSeries(
+        t=t,
+        x=x,
+        controls={"attack": attack, "defense": defend, "fbs_delta": np.asarray(delta_history, dtype=float)},
+        value={"JA": JA, "JD": JD, **convergence_values(delta_history, tol)},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -558,13 +589,14 @@ def node_jacobian(x: np.ndarray, u: np.ndarray, A: np.ndarray, beta: float, delt
     return J
 
 
-def solve_node_control(A: np.ndarray, steps: int = 30, iterations: int = 8) -> TimeSeries:
+def solve_node_control(A: np.ndarray, steps: int = 30, iterations: int = 35, tol: float = 1e-4) -> TimeSeries:
     """PMP forward-backward sweep for node controls u_i(t)."""
     beta, delta, q, r, u_max = 0.90, 0.16, 3.0, 2.2, 1.2
     t, n = np.linspace(0, 12.0, steps + 1), A.shape[0]
     u = np.zeros((len(t), n))
     x0 = np.full(n, 0.02)
     x0[high_degree_nodes(A, 2)] = 0.12
+    delta_history: list[float] = []
 
     for _ in range(iterations):
         old_u = u.copy()
@@ -578,11 +610,20 @@ def solve_node_control(A: np.ndarray, steps: int = 30, iterations: int = 8) -> T
 
         lam = solve_grid(adjoint, np.zeros(n), t, backward=True)
         u = relax(clip(lam * x / r, 0, u_max), old_u)
-        if np.max(abs(u - old_u)) < 1e-4:
+        delta_u = float(np.max(abs(u - old_u)))
+        delta_history.append(delta_u)
+        if delta_u < tol:
             break
 
+    u_fun = as_function(t, u)
+    x = clip(solve_grid(lambda tau, y: node_rhs(y, u_fun(tau), A, beta, delta), x0, t))
     cost = integral(q * x.sum(axis=1) + 0.5 * r * (u * u).sum(axis=1), t)
-    return TimeSeries(t=t, x=x, controls={"control": u}, value={"cost": cost})
+    return TimeSeries(
+        t=t,
+        x=x,
+        controls={"control": u, "fbs_delta": np.asarray(delta_history, dtype=float)},
+        value={"cost": cost, **convergence_values(delta_history, tol)},
+    )
 
 
 def node_game_rhs(x, attack, defend, A, beta, delta):
@@ -599,7 +640,7 @@ def node_game_jacobian(x, attack, defend, A, beta, delta):
     return J
 
 
-def solve_node_game(A: np.ndarray, steps: int = 30, iterations: int = 6) -> TimeSeries:
+def solve_node_game(A: np.ndarray, steps: int = 30, iterations: int = 40, tol: float = 1e-4) -> TimeSeries:
     """Open-loop Nash forward-backward sweep for node-level attack/defense."""
     beta, delta = 0.95, 0.15
     reward_A, loss_D, cost_A, cost_D = 4.0, 5.0, 4.0, 4.5
@@ -609,6 +650,7 @@ def solve_node_game(A: np.ndarray, steps: int = 30, iterations: int = 6) -> Time
     defend = np.zeros_like(attack)
     x0 = np.full(n, 0.02)
     x0[high_degree_nodes(A, 2)] = 0.12
+    delta_history: list[float] = []
 
     for _ in range(iterations):
         old_a, old_d = attack.copy(), defend.copy()
@@ -629,12 +671,21 @@ def solve_node_game(A: np.ndarray, steps: int = 30, iterations: int = 6) -> Time
         pressure = np.vstack([A @ row for row in x])
         attack = relax(clip(lam_A * beta * (1 - x) * pressure / cost_A, 0, a_max), old_a)
         defend = relax(clip(-lam_D * x / cost_D, 0, d_max), old_d)
-        if max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d))) < 1e-4:
+        delta_controls = float(max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d))))
+        delta_history.append(delta_controls)
+        if delta_controls < tol:
             break
 
+    a_fun, d_fun = as_function(t, attack), as_function(t, defend)
+    x = clip(solve_grid(lambda tau, y: node_game_rhs(y, a_fun(tau), d_fun(tau), A, beta, delta), x0, t))
     JA = integral(reward_A * x.sum(axis=1) - 0.5 * cost_A * (attack * attack).sum(axis=1), t)
     JD = integral(-loss_D * x.sum(axis=1) - 0.5 * cost_D * (defend * defend).sum(axis=1), t)
-    return TimeSeries(t=t, x=x, controls={"attack": attack, "defense": defend}, value={"JA": JA, "JD": JD})
+    return TimeSeries(
+        t=t,
+        x=x,
+        controls={"attack": attack, "defense": defend, "fbs_delta": np.asarray(delta_history, dtype=float)},
+        value={"JA": JA, "JD": JD, **convergence_values(delta_history, tol)},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -702,6 +753,214 @@ def simulate_hybrid_impulse(A: np.ndarray, T=12.0, impulse_times=(3.0, 6.0, 9.0)
             "controlled_count": float(len(controlled)),
         },
     )
+
+
+# ---------------------------------------------------------------------------
+# Baseline and convergence diagnostics
+# ---------------------------------------------------------------------------
+
+
+def evaluate_degree_control_policy(D: DegreeData, t: np.ndarray, u: np.ndarray) -> tuple[np.ndarray, float]:
+    """Evaluate the degree-k control objective for a fixed admissible control."""
+    beta, delta, q, r = 0.65, 0.18, 3.0, 2.5
+    x0 = clip(0.02 + 0.08 * D.k / max(D.k.max(), 1.0), 0, 0.18)
+    u_fun = as_function(t, u)
+    x = clip(solve_grid(lambda tau, y: degree_rhs(y, u_fun(tau), D, beta, delta), x0, t))
+    cost = integral(q * (x @ D.pk) + 0.5 * r * ((u * u) @ D.pk), t)
+    return x, cost
+
+
+def evaluate_node_control_policy(A: np.ndarray, t: np.ndarray, u: np.ndarray) -> tuple[np.ndarray, float]:
+    """Evaluate the node-level control objective for a fixed admissible control."""
+    beta, delta, q, r = 0.90, 0.16, 3.0, 2.2
+    n = A.shape[0]
+    x0 = np.full(n, 0.02)
+    x0[high_degree_nodes(A, 2)] = 0.12
+    u_fun = as_function(t, u)
+    x = clip(solve_grid(lambda tau, y: node_rhs(y, u_fun(tau), A, beta, delta), x0, t))
+    cost = integral(q * x.sum(axis=1) + 0.5 * r * (u * u).sum(axis=1), t)
+    return x, cost
+
+
+def evaluate_degree_game_strategy(
+    D: DegreeData,
+    t: np.ndarray,
+    attack: np.ndarray,
+    defend: np.ndarray,
+) -> tuple[np.ndarray, float, float]:
+    """Evaluate degree-level game payoffs for fixed open-loop strategies."""
+    beta, delta = 0.60, 0.15
+    reward_A, loss_D, cost_A, cost_D = 4.0, 5.0, 3.0, 4.0
+    x0 = clip(0.02 + 0.08 * D.k / max(D.k.max(), 1.0), 0, 0.18)
+    a_fun, d_fun = as_function(t, attack), as_function(t, defend)
+    x = clip(solve_grid(lambda tau, y: degree_game_rhs(y, a_fun(tau), d_fun(tau), D, beta, delta), x0, t))
+    JA = integral(reward_A * (x @ D.pk) - 0.5 * cost_A * ((attack * attack) @ D.pk), t)
+    JD = integral(-loss_D * (x @ D.pk) - 0.5 * cost_D * ((defend * defend) @ D.pk), t)
+    return x, JA, JD
+
+
+def evaluate_node_game_strategy(
+    A: np.ndarray,
+    t: np.ndarray,
+    attack: np.ndarray,
+    defend: np.ndarray,
+) -> tuple[np.ndarray, float, float]:
+    """Evaluate node-level game payoffs for fixed open-loop strategies."""
+    beta, delta = 0.95, 0.15
+    reward_A, loss_D, cost_A, cost_D = 4.0, 5.0, 4.0, 4.5
+    n = A.shape[0]
+    x0 = np.full(n, 0.02)
+    x0[high_degree_nodes(A, 2)] = 0.12
+    a_fun, d_fun = as_function(t, attack), as_function(t, defend)
+    x = clip(solve_grid(lambda tau, y: node_game_rhs(y, a_fun(tau), d_fun(tau), A, beta, delta), x0, t))
+    JA = integral(reward_A * x.sum(axis=1) - 0.5 * cost_A * (attack * attack).sum(axis=1), t)
+    JD = integral(-loss_D * x.sum(axis=1) - 0.5 * cost_D * (defend * defend).sum(axis=1), t)
+    return x, JA, JD
+
+
+def save_fbs_convergence(results: dict[str, TimeSeries], out_dir: Path) -> None:
+    """Save residual curves for all forward-backward sweep examples."""
+    rows = []
+    plt.figure(figsize=FIGSIZE_SINGLE)
+    ax = plt.gca()
+    for name, result in results.items():
+        history = np.asarray(result.controls.get("fbs_delta", []), dtype=float)
+        if len(history) == 0:
+            continue
+        iterations = np.arange(1, len(history) + 1)
+        ax.semilogy(iterations, history, marker="o", linewidth=LINE_WIDTH, label=name.replace("_", " "))
+        tolerance = float(result.value.get("tolerance", 1e-4))
+        converged = bool(result.value.get("converged", history[-1] < tolerance))
+        for iteration, delta in zip(iterations, history):
+            rows.append(
+                {
+                    "example": name,
+                    "iteration": int(iteration),
+                    "max_control_change": float(delta),
+                    "tolerance": tolerance,
+                    "below_tolerance": bool(delta < tolerance),
+                    "run_converged": converged,
+                }
+            )
+
+    if not rows:
+        return
+    pd.DataFrame(rows).to_csv(out_dir / "fbs_convergence.csv", index=False)
+    apply_clean_axes(ax, xlabel="FBS iteration", ylabel="max control/strategy change", title="Forward-backward sweep convergence")
+    ax.axhline(1e-4, color="0.45", linestyle=":", linewidth=1.4, label="tolerance=1e-4")
+    ax.legend(frameon=False, fontsize=8)
+    savefig(out_dir / "fbs_convergence.png")
+
+
+def save_baseline_comparison(
+    results: dict[str, TimeSeries],
+    D: DegreeData,
+    A: np.ndarray,
+    out_dir: Path,
+) -> None:
+    """Compare computed controls/game strategies with simple baselines."""
+    rows: list[dict[str, object]] = []
+
+    if "degree_control" in results:
+        result = results["degree_control"]
+        u = result.controls["control"]
+        _, no_cost = evaluate_degree_control_policy(D, result.t, np.zeros_like(u))
+        _, constant_cost = evaluate_degree_control_policy(D, result.t, np.full_like(u, float(np.mean(u))))
+        rows.extend(
+            [
+                {"example": "degree_control", "scenario": "computed FBS control", "metric": "cost", "value": result.value["cost"], "better": "lower"},
+                {"example": "degree_control", "scenario": "no control", "metric": "cost", "value": no_cost, "better": "lower"},
+                {"example": "degree_control", "scenario": "constant mean control", "metric": "cost", "value": constant_cost, "better": "lower"},
+            ]
+        )
+
+    if "node_control" in results:
+        result = results["node_control"]
+        u = result.controls["control"]
+        _, no_cost = evaluate_node_control_policy(A, result.t, np.zeros_like(u))
+        _, constant_cost = evaluate_node_control_policy(A, result.t, np.full_like(u, float(np.mean(u))))
+        rows.extend(
+            [
+                {"example": "node_control", "scenario": "computed FBS control", "metric": "cost", "value": result.value["cost"], "better": "lower"},
+                {"example": "node_control", "scenario": "no control", "metric": "cost", "value": no_cost, "better": "lower"},
+                {"example": "node_control", "scenario": "constant mean control", "metric": "cost", "value": constant_cost, "better": "lower"},
+            ]
+        )
+
+    if "degree_game" in results:
+        result = results["degree_game"]
+        attack, defend = result.controls["attack"], result.controls["defense"]
+        zero_a, zero_d = np.zeros_like(attack), np.zeros_like(defend)
+        _, JA, JD = evaluate_degree_game_strategy(D, result.t, attack, defend)
+        _, JA_zero_attack, _ = evaluate_degree_game_strategy(D, result.t, zero_a, defend)
+        _, _, JD_zero_defense = evaluate_degree_game_strategy(D, result.t, attack, zero_d)
+        rows.append({"example": "degree_game", "scenario": "computed Nash candidate", "metric": "attacker payoff", "value": JA, "better": "higher"})
+        rows.append({"example": "degree_game", "scenario": "attacker zero; defense fixed", "metric": "attacker payoff", "value": JA_zero_attack, "better": "higher"})
+        rows.append({"example": "degree_game", "scenario": "computed Nash candidate", "metric": "defender payoff", "value": JD, "better": "higher"})
+        rows.append({"example": "degree_game", "scenario": "defense zero; attack fixed", "metric": "defender payoff", "value": JD_zero_defense, "better": "higher"})
+
+    if "node_game" in results:
+        result = results["node_game"]
+        attack, defend = result.controls["attack"], result.controls["defense"]
+        zero_a, zero_d = np.zeros_like(attack), np.zeros_like(defend)
+        _, JA, JD = evaluate_node_game_strategy(A, result.t, attack, defend)
+        _, JA_zero_attack, _ = evaluate_node_game_strategy(A, result.t, zero_a, defend)
+        _, _, JD_zero_defense = evaluate_node_game_strategy(A, result.t, attack, zero_d)
+        rows.append({"example": "node_game", "scenario": "computed Nash candidate", "metric": "attacker payoff", "value": JA, "better": "higher"})
+        rows.append({"example": "node_game", "scenario": "attacker zero; defense fixed", "metric": "attacker payoff", "value": JA_zero_attack, "better": "higher"})
+        rows.append({"example": "node_game", "scenario": "computed Nash candidate", "metric": "defender payoff", "value": JD, "better": "higher"})
+        rows.append({"example": "node_game", "scenario": "defense zero; attack fixed", "metric": "defender payoff", "value": JD_zero_defense, "better": "higher"})
+
+    if not rows:
+        return
+
+    df = pd.DataFrame(rows)
+    df.to_csv(out_dir / "baseline_summary.csv", index=False)
+
+    fig, axes = plt.subplots(2, 2, figsize=(11.2, 7.4))
+    axes = axes.ravel()
+
+    for ax, example, title in [
+        (axes[0], "degree_control", "Degree control cost"),
+        (axes[1], "node_control", "Node control cost"),
+    ]:
+        data = df[(df["example"] == example) & (df["metric"] == "cost")]
+        if data.empty:
+            ax.axis("off")
+            continue
+        ax.bar(data["scenario"], data["value"], color=["tab:blue", "0.65", "tab:orange"])
+        apply_clean_axes(ax, ylabel="cost (lower is better)", title=title)
+        ax.tick_params(axis="x", rotation=18)
+
+    for ax, example, title in [
+        (axes[2], "degree_game", "Degree game payoffs"),
+        (axes[3], "node_game", "Node game payoffs"),
+    ]:
+        data = df[df["example"] == example]
+        if data.empty:
+            ax.axis("off")
+            continue
+        x_pos = np.arange(2)
+        width = 0.36
+        computed = [
+            float(data[(data["scenario"] == "computed Nash candidate") & (data["metric"] == "attacker payoff")]["value"].iloc[0]),
+            float(data[(data["scenario"] == "computed Nash candidate") & (data["metric"] == "defender payoff")]["value"].iloc[0]),
+        ]
+        zero_deviation = [
+            float(data[(data["scenario"] == "attacker zero; defense fixed") & (data["metric"] == "attacker payoff")]["value"].iloc[0]),
+            float(data[(data["scenario"] == "defense zero; attack fixed") & (data["metric"] == "defender payoff")]["value"].iloc[0]),
+        ]
+        ax.bar(x_pos - width / 2, computed, width, label="computed player strategy", color="tab:blue")
+        ax.bar(x_pos + width / 2, zero_deviation, width, label="zero-deviation baseline", color="0.65")
+        ax.set_xticks(x_pos)
+        ax.set_xticklabels(["attacker payoff\n(defense fixed)", "defender payoff\n(attack fixed)"])
+        apply_clean_axes(ax, ylabel="payoff (higher is better)", title=title + ": unilateral zero-deviation check")
+        ax.legend(frameon=False, fontsize=8)
+
+    fig.tight_layout()
+    fig.savefig(out_dir / "baseline_comparison.png", dpi=180)
+    plt.close(fig)
+    print(f"saved {out_dir / 'baseline_comparison.png'}")
 
 
 # ---------------------------------------------------------------------------
@@ -856,17 +1115,25 @@ def run(args: argparse.Namespace) -> None:
     print_degree_distribution(D)
     save_degree_distribution(D, out_dir)
 
+    results: dict[str, TimeSeries] = {}
     if args.examples in {"all", "degree"}:
-        plot_degree_control(solve_degree_control(D, steps=args.steps), D, out_dir)
-        plot_degree_game(solve_degree_game(D, steps=args.steps), D, out_dir)
+        results["degree_control"] = solve_degree_control(D, steps=args.steps)
+        results["degree_game"] = solve_degree_game(D, steps=args.steps)
+        plot_degree_control(results["degree_control"], D, out_dir)
+        plot_degree_game(results["degree_game"], D, out_dir)
 
     if args.examples in {"all", "node"}:
         node_steps = max(24, args.steps // 3)
-        plot_node_control(solve_node_control(net.A, steps=node_steps), out_dir)
-        plot_node_game(solve_node_game(net.A, steps=node_steps), out_dir)
+        results["node_control"] = solve_node_control(net.A, steps=node_steps)
+        results["node_game"] = solve_node_game(net.A, steps=node_steps)
+        plot_node_control(results["node_control"], out_dir)
+        plot_node_game(results["node_game"], out_dir)
 
     if args.examples in {"all", "hybrid"}:
         plot_hybrid(simulate_hybrid_impulse(net.A), out_dir)
+
+    save_fbs_convergence(results, out_dir)
+    save_baseline_comparison(results, D, net.A, out_dir)
 
 
 def build_parser() -> argparse.ArgumentParser:

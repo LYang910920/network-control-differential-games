@@ -113,6 +113,10 @@ Key files:
 results/reference_repos/reference_repo_contact_sheet.png
 results/reference_repos/smoke_run_summary.csv
 results/reference_repos/smoke_run_report.md
+results/reference_repos/reference_convergence.png
+results/reference_repos/baseline_comparison.png
+results/reference_repos/reference_convergence.csv
+results/reference_repos/baseline_comparison.csv
 results/reference_repos/opinion_malware_timeseries.csv
 results/reference_repos/propaganda_war_timeseries.csv
 results/reference_repos/propaganda_tcss_timeseries.csv
@@ -120,7 +124,7 @@ results/reference_repos/propaganda_tcss_timeseries.csv
 
 For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `smoke_run_report.md` into its output directory.
 
-Plot convention: continuous controls and game strategies are time-indexed curves sampled on the simulation grid; projected continuous strategies may have flat bound segments but still enter the ODE between event times. Impulse controls act only at discrete event times and are drawn as vertical lines; hybrid control combines both. State labels indicate whether each trajectory is a node mean over all nodes or a degree-weighted mean over degree classes. The smoke-run parameters are intentionally small-scale but chosen so continuous strategies vary visibly and impulse-induced state changes are clear.
+Plot convention: continuous controls and game strategies are time-indexed curves sampled on the simulation grid; projected continuous strategies may have flat bound segments but still enter the ODE between event times. Impulse controls act only at discrete event times and are drawn as vertical lines; hybrid control combines both. State labels indicate whether each trajectory is a node mean over all nodes or a degree-weighted mean over degree classes. The smoke-run parameters are intentionally small-scale but chosen so continuous strategies vary visibly, impulse-induced state changes are clear, iteration diagnostics stabilize, and computed strategies can be compared with simple baselines.
 
 ## What each smoke run does
 

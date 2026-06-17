@@ -33,6 +33,8 @@ Each reference figure has three panels:
 | `opinion_malware.png` | Node-level optimal impulse control | Payoff over iterations; node-mean malware and opinion states with impulse-time markers; `u1` and `u2` shown only as discrete impulse magnitudes. |
 | `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Red/blue payoffs; degree-weighted state means with pulse markers; continuous `ur`/`ub` strategies plus discrete `vr`/`vb` impulses. |
 | `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Profit over policy iterations; node-mean awareness/unawareness/removed states over all nodes with pulse markers; `ca` and `cu` shown only as discrete impulse magnitudes. The smoke-run parameters are chosen to make impulse-induced jumps visible. |
+| `reference_convergence.png` | Mixed convergence diagnostics | Absolute payoff/profit or strategy changes across smoke-run iterations. These curves should decrease or settle before the final strategy is interpreted. |
+| `baseline_comparison.png` | Mixed baseline comparison | Computed strategies are compared with no-impulse or zero-strategy baselines. Higher payoff/profit is better in this smoke-level comparison. |
 | `reference_repo_contact_sheet.png` | Mixed overview | A visual index for comparing all three reference smoke runs. |
 
 The reference smoke runs are not full paper-scale reproductions. They use small local graphs and short horizons to check that the reference code imports, runs, exports CSV summaries, and produces interpretable figures.

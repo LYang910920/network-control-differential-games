@@ -78,7 +78,7 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 | `python run_all.py --skip-lecture` | `examples/reference/results/reference_repos_rerun/` |
 | `python run_all.py` | both locations above |
 
-The lecture runner writes `figure_explanations.md` in each lecture output folder. The reference runner writes `smoke_run_report.md` in each reference output folder. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, while time-axis plots show state evolution or computed control/game strategies. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a degree-weighted mean, or a selected degree class.
+The lecture runner writes `figure_explanations.md`, `fbs_convergence.png`, and `baseline_comparison.png` in each lecture output folder. The reference runner writes `smoke_run_report.md`, `reference_convergence.png`, and `baseline_comparison.png` in each reference output folder. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, while time-axis plots show state evolution or computed control/game strategies. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a degree-weighted mean, or a selected degree class.
 
 ## Core Layout
 

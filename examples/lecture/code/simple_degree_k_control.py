@@ -160,7 +160,8 @@ def solve_degree_k_control(
     control_weight: float = 2.5,
     u_max: float = 1.2,
     damping: float = 0.35,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+    tol: float = 1e-4,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, np.ndarray, bool]:
     """Forward-backward sweep for degree-k optimal control.
 
     Cost to minimize:
@@ -170,6 +171,7 @@ def solve_degree_k_control(
     m = len(k)
     U = np.zeros((len(t), m))
     X0 = clip(0.02 + 0.08 * k / max(k.max(), 1.0), 0.0, 0.18)
+    delta_history: list[float] = []
 
     for it in range(iterations):
         U_old = U.copy()
@@ -194,12 +196,40 @@ def solve_degree_k_control(
         candidate = Lambda * X / (control_weight * np.maximum(p, 1e-12))
         U = damping * clip(candidate, 0.0, u_max) + (1.0 - damping) * U_old
 
-        if np.max(np.abs(U - U_old)) < 1e-4:
+        delta_u = float(np.max(np.abs(U - U_old)))
+        delta_history.append(delta_u)
+        if delta_u < tol:
             print(f"forward-backward sweep converged after {it + 1} iterations")
             break
 
+    X, cost = evaluate_degree_k_control(k, p, kbar, t, U, beta, delta, infection_weight, control_weight)
+    converged = bool(delta_history and delta_history[-1] < tol)
+    if not converged:
+        print(f"forward-backward sweep warning: final control change = {delta_history[-1]:.3e}")
+    return t, X, U, cost, np.asarray(delta_history, dtype=float), converged
+
+
+def evaluate_degree_k_control(
+    k: np.ndarray,
+    p: np.ndarray,
+    kbar: float,
+    t: np.ndarray,
+    U: np.ndarray,
+    beta: float = 0.65,
+    delta: float = 0.18,
+    infection_weight: float = 3.0,
+    control_weight: float = 2.5,
+) -> tuple[np.ndarray, float]:
+    """Evaluate the degree-k objective for a fixed control curve."""
+    X0 = clip(0.02 + 0.08 * k / max(k.max(), 1.0), 0.0, 0.18)
+    U_of_t = as_time_function(t, U)
+    X = clip(solve_ode_on_grid(
+        lambda tau, y: state_rhs(y, U_of_t(tau), k, p, kbar, beta, delta),
+        X0,
+        t,
+    ))
     cost = trapz(infection_weight * (X @ p) + 0.5 * control_weight * ((U * U) @ p), t)
-    return t, X, U, cost
+    return X, cost
 
 
 # -----------------------------------------------------------------------------
@@ -208,7 +238,8 @@ def solve_degree_k_control(
 
 
 def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray, kbar: float,
-                 t: np.ndarray, X: np.ndarray, U: np.ndarray, cost: float) -> None:
+                 t: np.ndarray, X: np.ndarray, U: np.ndarray, cost: float,
+                 delta_history: np.ndarray, converged: bool, tolerance: float = 1e-4) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     pd.DataFrame({"k": k.astype(int), "N_k": counts, "P(k)": p}).to_csv(out_dir / "degree_distribution.csv", index=False)
 
@@ -232,6 +263,51 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
     plt.legend(frameon=False, fontsize=8)
     plt.tight_layout()
     plt.savefig(out_dir / "degree_k_control.png", dpi=180)
+    plt.close()
+
+    pd.DataFrame(
+        {
+            "iteration": np.arange(1, len(delta_history) + 1),
+            "max_control_change": delta_history,
+            "tolerance": np.full(len(delta_history), tolerance),
+            "below_tolerance": delta_history < tolerance,
+            "run_converged": np.full(len(delta_history), converged),
+        }
+    ).to_csv(out_dir / "fbs_convergence.csv", index=False)
+
+    plt.figure(figsize=(7.2, 4.0))
+    plt.semilogy(np.arange(1, len(delta_history) + 1), delta_history, marker="o", linewidth=2.0)
+    plt.axhline(tolerance, color="0.45", linestyle=":", linewidth=1.4, label=f"tolerance={tolerance:.0e}")
+    plt.xlabel("FBS iteration")
+    plt.ylabel("max control change")
+    plt.title(f"Forward-backward sweep convergence; converged={converged}")
+    plt.grid(True, alpha=0.25)
+    plt.legend(frameon=False, fontsize=8)
+    plt.tight_layout()
+    plt.savefig(out_dir / "fbs_convergence.png", dpi=180)
+    plt.close()
+
+    zero_u = np.zeros_like(U)
+    constant_u = np.full_like(U, float(np.mean(U)))
+    _, no_control_cost = evaluate_degree_k_control(k, p, kbar, t, zero_u)
+    _, constant_cost = evaluate_degree_k_control(k, p, kbar, t, constant_u)
+    baseline = pd.DataFrame(
+        [
+            {"scenario": "computed FBS control", "metric": "cost", "value": cost, "better": "lower"},
+            {"scenario": "no control", "metric": "cost", "value": no_control_cost, "better": "lower"},
+            {"scenario": "constant mean control", "metric": "cost", "value": constant_cost, "better": "lower"},
+        ]
+    )
+    baseline.to_csv(out_dir / "baseline_summary.csv", index=False)
+
+    plt.figure(figsize=(7.2, 4.0))
+    plt.bar(baseline["scenario"], baseline["value"], color=["tab:blue", "0.65", "tab:orange"])
+    plt.ylabel("cost (lower is better)")
+    plt.title("Computed degree-k control vs baselines")
+    plt.xticks(rotation=16)
+    plt.grid(True, axis="y", alpha=0.25)
+    plt.tight_layout()
+    plt.savefig(out_dir / "baseline_comparison.png", dpi=180)
     plt.close()
 
     print(f"saved outputs to {out_dir}")
@@ -259,8 +335,8 @@ def main() -> None:
     k, counts, p, kbar = degree_distribution(graph)
     print(f"loaded graph with n={graph.number_of_nodes()}, m={graph.number_of_edges()}")
     print_degree_table(k, counts, p, kbar)
-    t, X, U, cost = solve_degree_k_control(k, p, kbar, steps=args.steps)
-    save_results(Path(args.output_dir), k, counts, p, kbar, t, X, U, cost)
+    t, X, U, cost, delta_history, converged = solve_degree_k_control(k, p, kbar, steps=args.steps)
+    save_results(Path(args.output_dir), k, counts, p, kbar, t, X, U, cost, delta_history, converged)
 
 
 if __name__ == "__main__":
