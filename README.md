@@ -62,15 +62,17 @@ python run_all.py --skip-lecture
 
 ## Output Preview
 
-Lecture examples:
+Only representative previews are shown here. The detailed per-model figures, CSV files, and run notes live under `examples/lecture/results/` and `examples/reference/results/`.
+
+**Lecture examples: continuous, game, node-level, and hybrid teaching models**
 
 ![Lecture companion examples](examples/lecture/results/companion_contact_sheet.png)
 
-Scalability analysis:
+**Scalability: degree-level FBS on synthetic scale-free networks from 100 to 2000 nodes**
 
 ![Degree-level FBS scalability](examples/lecture/results/scalability_degree_sf/degree_control_scalability.png)
 
-Reference-repository smoke runs:
+**Reference smoke runs: paper-level code checks for TIFS/TCSS repositories**
 
 ![Reference smoke runs](examples/reference/results/reference_repos/reference_repo_contact_sheet.png)
 
@@ -96,7 +98,7 @@ The lecture runner writes `experiment_index.md`, `figure_explanations.md`, `fbs_
 │   └── code_walkthrough_and_model_adaptation_guide.pdf
 └── examples/
     ├── lecture/
-    │   ├── code/
+    │   ├── code/        # lecture Python code and runner
     │   └── results/
     └── reference/
         ├── MODEL_TAXONOMY.md
@@ -114,7 +116,7 @@ The lecture examples are self-contained and should be the first code you run.
 
 - `simple_degree_k_control.py`: a compact degree-k SIS optimal-control example.
 - `network_control_examples.py`: degree-level games, node-level control/game models, and a hybrid impulse simulation.
-- `scalability_analysis.py`: degree-level FBS runtime on synthetic scale-free networks from 100 to 1000 nodes.
+- `scalability_analysis.py`: degree-level FBS runtime on synthetic scale-free networks from 100 to 2000 nodes.
 - `sample_data/`: a small edge list and adjacency matrix.
 - `results/`: precomputed figures and degree-distribution CSV files.
 

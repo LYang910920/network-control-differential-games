@@ -8,11 +8,12 @@ This directory contains the self-contained teaching examples from the network op
 lecture/
 ├── README.md
 ├── requirements.txt
-├── run_all_lecture_examples.py
+├── run_all_lecture_examples.py   # compatibility wrapper
 ├── code/
 │   ├── simple_degree_k_control.py
 │   ├── network_control_examples.py
-│   └── scalability_analysis.py
+│   ├── scalability_analysis.py
+│   └── run_all_lecture_examples.py
 ├── sample_data/
 │   ├── sample_edges.csv
 │   └── sample_adjacency.csv
@@ -30,7 +31,7 @@ python -m pip install -r ../../requirements.txt
 ## Run all examples
 
 ```bash
-python run_all_lecture_examples.py
+python code/run_all_lecture_examples.py
 ```
 
 By default, outputs are written to:
@@ -42,8 +43,10 @@ results/rerun_YYYYMMDD_HHMMSS/
 Specify a destination:
 
 ```bash
-python run_all_lecture_examples.py --output-root results/my_run
+python code/run_all_lecture_examples.py --output-root results/my_run
 ```
+
+The legacy command `python run_all_lecture_examples.py` still works; it calls the runner in `code/`.
 
 ## Run simple degree-k control only
 
@@ -101,16 +104,16 @@ python code/network_control_examples.py --examples hybrid --output-dir results/h
 
 ## Run scalability analysis
 
-Degree-level FBS timing on synthetic scale-free networks from 100 to 1000 nodes:
+Degree-level FBS timing on synthetic scale-free networks from 100 to 2000 nodes in steps of 100:
 
 ```bash
 python code/scalability_analysis.py --output-dir results/scalability_degree_sf_new
 ```
 
-The default run uses sizes `100,200,300,500,1000` with three repeats per size. To change it:
+The default run uses sizes `100,200,...,2000` with three repeats per size. To change it:
 
 ```bash
-python code/scalability_analysis.py --sizes 100,200,300,500,1000 --repeats 3
+python code/scalability_analysis.py --sizes 100,200,300,400,500 --repeats 3
 ```
 
 ## Existing results
@@ -135,7 +138,7 @@ The detailed subdirectories are grouped by purpose:
 | --- | --- |
 | `simple_*` | Minimal degree-k continuous optimal-control smoke runs. |
 | `companion_*` | Degree-level, node-level, game, and hybrid examples on the same input graph. |
-| `scalability_degree_sf` | Degree-level FBS runtime from 100 to 1000 synthetic scale-free nodes. |
+| `scalability_degree_sf` | Degree-level FBS runtime from 100 to 2000 synthetic scale-free nodes. |
 
 Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.
 

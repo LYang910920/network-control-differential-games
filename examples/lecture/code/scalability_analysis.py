@@ -4,11 +4,11 @@
 """Scalability analysis for forward-backward sweep optimal control.
 
 The default experiment uses synthetic Barabasi-Albert scale-free networks with
-100 to 1000 nodes. It runs the degree-level SIS optimal-control FBS solver,
+100 to 2000 nodes in steps of 100. It runs the degree-level SIS optimal-control FBS solver,
 records runtime and convergence diagnostics, and writes one clear summary plot.
 
 Degree-level FBS is the default because the state dimension is the number of
-observed degree classes, not the number of nodes. This makes the 1000-node
+observed degree classes, not the number of nodes. This makes the 2000-node
 experiment lightweight enough for a teaching repository while still showing how
 runtime changes as the underlying network grows.
 """
@@ -44,7 +44,7 @@ from network_control_examples import (  # noqa: E402
 )
 
 
-DEFAULT_SIZES = (100, 200, 300, 500, 1000)
+DEFAULT_SIZES = tuple(range(100, 2001, 100))
 
 
 def parse_sizes(raw: str) -> list[int]:
@@ -159,6 +159,9 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
 def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.2))
     color = "tab:blue" if model_level == "degree" else "tab:orange"
+    node_min = int(summary["nodes"].min())
+    node_max = int(summary["nodes"].max())
+    x_ticks = [node_min] + [tick for tick in (500, 1000, 1500, 2000) if node_min < tick <= node_max]
 
     ax = axes[0]
     for _, row in raw.iterrows():
@@ -182,6 +185,8 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
     ax.set_xlabel("number of nodes in synthetic SF network")
     ax.set_ylabel("FBS solve time (seconds)")
     ax.set_title(f"{model_level.title()}-level FBS runtime")
+    ax.set_xlim(node_min - 25, node_max + 25)
+    ax.set_xticks(x_ticks)
     ax.grid(True, alpha=0.25)
     ax.legend(frameon=False, fontsize=8)
 
@@ -207,13 +212,15 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
     ax.set_ylabel("state dimension", color="tab:green")
     ax2.set_ylabel("FBS iterations", color="tab:purple")
     ax.set_title("Why runtime changes")
+    ax.set_xlim(node_min - 25, node_max + 25)
+    ax.set_xticks(x_ticks)
     ax.grid(True, alpha=0.25)
 
     lines, labels = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax.legend(lines + lines2, labels + labels2, frameon=False, fontsize=8, loc="upper left")
 
-    fig.suptitle("Scalability analysis on synthetic scale-free networks")
+    fig.suptitle(f"Scalability analysis on synthetic scale-free networks ({node_min}-{node_max} nodes)")
     fig.tight_layout()
     path = out_dir / f"{model_level}_control_scalability.png"
     fig.savefig(path, dpi=180)

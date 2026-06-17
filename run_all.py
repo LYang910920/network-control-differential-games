@@ -46,7 +46,7 @@ def main() -> None:
         run(
             [
                 py,
-                "run_all_lecture_examples.py",
+                "code/run_all_lecture_examples.py",
                 "--steps",
                 str(args.lecture_steps),
             ],

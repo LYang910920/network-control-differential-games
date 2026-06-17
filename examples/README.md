@@ -17,7 +17,7 @@ Use this track first. The scripts are small, self-contained, and written to show
 | `code/simple_degree_k_control.py` | Minimal degree-k SIS optimal-control example | First PMP/control run |
 | `code/network_control_examples.py` | Degree games, node-level models, hybrid impulse simulation | Compare model variants |
 | `code/scalability_analysis.py` | Synthetic scale-free runtime experiment | Check FBS runtime versus network size |
-| `run_all_lecture_examples.py` | Runs all lecture examples and saves figures | Reproduce the included plots |
+| `code/run_all_lecture_examples.py` | Runs all lecture examples and saves figures | Reproduce the included plots |
 
 Typical run from the repository root:
 
