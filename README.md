@@ -21,6 +21,19 @@ The repository is meant to be an educational bridge: start from the mathematical
 | [`examples/reference/MODEL_TAXONOMY.md`](examples/reference/MODEL_TAXONOMY.md) | Classifying the three reference repositories |
 | [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md) | License and attribution boundaries |
 
+## Code Entry Points
+
+Most users only need the root runner. The deeper files are listed here so the code is easy to find without browsing the tree.
+
+| Run or read | Path | Purpose |
+| --- | --- | --- |
+| Full repo check | [`run_all.py`](run_all.py) | Runs lecture examples and reference smoke tests from the repository root. |
+| Lecture runner | [`examples/lecture/code/run_all_lecture_examples.py`](examples/lecture/code/run_all_lecture_examples.py) | Rebuilds lecture figures, CSV files, and generated result notes. |
+| Minimal control example | [`examples/lecture/code/simple_degree_k_control.py`](examples/lecture/code/simple_degree_k_control.py) | Small degree-k continuous optimal-control example. |
+| Companion models | [`examples/lecture/code/network_control_examples.py`](examples/lecture/code/network_control_examples.py) | Degree-level, node-level, game, and hybrid/impulse examples. |
+| Scalability timing | [`examples/lecture/code/scalability_analysis.py`](examples/lecture/code/scalability_analysis.py) | `python-igraph` scale-free graphs from 100 to 2000 nodes. |
+| Reference smoke runner | [`examples/reference/run_reference_smoke.py`](examples/reference/run_reference_smoke.py) | Paper-level smoke tests for the three reference repositories. |
+
 ## Quick Run
 
 From the repository root:
@@ -36,7 +49,7 @@ python run_all.py
 `python-igraph` is used by the lecture scalability experiment and by the reference smoke runner. If it is hard to install in the active environment, you can still run the non-scalability lecture examples:
 
 ```bash
-python examples/lecture/code/run_all_lecture_examples.py --skip-scalability
+python run_all.py --skip-reference --skip-scalability
 ```
 
 For reference-only smoke runs, you can also install `python-igraph` into the local reference dependency folder:

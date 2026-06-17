@@ -13,6 +13,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 
 
+def lecture_command(py: str, args: argparse.Namespace) -> list[str]:
+    """Build the lecture command from root-level options.
+
+    Keeping these flags at the root makes the common workflow discoverable:
+    users can skip or shorten the scalability run without entering the nested
+    `examples/lecture/code/` folder.
+    """
+    cmd = [
+        py,
+        "code/run_all_lecture_examples.py",
+        "--steps",
+        str(args.lecture_steps),
+    ]
+    if args.skip_scalability:
+        cmd.append("--skip-scalability")
+    if args.scalability_sizes:
+        cmd.extend(["--scalability-sizes", args.scalability_sizes])
+    if args.scalability_repeats is not None:
+        cmd.extend(["--scalability-repeats", str(args.scalability_repeats)])
+    return cmd
+
+
 def run(cmd: list[str], cwd: Path, env: dict[str, str]) -> None:
     print(f"\n[{cwd.relative_to(ROOT)}] $ " + " ".join(cmd), flush=True)
     subprocess.run(cmd, cwd=cwd, env=env, check=True)
@@ -25,6 +47,18 @@ def main() -> None:
     parser.add_argument("--skip-lecture", action="store_true", help="Do not run the lecture examples.")
     parser.add_argument("--skip-reference", action="store_true", help="Do not run the reference smoke tests.")
     parser.add_argument("--lecture-steps", type=int, default=45, help="Time grid size for lecture companion examples.")
+    parser.add_argument("--skip-scalability", action="store_true", help="Skip the lecture scalability experiment.")
+    parser.add_argument(
+        "--scalability-sizes",
+        default=None,
+        help="Optional comma-separated node counts for the lecture scalability experiment.",
+    )
+    parser.add_argument(
+        "--scalability-repeats",
+        type=int,
+        default=None,
+        help="Optional repeat count per network size for the lecture scalability experiment.",
+    )
     parser.add_argument(
         "--reference-pydeps",
         type=Path,
@@ -43,16 +77,7 @@ def main() -> None:
 
     if not args.skip_lecture:
         lecture_dir = ROOT / "examples" / "lecture"
-        run(
-            [
-                py,
-                "code/run_all_lecture_examples.py",
-                "--steps",
-                str(args.lecture_steps),
-            ],
-            lecture_dir,
-            env,
-        )
+        run(lecture_command(py, args), lecture_dir, env)
 
     if not args.skip_reference:
         reference_dir = ROOT / "examples" / "reference"

@@ -11,6 +11,11 @@ Degree-level FBS is the default because the state dimension is the number of
 observed degree classes, not the number of nodes. This makes the 2000-node
 experiment lightweight enough for a teaching repository while still showing how
 runtime changes as the underlying network grows.
+
+The graph work is intentionally delegated to libraries: igraph generates the
+scale-free networks and degree vectors, pandas aggregates timing summaries, and
+Matplotlib renders the final diagnostic plot. The control solver receives only
+the reduced mathematical objects it actually needs.
 """
 
 from __future__ import annotations
@@ -57,6 +62,7 @@ def parse_sizes(raw: str) -> list[int]:
 
 
 def synthetic_scale_free_graph(nodes: int, attachment_m: int, seed: int) -> ig.Graph:
+    """Generate the synthetic network with igraph instead of hand-rolled graph code."""
     m = max(1, min(attachment_m, nodes - 1))
     ig.set_random_number_generator(random.Random(seed))
     graph = ig.Graph.Barabasi(n=nodes, m=m, directed=False)
@@ -65,6 +71,7 @@ def synthetic_scale_free_graph(nodes: int, attachment_m: int, seed: int) -> ig.G
 
 
 def degree_distribution_from_igraph(graph: ig.Graph) -> DegreeData:
+    """Reduce a node-level graph to the degree-k state used by the FBS solver."""
     degree = np.asarray(graph.degree(), dtype=int)
     k, Nk = np.unique(degree, return_counts=True)
     pk = Nk / Nk.sum()
@@ -72,10 +79,8 @@ def degree_distribution_from_igraph(graph: ig.Graph) -> DegreeData:
 
 
 def igraph_to_networkx(graph: ig.Graph) -> nx.Graph:
-    converted = nx.Graph()
-    converted.add_nodes_from(range(graph.vcount()))
-    converted.add_edges_from((source, target, {"weight": 1.0}) for source, target in graph.get_edgelist())
-    return converted
+    """Use igraph's converter only for the optional node-level matrix workflow."""
+    return nx.Graph(graph.to_networkx())
 
 
 def run_degree_trial(graph: ig.Graph, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
@@ -128,6 +133,8 @@ def run_scalability_experiment(args: argparse.Namespace) -> pd.DataFrame:
     rows: list[dict[str, float | int | str]] = []
     for nodes in args.sizes:
         for repeat in range(1, args.repeats + 1):
+            # Each row is one reproducible graph/control solve; the summary plot
+            # then separates median behavior from repeat-to-repeat variation.
             seed = args.seed + 1000 * repeat + nodes
             graph = synthetic_scale_free_graph(nodes, args.attachment_m, seed)
             if args.model_level == "degree":

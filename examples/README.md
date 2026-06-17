@@ -28,6 +28,18 @@ python -m pip install -r requirements.txt
 python run_all.py --skip-reference
 ```
 
+Fast lecture-only check without the scalability timing:
+
+```bash
+python run_all.py --skip-reference --skip-scalability
+```
+
+Short scalability timing while developing:
+
+```bash
+python run_all.py --skip-reference --scalability-sizes 100,200,300 --scalability-repeats 1
+```
+
 Outputs:
 
 ```text
