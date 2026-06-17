@@ -1,5 +1,309 @@
-repo,metric,computed_label,computed_value,baseline_label,baseline_value,improvement,better
-OpinionMalware_TIFS_2025_Code,payoff J,computed strategy,3.4356665299301694,no impulse,1.159326203020522,2.276340326909647,higher
-PropagandaWar_TIFS_2024_Code,red payoff,computed strategy,24.048020701919,zero strategies,15.369719442625327,8.678301259293674,higher
-PropagandaWar_TIFS_2024_Code,blue payoff,computed strategy,28.164379157114844,zero strategies,20.791366471955342,7.373012685159502,higher
-Propaganda_TCSS_2025_Code,profit J,computed strategy,35.22133566099345,no impulse,13.084769796051214,22.136565864942234,higher
+repo,panel,scenario,sample_type,sample_id,metric,value,better
+OpinionMalware_TIFS_2025_Code,,computed impulse control,computed,computed,objective J,3.4356665299301694,model-defined
+OpinionMalware_TIFS_2025_Code,,no impulse,deterministic,no_impulse,objective J,1.159326203020522,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_001,objective J,15.421607083020671,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_002,objective J,8.770223917082856,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_003,objective J,15.233916733838434,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_004,objective J,16.828148650464474,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_005,objective J,17.23095996156422,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_006,objective J,10.516924798829326,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_007,objective J,13.642203223347252,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_008,objective J,14.388452133344469,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_009,objective J,13.00351554550536,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_010,objective J,11.505551543491153,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_011,objective J,14.0838376777013,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_012,objective J,10.512504433671152,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_013,objective J,11.996641889608831,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_014,objective J,14.104292928241746,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_015,objective J,11.377319373718448,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_016,objective J,12.622432348705066,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_017,objective J,9.378533042035249,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_018,objective J,15.725669121628476,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_019,objective J,13.285415286958987,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_020,objective J,5.057158296917761,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_021,objective J,9.85773792643475,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_022,objective J,13.475815987477857,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_023,objective J,9.597764955048884,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_024,objective J,14.974835903696594,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_025,objective J,11.051676432457178,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_026,objective J,6.151088797612335,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_027,objective J,15.287110135236919,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_028,objective J,10.639126116474479,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_029,objective J,17.290329593367215,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_030,objective J,14.308363211384643,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_031,objective J,9.801163564351405,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_032,objective J,11.055415916262993,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_033,objective J,9.999595928084423,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_034,objective J,12.24510960073702,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_035,objective J,5.48417878561313,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_036,objective J,13.626604328095938,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_037,objective J,14.436277484012848,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_038,objective J,14.893176182946027,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_039,objective J,15.731015183041405,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_040,objective J,13.518669695618824,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_041,objective J,16.833117059450842,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_042,objective J,11.096992656061264,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_043,objective J,13.530942484905577,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_044,objective J,13.204730996177197,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_045,objective J,10.311701827106154,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_046,objective J,8.887623157703384,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_047,objective J,9.71871938380842,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_048,objective J,9.757484810671672,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_049,objective J,9.433859342473092,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_050,objective J,10.234054024357695,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_051,objective J,12.153058901026732,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_052,objective J,7.939755383227205,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_053,objective J,18.618523247630932,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_054,objective J,7.022458598725584,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_055,objective J,15.109090929907053,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_056,objective J,14.019143673255611,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_057,objective J,16.96230706369505,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_058,objective J,14.912798732172732,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_059,objective J,15.900112766454269,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_060,objective J,14.237733310501245,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_061,objective J,7.54316889451197,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_062,objective J,8.550147791471531,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_063,objective J,11.764283074572797,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_064,objective J,7.883608700388811,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_065,objective J,10.051190066421828,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_066,objective J,17.56533873651012,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_067,objective J,12.238308578926853,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_068,objective J,11.725833771082346,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_069,objective J,13.638970368661152,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_070,objective J,11.974055039556022,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_071,objective J,14.137869602952225,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_072,objective J,8.272393492501674,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_073,objective J,10.729590848614116,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_074,objective J,11.385002573061351,model-defined
+OpinionMalware_TIFS_2025_Code,,random impulse control,random,random_075,objective J,13.687664511444453,model-defined
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,computed blue strategy,computed,computed_blue,blue payoff,28.164379157114844,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,zero blue strategy,deterministic,zero_blue,blue payoff,11.781333207669848,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,computed red strategy,computed,computed_red,red payoff,24.048020701919,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,zero red strategy,deterministic,zero_red,red payoff,11.186791754759211,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_001,blue payoff,24.57993560596424,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_001,red payoff,21.065401355483765,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_002,blue payoff,25.14156764393634,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_002,red payoff,25.905871495297568,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_003,blue payoff,26.890267310337908,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_003,red payoff,19.109574913610675,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_004,blue payoff,24.29107037529207,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_004,red payoff,20.241050466042715,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_005,blue payoff,24.194282069750553,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_005,red payoff,20.170041996148612,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_006,blue payoff,20.833107531286934,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_006,red payoff,23.878296442561528,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_007,blue payoff,27.421327758379967,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_007,red payoff,23.992065604572158,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_008,blue payoff,23.235193670272537,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_008,red payoff,20.912295168170406,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_009,blue payoff,25.396182850298082,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_009,red payoff,18.459580681252184,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_010,blue payoff,22.593549358442147,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_010,red payoff,18.74579957105054,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_011,blue payoff,23.540809449695548,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_011,red payoff,20.107592932495912,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_012,blue payoff,23.795897241053922,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_012,red payoff,24.501364379029162,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_013,blue payoff,30.165443053269147,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_013,red payoff,17.037933740654942,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_014,blue payoff,25.198523652593355,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_014,red payoff,17.935394261477736,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_015,blue payoff,26.055634130593067,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_015,red payoff,19.339618544710493,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_016,blue payoff,22.02199031766085,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_016,red payoff,17.003194721723588,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_017,blue payoff,24.19919785372651,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_017,red payoff,19.627207395904634,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_018,blue payoff,23.370648356434025,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_018,red payoff,20.78683581782269,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_019,blue payoff,29.2421951294005,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_019,red payoff,21.87979318673579,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_020,blue payoff,25.61085201420865,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_020,red payoff,17.677531678906583,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_021,blue payoff,22.315002094529703,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_021,red payoff,23.33231314229598,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_022,blue payoff,23.693240699112053,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_022,red payoff,19.311700306993803,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_023,blue payoff,27.06119542540307,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_023,red payoff,20.22871154058817,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_024,blue payoff,27.96012374184078,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_024,red payoff,18.55582020891356,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_025,blue payoff,26.781726060538873,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_025,red payoff,21.494838409472667,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_026,blue payoff,27.411197219913994,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_026,red payoff,18.75994334753029,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_027,blue payoff,24.498490651977704,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_027,red payoff,21.514875841870882,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_028,blue payoff,26.45832312071937,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_028,red payoff,21.21980369136699,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_029,blue payoff,27.045689192512526,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_029,red payoff,22.29222283244581,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_030,blue payoff,23.53878442781903,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_030,red payoff,21.190590375553946,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_031,blue payoff,20.806572425850224,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_031,red payoff,18.33110714214029,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_032,blue payoff,29.502366519520386,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_032,red payoff,17.160559711983154,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_033,blue payoff,26.08825280155685,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_033,red payoff,19.67696980031777,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_034,blue payoff,25.32777182734227,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_034,red payoff,20.35555725385092,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_035,blue payoff,26.013151421475172,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_035,red payoff,23.19629980981683,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_036,blue payoff,27.545621488710765,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_036,red payoff,19.998727999881236,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_037,blue payoff,26.87470466700399,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_037,red payoff,14.842462155630727,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_038,blue payoff,25.784740376114897,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_038,red payoff,18.503506954026797,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_039,blue payoff,21.29781184964323,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_039,red payoff,21.465181811458407,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_040,blue payoff,25.135768955283595,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_040,red payoff,18.531032472543153,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_041,blue payoff,28.371184365124954,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_041,red payoff,22.175078197448315,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_042,blue payoff,24.69366578218743,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_042,red payoff,17.56948601456801,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_043,blue payoff,24.208225006048373,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_043,red payoff,17.767970990828232,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_044,blue payoff,23.809292402860905,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_044,red payoff,16.236851854828274,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_045,blue payoff,23.28927602812724,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_045,red payoff,19.558517453003283,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_046,blue payoff,26.73027596995131,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_046,red payoff,20.522273184518973,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_047,blue payoff,26.192398892552603,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_047,red payoff,20.891711279957853,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_048,blue payoff,26.493363391435057,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_048,red payoff,19.04656842393468,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_049,blue payoff,25.624720942635673,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_049,red payoff,20.06375466350471,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_050,blue payoff,26.13142858523581,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_050,red payoff,20.543220327432984,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_051,blue payoff,26.261528851958122,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_051,red payoff,17.095980534363378,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_052,blue payoff,26.383322916818667,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_052,red payoff,18.93707152150014,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_053,blue payoff,26.034940515579564,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_053,red payoff,20.552786091067972,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_054,blue payoff,23.97456889287634,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_054,red payoff,18.67898961593557,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_055,blue payoff,23.399726638779267,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_055,red payoff,18.54021064452391,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_056,blue payoff,24.6561003747005,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_056,red payoff,21.421905582569288,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_057,blue payoff,24.352151256841758,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_057,red payoff,21.799952726900628,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_058,blue payoff,27.659147921711032,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_058,red payoff,19.58750091037193,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_059,blue payoff,23.097844365263732,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_059,red payoff,18.814473406001074,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_060,blue payoff,25.869027286238815,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_060,red payoff,18.924790887375124,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_061,blue payoff,24.94557869488307,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_061,red payoff,15.918191572788253,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_062,blue payoff,25.95316186246311,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_062,red payoff,14.681905699259113,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_063,blue payoff,24.62432671330911,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_063,red payoff,20.06843350897527,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_064,blue payoff,24.472617982739987,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_064,red payoff,19.987335523605104,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_065,blue payoff,25.685577568126394,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_065,red payoff,19.11926758333548,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_066,blue payoff,25.99693099482013,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_066,red payoff,19.61435793721997,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_067,blue payoff,24.117648719418547,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_067,red payoff,21.74903440291842,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_068,blue payoff,26.970884359522962,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_068,red payoff,18.68971002971097,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_069,blue payoff,21.996549156524694,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_069,red payoff,22.85714695931435,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_070,blue payoff,27.33300595659205,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_070,red payoff,18.786695811104302,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_071,blue payoff,28.844619039397305,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_071,red payoff,19.899847817253473,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_072,blue payoff,23.634019985836595,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_072,red payoff,23.551573661795082,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_073,blue payoff,24.357285957124247,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_073,red payoff,20.759312974029847,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_074,blue payoff,24.262520367937153,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_074,red payoff,19.668812266534083,higher
+PropagandaWar_TIFS_2024_Code,fixed computed red strategy; vary blue,random blue strategy,random,random_blue_075,blue payoff,27.54625184683653,higher
+PropagandaWar_TIFS_2024_Code,fixed computed blue strategy; vary red,random red strategy,random,random_red_075,red payoff,15.480764999697818,higher
+Propaganda_TCSS_2025_Code,,computed impulse control,computed,computed,profit J,35.22133566099345,higher
+Propaganda_TCSS_2025_Code,,no impulse,deterministic,no_impulse,profit J,13.084769796051214,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_001,profit J,33.05384710831779,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_002,profit J,33.60149312256077,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_003,profit J,32.802590301335904,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_004,profit J,33.821761163985045,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_005,profit J,33.96148512828074,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_006,profit J,33.30816898764529,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_007,profit J,34.36888107735219,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_008,profit J,33.95170984557873,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_009,profit J,34.02227939337874,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_010,profit J,33.88872471637816,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_011,profit J,33.8127457048992,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_012,profit J,33.71682504059714,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_013,profit J,34.03571413541536,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_014,profit J,33.37532358959737,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_015,profit J,31.946667289555677,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_016,profit J,33.85567491621765,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_017,profit J,32.06376207594239,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_018,profit J,33.81339265066122,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_019,profit J,33.285384392433265,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_020,profit J,32.77759614457209,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_021,profit J,32.64481585603861,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_022,profit J,33.152736362288984,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_023,profit J,34.308727316427415,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_024,profit J,34.224217002016594,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_025,profit J,33.0831392810212,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_026,profit J,33.857759216841885,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_027,profit J,32.27029823736512,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_028,profit J,33.07457458056174,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_029,profit J,33.91311928632482,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_030,profit J,33.148172381330596,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_031,profit J,33.477267465751105,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_032,profit J,32.57627058998987,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_033,profit J,33.592181622426345,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_034,profit J,32.268230373626295,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_035,profit J,34.44633001529395,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_036,profit J,32.22685586897665,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_037,profit J,32.7917001178395,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_038,profit J,31.210963713266697,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_039,profit J,33.542035217141084,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_040,profit J,33.14962428011935,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_041,profit J,34.17793014893519,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_042,profit J,32.634569981258146,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_043,profit J,33.539026226692584,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_044,profit J,32.518221034558465,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_045,profit J,33.514191600943086,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_046,profit J,34.296035361614514,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_047,profit J,32.18828782542887,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_048,profit J,32.952137946037354,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_049,profit J,33.547571733955735,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_050,profit J,32.757473016459606,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_051,profit J,33.533978894365006,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_052,profit J,33.77789505105611,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_053,profit J,34.25146699966405,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_054,profit J,33.4395275478345,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_055,profit J,33.91446471629229,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_056,profit J,33.27617490496765,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_057,profit J,32.70300033261211,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_058,profit J,33.13226317629691,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_059,profit J,33.95208553071215,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_060,profit J,34.15676901999755,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_061,profit J,33.868999206660106,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_062,profit J,34.40355146490647,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_063,profit J,33.485827062336206,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_064,profit J,33.62896261631681,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_065,profit J,33.223345431767726,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_066,profit J,33.115324279680266,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_067,profit J,33.63393251112619,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_068,profit J,34.54925950474732,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_069,profit J,34.619437268623784,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_070,profit J,34.48516110311079,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_071,profit J,32.75305696375315,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_072,profit J,33.396191365688786,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_073,profit J,31.972545163229523,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_074,profit J,34.01424543654828,higher
+Propaganda_TCSS_2025_Code,,random impulse control,random,random_075,profit J,34.074857578042455,higher

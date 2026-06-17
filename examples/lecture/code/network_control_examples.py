@@ -53,6 +53,7 @@ Degree-level models are indexed by observed degree classes k, not compartments:
 from __future__ import annotations
 
 import argparse
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
@@ -65,6 +66,21 @@ import numpy as np
 import pandas as pd
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
+
+
+EXAMPLES_DIR = Path(__file__).resolve().parents[2]
+if str(EXAMPLES_DIR) not in sys.path:
+    sys.path.insert(0, str(EXAMPLES_DIR))
+
+from common_diagnostics import (  # noqa: E402
+    RANDOM_BASELINE_COUNT,
+    RANDOM_BASELINE_SEED,
+    control_baseline_rows,
+    game_baseline_rows,
+    save_control_baseline_plot,
+    save_game_baseline_plot,
+    write_baseline_table,
+)
 
 
 LINE_WIDTH = 2.0
@@ -858,109 +874,94 @@ def save_baseline_comparison(
     A: np.ndarray,
     out_dir: Path,
 ) -> None:
-    """Compare computed controls/game strategies with simple baselines."""
-    rows: list[dict[str, object]] = []
+    """Save one baseline-comparison figure per model."""
+    mixed_plot = out_dir / "baseline_comparison.png"
+    if mixed_plot.exists():
+        mixed_plot.unlink()
+
+    all_rows: list[dict[str, object]] = []
 
     if "degree_control" in results:
         result = results["degree_control"]
-        u = result.controls["control"]
-        _, no_cost = evaluate_degree_control_policy(D, result.t, np.zeros_like(u))
-        _, constant_cost = evaluate_degree_control_policy(D, result.t, np.full_like(u, float(np.mean(u))))
-        rows.extend(
-            [
-                {"example": "degree_control", "scenario": "computed FBS control", "metric": "cost", "value": result.value["cost"], "better": "lower"},
-                {"example": "degree_control", "scenario": "no control", "metric": "cost", "value": no_cost, "better": "lower"},
-                {"example": "degree_control", "scenario": "constant mean control", "metric": "cost", "value": constant_cost, "better": "lower"},
-            ]
+        rows = control_baseline_rows(
+            result.controls["control"],
+            float(result.value["cost"]),
+            lambda u: evaluate_degree_control_policy(D, result.t, u)[1],
+            random_upper=1.2,
+            seed=RANDOM_BASELINE_SEED + 11,
+            model_field="example",
+            model_name="degree_control",
+        )
+        all_rows.extend(rows)
+        save_control_baseline_plot(
+            rows,
+            out_dir / "degree_control_baseline_comparison.png",
+            title="Degree-k continuous control vs baselines",
+            ylabel="cost (lower is better)",
+            random_label=f"{RANDOM_BASELINE_COUNT} random smooth controls",
         )
 
     if "node_control" in results:
         result = results["node_control"]
-        u = result.controls["control"]
-        _, no_cost = evaluate_node_control_policy(A, result.t, np.zeros_like(u))
-        _, constant_cost = evaluate_node_control_policy(A, result.t, np.full_like(u, float(np.mean(u))))
-        rows.extend(
-            [
-                {"example": "node_control", "scenario": "computed FBS control", "metric": "cost", "value": result.value["cost"], "better": "lower"},
-                {"example": "node_control", "scenario": "no control", "metric": "cost", "value": no_cost, "better": "lower"},
-                {"example": "node_control", "scenario": "constant mean control", "metric": "cost", "value": constant_cost, "better": "lower"},
-            ]
+        rows = control_baseline_rows(
+            result.controls["control"],
+            float(result.value["cost"]),
+            lambda u: evaluate_node_control_policy(A, result.t, u)[1],
+            random_upper=1.2,
+            seed=RANDOM_BASELINE_SEED + 21,
+            model_field="example",
+            model_name="node_control",
+        )
+        all_rows.extend(rows)
+        save_control_baseline_plot(
+            rows,
+            out_dir / "node_control_baseline_comparison.png",
+            title="Node-level continuous control vs baselines",
+            ylabel="cost (lower is better)",
+            random_label=f"{RANDOM_BASELINE_COUNT} random smooth controls",
         )
 
     if "degree_game" in results:
         result = results["degree_game"]
-        attack, defend = result.controls["attack"], result.controls["defense"]
-        zero_a, zero_d = np.zeros_like(attack), np.zeros_like(defend)
-        _, JA, JD = evaluate_degree_game_strategy(D, result.t, attack, defend)
-        _, JA_zero_attack, _ = evaluate_degree_game_strategy(D, result.t, zero_a, defend)
-        _, _, JD_zero_defense = evaluate_degree_game_strategy(D, result.t, attack, zero_d)
-        rows.append({"example": "degree_game", "scenario": "computed Nash candidate", "metric": "attacker payoff", "value": JA, "better": "higher"})
-        rows.append({"example": "degree_game", "scenario": "attacker zero; defense fixed", "metric": "attacker payoff", "value": JA_zero_attack, "better": "higher"})
-        rows.append({"example": "degree_game", "scenario": "computed Nash candidate", "metric": "defender payoff", "value": JD, "better": "higher"})
-        rows.append({"example": "degree_game", "scenario": "defense zero; attack fixed", "metric": "defender payoff", "value": JD_zero_defense, "better": "higher"})
+        rows = game_baseline_rows(
+            result.controls["attack"],
+            result.controls["defense"],
+            lambda attack, defense: evaluate_degree_game_strategy(D, result.t, attack, defense)[1:],
+            attack_upper=1.2,
+            defense_upper=1.2,
+            seed=RANDOM_BASELINE_SEED + 31,
+            model_field="example",
+            model_name="degree_game",
+        )
+        all_rows.extend(rows)
+        save_game_baseline_plot(
+            rows,
+            out_dir / "degree_game_baseline_comparison.png",
+            title="Degree-k continuous differential game: unilateral baselines",
+        )
 
     if "node_game" in results:
         result = results["node_game"]
-        attack, defend = result.controls["attack"], result.controls["defense"]
-        zero_a, zero_d = np.zeros_like(attack), np.zeros_like(defend)
-        _, JA, JD = evaluate_node_game_strategy(A, result.t, attack, defend)
-        _, JA_zero_attack, _ = evaluate_node_game_strategy(A, result.t, zero_a, defend)
-        _, _, JD_zero_defense = evaluate_node_game_strategy(A, result.t, attack, zero_d)
-        rows.append({"example": "node_game", "scenario": "computed Nash candidate", "metric": "attacker payoff", "value": JA, "better": "higher"})
-        rows.append({"example": "node_game", "scenario": "attacker zero; defense fixed", "metric": "attacker payoff", "value": JA_zero_attack, "better": "higher"})
-        rows.append({"example": "node_game", "scenario": "computed Nash candidate", "metric": "defender payoff", "value": JD, "better": "higher"})
-        rows.append({"example": "node_game", "scenario": "defense zero; attack fixed", "metric": "defender payoff", "value": JD_zero_defense, "better": "higher"})
+        rows = game_baseline_rows(
+            result.controls["attack"],
+            result.controls["defense"],
+            lambda attack, defense: evaluate_node_game_strategy(A, result.t, attack, defense)[1:],
+            attack_upper=1.2,
+            defense_upper=1.2,
+            seed=RANDOM_BASELINE_SEED + 41,
+            model_field="example",
+            model_name="node_game",
+        )
+        all_rows.extend(rows)
+        save_game_baseline_plot(
+            rows,
+            out_dir / "node_game_baseline_comparison.png",
+            title="Node-level continuous differential game: unilateral baselines",
+        )
 
-    if not rows:
-        return
-
-    df = pd.DataFrame(rows)
-    df.to_csv(out_dir / "baseline_summary.csv", index=False)
-
-    fig, axes = plt.subplots(2, 2, figsize=(11.2, 7.4))
-    axes = axes.ravel()
-
-    for ax, example, title in [
-        (axes[0], "degree_control", "Degree control cost"),
-        (axes[1], "node_control", "Node control cost"),
-    ]:
-        data = df[(df["example"] == example) & (df["metric"] == "cost")]
-        if data.empty:
-            ax.axis("off")
-            continue
-        ax.bar(data["scenario"], data["value"], color=["tab:blue", "0.65", "tab:orange"])
-        apply_clean_axes(ax, ylabel="cost (lower is better)", title=title)
-        ax.tick_params(axis="x", rotation=18)
-
-    for ax, example, title in [
-        (axes[2], "degree_game", "Degree game payoffs"),
-        (axes[3], "node_game", "Node game payoffs"),
-    ]:
-        data = df[df["example"] == example]
-        if data.empty:
-            ax.axis("off")
-            continue
-        x_pos = np.arange(2)
-        width = 0.36
-        computed = [
-            float(data[(data["scenario"] == "computed Nash candidate") & (data["metric"] == "attacker payoff")]["value"].iloc[0]),
-            float(data[(data["scenario"] == "computed Nash candidate") & (data["metric"] == "defender payoff")]["value"].iloc[0]),
-        ]
-        zero_deviation = [
-            float(data[(data["scenario"] == "attacker zero; defense fixed") & (data["metric"] == "attacker payoff")]["value"].iloc[0]),
-            float(data[(data["scenario"] == "defense zero; attack fixed") & (data["metric"] == "defender payoff")]["value"].iloc[0]),
-        ]
-        ax.bar(x_pos - width / 2, computed, width, label="computed player strategy", color="tab:blue")
-        ax.bar(x_pos + width / 2, zero_deviation, width, label="zero-deviation baseline", color="0.65")
-        ax.set_xticks(x_pos)
-        ax.set_xticklabels(["attacker payoff\n(defense fixed)", "defender payoff\n(attack fixed)"])
-        apply_clean_axes(ax, ylabel="payoff (higher is better)", title=title + ": unilateral zero-deviation check")
-        ax.legend(frameon=False, fontsize=8)
-
-    fig.tight_layout()
-    fig.savefig(out_dir / "baseline_comparison.png", dpi=180)
-    plt.close(fig)
-    print(f"saved {out_dir / 'baseline_comparison.png'}")
+    if all_rows:
+        write_baseline_table(all_rows, out_dir / "baseline_summary.csv")
+        print(f"saved model-specific baseline comparison figures to {out_dir}")
 
 
 # ---------------------------------------------------------------------------

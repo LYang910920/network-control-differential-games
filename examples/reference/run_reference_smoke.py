@@ -29,15 +29,29 @@ PACKAGE_DIR = HERE
 REF_DIR = PACKAGE_DIR / "reference_repositories"
 OUT_DIR = HERE / "results" / "reference_repos_rerun"
 PYDEPS = HERE / "pydeps"
+EXAMPLES_DIR = HERE.parent
 LINE_WIDTH = 2.0
 FIGSIZE_REFERENCE = (14.4, 3.9)
 BASELINE_ROWS: list[dict[str, object]] = []
 CONVERGENCE_ROWS: list[dict[str, object]] = []
 
+if str(EXAMPLES_DIR) not in sys.path:
+    sys.path.insert(0, str(EXAMPLES_DIR))
+
 if PYDEPS.exists():
     sys.path.insert(0, str(PYDEPS))
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+from common_diagnostics import (  # noqa: E402
+    RANDOM_BASELINE_COUNT,
+    RANDOM_BASELINE_SEED,
+    random_impulse_series,
+    save_control_baseline_plot,
+    save_game_baseline_plot,
+    smooth_random_controls,
+    write_baseline_table,
+)
 
 
 def apply_clean_axes(ax, *, xlabel: str | None = None, ylabel: str | None = None,
@@ -133,25 +147,27 @@ def record_payoff_convergence(repo: str, values: np.ndarray, *, label: str = "pa
         )
 
 
-def record_baseline(
+def record_baseline_value(
     repo: str,
+    scenario: str,
+    sample_type: str,
+    sample_id: str,
     metric: str,
-    computed_value: float,
-    baseline_label: str,
-    baseline_value: float,
+    value: float,
     *,
     better: str = "higher",
+    panel: str | None = None,
 ) -> None:
-    """Record a computed strategy vs baseline comparison."""
+    """Record one computed, deterministic, or random baseline value."""
     BASELINE_ROWS.append(
         {
             "repo": repo,
+            "panel": panel or "",
+            "scenario": scenario,
+            "sample_type": sample_type,
+            "sample_id": sample_id,
             "metric": metric,
-            "computed_label": "computed strategy",
-            "computed_value": float(computed_value),
-            "baseline_label": baseline_label,
-            "baseline_value": float(baseline_value),
-            "improvement": float(computed_value - baseline_value),
+            "value": float(value),
             "better": better,
         }
     )
@@ -280,15 +296,48 @@ def run_opinion_malware() -> dict[str, float]:
         J[idx + 1] = om.payoff()
 
     opt_c, opt_o, opt_u1, opt_u2 = om.c.copy(), om.o.copy(), om.u1.copy(), om.u2.copy()
-    om.c = np.full((om.t_scale, n), 0.5)
-    om.o = np.full((om.t_scale, n), 0.3)
-    om.u1 = np.zeros(om.t_scale)
-    om.u2 = np.zeros(om.t_scale)
-    om.c = om.forward_C(imp_a)
-    om.o = om.forward_O(imp_b)
-    baseline_j = float(om.payoff())
+
+    def evaluate_impulse_policy(u1: np.ndarray, u2: np.ndarray) -> float:
+        om.c = np.full((om.t_scale, n), 0.5)
+        om.o = np.full((om.t_scale, n), 0.3)
+        om.u1 = u1.copy()
+        om.u2 = u2.copy()
+        om.c = om.forward_C(imp_a)
+        om.o = om.forward_O(imp_b)
+        return float(om.payoff())
+
+    record_baseline_value(
+        "OpinionMalware_TIFS_2025_Code",
+        "computed impulse control",
+        "computed",
+        "computed",
+        "objective J",
+        float(J[-1]),
+        better="model-defined",
+    )
+    record_baseline_value(
+        "OpinionMalware_TIFS_2025_Code",
+        "no impulse",
+        "deterministic",
+        "no_impulse",
+        "objective J",
+        evaluate_impulse_policy(np.zeros(om.t_scale), np.zeros(om.t_scale)),
+        better="model-defined",
+    )
+    rng = np.random.default_rng(RANDOM_BASELINE_SEED + 101)
+    for idx in range(RANDOM_BASELINE_COUNT):
+        random_u1 = random_impulse_series(om.t_scale, imp_a, lower=0.0, upper=om.u1_upp, rng=rng)
+        random_u2 = random_impulse_series(om.t_scale, imp_b, lower=0.0, upper=om.u2_upp, rng=rng)
+        record_baseline_value(
+            "OpinionMalware_TIFS_2025_Code",
+            "random impulse control",
+            "random",
+            f"random_{idx + 1:03d}",
+            "objective J",
+            evaluate_impulse_policy(random_u1, random_u2),
+            better="model-defined",
+        )
     om.c, om.o, om.u1, om.u2 = opt_c, opt_o, opt_u1, opt_u2
-    record_baseline("OpinionMalware_TIFS_2025_Code", "payoff J", float(J[-1]), "no impulse", baseline_j)
     record_payoff_convergence("OpinionMalware_TIFS_2025_Code", J)
 
     t = np.arange(om.t_scale) * om.h
@@ -420,22 +469,94 @@ def run_propaganda_war() -> dict[str, float]:
 
     opt_pr, opt_cr, opt_pb, opt_cb = pw.pr.copy(), pw.cr.copy(), pw.pb.copy(), pw.cb.copy()
     opt_ur, opt_ub, opt_vr, opt_vb = pw.ur.copy(), pw.ub.copy(), pw.vr.copy(), pw.vb.copy()
-    pw.pr = np.full((pw.t_interval, len(pw.kr)), 0.25)
-    pw.cr = np.full((pw.t_interval, len(pw.kr)), 0.25)
-    pw.pb = np.full((pw.t_interval, len(pw.kb)), 0.25)
-    pw.cb = np.full((pw.t_interval, len(pw.kb)), 0.15)
-    pw.ur = np.zeros(pw.t_interval)
-    pw.ub = np.zeros(pw.t_interval)
-    pw.vr = np.zeros(pw.t_interval)
-    pw.vb = np.zeros(pw.t_interval)
-    pw.pr, pw.cr = pw.forwardRed()
-    pw.pb, pw.cb = pw.forwardBlue()
-    baseline_red = float(pw.payoffRed())
-    baseline_blue = float(pw.payoffBlue())
+    red_pulses = pulse_indices(pw.pulse_interval_r, pw.t_interval)
+    blue_pulses = pulse_indices(pw.pulse_interval_b, pw.t_interval)
+
+    def evaluate_hybrid_strategies(
+        ur: np.ndarray,
+        vr: np.ndarray,
+        ub: np.ndarray,
+        vb: np.ndarray,
+    ) -> tuple[float, float]:
+        pw.pr = np.full((pw.t_interval, len(pw.kr)), 0.25)
+        pw.cr = np.full((pw.t_interval, len(pw.kr)), 0.25)
+        pw.pb = np.full((pw.t_interval, len(pw.kb)), 0.25)
+        pw.cb = np.full((pw.t_interval, len(pw.kb)), 0.15)
+        pw.ur, pw.vr = ur.copy(), vr.copy()
+        pw.ub, pw.vb = ub.copy(), vb.copy()
+        pw.pr, pw.cr = pw.forwardRed()
+        pw.pb, pw.cb = pw.forwardBlue()
+        return float(pw.payoffRed()), float(pw.payoffBlue())
+
+    _, zero_blue_payoff = evaluate_hybrid_strategies(opt_ur, opt_vr, np.zeros(pw.t_interval), np.zeros(pw.t_interval))
+    zero_red_payoff, _ = evaluate_hybrid_strategies(np.zeros(pw.t_interval), np.zeros(pw.t_interval), opt_ub, opt_vb)
+    record_baseline_value(
+        "PropagandaWar_TIFS_2024_Code",
+        "computed blue strategy",
+        "computed",
+        "computed_blue",
+        "blue payoff",
+        float(jb[-1]),
+        panel="fixed computed red strategy; vary blue",
+    )
+    record_baseline_value(
+        "PropagandaWar_TIFS_2024_Code",
+        "zero blue strategy",
+        "deterministic",
+        "zero_blue",
+        "blue payoff",
+        zero_blue_payoff,
+        panel="fixed computed red strategy; vary blue",
+    )
+    record_baseline_value(
+        "PropagandaWar_TIFS_2024_Code",
+        "computed red strategy",
+        "computed",
+        "computed_red",
+        "red payoff",
+        float(jr[-1]),
+        panel="fixed computed blue strategy; vary red",
+    )
+    record_baseline_value(
+        "PropagandaWar_TIFS_2024_Code",
+        "zero red strategy",
+        "deterministic",
+        "zero_red",
+        "red payoff",
+        zero_red_payoff,
+        panel="fixed computed blue strategy; vary red",
+    )
+
+    rng = np.random.default_rng(RANDOM_BASELINE_SEED + 201)
+    for idx in range(RANDOM_BASELINE_COUNT):
+        random_ub = smooth_random_controls((pw.t_interval, 1), lower=pw.ub_low, upper=pw.ub_upp, rng=rng).ravel()
+        random_vb = random_impulse_series(pw.t_interval, blue_pulses, lower=pw.vb_low, upper=pw.vb_upp, rng=rng)
+        _, random_blue_payoff = evaluate_hybrid_strategies(opt_ur, opt_vr, random_ub, random_vb)
+        record_baseline_value(
+            "PropagandaWar_TIFS_2024_Code",
+            "random blue strategy",
+            "random",
+            f"random_blue_{idx + 1:03d}",
+            "blue payoff",
+            random_blue_payoff,
+            panel="fixed computed red strategy; vary blue",
+        )
+
+        random_ur = smooth_random_controls((pw.t_interval, 1), lower=pw.ur_low, upper=pw.ur_upp, rng=rng).ravel()
+        random_vr = random_impulse_series(pw.t_interval, red_pulses, lower=pw.vr_low, upper=pw.vr_upp, rng=rng)
+        random_red_payoff, _ = evaluate_hybrid_strategies(random_ur, random_vr, opt_ub, opt_vb)
+        record_baseline_value(
+            "PropagandaWar_TIFS_2024_Code",
+            "random red strategy",
+            "random",
+            f"random_red_{idx + 1:03d}",
+            "red payoff",
+            random_red_payoff,
+            panel="fixed computed blue strategy; vary red",
+        )
+
     pw.pr, pw.cr, pw.pb, pw.cb = opt_pr, opt_cr, opt_pb, opt_cb
     pw.ur, pw.ub, pw.vr, pw.vb = opt_ur, opt_ub, opt_vr, opt_vb
-    record_baseline("PropagandaWar_TIFS_2024_Code", "red payoff", float(jr[-1]), "zero strategies", baseline_red)
-    record_baseline("PropagandaWar_TIFS_2024_Code", "blue payoff", float(jb[-1]), "zero strategies", baseline_blue)
     record_payoff_convergence("PropagandaWar_TIFS_2024_Code", jr, label="red_payoff_change")
     record_payoff_convergence("PropagandaWar_TIFS_2024_Code", jb, label="blue_payoff_change")
     for iteration, delta in enumerate(strategy_delta, start=1):
@@ -449,8 +570,6 @@ def run_propaganda_war() -> dict[str, float]:
         )
 
     t = np.arange(pw.t_interval) * pw.h
-    red_pulses = pulse_indices(pw.pulse_interval_r, pw.t_interval)
-    blue_pulses = pulse_indices(pw.pulse_interval_b, pw.t_interval)
     pd.DataFrame({"iteration": np.arange(pw.maxiter + 1), "J_red": jr, "J_blue": jb}).to_csv(
         OUT_DIR / "propaganda_war_payoff.csv", index=False
     )
@@ -550,23 +669,67 @@ def run_propaganda_tcss() -> dict[str, float]:
         J[idx + 1] = pp.profit_sim(r, ca, cu, t_interval, pulse_interval, h, omega)
 
     opt_sa, opt_su, opt_r, opt_ca, opt_cu = sa.copy(), su.copy(), r.copy(), ca.copy(), cu.copy()
-    baseline_sa = np.full((t_interval, n), 0.45)
-    baseline_su = np.full((t_interval, n), 0.30)
-    baseline_r = np.full((t_interval, n), 0.08)
-    zero_ca = np.zeros(t_interval)
-    zero_cu = np.zeros(t_interval)
-    baseline_sa, baseline_su, baseline_r = pp.forward(
-        baseline_sa, baseline_su, baseline_r, zero_ca.copy(), zero_cu.copy(), t_interval, pulse_interval, A,
-        beta1, beta2, eta, delta, gamma_a, gamma_u, h,
-        pp.g_func, pp.f_func, cg, cf,
+    pulse_events = pulse_indices(pulse_interval, t_interval)
+
+    def evaluate_impulse_policy(ca_candidate: np.ndarray, cu_candidate: np.ndarray) -> float:
+        candidate_sa = np.full((t_interval, n), 0.45)
+        candidate_su = np.full((t_interval, n), 0.30)
+        candidate_r = np.full((t_interval, n), 0.08)
+        candidate_sa, candidate_su, candidate_r = pp.forward(
+            candidate_sa,
+            candidate_su,
+            candidate_r,
+            ca_candidate.copy(),
+            cu_candidate.copy(),
+            t_interval,
+            pulse_interval,
+            A,
+            beta1,
+            beta2,
+            eta,
+            delta,
+            gamma_a,
+            gamma_u,
+            h,
+            pp.g_func,
+            pp.f_func,
+            cg,
+            cf,
+        )
+        return float(pp.profit_sim(candidate_r, ca_candidate, cu_candidate, t_interval, pulse_interval, h, omega))
+
+    record_baseline_value(
+        "Propaganda_TCSS_2025_Code",
+        "computed impulse control",
+        "computed",
+        "computed",
+        "profit J",
+        float(J[-1]),
     )
-    baseline_j = pp.profit_sim(baseline_r, zero_ca, zero_cu, t_interval, pulse_interval, h, omega)
+    record_baseline_value(
+        "Propaganda_TCSS_2025_Code",
+        "no impulse",
+        "deterministic",
+        "no_impulse",
+        "profit J",
+        evaluate_impulse_policy(np.zeros(t_interval), np.zeros(t_interval)),
+    )
+    rng = np.random.default_rng(RANDOM_BASELINE_SEED + 301)
+    for idx in range(RANDOM_BASELINE_COUNT):
+        random_ca = random_impulse_series(t_interval, pulse_events, lower=a_low, upper=a_upp, rng=rng)
+        random_cu = random_impulse_series(t_interval, pulse_events, lower=u_low, upper=u_upp, rng=rng)
+        record_baseline_value(
+            "Propaganda_TCSS_2025_Code",
+            "random impulse control",
+            "random",
+            f"random_{idx + 1:03d}",
+            "profit J",
+            evaluate_impulse_policy(random_ca, random_cu),
+        )
     sa, su, r, ca, cu = opt_sa, opt_su, opt_r, opt_ca, opt_cu
-    record_baseline("Propaganda_TCSS_2025_Code", "profit J", float(J[-1]), "no impulse", float(baseline_j))
     record_payoff_convergence("Propaganda_TCSS_2025_Code", J, label="profit_change")
 
     t = np.arange(t_interval) * h
-    pulse_events = pulse_indices(pulse_interval, t_interval)
     pd.DataFrame({"iteration": np.arange(maxiter + 1), "J": J}).to_csv(
         OUT_DIR / "propaganda_tcss_payoff.csv", index=False
     )
@@ -627,13 +790,18 @@ def make_contact_sheet() -> None:
         ("OpinionMalware", OUT_DIR / "opinion_malware.png"),
         ("PropagandaWar", OUT_DIR / "propaganda_war.png"),
         ("Propaganda TCSS", OUT_DIR / "propaganda_tcss.png"),
-        ("Baselines", OUT_DIR / "baseline_comparison.png"),
+        ("Opinion baseline", OUT_DIR / "opinion_malware_baseline_comparison.png"),
+        ("PropagandaWar baseline", OUT_DIR / "propaganda_war_baseline_comparison.png"),
+        ("TCSS baseline", OUT_DIR / "propaganda_tcss_baseline_comparison.png"),
     ]
     require_outputs([path for _, path in images])
-    fig, axes = plt.subplots(4, 1, figsize=(9, 14.0))
-    for ax, (title, path) in zip(axes, images):
+    fig, axes = plt.subplots(3, 2, figsize=(14.0, 10.8))
+    flat_axes = axes.ravel()
+    for ax, (title, path) in zip(flat_axes, images):
         ax.imshow(plt.imread(path))
         ax.set_title(title)
+        ax.axis("off")
+    for ax in flat_axes[len(images):]:
         ax.axis("off")
     fig.tight_layout()
     fig.savefig(OUT_DIR / "reference_repo_contact_sheet.png", dpi=180)
@@ -656,21 +824,36 @@ def write_reference_diagnostics() -> None:
         plt.close(fig)
 
     if BASELINE_ROWS:
-        baseline = pd.DataFrame(BASELINE_ROWS)
-        baseline.to_csv(OUT_DIR / "baseline_comparison.csv", index=False)
-        labels = [f"{row.repo}\n{row.metric}" for row in baseline.itertuples(index=False)]
-        x_pos = np.arange(len(baseline))
-        width = 0.36
-        fig, ax = plt.subplots(figsize=(10.8, 4.8))
-        ax.bar(x_pos - width / 2, baseline["computed_value"], width, label="computed strategy", color="tab:blue")
-        ax.bar(x_pos + width / 2, baseline["baseline_value"], width, label="baseline", color="0.65")
-        ax.set_xticks(x_pos)
-        ax.set_xticklabels(labels, rotation=18, ha="right")
-        apply_clean_axes(ax, ylabel="payoff / profit (higher is better)", title="Computed reference strategies vs baselines")
-        ax.legend(frameon=False, fontsize=8)
-        fig.tight_layout()
-        fig.savefig(OUT_DIR / "baseline_comparison.png", dpi=180)
-        plt.close(fig)
+        baseline = write_baseline_table(BASELINE_ROWS, OUT_DIR / "baseline_comparison.csv")
+        old_mixed = OUT_DIR / "baseline_comparison.png"
+        if old_mixed.exists():
+            old_mixed.unlink()
+
+        plot_map = {
+            "OpinionMalware_TIFS_2025_Code": (
+                "opinion_malware_baseline_comparison.png",
+                "OpinionMalware impulse-control objective vs baselines",
+                "objective J (reported by reference code)",
+            ),
+            "Propaganda_TCSS_2025_Code": (
+                "propaganda_tcss_baseline_comparison.png",
+                "TCSS impulse-control profit vs baselines",
+                "profit J",
+            ),
+        }
+        for repo, (file_name, title, ylabel) in plot_map.items():
+            rows = baseline[baseline["repo"] == repo].to_dict("records")
+            if rows:
+                save_control_baseline_plot(rows, OUT_DIR / file_name, title=title, ylabel=ylabel)
+
+        war_rows = baseline[baseline["repo"] == "PropagandaWar_TIFS_2024_Code"].to_dict("records")
+        if war_rows:
+            save_game_baseline_plot(
+                war_rows,
+                OUT_DIR / "propaganda_war_baseline_comparison.png",
+                title="PropagandaWar hybrid differential game: unilateral baselines",
+                ylabel="payoff (higher is better)",
+            )
 
 
 def _format_value(value) -> str:
@@ -700,7 +883,7 @@ This file is generated by `run_reference_smoke.py` for the current output direct
 - Small local sample graphs can drive each model without redistributing full paper datasets.
 - Forward state equations, backward adjoint equations, strategy/control updates, payoff calculations, CSV export, and plotting all execute successfully.
 - Iteration diagnostics remain finite; damped reference sweeps report payoff/strategy changes when available.
-- Computed strategies are compared against simple no-impulse or zero-strategy baselines.
+- Computed strategies are compared against no-impulse, zero-strategy, and random-strategy baselines.
 - Expected output files exist and are non-empty.
 
 ## How to read the figures
@@ -730,9 +913,11 @@ Continuous control is a time-indexed strategy sampled on the simulation grid; pr
 | `opinion_malware.png` | Node-level optimal impulse control | Left: payoff over forward-backward iterations. Middle: node-mean malware state `c(t)` and opinion state `o(t)` over all nodes; vertical markers show `u1`/`u2` impulse times. Right: `u1` and `u2` are plotted only as discrete impulse magnitudes. |
 | `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-weighted red/blue propaganda state means with pulse markers. Right: `ur`/`ub` are continuous strategies; `vr`/`vb` are discrete impulse strategies. |
 | `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Left: profit over impulse-policy iterations. Middle: node-mean awareness/unawareness/removed states over all nodes with pulse markers; the tuned smoke-run parameters make the pulse effects visually clear. Right: `ca` and `cu` are plotted only as discrete impulse magnitudes. |
-| `reference_repo_contact_sheet.png` | Mixed overview | Compact visual index for the three reference smoke runs. |
+| `reference_repo_contact_sheet.png` | Mixed overview | Compact visual index for the three reference smoke runs and their model-specific baseline comparisons. |
 | `reference_convergence.png` | Iteration diagnostics | Absolute payoff/profit or strategy changes across smoke-run iterations. |
-| `baseline_comparison.png` | Baseline comparison | Computed strategies compared with no-impulse or zero-strategy baselines. This is a smoke-level sanity check, not a global optimality proof. |
+| `opinion_malware_baseline_comparison.png` | Node-level impulse-control baseline comparison | Computed impulse policy compared with no-impulse and random impulse policies for the same model. |
+| `propaganda_war_baseline_comparison.png` | Degree-level hybrid-game baseline comparison | Two unilateral panels: one fixes the computed red strategy and varies blue; the other fixes the computed blue strategy and varies red. |
+| `propaganda_tcss_baseline_comparison.png` | Node-level impulse-control baseline comparison | Computed impulse policy compared with no-impulse and random impulse policies for the same model. |
 
 ## CSV outputs
 
@@ -741,7 +926,7 @@ Continuous control is a time-indexed strategy sampled on the simulation grid; pr
 | `*_payoff.csv` | Iteration-indexed payoff/profit values for convergence inspection. |
 | `*_timeseries.csv` | Time-indexed state and control/strategy trajectories. |
 | `reference_convergence.csv` | Iteration-to-iteration diagnostic changes used in `reference_convergence.png`. |
-| `baseline_comparison.csv` | Computed-vs-baseline payoff/profit values used in `baseline_comparison.png`. |
+| `baseline_comparison.csv` | Computed, deterministic, and random baseline values used in the model-specific baseline-comparison figures. |
 | `smoke_run_summary.csv` | One-row-per-repository smoke-run summary. |
 
 ## Smoke-run summary
@@ -804,7 +989,9 @@ def main() -> None:
             OUT_DIR / "reference_convergence.csv",
             OUT_DIR / "reference_convergence.png",
             OUT_DIR / "baseline_comparison.csv",
-            OUT_DIR / "baseline_comparison.png",
+            OUT_DIR / "opinion_malware_baseline_comparison.png",
+            OUT_DIR / "propaganda_war_baseline_comparison.png",
+            OUT_DIR / "propaganda_tcss_baseline_comparison.png",
             OUT_DIR / "smoke_run_summary.csv",
             OUT_DIR / "reference_repo_contact_sheet.png",
             OUT_DIR / "smoke_run_report.md",

@@ -34,7 +34,9 @@ Each reference figure has three panels:
 | `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Red/blue payoffs; degree-weighted state means with pulse markers; continuous `ur`/`ub` strategies plus discrete `vr`/`vb` impulses. |
 | `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Profit over policy iterations; node-mean awareness/unawareness/removed states over all nodes with pulse markers; `ca` and `cu` shown only as discrete impulse magnitudes. The smoke-run parameters are chosen to make impulse-induced jumps visible. |
 | `reference_convergence.png` | Mixed convergence diagnostics | Absolute payoff/profit or strategy changes across smoke-run iterations. These curves should decrease or settle before the final strategy is interpreted. |
-| `baseline_comparison.png` | Mixed baseline comparison | Computed strategies are compared with no-impulse or zero-strategy baselines. Higher payoff/profit is better in this smoke-level comparison. |
-| `reference_repo_contact_sheet.png` | Mixed overview | A visual index for comparing all three reference smoke runs. |
+| `opinion_malware_baseline_comparison.png` | Node-level impulse-control baseline comparison | Computed impulse policy is compared with no-impulse and 75 random impulse policies for the same model. |
+| `propaganda_war_baseline_comparison.png` | Degree-level hybrid-game baseline comparison | Two unilateral panels: fixed computed red strategy with varied blue, and fixed computed blue strategy with varied red. Each panel includes zero and random strategies. |
+| `propaganda_tcss_baseline_comparison.png` | Node-level impulse-control baseline comparison | Computed impulse policy is compared with no-impulse and 75 random impulse policies for the same model. |
+| `reference_repo_contact_sheet.png` | Mixed overview | A visual index for comparing all three reference smoke runs and their model-specific baseline comparisons. |
 
 The reference smoke runs are not full paper-scale reproductions. They use small local graphs and short horizons to check that the reference code imports, runs, exports CSV summaries, and produces interpretable figures.

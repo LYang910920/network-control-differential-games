@@ -106,10 +106,13 @@ Useful precomputed figures:
 results/simple_contact_sheet.png
 results/examples_contact_sheet.png
 results/examples_demo/fbs_convergence.png
-results/examples_demo/baseline_comparison.png
+results/examples_demo/degree_control_baseline_comparison.png
+results/examples_demo/degree_game_baseline_comparison.png
+results/examples_demo/node_control_baseline_comparison.png
+results/examples_demo/node_game_baseline_comparison.png
 ```
 
-The detailed subdirectories contain individual PNG files, degree-distribution CSV files, FBS convergence diagnostics, and baseline-comparison summaries.
+The detailed subdirectories contain individual PNG files, degree-distribution CSV files, FBS convergence diagnostics, and baseline-comparison summaries. Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.
 
 For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `figure_explanations.md` into its output directory.
 

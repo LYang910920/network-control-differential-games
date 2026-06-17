@@ -72,4 +72,4 @@ examples/reference/results/reference_repos_rerun/
 | Forward dynamics | compact ODE/state functions | paper-specific propagation dynamics |
 | Backward adjoints | short PMP adjoint routines | longer model-specific adjoint systems |
 | Control update | bounded Hamiltonian update | continuous or impulse strategy search |
-| Validation | simple baselines and plots | smoke tests, payoff summaries, unilateral-deviation checks where available |
+| Validation | deterministic/random baseline plots | smoke tests, payoff summaries, and model-specific deterministic/random baseline checks |

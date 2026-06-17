@@ -26,6 +26,7 @@ Run:
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Callable
 
@@ -37,6 +38,19 @@ import numpy as np
 import pandas as pd
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
+
+
+EXAMPLES_DIR = Path(__file__).resolve().parents[2]
+if str(EXAMPLES_DIR) not in sys.path:
+    sys.path.insert(0, str(EXAMPLES_DIR))
+
+from common_diagnostics import (  # noqa: E402
+    RANDOM_BASELINE_COUNT,
+    RANDOM_BASELINE_SEED,
+    control_baseline_rows,
+    save_control_baseline_plot,
+    write_baseline_table,
+)
 
 
 # -----------------------------------------------------------------------------
@@ -287,28 +301,21 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
     plt.savefig(out_dir / "fbs_convergence.png", dpi=180)
     plt.close()
 
-    zero_u = np.zeros_like(U)
-    constant_u = np.full_like(U, float(np.mean(U)))
-    _, no_control_cost = evaluate_degree_k_control(k, p, kbar, t, zero_u)
-    _, constant_cost = evaluate_degree_k_control(k, p, kbar, t, constant_u)
-    baseline = pd.DataFrame(
-        [
-            {"scenario": "computed FBS control", "metric": "cost", "value": cost, "better": "lower"},
-            {"scenario": "no control", "metric": "cost", "value": no_control_cost, "better": "lower"},
-            {"scenario": "constant mean control", "metric": "cost", "value": constant_cost, "better": "lower"},
-        ]
+    baseline_rows = control_baseline_rows(
+        U,
+        cost,
+        lambda candidate: evaluate_degree_k_control(k, p, kbar, t, candidate)[1],
+        random_upper=1.2,
+        seed=RANDOM_BASELINE_SEED,
     )
-    baseline.to_csv(out_dir / "baseline_summary.csv", index=False)
-
-    plt.figure(figsize=(7.2, 4.0))
-    plt.bar(baseline["scenario"], baseline["value"], color=["tab:blue", "0.65", "tab:orange"])
-    plt.ylabel("cost (lower is better)")
-    plt.title("Computed degree-k control vs baselines")
-    plt.xticks(rotation=16)
-    plt.grid(True, axis="y", alpha=0.25)
-    plt.tight_layout()
-    plt.savefig(out_dir / "baseline_comparison.png", dpi=180)
-    plt.close()
+    write_baseline_table(baseline_rows, out_dir / "baseline_summary.csv")
+    save_control_baseline_plot(
+        baseline_rows,
+        out_dir / "baseline_comparison.png",
+        title="Degree-k continuous control vs baselines",
+        ylabel="cost (lower is better)",
+        random_label=f"{RANDOM_BASELINE_COUNT} random smooth controls",
+    )
 
     print(f"saved outputs to {out_dir}")
 
