@@ -268,6 +268,10 @@ This run measures `{model_level}`-level forward-backward sweep (FBS) optimal con
 
 - Network sizes: {", ".join(str(int(n)) for n in sorted(raw["nodes"].unique()))} nodes.
 - Repeats per size: {int(raw["repeat"].max())}.
+- Synthetic network model: Barabasi-Albert scale-free graph with attachment parameter `m={int(raw["attachment_m"].iloc[0])}`.
+- Time grid: `{int(raw["time_grid_steps"].iloc[0])}` intervals over the degree-control horizon.
+- Maximum FBS iterations: `{int(raw["max_fbs_iterations"].iloc[0])}`.
+- FBS tolerance: `{float(raw["tolerance"].iloc[0]):.0e}`.
 - Runtime column: `fbs_seconds`, measuring the FBS solve after graph generation and preprocessing.
 - Convergence check: `final_delta < tolerance` for each run.
 

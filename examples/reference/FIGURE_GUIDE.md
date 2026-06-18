@@ -37,6 +37,7 @@ Each reference figure has three panels:
 | `opinion_malware_baseline_comparison.png` | Node-level impulse-control baseline comparison | Computed impulse policy is compared with no-impulse and 75 random impulse policies for the same model. |
 | `propaganda_war_baseline_comparison.png` | Degree-level hybrid-game baseline comparison | Two unilateral panels: fixed computed red strategy with varied blue, and fixed computed blue strategy with varied red. Each panel includes zero and random strategies. |
 | `propaganda_tcss_baseline_comparison.png` | Node-level impulse-control baseline comparison | Computed impulse policy is compared with no-impulse and 75 random impulse policies for the same model. |
+| `parameter_summary.csv` | Smoke-run parameter table | Concrete values for time horizon, step size, propagation rates, impulse event indices, control bounds, and baseline counts. |
 | `reference_repo_contact_sheet.png` | Mixed overview | A visual index for comparing all three reference smoke runs and their model-specific baseline comparisons. |
 
 The reference smoke runs are not full paper-scale reproductions. They use small local graphs and short horizons to check that the reference code imports, runs, exports CSV summaries, and produces interpretable figures.

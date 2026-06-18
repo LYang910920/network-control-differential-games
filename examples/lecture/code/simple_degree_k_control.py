@@ -39,6 +39,8 @@ import pandas as pd
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 
+from model_profiles import DegreeControlProfile, SIMPLE_DEGREE_CONTROL
+
 
 EXAMPLES_DIR = Path(__file__).resolve().parents[2]
 if str(EXAMPLES_DIR) not in sys.path:
@@ -160,21 +162,30 @@ def state_jacobian(x: np.ndarray, u: np.ndarray, k: np.ndarray, p: np.ndarray, k
     return J
 
 
+def initial_degree_state(k: np.ndarray, profile: DegreeControlProfile = SIMPLE_DEGREE_CONTROL) -> np.ndarray:
+    """Use a small degree-dependent initial infection for visual contrast."""
+    return clip(
+        profile.initial_low + profile.initial_degree_scale * k / max(k.max(), 1.0),
+        0.0,
+        profile.initial_cap,
+    )
+
+
 def solve_degree_k_control(
     k: np.ndarray,
     p: np.ndarray,
     kbar: float,
     *,
-    horizon: float = 14.0,
+    horizon: float = SIMPLE_DEGREE_CONTROL.horizon,
     steps: int = 220,
-    iterations: int = 50,
-    beta: float = 0.65,
-    delta: float = 0.18,
-    infection_weight: float = 3.0,
-    control_weight: float = 2.5,
-    u_max: float = 1.2,
-    damping: float = 0.35,
-    tol: float = 1e-4,
+    iterations: int = SIMPLE_DEGREE_CONTROL.max_iterations,
+    beta: float = SIMPLE_DEGREE_CONTROL.beta,
+    delta: float = SIMPLE_DEGREE_CONTROL.delta,
+    infection_weight: float = SIMPLE_DEGREE_CONTROL.infection_weight,
+    control_weight: float = SIMPLE_DEGREE_CONTROL.control_weight,
+    u_max: float = SIMPLE_DEGREE_CONTROL.u_max,
+    damping: float = SIMPLE_DEGREE_CONTROL.damping,
+    tol: float = SIMPLE_DEGREE_CONTROL.tolerance,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, np.ndarray, bool]:
     """Forward-backward sweep for degree-k optimal control.
 
@@ -184,7 +195,7 @@ def solve_degree_k_control(
     t = np.linspace(0.0, horizon, steps + 1)
     m = len(k)
     U = np.zeros((len(t), m))
-    X0 = clip(0.02 + 0.08 * k / max(k.max(), 1.0), 0.0, 0.18)
+    X0 = initial_degree_state(k)
     delta_history: list[float] = []
 
     for it in range(iterations):
@@ -229,13 +240,13 @@ def evaluate_degree_k_control(
     kbar: float,
     t: np.ndarray,
     U: np.ndarray,
-    beta: float = 0.65,
-    delta: float = 0.18,
-    infection_weight: float = 3.0,
-    control_weight: float = 2.5,
+    beta: float = SIMPLE_DEGREE_CONTROL.beta,
+    delta: float = SIMPLE_DEGREE_CONTROL.delta,
+    infection_weight: float = SIMPLE_DEGREE_CONTROL.infection_weight,
+    control_weight: float = SIMPLE_DEGREE_CONTROL.control_weight,
 ) -> tuple[np.ndarray, float]:
     """Evaluate the degree-k objective for a fixed control curve."""
-    X0 = clip(0.02 + 0.08 * k / max(k.max(), 1.0), 0.0, 0.18)
+    X0 = initial_degree_state(k)
     U_of_t = as_time_function(t, U)
     X = clip(solve_ode_on_grid(
         lambda tau, y: state_rhs(y, U_of_t(tau), k, p, kbar, beta, delta),
@@ -261,6 +272,21 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
             legacy_path.unlink()
 
     pd.DataFrame({"k": k.astype(int), "N_k": counts, "P(k)": p}).to_csv(out_dir / "degree_distribution.csv", index=False)
+    pd.DataFrame(
+        [
+            {"parameter": "model_level", "value": "degree-k", "meaning": "State is the infected fraction for each observed degree class."},
+            {"parameter": "horizon", "value": float(t[-1]), "meaning": "Total simulated time."},
+            {"parameter": "time_grid_steps", "value": len(t) - 1, "meaning": "Number of intervals used by the ODE/FBS time grid."},
+            {"parameter": "beta", "value": SIMPLE_DEGREE_CONTROL.beta, "meaning": "Infection/contact rate in the SIS dynamics."},
+            {"parameter": "delta", "value": SIMPLE_DEGREE_CONTROL.delta, "meaning": "Natural recovery/removal rate before control."},
+            {"parameter": "u_max", "value": SIMPLE_DEGREE_CONTROL.u_max, "meaning": "Upper bound for the continuous healing/control rate u_k(t)."},
+            {"parameter": "infection_weight", "value": SIMPLE_DEGREE_CONTROL.infection_weight, "meaning": "Objective weight on infected fraction."},
+            {"parameter": "control_weight", "value": SIMPLE_DEGREE_CONTROL.control_weight, "meaning": "Quadratic cost weight on control effort."},
+            {"parameter": "initial_infection_range", "value": f"{float(initial_degree_state(k).min()):.3f}-{float(initial_degree_state(k).max()):.3f}", "meaning": "Degree-dependent initial infected fraction range."},
+            {"parameter": "fbs_tolerance", "value": tolerance, "meaning": "Convergence threshold for max control change."},
+            {"parameter": "random_baselines", "value": RANDOM_BASELINE_COUNT, "meaning": "Number of random smooth controls used in the baseline comparison."},
+        ]
+    ).to_csv(out_dir / "parameter_summary.csv", index=False)
 
     plt.figure(figsize=(6.8, 4.0))
     plt.bar(k, p)
@@ -310,7 +336,7 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
         U,
         cost,
         lambda candidate: evaluate_degree_k_control(k, p, kbar, t, candidate)[1],
-        random_upper=1.2,
+        random_upper=SIMPLE_DEGREE_CONTROL.u_max,
         seed=RANDOM_BASELINE_SEED,
     )
     write_baseline_table(baseline_rows, out_dir / "baseline_summary.csv")
@@ -335,7 +361,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--target-col", default=1, help="Target column name/index.")
     parser.add_argument("--demo-nodes", type=int, default=30, help="Number of demo nodes.")
     parser.add_argument("--demo-m", type=int, default=2, help="BA demo graph attachment parameter.")
-    parser.add_argument("--steps", type=int, default=220, help="Time grid size.")
+    parser.add_argument("--steps", type=int, default=220, help="Time grid size on horizon T=14.0.")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--output-dir", type=str, default="simple_outputs")
     return parser

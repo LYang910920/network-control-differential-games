@@ -34,6 +34,7 @@ LINE_WIDTH = 2.0
 FIGSIZE_REFERENCE = (14.4, 3.9)
 BASELINE_ROWS: list[dict[str, object]] = []
 CONVERGENCE_ROWS: list[dict[str, object]] = []
+PARAMETER_ROWS: list[dict[str, object]] = []
 
 if str(EXAMPLES_DIR) not in sys.path:
     sys.path.insert(0, str(EXAMPLES_DIR))
@@ -173,6 +174,24 @@ def record_baseline_value(
     )
 
 
+def record_parameter(repo: str, scope: str, parameter: str, value: object, meaning: str) -> None:
+    """Record one concrete smoke-run parameter for CSV/report output."""
+    PARAMETER_ROWS.append(
+        {
+            "repo": repo,
+            "scope": scope,
+            "parameter": parameter,
+            "value": value,
+            "meaning": meaning,
+        }
+    )
+
+
+def value_range(lower: float, upper: float) -> str:
+    """Compact display for numeric bounds such as 0.3-3."""
+    return f"{float(lower):g}-{float(upper):g}"
+
+
 def require_outputs(paths: list[Path]) -> None:
     missing = [path for path in paths if not path.exists()]
     empty = [path for path in paths if path.exists() and path.stat().st_size == 0]
@@ -281,6 +300,23 @@ def run_opinion_malware() -> dict[str, float]:
     imp_b = om.impsequence(start=10, interval=20, tscale=om.t_scale, max_count=3, mode=2)
 
     maxiter = 5
+    repo_name = "OpinionMalware_TIFS_2025_Code"
+    for scope, parameter, value, meaning in [
+        ("network", "max_nodes", 60, "Upper bound used when reading the local multiplex sample graph."),
+        ("time", "T", om.T, "Total simulated time."),
+        ("time", "h", om.h, "Time-step used by the reference code."),
+        ("time", "t_scale", om.t_scale, "Number of time samples."),
+        ("iteration", "maxiter", maxiter, "Number of impulse-strategy update iterations in the smoke run."),
+        ("dynamics", "omega/zeta", f"{om.omega}/{om.zeta}", "Coupling parameters from the malware-opinion reference model."),
+        ("dynamics", "rho", float(om.rho[0]), "Uniform resistance/susceptibility parameter used in the smoke run."),
+        ("impulse", "u1_bounds", value_range(om.u1_low, om.u1_upp), "Allowed discrete impulse magnitude range for u1."),
+        ("impulse", "u2_bounds", value_range(om.u2_low, om.u2_upp), "Allowed discrete impulse magnitude range for u2."),
+        ("impulse", "u1_event_indices", ",".join(str(int(i)) for i in imp_a), "Discrete event indices where u1 may act."),
+        ("impulse", "u2_event_indices", ",".join(str(int(i)) for i in imp_b), "Discrete event indices where u2 may act."),
+        ("baseline", "random_impulse_policies", RANDOM_BASELINE_COUNT, "Random impulse policies compared with the computed policy."),
+    ]:
+        record_parameter(repo_name, scope, parameter, value, meaning)
+
     J = np.zeros(maxiter + 1)
     om.c = om.forward_C(imp_a)
     om.o = om.forward_O(imp_b)
@@ -471,6 +507,26 @@ def run_propaganda_war() -> dict[str, float]:
     opt_ur, opt_ub, opt_vr, opt_vb = pw.ur.copy(), pw.ub.copy(), pw.vr.copy(), pw.vb.copy()
     red_pulses = pulse_indices(pw.pulse_interval_r, pw.t_interval)
     blue_pulses = pulse_indices(pw.pulse_interval_b, pw.t_interval)
+    repo_name = "PropagandaWar_TIFS_2024_Code"
+    for scope, parameter, value, meaning in [
+        ("network", "red_graph", "BA(n=36,m=2)", "Synthetic red graph used to form degree classes."),
+        ("network", "blue_graph", "WS(n=34,k=4,p=0.18)", "Synthetic blue graph used to form degree classes."),
+        ("network", "red_degree_classes", len(pw.kr), "Number of red degree classes in the degree-level game."),
+        ("network", "blue_degree_classes", len(pw.kb), "Number of blue degree classes in the degree-level game."),
+        ("time", "T", pw.T, "Total simulated time."),
+        ("time", "h", pw.h, "Time-step used by the reference code."),
+        ("time", "t_interval", pw.t_interval, "Number of time samples."),
+        ("iteration", "maxiter", pw.maxiter, "Maximum game-strategy update iterations."),
+        ("iteration", "strategy_damping", strategy_damping, "Damping used to keep the smoke-run game sweep stable."),
+        ("dynamics", "red beta/gamma1/gamma2/delta", f"{pw.beta_r}/{pw.gamma_r1}/{pw.gamma_r2}/{pw.delta_r}", "Red-side propagation and decay rates."),
+        ("dynamics", "blue beta/gamma1/gamma2/delta", f"{pw.beta_b}/{pw.gamma_b1}/{pw.gamma_b2}/{pw.delta_b}", "Blue-side propagation and decay rates."),
+        ("control", "continuous_bounds_ur_ub", f"{value_range(pw.ur_low, pw.ur_upp)}; {value_range(pw.ub_low, pw.ub_upp)}", "Continuous strategy ranges for red and blue."),
+        ("impulse", "pulse_intervals_red_blue", f"{pw.pulse_interval_r}/{pw.pulse_interval_b}", "Discrete impulse intervals for red and blue strategies."),
+        ("impulse", "red_pulse_indices", ",".join(str(int(i)) for i in red_pulses), "Discrete red impulse event indices."),
+        ("impulse", "blue_pulse_indices", ",".join(str(int(i)) for i in blue_pulses), "Discrete blue impulse event indices."),
+        ("baseline", "random_hybrid_strategies", RANDOM_BASELINE_COUNT, "Random unilateral hybrid strategies per player in baseline panels."),
+    ]:
+        record_parameter(repo_name, scope, parameter, value, meaning)
 
     def evaluate_hybrid_strategies(
         ur: np.ndarray,
@@ -670,6 +726,24 @@ def run_propaganda_tcss() -> dict[str, float]:
 
     opt_sa, opt_su, opt_r, opt_ca, opt_cu = sa.copy(), su.copy(), r.copy(), ca.copy(), cu.copy()
     pulse_events = pulse_indices(pulse_interval, t_interval)
+    repo_name = "Propaganda_TCSS_2025_Code"
+    for scope, parameter, value, meaning in [
+        ("network", "nodes", n, "Number of nodes in the local sample adjacency matrix."),
+        ("time", "T", T, "Total simulated time."),
+        ("time", "h", h, "Time-step used by the reference code."),
+        ("time", "t_interval", t_interval, "Number of time samples."),
+        ("iteration", "maxiter", maxiter, "Number of impulse-policy update iterations in the smoke run."),
+        ("dynamics", "beta1/beta2/eta", f"{beta1}/{beta2}/{eta}", "Awareness-aware propagation rates in the TCSS model."),
+        ("dynamics", "delta", delta, "Removal/recovery rate."),
+        ("dynamics", "gamma_a/gamma_u", f"{gamma_a}/{gamma_u}", "Awareness and unawareness transition rates."),
+        ("objective", "omega", omega, "Profit weight on removed/reached state R; tuned so pulse effects are visible."),
+        ("impulse", "pulse_interval", pulse_interval, "Discrete event spacing for impulse controls."),
+        ("impulse", "pulse_event_indices", ",".join(str(int(i)) for i in pulse_events), "Discrete event indices where ca/cu may act."),
+        ("impulse", "ca_bounds", value_range(a_low, a_upp), "Allowed discrete impulse magnitude range for ca."),
+        ("impulse", "cu_bounds", value_range(u_low, u_upp), "Allowed discrete impulse magnitude range for cu."),
+        ("baseline", "random_impulse_policies", RANDOM_BASELINE_COUNT, "Random impulse policies compared with the computed policy."),
+    ]:
+        record_parameter(repo_name, scope, parameter, value, meaning)
 
     def evaluate_impulse_policy(ca_candidate: np.ndarray, cu_candidate: np.ndarray) -> float:
         candidate_sa = np.full((t_interval, n), 0.45)
@@ -810,6 +884,9 @@ def make_contact_sheet() -> None:
 
 def write_reference_diagnostics() -> None:
     """Save convergence and baseline diagnostics shared by all reference runs."""
+    if PARAMETER_ROWS:
+        pd.DataFrame(PARAMETER_ROWS).to_csv(OUT_DIR / "parameter_summary.csv", index=False)
+
     if CONVERGENCE_ROWS:
         convergence = pd.DataFrame(CONVERGENCE_ROWS)
         convergence.to_csv(OUT_DIR / "reference_convergence.csv", index=False)
@@ -864,6 +941,19 @@ def _format_value(value) -> str:
     return str(value)
 
 
+def _parameter_markdown_table() -> str:
+    if not PARAMETER_ROWS:
+        return "No parameter rows were recorded.\n"
+    headers = ["repo", "scope", "parameter", "value", "meaning"]
+    lines = [
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join(["---"] * len(headers)) + " |",
+    ]
+    for row in PARAMETER_ROWS:
+        lines.append("| " + " | ".join(_format_value(row.get(header)) for header in headers) + " |")
+    return "\n".join(lines) + "\n"
+
+
 def write_smoke_run_report(rows: list[dict[str, float]]) -> None:
     headers = ["repo", "nodes", "J0", "J_final", "red_degree_classes", "J_red_final", "J_blue_final"]
     summary_lines = [
@@ -906,6 +996,12 @@ Continuous control is a time-indexed strategy sampled on the simulation grid; pr
 | `PropagandaWar_TIFS_2024_Code` | Degree-level red/blue population model | Hybrid/impulsive differential game | Aggregate graph structure into degree distributions, then compute interacting red/blue strategies. |
 | `Propaganda_TCSS_2025_Code` | Node-level awareness-aware propagation model | Optimal impulse control | Track awareness-aware propagation states and compute impulse interventions. |
 
+## Smoke-run parameter guide
+
+The exact values are also exported to `parameter_summary.csv`.
+
+""" + _parameter_markdown_table() + """
+
 ## Figure-specific notes
 
 | File | Model class | Interpretation |
@@ -927,6 +1023,7 @@ Continuous control is a time-indexed strategy sampled on the simulation grid; pr
 | `*_timeseries.csv` | Time-indexed state and control/strategy trajectories. |
 | `reference_convergence.csv` | Iteration-to-iteration diagnostic changes used in `reference_convergence.png`. |
 | `baseline_comparison.csv` | Computed, deterministic, and random baseline values used in the model-specific baseline-comparison figures. |
+| `parameter_summary.csv` | Concrete smoke-run settings: horizon, step size, rate parameters, impulse event indices, bounds, and baseline count. |
 | `smoke_run_summary.csv` | One-row-per-repository smoke-run summary. |
 
 ## Smoke-run summary
@@ -989,6 +1086,7 @@ def main() -> None:
             OUT_DIR / "reference_convergence.csv",
             OUT_DIR / "reference_convergence.png",
             OUT_DIR / "baseline_comparison.csv",
+            OUT_DIR / "parameter_summary.csv",
             OUT_DIR / "opinion_malware_baseline_comparison.png",
             OUT_DIR / "propaganda_war_baseline_comparison.png",
             OUT_DIR / "propaganda_tcss_baseline_comparison.png",

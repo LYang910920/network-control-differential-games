@@ -142,6 +142,8 @@ The detailed subdirectories are grouped by purpose:
 
 Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.
 
+Each `simple_*` and `companion_*` result folder also includes `parameter_summary.csv`, which lists the concrete smoke-run settings: time horizon, grid size, infection/contact rate, recovery rate, control or strategy bounds, impulse times, and baseline count.
+
 For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes a generated `README.md` into its output directory.
 
 ## What to learn here

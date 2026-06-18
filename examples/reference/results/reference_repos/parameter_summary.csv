@@ -1,0 +1,43 @@
+repo,scope,parameter,value,meaning
+OpinionMalware_TIFS_2025_Code,network,max_nodes,60,Upper bound used when reading the local multiplex sample graph.
+OpinionMalware_TIFS_2025_Code,time,T,0.6,Total simulated time.
+OpinionMalware_TIFS_2025_Code,time,h,0.01,Time-step used by the reference code.
+OpinionMalware_TIFS_2025_Code,time,t_scale,61,Number of time samples.
+OpinionMalware_TIFS_2025_Code,iteration,maxiter,5,Number of impulse-strategy update iterations in the smoke run.
+OpinionMalware_TIFS_2025_Code,dynamics,omega/zeta,0.2/0.2,Coupling parameters from the malware-opinion reference model.
+OpinionMalware_TIFS_2025_Code,dynamics,rho,0.7,Uniform resistance/susceptibility parameter used in the smoke run.
+OpinionMalware_TIFS_2025_Code,impulse,u1_bounds,0.5-5,Allowed discrete impulse magnitude range for u1.
+OpinionMalware_TIFS_2025_Code,impulse,u2_bounds,0.3-3,Allowed discrete impulse magnitude range for u2.
+OpinionMalware_TIFS_2025_Code,impulse,u1_event_indices,"8,26,44",Discrete event indices where u1 may act.
+OpinionMalware_TIFS_2025_Code,impulse,u2_event_indices,"10,30,50",Discrete event indices where u2 may act.
+OpinionMalware_TIFS_2025_Code,baseline,random_impulse_policies,75,Random impulse policies compared with the computed policy.
+PropagandaWar_TIFS_2024_Code,network,red_graph,"BA(n=36,m=2)",Synthetic red graph used to form degree classes.
+PropagandaWar_TIFS_2024_Code,network,blue_graph,"WS(n=34,k=4,p=0.18)",Synthetic blue graph used to form degree classes.
+PropagandaWar_TIFS_2024_Code,network,red_degree_classes,7,Number of red degree classes in the degree-level game.
+PropagandaWar_TIFS_2024_Code,network,blue_degree_classes,5,Number of blue degree classes in the degree-level game.
+PropagandaWar_TIFS_2024_Code,time,T,1.5,Total simulated time.
+PropagandaWar_TIFS_2024_Code,time,h,0.02,Time-step used by the reference code.
+PropagandaWar_TIFS_2024_Code,time,t_interval,76,Number of time samples.
+PropagandaWar_TIFS_2024_Code,iteration,maxiter,60,Maximum game-strategy update iterations.
+PropagandaWar_TIFS_2024_Code,iteration,strategy_damping,0.15,Damping used to keep the smoke-run game sweep stable.
+PropagandaWar_TIFS_2024_Code,dynamics,red beta/gamma1/gamma2/delta,0.045/0.0675/0.0225/0.02,Red-side propagation and decay rates.
+PropagandaWar_TIFS_2024_Code,dynamics,blue beta/gamma1/gamma2/delta,0.0675/0.09/0.045/0.01,Blue-side propagation and decay rates.
+PropagandaWar_TIFS_2024_Code,control,continuous_bounds_ur_ub,0.2-4; 0.2-4,Continuous strategy ranges for red and blue.
+PropagandaWar_TIFS_2024_Code,impulse,pulse_intervals_red_blue,18/15,Discrete impulse intervals for red and blue strategies.
+PropagandaWar_TIFS_2024_Code,impulse,red_pulse_indices,"18,36,54,72",Discrete red impulse event indices.
+PropagandaWar_TIFS_2024_Code,impulse,blue_pulse_indices,"15,30,45,60",Discrete blue impulse event indices.
+PropagandaWar_TIFS_2024_Code,baseline,random_hybrid_strategies,75,Random unilateral hybrid strategies per player in baseline panels.
+Propaganda_TCSS_2025_Code,network,nodes,4,Number of nodes in the local sample adjacency matrix.
+Propaganda_TCSS_2025_Code,time,T,1.0,Total simulated time.
+Propaganda_TCSS_2025_Code,time,h,0.02,Time-step used by the reference code.
+Propaganda_TCSS_2025_Code,time,t_interval,51,Number of time samples.
+Propaganda_TCSS_2025_Code,iteration,maxiter,5,Number of impulse-policy update iterations in the smoke run.
+Propaganda_TCSS_2025_Code,dynamics,beta1/beta2/eta,0.003/0.004/0.0015,Awareness-aware propagation rates in the TCSS model.
+Propaganda_TCSS_2025_Code,dynamics,delta,0.001,Removal/recovery rate.
+Propaganda_TCSS_2025_Code,dynamics,gamma_a/gamma_u,0.004/0.003,Awareness and unawareness transition rates.
+Propaganda_TCSS_2025_Code,objective,omega,40.0,Profit weight on removed/reached state R; tuned so pulse effects are visible.
+Propaganda_TCSS_2025_Code,impulse,pulse_interval,10,Discrete event spacing for impulse controls.
+Propaganda_TCSS_2025_Code,impulse,pulse_event_indices,"10,20,30,40",Discrete event indices where ca/cu may act.
+Propaganda_TCSS_2025_Code,impulse,ca_bounds,0.8-2,Allowed discrete impulse magnitude range for ca.
+Propaganda_TCSS_2025_Code,impulse,cu_bounds,1-2.4,Allowed discrete impulse magnitude range for cu.
+Propaganda_TCSS_2025_Code,baseline,random_impulse_policies,75,Random impulse policies compared with the computed policy.

@@ -46,6 +46,8 @@ Outputs:
 examples/lecture/results/rerun_YYYYMMDD_HHMMSS/
 ```
 
+Each lecture result folder includes `parameter_summary.csv` so the time horizon, grid size, propagation/recovery rates, control bounds, impulse settings, and random-baseline count are visible without reading the source first.
+
 ## Track 2: Reference Smoke Runs
 
 Path:
@@ -76,6 +78,8 @@ Outputs:
 ```text
 examples/reference/results/reference_repos_rerun/
 ```
+
+The reference smoke runner also writes `parameter_summary.csv` with each paper-level smoke run's horizon, step size, rate parameters, impulse event indices, strategy bounds, and baseline count.
 
 ## How The Two Tracks Connect
 

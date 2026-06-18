@@ -1,465 +1,465 @@
 example,scenario,sample_type,sample_id,metric,value,better,panel
-degree_control,computed FBS control,computed,computed,cost,19.012933404514847,lower,
-degree_control,no control,deterministic,no control,cost,30.224630709663227,lower,
-degree_control,constant mean control,deterministic,constant mean control,cost,20.24893529668867,lower,
-degree_control,random smooth control,random,random_001,cost,22.53917300528576,lower,
-degree_control,random smooth control,random,random_002,cost,22.799542957355488,lower,
-degree_control,random smooth control,random,random_003,cost,22.727353515934446,lower,
-degree_control,random smooth control,random,random_004,cost,22.96061926406736,lower,
-degree_control,random smooth control,random,random_005,cost,23.617165685138524,lower,
-degree_control,random smooth control,random,random_006,cost,21.04025810536863,lower,
-degree_control,random smooth control,random,random_007,cost,24.10311773825489,lower,
-degree_control,random smooth control,random,random_008,cost,21.705614351408215,lower,
-degree_control,random smooth control,random,random_009,cost,21.452789599504392,lower,
-degree_control,random smooth control,random,random_010,cost,21.24310015448957,lower,
-degree_control,random smooth control,random,random_011,cost,24.433934623040376,lower,
-degree_control,random smooth control,random,random_012,cost,21.382170238730453,lower,
-degree_control,random smooth control,random,random_013,cost,21.37298454642718,lower,
-degree_control,random smooth control,random,random_014,cost,22.423056977905908,lower,
-degree_control,random smooth control,random,random_015,cost,23.296611604611932,lower,
-degree_control,random smooth control,random,random_016,cost,21.843230061593324,lower,
-degree_control,random smooth control,random,random_017,cost,24.1835559955823,lower,
-degree_control,random smooth control,random,random_018,cost,22.69168396542534,lower,
-degree_control,random smooth control,random,random_019,cost,22.017973462048133,lower,
-degree_control,random smooth control,random,random_020,cost,22.030263526161754,lower,
-degree_control,random smooth control,random,random_021,cost,24.193570854983577,lower,
-degree_control,random smooth control,random,random_022,cost,21.788681979546126,lower,
-degree_control,random smooth control,random,random_023,cost,22.094911127828745,lower,
-degree_control,random smooth control,random,random_024,cost,23.494649402977483,lower,
-degree_control,random smooth control,random,random_025,cost,24.597878362715765,lower,
-degree_control,random smooth control,random,random_026,cost,22.965877320518775,lower,
-degree_control,random smooth control,random,random_027,cost,21.694017183844462,lower,
-degree_control,random smooth control,random,random_028,cost,23.63449523255864,lower,
-degree_control,random smooth control,random,random_029,cost,21.520082449098236,lower,
-degree_control,random smooth control,random,random_030,cost,22.371776743896852,lower,
-degree_control,random smooth control,random,random_031,cost,21.922823011406123,lower,
-degree_control,random smooth control,random,random_032,cost,23.883807739996218,lower,
-degree_control,random smooth control,random,random_033,cost,22.348585979657447,lower,
-degree_control,random smooth control,random,random_034,cost,24.126883415880467,lower,
-degree_control,random smooth control,random,random_035,cost,24.694701888087447,lower,
-degree_control,random smooth control,random,random_036,cost,23.740273158878733,lower,
-degree_control,random smooth control,random,random_037,cost,22.059205945922443,lower,
-degree_control,random smooth control,random,random_038,cost,21.67694695490987,lower,
-degree_control,random smooth control,random,random_039,cost,22.891531783188938,lower,
-degree_control,random smooth control,random,random_040,cost,22.38780497347489,lower,
-degree_control,random smooth control,random,random_041,cost,21.95852173783899,lower,
-degree_control,random smooth control,random,random_042,cost,23.366804720767696,lower,
-degree_control,random smooth control,random,random_043,cost,22.77550370202214,lower,
-degree_control,random smooth control,random,random_044,cost,22.500831835576903,lower,
-degree_control,random smooth control,random,random_045,cost,23.378686909174778,lower,
-degree_control,random smooth control,random,random_046,cost,22.702146894298945,lower,
-degree_control,random smooth control,random,random_047,cost,22.694647914768165,lower,
-degree_control,random smooth control,random,random_048,cost,22.493066401737327,lower,
-degree_control,random smooth control,random,random_049,cost,23.396237656035147,lower,
-degree_control,random smooth control,random,random_050,cost,21.044427687347312,lower,
-degree_control,random smooth control,random,random_051,cost,22.830231258529636,lower,
-degree_control,random smooth control,random,random_052,cost,20.645464134790277,lower,
-degree_control,random smooth control,random,random_053,cost,20.781916343548744,lower,
-degree_control,random smooth control,random,random_054,cost,22.03625375327715,lower,
-degree_control,random smooth control,random,random_055,cost,23.138636746648487,lower,
-degree_control,random smooth control,random,random_056,cost,24.676126018278104,lower,
-degree_control,random smooth control,random,random_057,cost,21.64146385171132,lower,
-degree_control,random smooth control,random,random_058,cost,21.3953526064644,lower,
-degree_control,random smooth control,random,random_059,cost,22.709218723070734,lower,
-degree_control,random smooth control,random,random_060,cost,20.69194356201861,lower,
-degree_control,random smooth control,random,random_061,cost,24.27859588751461,lower,
-degree_control,random smooth control,random,random_062,cost,23.055455278589495,lower,
-degree_control,random smooth control,random,random_063,cost,21.327359029175994,lower,
-degree_control,random smooth control,random,random_064,cost,21.852156765928807,lower,
-degree_control,random smooth control,random,random_065,cost,22.660296821181433,lower,
-degree_control,random smooth control,random,random_066,cost,22.853547850974063,lower,
-degree_control,random smooth control,random,random_067,cost,23.063014748474743,lower,
-degree_control,random smooth control,random,random_068,cost,23.204531635999015,lower,
-degree_control,random smooth control,random,random_069,cost,22.294582013397402,lower,
-degree_control,random smooth control,random,random_070,cost,22.356924484847053,lower,
-degree_control,random smooth control,random,random_071,cost,22.720333534598264,lower,
-degree_control,random smooth control,random,random_072,cost,22.925425974903508,lower,
-degree_control,random smooth control,random,random_073,cost,22.92933042954025,lower,
-degree_control,random smooth control,random,random_074,cost,21.818598869234986,lower,
-degree_control,random smooth control,random,random_075,cost,21.378341114864742,lower,
-node_control,computed FBS control,computed,computed,cost,17.130702945790603,lower,
+degree_control,computed FBS control,computed,computed,cost,19.013075874591266,lower,
+degree_control,no control,deterministic,no control,cost,30.224630709663213,lower,
+degree_control,constant mean control,deterministic,constant mean control,cost,20.24896129112524,lower,
+degree_control,random smooth control,random,random_001,cost,22.53917300734074,lower,
+degree_control,random smooth control,random,random_002,cost,22.79954295756751,lower,
+degree_control,random smooth control,random,random_003,cost,22.72735351809098,lower,
+degree_control,random smooth control,random,random_004,cost,22.960619263658316,lower,
+degree_control,random smooth control,random,random_005,cost,23.617165685138307,lower,
+degree_control,random smooth control,random,random_006,cost,21.040258105367695,lower,
+degree_control,random smooth control,random,random_007,cost,24.103124234893368,lower,
+degree_control,random smooth control,random,random_008,cost,21.705614351405544,lower,
+degree_control,random smooth control,random,random_009,cost,21.452789599504378,lower,
+degree_control,random smooth control,random,random_010,cost,21.243100966298318,lower,
+degree_control,random smooth control,random,random_011,cost,24.433934623040514,lower,
+degree_control,random smooth control,random,random_012,cost,21.382170238733686,lower,
+degree_control,random smooth control,random,random_013,cost,21.372984588899868,lower,
+degree_control,random smooth control,random,random_014,cost,22.42305697798412,lower,
+degree_control,random smooth control,random,random_015,cost,23.29661160106081,lower,
+degree_control,random smooth control,random,random_016,cost,21.843230062878146,lower,
+degree_control,random smooth control,random,random_017,cost,24.18355599557065,lower,
+degree_control,random smooth control,random,random_018,cost,22.69168393033554,lower,
+degree_control,random smooth control,random,random_019,cost,22.017973462048587,lower,
+degree_control,random smooth control,random,random_020,cost,22.03026352707774,lower,
+degree_control,random smooth control,random,random_021,cost,24.19357112129684,lower,
+degree_control,random smooth control,random,random_022,cost,21.788681958684485,lower,
+degree_control,random smooth control,random,random_023,cost,22.094911127798014,lower,
+degree_control,random smooth control,random,random_024,cost,23.494649403717546,lower,
+degree_control,random smooth control,random,random_025,cost,24.59787836282164,lower,
+degree_control,random smooth control,random,random_026,cost,22.965877320518747,lower,
+degree_control,random smooth control,random,random_027,cost,21.694017183846015,lower,
+degree_control,random smooth control,random,random_028,cost,23.63449523255893,lower,
+degree_control,random smooth control,random,random_029,cost,21.520082447558902,lower,
+degree_control,random smooth control,random,random_030,cost,22.371776744011942,lower,
+degree_control,random smooth control,random,random_031,cost,21.922822995239756,lower,
+degree_control,random smooth control,random,random_032,cost,23.883807739996804,lower,
+degree_control,random smooth control,random,random_033,cost,22.348585979642177,lower,
+degree_control,random smooth control,random,random_034,cost,24.12688341579926,lower,
+degree_control,random smooth control,random,random_035,cost,24.694701888329284,lower,
+degree_control,random smooth control,random,random_036,cost,23.740273079035436,lower,
+degree_control,random smooth control,random,random_037,cost,22.059205946747298,lower,
+degree_control,random smooth control,random,random_038,cost,21.676946954907436,lower,
+degree_control,random smooth control,random,random_039,cost,22.89153150095322,lower,
+degree_control,random smooth control,random,random_040,cost,22.38780497164751,lower,
+degree_control,random smooth control,random,random_041,cost,21.95852231480566,lower,
+degree_control,random smooth control,random,random_042,cost,23.366804720741566,lower,
+degree_control,random smooth control,random,random_043,cost,22.775503701517586,lower,
+degree_control,random smooth control,random,random_044,cost,22.500831835579934,lower,
+degree_control,random smooth control,random,random_045,cost,23.378687317720615,lower,
+degree_control,random smooth control,random,random_046,cost,22.702146895080517,lower,
+degree_control,random smooth control,random,random_047,cost,22.694647914790988,lower,
+degree_control,random smooth control,random,random_048,cost,22.493066401796014,lower,
+degree_control,random smooth control,random,random_049,cost,23.396237655119428,lower,
+degree_control,random smooth control,random,random_050,cost,21.04442767837894,lower,
+degree_control,random smooth control,random,random_051,cost,22.830231258534127,lower,
+degree_control,random smooth control,random,random_052,cost,20.645464139029922,lower,
+degree_control,random smooth control,random,random_053,cost,20.781916343434347,lower,
+degree_control,random smooth control,random,random_054,cost,22.036253753285287,lower,
+degree_control,random smooth control,random,random_055,cost,23.138636746648707,lower,
+degree_control,random smooth control,random,random_056,cost,24.676161707546036,lower,
+degree_control,random smooth control,random,random_057,cost,21.641463851640736,lower,
+degree_control,random smooth control,random,random_058,cost,21.39535260646656,lower,
+degree_control,random smooth control,random,random_059,cost,22.709218723295233,lower,
+degree_control,random smooth control,random,random_060,cost,20.691943562366543,lower,
+degree_control,random smooth control,random,random_061,cost,24.27859588751462,lower,
+degree_control,random smooth control,random,random_062,cost,23.05545527858966,lower,
+degree_control,random smooth control,random,random_063,cost,21.327359386845934,lower,
+degree_control,random smooth control,random,random_064,cost,21.85215774756748,lower,
+degree_control,random smooth control,random,random_065,cost,22.660296747472888,lower,
+degree_control,random smooth control,random,random_066,cost,22.853547854974092,lower,
+degree_control,random smooth control,random,random_067,cost,23.063014740634074,lower,
+degree_control,random smooth control,random,random_068,cost,23.204493578377946,lower,
+degree_control,random smooth control,random,random_069,cost,22.294582010719594,lower,
+degree_control,random smooth control,random,random_070,cost,22.356924488433553,lower,
+degree_control,random smooth control,random,random_071,cost,22.720333534364666,lower,
+degree_control,random smooth control,random,random_072,cost,22.925425974838454,lower,
+degree_control,random smooth control,random,random_073,cost,22.929330452369722,lower,
+degree_control,random smooth control,random,random_074,cost,21.81859894989419,lower,
+degree_control,random smooth control,random,random_075,cost,21.3783411148339,lower,
+node_control,computed FBS control,computed,computed,cost,17.130749546478103,lower,
 node_control,no control,deterministic,no control,cost,63.053976158673144,lower,
-node_control,constant mean control,deterministic,constant mean control,cost,21.744262942270772,lower,
-node_control,random smooth control,random,random_001,cost,35.150244859802484,lower,
-node_control,random smooth control,random,random_002,cost,29.692202068125223,lower,
-node_control,random smooth control,random,random_003,cost,29.664629882743355,lower,
-node_control,random smooth control,random,random_004,cost,30.05181067099143,lower,
-node_control,random smooth control,random,random_005,cost,37.76521666974571,lower,
-node_control,random smooth control,random,random_006,cost,26.340304809658864,lower,
-node_control,random smooth control,random,random_007,cost,32.19995165340048,lower,
-node_control,random smooth control,random,random_008,cost,30.142111435199375,lower,
-node_control,random smooth control,random,random_009,cost,33.58598252461097,lower,
-node_control,random smooth control,random,random_010,cost,27.159562180965814,lower,
-node_control,random smooth control,random,random_011,cost,31.930419594796646,lower,
-node_control,random smooth control,random,random_012,cost,27.48667929451495,lower,
-node_control,random smooth control,random,random_013,cost,28.160237066066554,lower,
-node_control,random smooth control,random,random_014,cost,28.472853613240883,lower,
-node_control,random smooth control,random,random_015,cost,25.83280294540124,lower,
-node_control,random smooth control,random,random_016,cost,26.59619461481802,lower,
-node_control,random smooth control,random,random_017,cost,27.31200299535527,lower,
-node_control,random smooth control,random,random_018,cost,31.41842961092771,lower,
-node_control,random smooth control,random,random_019,cost,30.738261314599445,lower,
-node_control,random smooth control,random,random_020,cost,28.896774968033455,lower,
-node_control,random smooth control,random,random_021,cost,32.84541189703639,lower,
-node_control,random smooth control,random,random_022,cost,33.68618792711639,lower,
-node_control,random smooth control,random,random_023,cost,27.067320592469066,lower,
-node_control,random smooth control,random,random_024,cost,27.88749528529373,lower,
-node_control,random smooth control,random,random_025,cost,29.045688150087614,lower,
-node_control,random smooth control,random,random_026,cost,28.86270745748969,lower,
-node_control,random smooth control,random,random_027,cost,36.74579356765778,lower,
-node_control,random smooth control,random,random_028,cost,33.601776750578786,lower,
-node_control,random smooth control,random,random_029,cost,34.904259359475645,lower,
-node_control,random smooth control,random,random_030,cost,29.382240363114384,lower,
-node_control,random smooth control,random,random_031,cost,31.03724925792617,lower,
-node_control,random smooth control,random,random_032,cost,34.83541920695806,lower,
-node_control,random smooth control,random,random_033,cost,31.316581300860808,lower,
-node_control,random smooth control,random,random_034,cost,30.267528555848312,lower,
-node_control,random smooth control,random,random_035,cost,24.983959810025112,lower,
-node_control,random smooth control,random,random_036,cost,28.27014365862656,lower,
-node_control,random smooth control,random,random_037,cost,31.43770463500758,lower,
-node_control,random smooth control,random,random_038,cost,34.39789629633849,lower,
-node_control,random smooth control,random,random_039,cost,27.69905561134015,lower,
-node_control,random smooth control,random,random_040,cost,27.97571159099062,lower,
-node_control,random smooth control,random,random_041,cost,32.885443454712046,lower,
-node_control,random smooth control,random,random_042,cost,27.867430301162607,lower,
-node_control,random smooth control,random,random_043,cost,30.355232167648087,lower,
-node_control,random smooth control,random,random_044,cost,28.55543260497079,lower,
-node_control,random smooth control,random,random_045,cost,31.243254141188565,lower,
-node_control,random smooth control,random,random_046,cost,24.159729979997895,lower,
-node_control,random smooth control,random,random_047,cost,26.68159955505324,lower,
-node_control,random smooth control,random,random_048,cost,31.147579430080047,lower,
-node_control,random smooth control,random,random_049,cost,32.85914241492823,lower,
-node_control,random smooth control,random,random_050,cost,30.556735552667206,lower,
-node_control,random smooth control,random,random_051,cost,26.283226521286824,lower,
-node_control,random smooth control,random,random_052,cost,32.91531319341755,lower,
-node_control,random smooth control,random,random_053,cost,32.718420818522,lower,
-node_control,random smooth control,random,random_054,cost,32.990530895117864,lower,
-node_control,random smooth control,random,random_055,cost,33.47934829550622,lower,
-node_control,random smooth control,random,random_056,cost,30.29701071083732,lower,
-node_control,random smooth control,random,random_057,cost,35.50312446068524,lower,
-node_control,random smooth control,random,random_058,cost,24.977974823662926,lower,
-node_control,random smooth control,random,random_059,cost,25.041772269106872,lower,
-node_control,random smooth control,random,random_060,cost,36.46438356406149,lower,
-node_control,random smooth control,random,random_061,cost,35.57154570128668,lower,
-node_control,random smooth control,random,random_062,cost,25.66814574930872,lower,
-node_control,random smooth control,random,random_063,cost,32.58750842641114,lower,
-node_control,random smooth control,random,random_064,cost,28.53783087805565,lower,
-node_control,random smooth control,random,random_065,cost,30.25452290600466,lower,
-node_control,random smooth control,random,random_066,cost,28.59909372917498,lower,
-node_control,random smooth control,random,random_067,cost,29.73254228039066,lower,
-node_control,random smooth control,random,random_068,cost,30.422229135856604,lower,
-node_control,random smooth control,random,random_069,cost,31.044391949660607,lower,
-node_control,random smooth control,random,random_070,cost,26.389690466386355,lower,
-node_control,random smooth control,random,random_071,cost,26.701779092760397,lower,
-node_control,random smooth control,random,random_072,cost,36.83897015343647,lower,
-node_control,random smooth control,random,random_073,cost,27.469452394848165,lower,
-node_control,random smooth control,random,random_074,cost,27.831705154596243,lower,
-node_control,random smooth control,random,random_075,cost,26.2701849661037,lower,
-degree_game,computed defense,computed,computed_defense,defender payoff,-44.16909895824326,higher,fixed computed attack; vary defense
-degree_game,zero defense,deterministic,zero_defense,defender payoff,-56.89611584696319,higher,fixed computed attack; vary defense
-degree_game,computed attack,computed,computed_attack,attacker payoff,22.375342596461625,higher,fixed computed defense; vary attack
-degree_game,zero attack,deterministic,zero_attack,attacker payoff,15.152817916353705,higher,fixed computed defense; vary attack
-degree_game,random attack,random,random_attack_001,attacker payoff,19.438119024350698,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_001,defender payoff,-48.3545788545895,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_002,attacker payoff,17.454700746388312,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_002,defender payoff,-46.59439057742022,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_003,attacker payoff,18.650954234748628,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_003,defender payoff,-47.44902315960687,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_004,attacker payoff,19.024377727370954,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_004,defender payoff,-47.90149064168177,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_005,attacker payoff,19.079036819250742,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_005,defender payoff,-46.99379089069983,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_006,attacker payoff,19.364692480044074,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_006,defender payoff,-47.019834564746276,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_007,attacker payoff,19.69489628593269,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_007,defender payoff,-45.76535595192271,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_008,attacker payoff,18.549535547150906,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_008,defender payoff,-48.29172472095589,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_009,attacker payoff,20.17012872420725,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_009,defender payoff,-48.4084232245022,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_010,attacker payoff,19.344545887830456,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_010,defender payoff,-47.774526423190586,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_011,attacker payoff,19.069551179478996,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_011,defender payoff,-48.75790692415047,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_012,attacker payoff,18.48434483894249,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_012,defender payoff,-47.079172659262454,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_013,attacker payoff,18.631661980406285,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_013,defender payoff,-46.30588398229282,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_014,attacker payoff,17.64103539010191,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_014,defender payoff,-48.24986829811014,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_015,attacker payoff,19.121179022340357,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_015,defender payoff,-47.67478197132585,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_016,attacker payoff,19.04024760990588,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_016,defender payoff,-47.63907978528311,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_017,attacker payoff,18.192304031037818,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_017,defender payoff,-46.83340783457083,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_018,attacker payoff,18.386709361576195,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_018,defender payoff,-48.07903912675591,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_019,attacker payoff,20.241544772285764,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_019,defender payoff,-46.72963575494554,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_020,attacker payoff,17.566824447061368,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_020,defender payoff,-47.256215635118906,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_021,attacker payoff,17.957066345347222,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_021,defender payoff,-49.17236547342676,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_022,attacker payoff,17.08406925605688,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_022,defender payoff,-46.19042584917348,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_023,attacker payoff,17.992915515498105,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_023,defender payoff,-47.501147417493854,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_024,attacker payoff,19.486857120685325,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_024,defender payoff,-47.35390740711844,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_025,attacker payoff,18.369094073543824,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_025,defender payoff,-48.89576696954644,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_026,attacker payoff,20.044773094419217,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_026,defender payoff,-47.19328473133032,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_027,attacker payoff,19.307690813706813,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_027,defender payoff,-46.65264735364758,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_028,attacker payoff,16.817476157768137,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_028,defender payoff,-47.93444168264436,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_029,attacker payoff,19.72561316768292,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_029,defender payoff,-47.57408932577439,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_030,attacker payoff,19.413322513420475,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_030,defender payoff,-47.227904588041994,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_031,attacker payoff,18.294386847184246,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_031,defender payoff,-48.791033719305055,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_032,attacker payoff,19.276531520923417,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_032,defender payoff,-47.09360624317341,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_033,attacker payoff,17.669438529896784,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_033,defender payoff,-49.47634135388175,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_034,attacker payoff,19.387429864858674,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_034,defender payoff,-47.74422263445574,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_035,attacker payoff,20.16912108679672,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_035,defender payoff,-49.56149133807381,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_036,attacker payoff,19.423725090637305,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_036,defender payoff,-49.653460343626136,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_037,attacker payoff,20.196351036523083,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_037,defender payoff,-47.64140894559544,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_038,attacker payoff,17.435942142946423,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_038,defender payoff,-46.861574132410105,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_039,attacker payoff,18.629920380133246,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_039,defender payoff,-48.66361869176464,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_040,attacker payoff,18.846668296997578,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_040,defender payoff,-45.90253902858936,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_041,attacker payoff,20.185100098003716,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_041,defender payoff,-48.76285563847446,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_042,attacker payoff,19.541469325817413,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_042,defender payoff,-48.761127325878924,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_043,attacker payoff,19.56435737226811,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_043,defender payoff,-47.97032141387061,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_044,attacker payoff,17.511057248599617,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_044,defender payoff,-45.877857593955916,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_045,attacker payoff,20.002712626791844,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_045,defender payoff,-48.089387224360266,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_046,attacker payoff,17.45444418385527,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_046,defender payoff,-47.68181908616053,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_047,attacker payoff,18.14901920768376,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_047,defender payoff,-45.86025566043447,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_048,attacker payoff,18.806810759197553,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_048,defender payoff,-50.85127724556414,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_049,attacker payoff,18.588411967425913,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_049,defender payoff,-50.18054831422586,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_050,attacker payoff,16.42304937193546,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_050,defender payoff,-46.812855740696826,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_051,attacker payoff,18.017502775126548,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_051,defender payoff,-47.909442299803594,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_052,attacker payoff,17.90630085788019,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_052,defender payoff,-46.44818286654034,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_053,attacker payoff,20.40329395722844,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_053,defender payoff,-47.561137812957625,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_054,attacker payoff,19.80606010080576,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_054,defender payoff,-50.035897266294995,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_055,attacker payoff,20.484938448249125,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_055,defender payoff,-48.91227536830376,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_056,attacker payoff,19.062748319850883,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_056,defender payoff,-49.32809273660506,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_057,attacker payoff,19.05675739477977,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_057,defender payoff,-46.15966565516314,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_058,attacker payoff,17.704230447196235,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_058,defender payoff,-48.33995670782924,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_059,attacker payoff,19.1478933130848,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_059,defender payoff,-49.352520204197376,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_060,attacker payoff,19.15140432552419,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_060,defender payoff,-47.28767862240961,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_061,attacker payoff,19.862108222828482,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_061,defender payoff,-50.15109497659009,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_062,attacker payoff,19.275674437491638,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_062,defender payoff,-48.92543932355694,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_063,attacker payoff,19.405244034812462,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_063,defender payoff,-47.705540982901795,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_064,attacker payoff,17.354844580369427,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_064,defender payoff,-48.902302608696225,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_065,attacker payoff,19.11986186204803,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_065,defender payoff,-48.447101786834644,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_066,attacker payoff,19.781066694735223,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_066,defender payoff,-47.85683044082098,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_067,attacker payoff,19.139066227639354,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_067,defender payoff,-48.205201177844096,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_068,attacker payoff,18.63834624640733,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_068,defender payoff,-47.131556254762124,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_069,attacker payoff,17.323464595940074,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_069,defender payoff,-49.57407043582263,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_070,attacker payoff,20.946849570690834,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_070,defender payoff,-47.077800059436484,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_071,attacker payoff,20.072600958025983,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_071,defender payoff,-47.783400214075336,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_072,attacker payoff,17.386550178355854,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_072,defender payoff,-48.4969457616865,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_073,attacker payoff,18.76700907815121,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_073,defender payoff,-46.901258905075615,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_074,attacker payoff,20.2683428989903,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_074,defender payoff,-46.57902587063929,higher,fixed computed attack; vary defense
-degree_game,random attack,random,random_attack_075,attacker payoff,18.62364595727052,higher,fixed computed defense; vary attack
-degree_game,random defense,random,random_defense_075,defender payoff,-46.89898377087084,higher,fixed computed attack; vary defense
-node_game,computed defense,computed,computed_defense,defender payoff,-59.801327518557876,higher,fixed computed attack; vary defense
-node_game,zero defense,deterministic,zero_defense,defender payoff,-144.28244326633856,higher,fixed computed attack; vary defense
-node_game,computed attack,computed,computed_attack,attacker payoff,7.505877724606403,higher,fixed computed defense; vary attack
-node_game,zero attack,deterministic,zero_attack,attacker payoff,5.093318242084207,higher,fixed computed defense; vary attack
-node_game,random attack,random,random_attack_001,attacker payoff,-4.6744571031232995,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_001,defender payoff,-78.37685602814557,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_002,attacker payoff,-6.846232362189373,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_002,defender payoff,-72.80929437732753,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_003,attacker payoff,-7.033650875657562,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_003,defender payoff,-92.49894578432398,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_004,attacker payoff,-7.270182033307184,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_004,defender payoff,-88.97012997019515,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_005,attacker payoff,-16.730929320209675,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_005,defender payoff,-82.96355941948934,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_006,attacker payoff,-11.429484686570927,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_006,defender payoff,-78.16231537509663,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_007,attacker payoff,-3.4907791218352875,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_007,defender payoff,-86.2627424041804,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_008,attacker payoff,-8.596515272319069,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_008,defender payoff,-71.14005516189849,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_009,attacker payoff,-8.72430756533613,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_009,defender payoff,-76.36844070678825,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_010,attacker payoff,-7.484402213987013,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_010,defender payoff,-94.30241708154352,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_011,attacker payoff,-13.556433093580555,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_011,defender payoff,-73.83491370682742,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_012,attacker payoff,-23.750189209066725,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_012,defender payoff,-73.57193458521832,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_013,attacker payoff,-5.207217123888695,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_013,defender payoff,-82.87479186348386,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_014,attacker payoff,-6.734256148020748,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_014,defender payoff,-87.21098708309404,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_015,attacker payoff,-17.777134607233585,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_015,defender payoff,-80.08887140139447,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_016,attacker payoff,-7.012788877805942,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_016,defender payoff,-79.82783211445661,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_017,attacker payoff,-12.465047825198486,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_017,defender payoff,-83.38458005816557,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_018,attacker payoff,-12.017817845889555,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_018,defender payoff,-91.50623550590394,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_019,attacker payoff,-3.2726782416006177,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_019,defender payoff,-86.41206183203775,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_020,attacker payoff,-8.119286428250748,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_020,defender payoff,-86.34056578911392,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_021,attacker payoff,-12.521417302007368,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_021,defender payoff,-90.83086934079722,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_022,attacker payoff,-3.5129870772056737,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_022,defender payoff,-87.95151787071748,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_023,attacker payoff,-10.366116440750305,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_023,defender payoff,-81.44334269901084,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_024,attacker payoff,-16.170826680407124,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_024,defender payoff,-95.62356650871548,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_025,attacker payoff,-9.650754681419352,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_025,defender payoff,-80.59988589700586,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_026,attacker payoff,-15.570770533536152,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_026,defender payoff,-94.35541750193264,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_027,attacker payoff,-15.223865233208212,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_027,defender payoff,-101.18134904059572,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_028,attacker payoff,-21.377183965359748,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_028,defender payoff,-75.90168543351668,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_029,attacker payoff,-21.32864625996227,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_029,defender payoff,-84.75801517959455,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_030,attacker payoff,-9.04495320251185,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_030,defender payoff,-76.70174432055754,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_031,attacker payoff,-9.059045410785247,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_031,defender payoff,-85.97939115831412,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_032,attacker payoff,-25.851793668917608,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_032,defender payoff,-90.76185944354937,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_033,attacker payoff,-6.535540114706599,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_033,defender payoff,-79.701823685037,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_034,attacker payoff,-18.297839119088703,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_034,defender payoff,-95.93697065854298,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_035,attacker payoff,-9.76792450460724,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_035,defender payoff,-82.72374092315503,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_036,attacker payoff,-10.429037408799186,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_036,defender payoff,-97.03185222408808,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_037,attacker payoff,-9.125928927914842,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_037,defender payoff,-74.8219845207409,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_038,attacker payoff,-18.563739222598052,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_038,defender payoff,-88.94144745789002,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_039,attacker payoff,-13.438018057209069,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_039,defender payoff,-74.77341346781418,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_040,attacker payoff,-7.303740459258243,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_040,defender payoff,-89.9292321865119,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_041,attacker payoff,-9.204579434749515,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_041,defender payoff,-81.16692676838483,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_042,attacker payoff,-8.874435988426207,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_042,defender payoff,-86.22073197911628,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_043,attacker payoff,-3.39830896814066,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_043,defender payoff,-89.32070013425974,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_044,attacker payoff,-8.824150342730384,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_044,defender payoff,-90.05418578271643,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_045,attacker payoff,-13.014408704304953,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_045,defender payoff,-82.78296055495008,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_046,attacker payoff,-9.732040310052826,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_046,defender payoff,-77.15142721529007,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_047,attacker payoff,-5.577117630305665,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_047,defender payoff,-95.65304306667008,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_048,attacker payoff,-11.443397049182822,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_048,defender payoff,-78.75813044062544,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_049,attacker payoff,-18.58029966063979,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_049,defender payoff,-95.69897954829094,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_050,attacker payoff,-3.3305200332321867,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_050,defender payoff,-90.97435775962077,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_051,attacker payoff,-9.937380715878804,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_051,defender payoff,-76.2524608006393,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_052,attacker payoff,-13.843594162567516,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_052,defender payoff,-78.80178915470266,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_053,attacker payoff,-18.696321742347862,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_053,defender payoff,-76.32612740545355,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_054,attacker payoff,-10.74702951424577,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_054,defender payoff,-90.94812839975062,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_055,attacker payoff,-8.743320320837839,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_055,defender payoff,-83.69597286831035,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_056,attacker payoff,-16.081348917124295,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_056,defender payoff,-79.88735555746652,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_057,attacker payoff,-12.206213282672692,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_057,defender payoff,-75.7725232169978,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_058,attacker payoff,-5.895381745107223,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_058,defender payoff,-96.79273921798385,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_059,attacker payoff,-15.483757229644514,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_059,defender payoff,-74.01464234967617,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_060,attacker payoff,-12.546951724495502,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_060,defender payoff,-98.4517982202133,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_061,attacker payoff,-17.70656281459809,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_061,defender payoff,-104.58374974676528,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_062,attacker payoff,-12.092538407308492,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_062,defender payoff,-86.62882663917463,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_063,attacker payoff,-9.313135992836699,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_063,defender payoff,-90.22167752575405,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_064,attacker payoff,-2.022051417420508,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_064,defender payoff,-82.38961952804382,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_065,attacker payoff,-12.206537822213026,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_065,defender payoff,-79.12378358359862,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_066,attacker payoff,-14.129063390743628,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_066,defender payoff,-89.66579097018084,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_067,attacker payoff,-8.890136027957865,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_067,defender payoff,-86.09227114385658,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_068,attacker payoff,-15.317225838922951,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_068,defender payoff,-73.94729557315834,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_069,attacker payoff,-2.4900519051602616,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_069,defender payoff,-78.52944631082474,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_070,attacker payoff,-4.8201706396900255,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_070,defender payoff,-75.23215895765735,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_071,attacker payoff,-8.841058019131713,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_071,defender payoff,-94.74791941280593,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_072,attacker payoff,-7.050648982947173,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_072,defender payoff,-81.38637060697022,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_073,attacker payoff,-10.562378342913489,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_073,defender payoff,-81.63201981992488,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_074,attacker payoff,-6.931315912119459,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_074,defender payoff,-78.23118761977618,higher,fixed computed attack; vary defense
-node_game,random attack,random,random_attack_075,attacker payoff,-5.28137887019683,higher,fixed computed defense; vary attack
-node_game,random defense,random,random_defense_075,defender payoff,-84.45119934944682,higher,fixed computed attack; vary defense
+node_control,constant mean control,deterministic,constant mean control,cost,21.74423250223365,lower,
+node_control,random smooth control,random,random_001,cost,35.15019944974907,lower,
+node_control,random smooth control,random,random_002,cost,29.692202497615536,lower,
+node_control,random smooth control,random,random_003,cost,29.664616074100607,lower,
+node_control,random smooth control,random,random_004,cost,30.051839079863882,lower,
+node_control,random smooth control,random,random_005,cost,37.76527437552423,lower,
+node_control,random smooth control,random,random_006,cost,26.340279088383284,lower,
+node_control,random smooth control,random,random_007,cost,32.199951921279876,lower,
+node_control,random smooth control,random,random_008,cost,30.142136456714653,lower,
+node_control,random smooth control,random,random_009,cost,33.58597945111972,lower,
+node_control,random smooth control,random,random_010,cost,27.159561716400294,lower,
+node_control,random smooth control,random,random_011,cost,31.930419438035038,lower,
+node_control,random smooth control,random,random_012,cost,27.486642597040877,lower,
+node_control,random smooth control,random,random_013,cost,28.160264246519645,lower,
+node_control,random smooth control,random,random_014,cost,28.472853641982844,lower,
+node_control,random smooth control,random,random_015,cost,25.832777537442645,lower,
+node_control,random smooth control,random,random_016,cost,26.596193135583963,lower,
+node_control,random smooth control,random,random_017,cost,27.312002995140467,lower,
+node_control,random smooth control,random,random_018,cost,31.418430295614172,lower,
+node_control,random smooth control,random,random_019,cost,30.73826123086223,lower,
+node_control,random smooth control,random,random_020,cost,28.896755980826605,lower,
+node_control,random smooth control,random,random_021,cost,32.845411277364946,lower,
+node_control,random smooth control,random,random_022,cost,33.68618797773083,lower,
+node_control,random smooth control,random,random_023,cost,27.067218093885792,lower,
+node_control,random smooth control,random,random_024,cost,27.887495342003064,lower,
+node_control,random smooth control,random,random_025,cost,29.045692659145278,lower,
+node_control,random smooth control,random,random_026,cost,28.86276662601751,lower,
+node_control,random smooth control,random,random_027,cost,36.74579299275769,lower,
+node_control,random smooth control,random,random_028,cost,33.60177748526061,lower,
+node_control,random smooth control,random,random_029,cost,34.90425935277878,lower,
+node_control,random smooth control,random,random_030,cost,29.382239582805447,lower,
+node_control,random smooth control,random,random_031,cost,31.037207062929284,lower,
+node_control,random smooth control,random,random_032,cost,34.83541920598749,lower,
+node_control,random smooth control,random,random_033,cost,31.31657688534927,lower,
+node_control,random smooth control,random,random_034,cost,30.267528614834838,lower,
+node_control,random smooth control,random,random_035,cost,24.98396454715518,lower,
+node_control,random smooth control,random,random_036,cost,28.270142049224535,lower,
+node_control,random smooth control,random,random_037,cost,31.437702839241165,lower,
+node_control,random smooth control,random,random_038,cost,34.397896290707045,lower,
+node_control,random smooth control,random,random_039,cost,27.69905563208292,lower,
+node_control,random smooth control,random,random_040,cost,27.975723662083347,lower,
+node_control,random smooth control,random,random_041,cost,32.88544345468839,lower,
+node_control,random smooth control,random,random_042,cost,27.8672570194812,lower,
+node_control,random smooth control,random,random_043,cost,30.355232201554205,lower,
+node_control,random smooth control,random,random_044,cost,28.555432309823427,lower,
+node_control,random smooth control,random,random_045,cost,31.243254142132216,lower,
+node_control,random smooth control,random,random_046,cost,24.159808686405327,lower,
+node_control,random smooth control,random,random_047,cost,26.68159955437165,lower,
+node_control,random smooth control,random,random_048,cost,31.14759059706105,lower,
+node_control,random smooth control,random,random_049,cost,32.85914241492777,lower,
+node_control,random smooth control,random,random_050,cost,30.556735553478646,lower,
+node_control,random smooth control,random,random_051,cost,26.28322652175071,lower,
+node_control,random smooth control,random,random_052,cost,32.91531319804701,lower,
+node_control,random smooth control,random,random_053,cost,32.71842081789356,lower,
+node_control,random smooth control,random,random_054,cost,32.99053704703939,lower,
+node_control,random smooth control,random,random_055,cost,33.47933721503733,lower,
+node_control,random smooth control,random,random_056,cost,30.297010320432847,lower,
+node_control,random smooth control,random,random_057,cost,35.50312469224724,lower,
+node_control,random smooth control,random,random_058,cost,24.977974828839326,lower,
+node_control,random smooth control,random,random_059,cost,25.041716232504697,lower,
+node_control,random smooth control,random,random_060,cost,36.464383497363244,lower,
+node_control,random smooth control,random,random_061,cost,35.57156510937712,lower,
+node_control,random smooth control,random,random_062,cost,25.66814522889118,lower,
+node_control,random smooth control,random,random_063,cost,32.58750851795921,lower,
+node_control,random smooth control,random,random_064,cost,28.537830913907595,lower,
+node_control,random smooth control,random,random_065,cost,30.25452551450114,lower,
+node_control,random smooth control,random,random_066,cost,28.599080731280953,lower,
+node_control,random smooth control,random,random_067,cost,29.73254193757418,lower,
+node_control,random smooth control,random,random_068,cost,30.422228473606822,lower,
+node_control,random smooth control,random,random_069,cost,31.044392115941005,lower,
+node_control,random smooth control,random,random_070,cost,26.38969029674071,lower,
+node_control,random smooth control,random,random_071,cost,26.701778699737112,lower,
+node_control,random smooth control,random,random_072,cost,36.83896905634427,lower,
+node_control,random smooth control,random,random_073,cost,27.469437570513595,lower,
+node_control,random smooth control,random,random_074,cost,27.831749192098002,lower,
+node_control,random smooth control,random,random_075,cost,26.270185091911586,lower,
+degree_game,computed defense,computed,computed_defense,defender payoff,-44.16898879450774,higher,fixed computed attack; vary defense
+degree_game,zero defense,deterministic,zero_defense,defender payoff,-56.89606265969825,higher,fixed computed attack; vary defense
+degree_game,computed attack,computed,computed_attack,attacker payoff,22.37536599190967,higher,fixed computed defense; vary attack
+degree_game,zero attack,deterministic,zero_attack,attacker payoff,15.153129963050368,higher,fixed computed defense; vary attack
+degree_game,random attack,random,random_attack_001,attacker payoff,19.43819042618955,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_001,defender payoff,-48.35412614279092,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_002,attacker payoff,17.454615573568233,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_002,defender payoff,-46.59416373861176,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_003,attacker payoff,18.65109235498951,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_003,defender payoff,-47.448884391219295,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_004,attacker payoff,19.024263196341373,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_004,defender payoff,-47.90133239805088,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_005,attacker payoff,19.079241280377673,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_005,defender payoff,-46.99382342961608,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_006,attacker payoff,19.364952882741154,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_006,defender payoff,-47.019817868034615,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_007,attacker payoff,19.694806926730624,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_007,defender payoff,-45.7651335168605,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_008,attacker payoff,18.549300945009314,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_008,defender payoff,-48.291499868827785,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_009,attacker payoff,20.170092990212105,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_009,defender payoff,-48.40806490096893,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_010,attacker payoff,19.344592970589236,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_010,defender payoff,-47.77423980090817,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_011,attacker payoff,19.069929244272455,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_011,defender payoff,-48.757965765784654,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_012,attacker payoff,18.484178716820473,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_012,defender payoff,-47.079276919140604,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_013,attacker payoff,18.63191709523907,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_013,defender payoff,-46.30585924140208,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_014,attacker payoff,17.641375205425344,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_014,defender payoff,-48.24988297068372,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_015,attacker payoff,19.12140621602021,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_015,defender payoff,-47.674810808343594,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_016,attacker payoff,19.040379590995418,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_016,defender payoff,-47.63900686089939,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_017,attacker payoff,18.192259837834676,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_017,defender payoff,-46.83359671090247,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_018,attacker payoff,18.38671524558422,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_018,defender payoff,-48.07902611170743,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_019,attacker payoff,20.24158750145489,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_019,defender payoff,-46.72922399644991,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_020,attacker payoff,17.566731317525043,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_020,defender payoff,-47.25617981931917,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_021,attacker payoff,17.957077723148657,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_021,defender payoff,-49.17257405707287,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_022,attacker payoff,17.084032710720052,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_022,defender payoff,-46.19057374629761,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_023,attacker payoff,17.99307600510993,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_023,defender payoff,-47.50121361840768,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_024,attacker payoff,19.486869429912243,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_024,defender payoff,-47.35415551056726,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_025,attacker payoff,18.369060763196376,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_025,defender payoff,-48.89552834697323,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_026,attacker payoff,20.044947381585157,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_026,defender payoff,-47.19318869710458,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_027,attacker payoff,19.30754798843288,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_027,defender payoff,-46.65224211547267,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_028,attacker payoff,16.817338592501063,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_028,defender payoff,-47.93444589935156,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_029,attacker payoff,19.72577092010244,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_029,defender payoff,-47.574176439995796,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_030,attacker payoff,19.41369710759686,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_030,defender payoff,-47.227686247230594,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_031,attacker payoff,18.294369766510094,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_031,defender payoff,-48.791052963507425,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_032,attacker payoff,19.276582108183877,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_032,defender payoff,-47.09365226301331,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_033,attacker payoff,17.6692704470367,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_033,defender payoff,-49.47668310508572,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_034,attacker payoff,19.387251900303117,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_034,defender payoff,-47.744310142583245,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_035,attacker payoff,20.169162965741943,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_035,defender payoff,-49.5614764643303,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_036,attacker payoff,19.423602616258297,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_036,defender payoff,-49.65354750803996,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_037,attacker payoff,20.1965396826329,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_037,defender payoff,-47.641230129851245,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_038,attacker payoff,17.435956678457057,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_038,defender payoff,-46.86111195460163,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_039,attacker payoff,18.629961932640143,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_039,defender payoff,-48.66339015015467,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_040,attacker payoff,18.846738810567995,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_040,defender payoff,-45.9024525217366,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_041,attacker payoff,20.18520189547256,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_041,defender payoff,-48.76283734799522,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_042,attacker payoff,19.541081378376916,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_042,defender payoff,-48.761044618637285,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_043,attacker payoff,19.56443568143627,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_043,defender payoff,-47.970300762269545,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_044,attacker payoff,17.510857088144594,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_044,defender payoff,-45.877887580321605,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_045,attacker payoff,20.00289306470404,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_045,defender payoff,-48.08940925961142,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_046,attacker payoff,17.45457957357534,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_046,defender payoff,-47.68173493129066,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_047,attacker payoff,18.14960130067556,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_047,defender payoff,-45.85980792867071,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_048,attacker payoff,18.806942229372645,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_048,defender payoff,-50.851195096093335,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_049,attacker payoff,18.58835511798979,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_049,defender payoff,-50.180726622864114,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_050,attacker payoff,16.423304947727768,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_050,defender payoff,-46.8124329875001,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_051,attacker payoff,18.017437466884537,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_051,defender payoff,-47.909068650010354,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_052,attacker payoff,17.906276324019082,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_052,defender payoff,-46.448075766954865,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_053,attacker payoff,20.403036695043046,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_053,defender payoff,-47.56109285307458,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_054,attacker payoff,19.80614227382478,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_054,defender payoff,-50.03589617629895,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_055,attacker payoff,20.484996762586224,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_055,defender payoff,-48.91192013108134,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_056,attacker payoff,19.062960220078438,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_056,defender payoff,-49.32831806058544,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_057,attacker payoff,19.056760521905066,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_057,defender payoff,-46.15963500287964,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_058,attacker payoff,17.70432550478344,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_058,defender payoff,-48.339801178239895,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_059,attacker payoff,19.148018700349123,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_059,defender payoff,-49.35250220509399,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_060,attacker payoff,19.15134525504342,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_060,defender payoff,-47.28769571092904,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_061,attacker payoff,19.86208174335586,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_061,defender payoff,-50.150594705619945,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_062,attacker payoff,19.27568131362864,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_062,defender payoff,-48.92535652991227,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_063,attacker payoff,19.405277525415514,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_063,defender payoff,-47.70540695859266,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_064,attacker payoff,17.354760120731463,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_064,defender payoff,-48.90233828726599,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_065,attacker payoff,19.119873114007337,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_065,defender payoff,-48.446744102132314,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_066,attacker payoff,19.78109588505946,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_066,defender payoff,-47.85673001635803,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_067,attacker payoff,19.13882104646334,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_067,defender payoff,-48.2050012119805,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_068,attacker payoff,18.63853797575407,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_068,defender payoff,-47.13139032377623,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_069,attacker payoff,17.323851208062496,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_069,defender payoff,-49.573755834831736,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_070,attacker payoff,20.94690904922523,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_070,defender payoff,-47.07769278609476,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_071,attacker payoff,20.072491796973715,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_071,defender payoff,-47.783657822195984,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_072,attacker payoff,17.38661114706244,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_072,defender payoff,-48.49675807583744,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_073,attacker payoff,18.767040330291383,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_073,defender payoff,-46.90114714023033,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_074,attacker payoff,20.268590572891732,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_074,defender payoff,-46.57891519486667,higher,fixed computed attack; vary defense
+degree_game,random attack,random,random_attack_075,attacker payoff,18.623658949197278,higher,fixed computed defense; vary attack
+degree_game,random defense,random,random_defense_075,defender payoff,-46.89896259744375,higher,fixed computed attack; vary defense
+node_game,computed defense,computed,computed_defense,defender payoff,-59.801192566745996,higher,fixed computed attack; vary defense
+node_game,zero defense,deterministic,zero_defense,defender payoff,-144.28236139622194,higher,fixed computed attack; vary defense
+node_game,computed attack,computed,computed_attack,attacker payoff,7.505782771417483,higher,fixed computed defense; vary attack
+node_game,zero attack,deterministic,zero_attack,attacker payoff,5.093305511578462,higher,fixed computed defense; vary attack
+node_game,random attack,random,random_attack_001,attacker payoff,-4.674042705674461,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_001,defender payoff,-78.37663309219815,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_002,attacker payoff,-6.846598362472971,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_002,defender payoff,-72.80978171372948,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_003,attacker payoff,-7.034121292189271,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_003,defender payoff,-92.49919151747,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_004,attacker payoff,-7.2704289327996925,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_004,defender payoff,-88.97028769489222,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_005,attacker payoff,-16.73174772004608,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_005,defender payoff,-82.9635041287075,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_006,attacker payoff,-11.429662361543686,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_006,defender payoff,-78.16228295009839,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_007,attacker payoff,-3.4913211537972106,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_007,defender payoff,-86.26312499307201,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_008,attacker payoff,-8.596996546390681,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_008,defender payoff,-71.13971220444569,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_009,attacker payoff,-8.724793424277898,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_009,defender payoff,-76.3695193903877,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_010,attacker payoff,-7.484686166388887,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_010,defender payoff,-94.30239577381401,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_011,attacker payoff,-13.556203290050231,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_011,defender payoff,-73.83629966181687,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_012,attacker payoff,-23.751139048932252,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_012,defender payoff,-73.57184232738615,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_013,attacker payoff,-5.2079450749657346,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_013,defender payoff,-82.87480958041735,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_014,attacker payoff,-6.732997256086401,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_014,defender payoff,-87.21259018945779,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_015,attacker payoff,-17.7777475738924,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_015,defender payoff,-80.08888643218634,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_016,attacker payoff,-7.012408422112773,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_016,defender payoff,-79.82809373153177,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_017,attacker payoff,-12.465620812981758,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_017,defender payoff,-83.38460979812612,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_018,attacker payoff,-12.019017133149578,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_018,defender payoff,-91.5060937106198,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_019,attacker payoff,-3.272570926273246,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_019,defender payoff,-86.4122404806724,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_020,attacker payoff,-8.119055939953181,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_020,defender payoff,-86.338866106954,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_021,attacker payoff,-12.522053028206159,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_021,defender payoff,-90.83063283078138,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_022,attacker payoff,-3.5141228150291353,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_022,defender payoff,-87.95336093489226,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_023,attacker payoff,-10.366585626158486,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_023,defender payoff,-81.44238155396985,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_024,attacker payoff,-16.171304946653386,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_024,defender payoff,-95.62267514299288,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_025,attacker payoff,-9.649959925286682,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_025,defender payoff,-80.59880773512805,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_026,attacker payoff,-15.56902670912108,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_026,defender payoff,-94.35490731811257,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_027,attacker payoff,-15.224092789779307,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_027,defender payoff,-101.18145622952179,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_028,attacker payoff,-21.377641469804484,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_028,defender payoff,-75.90158115689331,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_029,attacker payoff,-21.32852273305503,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_029,defender payoff,-84.75903766235014,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_030,attacker payoff,-9.044336396726427,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_030,defender payoff,-76.70160351975218,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_031,attacker payoff,-9.058743961443446,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_031,defender payoff,-85.97948308558833,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_032,attacker payoff,-25.852007775933778,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_032,defender payoff,-90.76118600186255,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_033,attacker payoff,-6.53539931558839,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_033,defender payoff,-79.70176767541128,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_034,attacker payoff,-18.297065451507322,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_034,defender payoff,-95.93692670787772,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_035,attacker payoff,-9.76803872861552,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_035,defender payoff,-82.72320349463213,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_036,attacker payoff,-10.427347144580601,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_036,defender payoff,-97.0308924997685,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_037,attacker payoff,-9.125667568496858,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_037,defender payoff,-74.82159205135457,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_038,attacker payoff,-18.563502908506663,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_038,defender payoff,-88.94146613785838,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_039,attacker payoff,-13.436720189174942,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_039,defender payoff,-74.77272215235271,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_040,attacker payoff,-7.304122496229008,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_040,defender payoff,-89.92884265039561,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_041,attacker payoff,-9.203760385051655,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_041,defender payoff,-81.1663855787142,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_042,attacker payoff,-8.874266639910878,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_042,defender payoff,-86.22119461652153,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_043,attacker payoff,-3.400134408489844,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_043,defender payoff,-89.31957635579525,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_044,attacker payoff,-8.823200963140222,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_044,defender payoff,-90.05413815878143,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_045,attacker payoff,-13.014851527563424,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_045,defender payoff,-82.78193130431774,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_046,attacker payoff,-9.732381197583981,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_046,defender payoff,-77.1511025466917,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_047,attacker payoff,-5.576983883410469,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_047,defender payoff,-95.65324163724242,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_048,attacker payoff,-11.443849486873416,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_048,defender payoff,-78.75879203008512,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_049,attacker payoff,-18.58017575172454,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_049,defender payoff,-95.6996831759011,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_050,attacker payoff,-3.3301648949610385,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_050,defender payoff,-90.9737523836352,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_051,attacker payoff,-9.937471617525144,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_051,defender payoff,-76.25215145286488,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_052,attacker payoff,-13.843920105403463,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_052,defender payoff,-78.8020725882893,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_053,attacker payoff,-18.696461485575988,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_053,defender payoff,-76.32638998934144,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_054,attacker payoff,-10.746601470227816,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_054,defender payoff,-90.94775308863132,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_055,attacker payoff,-8.74405957955466,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_055,defender payoff,-83.69616629956207,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_056,attacker payoff,-16.081107112998076,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_056,defender payoff,-79.88726900705018,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_057,attacker payoff,-12.207302125111266,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_057,defender payoff,-75.7725437858737,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_058,attacker payoff,-5.893936672760163,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_058,defender payoff,-96.79237282706215,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_059,attacker payoff,-15.483144327919323,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_059,defender payoff,-74.01449234540297,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_060,attacker payoff,-12.547349773815275,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_060,defender payoff,-98.45159203606966,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_061,attacker payoff,-17.70649770556269,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_061,defender payoff,-104.58369831820022,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_062,attacker payoff,-12.092802538925241,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_062,defender payoff,-86.62898987737887,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_063,attacker payoff,-9.312576779788639,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_063,defender payoff,-90.22151798440385,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_064,attacker payoff,-2.022295418537556,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_064,defender payoff,-82.38945758353856,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_065,attacker payoff,-12.206429713425937,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_065,defender payoff,-79.12250450506774,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_066,attacker payoff,-14.129796714671714,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_066,defender payoff,-89.66559460016731,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_067,attacker payoff,-8.888901887539035,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_067,defender payoff,-86.09243002054112,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_068,attacker payoff,-15.316599804765097,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_068,defender payoff,-73.94589403122323,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_069,attacker payoff,-2.4914789458040136,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_069,defender payoff,-78.5302653993376,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_070,attacker payoff,-4.819787495330175,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_070,defender payoff,-75.23195943927256,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_071,attacker payoff,-8.840941006248686,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_071,defender payoff,-94.74844119704167,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_072,attacker payoff,-7.051606113409328,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_072,defender payoff,-81.38694393214854,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_073,attacker payoff,-10.562822279941624,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_073,defender payoff,-81.63183554587785,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_074,attacker payoff,-6.93136198284801,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_074,defender payoff,-78.23193810476786,higher,fixed computed attack; vary defense
+node_game,random attack,random,random_attack_075,attacker payoff,-5.281678937493914,higher,fixed computed defense; vary attack
+node_game,random defense,random,random_defense_075,defender payoff,-84.45319488457379,higher,fixed computed attack; vary defense
