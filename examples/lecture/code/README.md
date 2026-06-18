@@ -1,6 +1,6 @@
-# Lecture Code
+# Tutorial Code
 
-This folder contains the maintained Python code for the lecture examples.
+This folder contains the maintained Python code for the tutorial examples.
 
 The common idea is always the same: convert a graph into a model state, solve a
 small optimal-control or game update, and plot both the trajectory and the
@@ -10,9 +10,9 @@ diagnostics needed to trust the numerical result.
 | --- | --- | --- |
 | `simple_degree_k_control.py` | Minimal degree-k continuous optimal-control example | `simple_*/degree_control_trajectory.png` |
 | `network_control_examples.py` | Degree-level, node-level, differential-game, and hybrid/impulse examples | `companion_*/*_trajectory.png` |
-| `model_profiles.py` | Named smoke-run parameters shared by the lecture scripts | `parameter_summary.csv` |
+| `model_profiles.py` | Named smoke-run parameters shared by the tutorial scripts | `parameter_summary.csv` |
 | `scalability_analysis.py` | Degree-level FBS timing on synthetic scale-free networks from 100 to 2000 nodes | `scalability_degree_sf/degree_control_scalability_100_2000.png` |
-| `run_all_lecture_examples.py` | Rebuilds all lecture figures, CSV diagnostics, and generated indexes | `results/` |
+| `run_all_lecture_examples.py` | Rebuilds all tutorial figures, CSV diagnostics, and generated indexes | `results/` |
 
 ## Parameter Quick Reference
 
@@ -34,7 +34,7 @@ The root runner is usually easiest:
 python run_all.py --skip-reference
 ```
 
-Use the folder-level runner when you want to write results into a specific lecture output folder:
+Use the folder-level runner when you want to write results into a specific tutorial output folder:
 
 ```bash
 python examples/lecture/code/run_all_lecture_examples.py
@@ -45,3 +45,7 @@ For a quick code check without the scalability timing:
 ```bash
 python run_all.py --skip-reference --skip-scalability
 ```
+
+## First Extension Step
+
+Before modifying solver loops, open `model_profiles.py` or run `python examples/lecture/code/model_profiles.py` from the repository root. For the full parameter table, read `../../../docs/PARAMETERS.md` from this folder. Then read `../../../docs/EXTENDING.md` for the paper-model adaptation checklist.

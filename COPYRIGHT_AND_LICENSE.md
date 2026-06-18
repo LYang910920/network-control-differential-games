@@ -27,7 +27,7 @@ docs/code_walkthrough_and_model_adaptation_guide.tex
 
 Because this repository is public, keep these PDF and LaTeX files here only if you have the right to redistribute them. If in doubt, remove the PDF/LaTeX documents from the public repository or move the repository back to private.
 
-## Lecture Example Code
+## Tutorial Example Code
 
 The teaching example code under `examples/lecture/code/` comes from the tutorial package supplied by the repository owner. If you want this repository to be public and reusable by others, choose an explicit license for your own tutorial code and document it here.
 
@@ -79,7 +79,7 @@ The files in `examples/*/results/` are generated outputs from the tutorial and s
 For a public GitHub repository, the safest default is:
 
 1. Keep the tutorial documents only if you own or have redistribution rights.
-2. Keep the lecture example code if you choose a license for it.
+2. Keep the tutorial example code if you choose a license for it.
 3. Keep the reference smoke runner and patch.
 4. Keep third-party source snapshots only with their upstream licenses and attribution intact.
 5. Cite the upstream papers and repositories in `THIRD_PARTY_NOTICES.md`.

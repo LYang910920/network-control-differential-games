@@ -2,7 +2,7 @@
 
 This directory has two tracks.
 
-## Track 1: Lecture Examples
+## Track 1: Tutorial Examples
 
 Path:
 
@@ -17,7 +17,7 @@ Use this track first. The scripts are small, self-contained, and written to show
 | `code/simple_degree_k_control.py` | Minimal degree-k SIS optimal-control example | First PMP/control run |
 | `code/network_control_examples.py` | Degree games, node-level models, hybrid impulse simulation | Compare model variants |
 | `code/scalability_analysis.py` | Synthetic scale-free runtime experiment | Check FBS runtime versus network size |
-| `code/run_all_lecture_examples.py` | Runs all lecture examples and saves figures | Reproduce the included plots |
+| `code/run_all_lecture_examples.py` | Runs all tutorial examples and saves figures | Reproduce the included plots |
 
 Typical run from the repository root:
 
@@ -28,7 +28,7 @@ python -m pip install -r requirements.txt
 python run_all.py --skip-reference
 ```
 
-Fast lecture-only check without the scalability timing:
+Fast tutorial-only check without the scalability timing:
 
 ```bash
 python run_all.py --skip-reference --skip-scalability
@@ -46,7 +46,7 @@ Outputs:
 examples/lecture/results/rerun_YYYYMMDD_HHMMSS/
 ```
 
-Each lecture result folder includes `parameter_summary.csv` so the time horizon, grid size, propagation/recovery rates, control bounds, impulse settings, and random-baseline count are visible without reading the source first.
+Each tutorial result folder includes `parameter_summary.csv` so the time horizon, grid size, propagation/recovery rates, control bounds, impulse settings, and random-baseline count are visible without reading the source first.
 
 ## Track 2: Reference Smoke Runs
 
@@ -56,21 +56,21 @@ Path:
 examples/reference/
 ```
 
-Use this track after the lecture examples. It keeps source snapshots from three upstream research repositories and runs small smoke tests with local sample data. The three reference repositories correspond to the author's co-authored cyber/network-control papers: two in IEEE TIFS and one in IEEE TCSS.
+Use this track after the tutorial examples. It keeps source snapshots from three upstream research repositories and runs small smoke tests with local sample data. The three reference repositories correspond to the author's co-authored cyber/network-control papers: two in IEEE TIFS and one in IEEE TCSS.
 
 | File or folder | Purpose |
 | --- | --- |
 | `reference_repositories/` | Curated third-party source snapshots with upstream README/LICENSE files |
 | `MODEL_TAXONOMY.md` | Classifies the three reference repositories by model level and control/game type |
 | `run_reference_smoke.py` | Runs short checks across the three reference repositories |
-| `reference_repository_guide.md` | Explains how each reference repo maps to the lecture workflow |
+| `reference_repository_guide.md` | Explains how each reference repo maps to the tutorial workflow |
 | `sample_data/` | Small local graphs used instead of full paper datasets |
 | `patches/` | Compatibility patch documentation for newer dependency versions |
 
 Typical run from the repository root:
 
 ```bash
-python run_all.py --skip-lecture
+python run_all.py --skip-tutorial
 ```
 
 Outputs:
@@ -83,7 +83,7 @@ The reference smoke runner also writes `parameter_summary.csv` with each paper-l
 
 ## How The Two Tracks Connect
 
-| Concept | Lecture examples | Reference repositories |
+| Concept | Tutorial examples | Reference repositories |
 | --- | --- | --- |
 | Network preprocessing | `sample_data/`, degree distribution helpers | graph loaders and dataset-specific preprocessing |
 | Forward dynamics | compact ODE/state functions | paper-specific propagation dynamics |

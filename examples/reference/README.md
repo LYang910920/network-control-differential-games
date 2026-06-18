@@ -1,6 +1,6 @@
 # Reference Repository Smoke Runs
 
-This directory contains a lightweight runner for the three paper-level reference repositories discussed in the lecture material.
+This directory contains a lightweight runner for the three paper-level reference repositories discussed in the tutorial material.
 
 It is designed for orientation and code walkthroughs. It is not a full reproduction of the papers' large-scale experiments.
 

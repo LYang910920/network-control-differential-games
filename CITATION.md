@@ -6,7 +6,7 @@ Suggested repository citation:
 
 ```text
 Yang, L.-X. Network Optimal Control and Differential Games:
-Tutorial Materials, Lecture Examples, and Reference-Code Smoke Runs.
+Tutorial Materials, Tutorial Examples, and Reference-Code Smoke Runs.
 GitHub repository: https://github.com/LYang910920/network-control-differential-games
 ```
 

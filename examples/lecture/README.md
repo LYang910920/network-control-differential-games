@@ -1,6 +1,6 @@
-# Lecture Examples
+# Tutorial Examples
 
-This directory contains the self-contained teaching examples from the network optimal-control and differential-games lecture package.
+This directory contains the self-contained tutorial examples from the network optimal-control and differential-games tutorial package.
 
 ## Contents
 

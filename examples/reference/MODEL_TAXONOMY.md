@@ -31,7 +31,7 @@ The second split is the decision structure:
 - **Network representation:** multiplex/social network adjacency matrices.
 - **State variables:** malware and opinion states, summarized as mean malware `c(t)` and opinion `o(t)`.
 - **Core code path:** `network.py` builds and normalizes networks; `opinionMalware.py` runs forward states, backward adjoints, impulse strategy search, and payoff evaluation.
-- **Closest lecture example:** node-level control + hybrid impulse examples.
+- **Closest tutorial example:** node-level control + hybrid impulse examples.
 
 ### PropagandaWar_TIFS_2024_Code
 
@@ -40,7 +40,7 @@ The second split is the decision structure:
 - **Network representation:** empirical degree distributions for red and blue networks.
 - **State variables:** red and blue population states indexed by degree classes, such as `kr`, `pkr`, `kb`, and `pkb`.
 - **Core code path:** `demo_network.py` computes degree distributions; `propWar.py` runs the red/blue forward-backward game; `comparison.py` supports unilateral-deviation checks.
-- **Closest lecture example:** degree-level game example.
+- **Closest tutorial example:** degree-level game example.
 
 This is the reference repository to read first if the goal is to understand how a degree-level network model becomes an impulsive or hybrid differential game.
 
@@ -51,7 +51,7 @@ This is the reference repository to read first if the goal is to understand how 
 - **Network representation:** adjacency matrix / graph-derived node interactions.
 - **State variables:** awareness-aware propagation states, summarized as `Sa(t)`, `Su(t)`, and `R(t)`.
 - **Core code path:** `prop_network.py` loads graph data; `prop_propaganda.py` runs forward states, backward adjoints, impulse policy search, and profit evaluation.
-- **Closest lecture example:** node-level control + impulse examples.
+- **Closest tutorial example:** node-level control + impulse examples.
 
 ## Suggested Reading Order By Goal
 

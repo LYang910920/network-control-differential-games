@@ -53,7 +53,7 @@
   urlcolor=DeakinBlue,
   pdftitle={Optimal Control, Differential Games, Hybrid Control, and Games on Networks},
   pdfauthor={Lu-Xing Yang},
-  pdfsubject={Self-contained lecture note},
+  pdfsubject={Self-contained tutorial note},
   pdfkeywords={optimal control, differential games, hybrid control, impulse control, networks, Python}
 }
 
@@ -144,7 +144,7 @@
 \vspace*{1.5cm}
 {\sffamily\bfseries\Huge\color{DeakinBlue} Optimal Control, Differential Games, Hybrid Control, and Games on Networks\par}
 \vspace{0.5cm}
-{\sffamily\Large A Self-Contained English Lecture Note with Degree-Level and Node-Level Examples\par}
+{\sffamily\Large A Self-Contained English Tutorial Note with Degree-Level and Node-Level Examples\par}
 \vspace{0.8cm}
 {\large Lu-Xing Yang\par}
 \vspace{0.8cm}
@@ -182,7 +182,7 @@ This handout follows a layered structure. First, it defines a controlled dynamic
 
 \begin{table}[h!]
 \centering
-\caption{A layered view of the lecture note.}
+\caption{A layered view of the tutorial note.}
 \begin{tabularx}{\textwidth}{L{2.9cm}L{3.5cm}Y Y}
 \toprule
 \textbf{Layer} & \textbf{Mathematical object} & \textbf{Typical question} & \textbf{Network example} \\
@@ -927,7 +927,7 @@ The first file is short enough to read in one sitting.  The second file keeps al
 
 \subsection{Companion Files}
 
-In this public repository, the commands in this section assume that you first move into \path{examples/lecture/}. From the repository root, you can also run all lecture examples with \path{python run_all.py --skip-reference}.
+In this public repository, the commands in this section assume that you first move into \path{examples/lecture/}. From the repository root, you can also run all tutorial examples with \path{python run_all.py --skip-reference}.
 
 \begin{table}[h!]
 \centering
@@ -1105,7 +1105,7 @@ Node-level model & Model that tracks each node and uses the adjacency matrix. \\
 \end{enumerate}
 
 \begin{sourcebox}{Source note}
-This English lecture note was consolidated from two uploaded source lecture notes: a differential-game lecture note and an optimal-hybrid-control lecture note. The source materials cover the origins and classification of differential games, open-loop Nash differential games, Pontryagin-type optimality systems, forward-backward sweep, single-impulse games, hybrid control with state jumps, impulse Hamiltonians, and the nested optimization structure for impulse number, impulse times, and impulse magnitudes. The additional implementation sections translate these models into degree-level and node-level network workflows, including edge-list-to-adjacency conversion for realistic datasets, NetworkX/igraph graph support, ODE helper functions, and degree-distribution preprocessing for degree-$k$ models.
+This English tutorial note was consolidated from two uploaded source tutorial notes: a differential-game tutorial note and an optimal-hybrid-control tutorial note. The source materials cover the origins and classification of differential games, open-loop Nash differential games, Pontryagin-type optimality systems, forward-backward sweep, single-impulse games, hybrid control with state jumps, impulse Hamiltonians, and the nested optimization structure for impulse number, impulse times, and impulse magnitudes. The additional implementation sections translate these models into degree-level and node-level network workflows, including edge-list-to-adjacency conversion for realistic datasets, NetworkX/igraph graph support, ODE helper functions, and degree-distribution preprocessing for degree-$k$ models.
 \end{sourcebox}
 
 
@@ -1119,7 +1119,7 @@ The package contains the following runnable code and guide files:
   \item \path{code/simple_degree_k_control.py}: minimal degree-$k$ optimal-control example.
   \item \path{code/network_control_examples.py}: compact companion script for degree-level games, node-level models, and hybrid/impulse simulation.
   \item \path{README.md}: installation, commands, and usage notes.
-  \item \path{reference_repository_guide.md}: mapping between the reference GitHub repositories and the mathematical workflow in this lecture note.
+  \item \path{reference_repository_guide.md}: mapping between the reference GitHub repositories and the mathematical workflow in this tutorial note.
   \item \path{../reference/download_reference_repositories.sh}: optional script to download the reference repositories.
 \end{itemize}
 

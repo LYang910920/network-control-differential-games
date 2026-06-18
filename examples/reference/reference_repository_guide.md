@@ -1,6 +1,6 @@
 # Guide to the reference repositories
 
-This guide explains how the reference research-code repositories connect to the lecture note and the two companion Python scripts. The three repositories correspond to the author's co-authored cyber/network-control publications: two IEEE TIFS papers and one IEEE TCSS paper. The goal is to help the reader move from the small teaching examples to paper-level code without losing the mathematical structure.
+This guide explains how the reference research-code repositories connect to the tutorial note and the two companion Python scripts. The three repositories correspond to the author's co-authored cyber/network-control publications: two IEEE TIFS papers and one IEEE TCSS paper. The goal is to help the reader move from the small tutorial examples to paper-level code without losing the mathematical structure.
 
 ## Common computational pattern
 
@@ -41,7 +41,7 @@ Main files:
 - `network.py`: network construction, connected-component extraction, scale-free layer construction, and adjacency normalization.
 - `opinionMalware.py`: coupled malware/opinion dynamics, adjoint equations, impulse-control search, and payoff calculation.
 
-How to read it with the lecture note:
+How to read it with the tutorial note:
 
 - `create_multiplex_network_with_connected_nodes_edges(...)` corresponds to graph preprocessing.
 - `normalized_matrix(...)` corresponds to adjacency normalization before node-level dynamics.
@@ -66,7 +66,7 @@ Main files:
 - `propWar.py`: forward-backward Nash/hybrid strategy computation.
 - `comparison.py`: empirical Nash-equilibrium checking through random unilateral deviations.
 
-How to read it with the lecture note:
+How to read it with the tutorial note:
 
 - `graphs(...)`, `graphs_tmx(...)`, and `my_degree(...)` correspond to network loading and empirical degree distribution.
 - Degree arrays such as `kr`, `pkr`, `kb`, and `pkb` are the key bridge from graph data to the degree-level model.
@@ -93,7 +93,7 @@ Main files:
 - `prop_cntrlComparison.py`: random-strategy comparison.
 - `prop_noAwareness.py` and `prop_noAwareness_plot.py`: no-awareness baseline and plotting.
 
-How to read it with the lecture note:
+How to read it with the tutorial note:
 
 - Network-loading functions correspond to edge-list-to-adjacency conversion.
 - Forward propagation functions correspond to state dynamics.

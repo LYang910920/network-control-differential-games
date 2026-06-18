@@ -1,6 +1,6 @@
-# Network Optimal Control and Differential Games
+# Network Optimal Control and Differential Games Tutorial
 
-Teaching notes, runnable examples, and reference-code smoke tests for network optimal control, differential games, and hybrid or impulsive interventions.
+Tutorial materials, runnable examples, and reference-code smoke tests for network optimal control, differential games, and hybrid or impulsive interventions.
 
 This repository is public, but it does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See [Repository License Notice](LICENSE), [Copyright and License Notes](COPYRIGHT_AND_LICENSE.md), and [Third-party Notices](THIRD_PARTY_NOTICES.md).
 
@@ -10,16 +10,23 @@ This tutorial was created from my research experience in optimal control, differ
 
 The repository is meant to be an educational bridge: start from the mathematical conditions, run small teaching examples, and then inspect how similar ideas appear in paper-level research code.
 
+If this is your first visit, start with [`START_HERE.md`](START_HERE.md).
+
 ## Start Here
 
 | Start with | Use it for |
 | --- | --- |
-| [`docs/lecture_note.pdf`](docs/lecture_note.pdf) | Mathematical setup |
+| [`START_HERE.md`](START_HERE.md) | Five-minute orientation |
+| [`docs/lecture_note.pdf`](docs/lecture_note.pdf) | Tutorial note and mathematical setup |
 | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | How code maps to the math |
-| [`examples/lecture/`](examples/lecture/) | Clean teaching examples |
+| [`docs/PARAMETERS.md`](docs/PARAMETERS.md) | Main model parameters, solver settings, and baseline counts |
+| [`examples/lecture/`](examples/lecture/) | Clean tutorial examples |
 | [`examples/reference/`](examples/reference/) | Paper-level reference smoke runs |
 | [`examples/reference/MODEL_TAXONOMY.md`](examples/reference/MODEL_TAXONOMY.md) | Classifying the three reference repositories |
+| [`docs/EXTENDING.md`](docs/EXTENDING.md) | How to adapt tutorial code to paper-level models |
 | [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md) | License and attribution boundaries |
+
+Naming note: a few historical paths still contain `lecture` for compatibility, but the public-facing material is organized and described as a tutorial.
 
 ## Code Entry Points
 
@@ -27,12 +34,14 @@ Most users only need the root runner. The deeper files are listed here so the co
 
 | Run or read | Path | Purpose |
 | --- | --- | --- |
-| Full repo check | [`run_all.py`](run_all.py) | Runs lecture examples and reference smoke tests from the repository root. |
-| Lecture runner | [`examples/lecture/code/run_all_lecture_examples.py`](examples/lecture/code/run_all_lecture_examples.py) | Rebuilds lecture figures, CSV files, and generated result notes. |
+| Full repo check | [`run_all.py`](run_all.py) | Runs tutorial examples and reference smoke tests from the repository root. |
+| Tutorial runner | [`examples/lecture/code/run_all_lecture_examples.py`](examples/lecture/code/run_all_lecture_examples.py) | Rebuilds tutorial figures, CSV files, and generated result notes. |
 | Minimal control example | [`examples/lecture/code/simple_degree_k_control.py`](examples/lecture/code/simple_degree_k_control.py) | Small degree-k continuous optimal-control example. |
 | Companion models | [`examples/lecture/code/network_control_examples.py`](examples/lecture/code/network_control_examples.py) | Degree-level, node-level, game, and hybrid/impulse examples. |
 | Scalability timing | [`examples/lecture/code/scalability_analysis.py`](examples/lecture/code/scalability_analysis.py) | `python-igraph` scale-free graphs from 100 to 2000 nodes. |
 | Reference smoke runner | [`examples/reference/run_reference_smoke.py`](examples/reference/run_reference_smoke.py) | Paper-level smoke tests for the three reference repositories. |
+
+Before changing a model, read [`docs/PARAMETERS.md`](docs/PARAMETERS.md). For paper-specific adaptations, read [`docs/EXTENDING.md`](docs/EXTENDING.md) after the first smoke run. It points to the code hooks for continuous control, impulse control, hybrid control, degree-level models, node-level models, and reference-repository smoke runs.
 
 ## Quick Run
 
@@ -46,7 +55,7 @@ python -m pip install -r requirements.txt
 python run_all.py
 ```
 
-`python-igraph` is used by the lecture scalability experiment and by the reference smoke runner. If it is hard to install in the active environment, you can still run the non-scalability lecture examples:
+`python-igraph` is used by the tutorial scalability experiment and by the reference smoke runner. If it is hard to install in the active environment, you can still run the non-scalability tutorial examples:
 
 ```bash
 python run_all.py --skip-reference --skip-scalability
@@ -59,7 +68,7 @@ python -m pip install --target examples/reference/pydeps python-igraph
 python run_all.py
 ```
 
-Run only the lecture examples:
+Run only the tutorial examples:
 
 ```bash
 python run_all.py --skip-reference
@@ -68,24 +77,25 @@ python run_all.py --skip-reference
 Run only the reference smoke tests:
 
 ```bash
-python run_all.py --skip-lecture
+python run_all.py --skip-tutorial
 ```
 
 ## Recommended Learning Path
 
-1. Open [`docs/lecture_note.pdf`](docs/lecture_note.pdf) for the mathematical setup.
-2. Run the lecture examples first with `python run_all.py --skip-reference`.
-3. Read [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) while comparing it with [`examples/lecture/code/`](examples/lecture/code/).
-4. Run the reference smoke tests with `python run_all.py --skip-lecture`.
-5. Use [`examples/reference/MODEL_TAXONOMY.md`](examples/reference/MODEL_TAXONOMY.md) first, then [`examples/reference/reference_repository_guide.md`](examples/reference/reference_repository_guide.md), to map the paper-level code back to the simplified examples.
+1. Open [`START_HERE.md`](START_HERE.md) for the compact map.
+2. Open [`docs/lecture_note.pdf`](docs/lecture_note.pdf) for the tutorial note and mathematical setup.
+3. Run the tutorial examples first with `python run_all.py --skip-reference`.
+4. Read [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) while comparing it with [`examples/lecture/code/`](examples/lecture/code/).
+5. Run the reference smoke tests with `python run_all.py --skip-tutorial`.
+6. Use [`examples/reference/MODEL_TAXONOMY.md`](examples/reference/MODEL_TAXONOMY.md) first, then [`examples/reference/reference_repository_guide.md`](examples/reference/reference_repository_guide.md), to map the paper-level code back to the simplified examples.
 
 ## Output Preview
 
 Only representative previews are shown here. The detailed per-model figures, CSV files, and run notes live under `examples/lecture/results/` and `examples/reference/results/`.
 
-**Lecture examples: continuous, game, node-level, and hybrid teaching models**
+**Tutorial examples: continuous, game, node-level, and hybrid teaching models**
 
-![Lecture companion examples](examples/lecture/results/companion_contact_sheet.png)
+![Tutorial companion examples](examples/lecture/results/companion_contact_sheet.png)
 
 This contact sheet is a compact visual index for the teaching examples: degree-level control/game, node-level control/game, convergence diagnostics, and one hybrid control example. Time-axis plots show state/control evolution; iteration-axis plots show FBS convergence.
 
@@ -99,17 +109,17 @@ This plot reports 60 runs: 20 synthetic scale-free network sizes from 100 to 200
 
 ![Reference smoke runs](examples/reference/results/reference_repos/reference_repo_contact_sheet.png)
 
-These smoke runs use small local sample data to check the three reference repositories without redistributing full paper datasets. They are grouped separately from the lecture examples because they are paper-level code snapshots with their own upstream licenses.
+These smoke runs use small local sample data to check the three reference repositories without redistributing full paper datasets. They are grouped separately from the tutorial examples because they are paper-level code snapshots with their own upstream licenses.
 
 After a fresh run, new outputs are written to timestamped or rerun folders:
 
 | Command | Output location |
 | --- | --- |
 | `python run_all.py --skip-reference` | `examples/lecture/results/rerun_YYYYMMDD_HHMMSS/` |
-| `python run_all.py --skip-lecture` | `examples/reference/results/reference_repos_rerun/` |
+| `python run_all.py --skip-tutorial` | `examples/reference/results/reference_repos_rerun/` |
 | `python run_all.py` | both locations above |
 
-The lecture runner writes a generated `README.md`, `parameter_summary.csv`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `parameter_summary.csv`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a degree-weighted mean, or a selected degree class.
+The tutorial runner writes a generated `README.md`, `parameter_summary.csv`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `parameter_summary.csv`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a degree-weighted mean, or a selected degree class.
 
 ## Core Layout
 
@@ -123,7 +133,7 @@ The lecture runner writes a generated `README.md`, `parameter_summary.csv`, `fbs
 │   └── code_walkthrough_and_model_adaptation_guide.pdf
 └── examples/
     ├── lecture/
-    │   ├── code/        # lecture Python code and runner
+    │   ├── code/        # tutorial Python code and runner
     │   └── results/
     └── reference/
         ├── MODEL_TAXONOMY.md
@@ -135,9 +145,9 @@ The lecture runner writes a generated `README.md`, `parameter_summary.csv`, `fbs
 
 For a code-first map of the examples, see [`examples/README.md`](examples/README.md).
 
-### Lecture examples
+### Tutorial examples
 
-The lecture examples are self-contained and should be the first code you run.
+The tutorial examples are self-contained and should be the first code you run.
 
 - `simple_degree_k_control.py`: a compact degree-k SIS optimal-control example.
 - `network_control_examples.py`: degree-level games, node-level control/game models, and a hybrid impulse simulation.
@@ -160,6 +170,13 @@ The reference folder includes source-code snapshots from three upstream research
 Each snapshot keeps its upstream `README` and `LICENSE`. Full paper datasets are not included. The smoke runner uses small local sample data so the workflows can run without redistributing external datasets.
 
 Go deeper in [examples/reference/README.md](examples/reference/README.md) and [examples/reference/MODEL_TAXONOMY.md](examples/reference/MODEL_TAXONOMY.md).
+
+## Related Tutorial Repositories
+
+| Repository | Use it for |
+| --- | --- |
+| [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | Game learning, PMP/FBSM baselines, ODE-RL, DDQN, and CTDE/MADRL cyber-control examples. |
+| [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | PINN/PIDL, inverse learning, neural control, and PMP-informed neural cyber-control examples. |
 
 ## Model Adaptation Checklist
 
@@ -190,7 +207,7 @@ If `python-igraph` is the only difficult package and you only need the reference
 
 ```bash
 python -m pip install --target examples/reference/pydeps python-igraph
-python run_all.py --skip-lecture
+python run_all.py --skip-tutorial
 ```
 
 ## Public-repository Notes
