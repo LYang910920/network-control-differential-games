@@ -45,3 +45,18 @@ def write_json(path: Path | str, data: dict[str, Any]) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def require_outputs(paths: list[Path | str]) -> None:
+    """Fail fast when an expected artifact is missing or empty."""
+
+    normalized = [Path(path) for path in paths]
+    missing = [path for path in normalized if not path.exists()]
+    empty = [path for path in normalized if path.exists() and path.stat().st_size == 0]
+    if missing or empty:
+        details = []
+        if missing:
+            details.append("missing: " + ", ".join(str(path) for path in missing))
+        if empty:
+            details.append("empty: " + ", ".join(str(path) for path in empty))
+        raise RuntimeError("Expected output check failed; " + "; ".join(details))

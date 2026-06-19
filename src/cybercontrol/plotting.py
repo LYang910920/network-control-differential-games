@@ -28,7 +28,27 @@ def add_arrow(ax, start, end, color="#333333", linewidth=1.4):
 
 
 def clean_axes(ax, alpha: float = 0.25):
-    """Apply a consistent lightweight grid used by tutorial figures."""
+    """Apply a consistent lightweight grid used by guide figures."""
 
     ax.grid(alpha=alpha)
     return ax
+
+
+def apply_clean_axes(ax, *, xlabel: str | None = None, ylabel: str | None = None,
+                     title: str | None = None, alpha: float = 0.25) -> None:
+    """Apply labels, title, and the shared readable grid style."""
+
+    if xlabel:
+        ax.set_xlabel(xlabel)
+    if ylabel:
+        ax.set_ylabel(ylabel)
+    if title:
+        ax.set_title(title)
+    ax.grid(True, alpha=alpha, linewidth=0.8)
+
+
+def plot_time_series(ax, t, y, label: str, *, linewidth: float = 2.0, **kwargs) -> None:
+    """Plot one time-indexed curve with the repository default linewidth."""
+
+    kwargs.setdefault("linewidth", linewidth)
+    ax.plot(t, y, label=label, **kwargs)

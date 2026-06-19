@@ -8,10 +8,10 @@ from pathlib import Path
 def main() -> int:
     repo = Path(__file__).resolve().parents[1]
     workspace = repo.parent
-    canonical = repo / "tex" / "cyberlecture.sty"
+    canonical = repo / "tex" / "cyberguide.sty"
     targets = [
-        workspace / "note1-cyber-control-games" / "docs" / "latex" / "cyberlecture.sty",
-        workspace / "note2-pinn-pidl-cyber-control" / "docs" / "latex" / "cyberlecture.sty",
+        workspace / "note1-cyber-control-games" / "docs" / "latex" / "cyberguide.sty",
+        workspace / "note2-pinn-pidl-cyber-control" / "docs" / "latex" / "cyberguide.sty",
     ]
     if not canonical.exists():
         print(f"missing canonical style: {canonical}")

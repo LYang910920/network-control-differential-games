@@ -14,7 +14,7 @@ Start with the visible profile file:
 python run_all.py --skip-reference --skip-scalability
 ```
 
-Then open `examples/lecture/code/model_profiles.py`. It collects the time horizons, propagation/recovery rates, control bounds, impulse times, and labels used by the tutorial examples. Change one profile value at a time before editing solver code.
+Then open `examples/foundations/code/model_profiles.py`. It collects the time horizons, propagation/recovery rates, control bounds, impulse times, and labels used by the tutorial examples. Change one profile value at a time before editing solver code.
 
 ## Control Types
 

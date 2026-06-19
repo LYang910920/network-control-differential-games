@@ -19,8 +19,8 @@ The root [`LICENSE`](LICENSE) file is a repository-level notice, not a permissiv
 The files under `docs/` are included as user-supplied educational materials:
 
 ```text
-docs/lecture_note.pdf
-docs/lecture_note.tex
+docs/network_control_foundations.pdf
+docs/network_control_foundations.tex
 docs/code_walkthrough_and_model_adaptation_guide.pdf
 docs/code_walkthrough_and_model_adaptation_guide.tex
 ```
@@ -29,7 +29,7 @@ Because this repository is public, keep these PDF and LaTeX files here only if y
 
 ## Tutorial Example Code
 
-The teaching example code under `examples/lecture/code/` comes from the tutorial package supplied by the repository owner. If you want this repository to be public and reusable by others, choose an explicit license for your own tutorial code and document it here.
+The teaching example code under `examples/foundations/code/` comes from the tutorial package supplied by the repository owner. If you want this repository to be public and reusable by others, choose an explicit license for your own tutorial code and document it here.
 
 At present, the repository-level notice keeps this first-party teaching code and runner code under an all-rights-reserved default unless a future file or license notice explicitly grants broader rights.
 

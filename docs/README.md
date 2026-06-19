@@ -2,11 +2,11 @@
 
 This directory contains the tutorial documents used by the examples.
 
-The filename `lecture_note.*` is kept for compatibility with earlier scripts and links. In the repository text, it is the tutorial note.
+The main foundations note is stored as `network_control_foundations.pdf` with its LaTeX source in `network_control_foundations.tex`.
 
 ```text
-lecture_note.pdf
-lecture_note.tex
+network_control_foundations.pdf
+network_control_foundations.tex
 code_walkthrough_and_model_adaptation_guide.pdf
 code_walkthrough_and_model_adaptation_guide.tex
 PARAMETERS.md
@@ -15,7 +15,7 @@ EXTENDING.md
 
 ## Reading order
 
-1. `lecture_note.pdf`
+1. `network_control_foundations.pdf`
    - Tutorial note with the mathematical background for optimal control, differential games, hybrid control, and network models.
 
 2. `code_walkthrough_and_model_adaptation_guide.pdf`

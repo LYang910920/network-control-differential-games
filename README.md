@@ -17,18 +17,16 @@ If this is your first visit, start with [`START_HERE.md`](START_HERE.md).
 | Start with | Use it for |
 | --- | --- |
 | [`START_HERE.md`](START_HERE.md) | Five-minute orientation |
-| [`docs/lecture_note.pdf`](docs/lecture_note.pdf) | Tutorial note and mathematical setup |
+| [`docs/network_control_foundations.pdf`](docs/network_control_foundations.pdf) | Tutorial note and mathematical setup |
 | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | How code maps to the math |
 | [`docs/PARAMETERS.md`](docs/PARAMETERS.md) | Main model parameters, solver settings, and baseline counts |
 | [`docs/NOTATION_TO_CODE.md`](docs/NOTATION_TO_CODE.md) | Mathematical notation mapped to Python variables |
 | [`docs/from_model_to_paper.md`](docs/from_model_to_paper.md) | Workflow from model formulation to paper experiments |
-| [`examples/lecture/`](examples/lecture/) | Clean tutorial examples |
+| [`examples/foundations/`](examples/foundations/) | Clean foundation examples |
 | [`examples/reference/`](examples/reference/) | Paper-level reference smoke runs |
 | [`examples/reference/MODEL_TAXONOMY.md`](examples/reference/MODEL_TAXONOMY.md) | Classifying the three reference repositories |
 | [`docs/EXTENDING.md`](docs/EXTENDING.md) | How to adapt tutorial code to paper-level models |
 | [`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md) | License and attribution boundaries |
-
-Naming note: a few historical paths still contain `lecture` for compatibility, but the public-facing material is organized and described as a tutorial.
 
 ## Code Entry Points
 
@@ -36,11 +34,11 @@ Most users only need the root runner. The deeper files are listed here so the co
 
 | Run or read | Path | Purpose |
 | --- | --- | --- |
-| Full repo check | [`run_all.py`](run_all.py) | Runs tutorial examples and reference smoke tests from the repository root. |
-| Tutorial runner | [`examples/lecture/code/run_all_lecture_examples.py`](examples/lecture/code/run_all_lecture_examples.py) | Rebuilds tutorial figures, CSV files, and generated result notes. |
-| Minimal control example | [`examples/lecture/code/simple_degree_k_control.py`](examples/lecture/code/simple_degree_k_control.py) | Small degree-k continuous optimal-control example. |
-| Companion models | [`examples/lecture/code/network_control_examples.py`](examples/lecture/code/network_control_examples.py) | Degree-level, node-level, game, and hybrid/impulse examples. |
-| Scalability timing | [`examples/lecture/code/scalability_analysis.py`](examples/lecture/code/scalability_analysis.py) | `python-igraph` scale-free graphs from 100 to 2000 nodes. |
+| Full repo check | [`run_all.py`](run_all.py) | Runs foundation examples and reference smoke tests from the repository root. |
+| Foundation runner | [`examples/foundations/code/run_foundation_examples.py`](examples/foundations/code/run_foundation_examples.py) | Rebuilds foundation figures, CSV files, and generated result notes. |
+| Minimal control example | [`examples/foundations/code/simple_degree_k_control.py`](examples/foundations/code/simple_degree_k_control.py) | Small degree-k continuous optimal-control example. |
+| Companion models | [`examples/foundations/code/network_control_examples.py`](examples/foundations/code/network_control_examples.py) | Degree-level, node-level, game, and hybrid/impulse examples. |
+| Scalability timing | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) | `python-igraph` scale-free graphs from 100 to 2000 nodes. |
 | Reference smoke runner | [`examples/reference/run_reference_smoke.py`](examples/reference/run_reference_smoke.py) | Paper-level smoke tests for the three reference repositories. |
 
 Before changing a model, read [`docs/PARAMETERS.md`](docs/PARAMETERS.md). For paper-specific adaptations, read [`docs/EXTENDING.md`](docs/EXTENDING.md) after the first smoke run. It points to the code hooks for continuous control, impulse control, hybrid control, degree-level models, node-level models, and reference-repository smoke runs.
@@ -57,7 +55,7 @@ python -m pip install -e .
 python run_all.py
 ```
 
-`python-igraph` is used by the tutorial scalability experiment and by the reference smoke runner. If it is hard to install in the active environment, you can still run the non-scalability tutorial examples:
+`python-igraph` is used by the foundation scalability experiment and by the reference smoke runner. If it is hard to install in the active environment, you can still run the non-scalability foundation examples:
 
 ```bash
 python run_all.py --skip-reference --skip-scalability
@@ -70,7 +68,7 @@ python -m pip install --target examples/reference/pydeps python-igraph
 python run_all.py
 ```
 
-Run only the tutorial examples:
+Run only the foundation examples:
 
 ```bash
 python run_all.py --skip-reference
@@ -79,31 +77,31 @@ python run_all.py --skip-reference
 Run only the reference smoke tests:
 
 ```bash
-python run_all.py --skip-tutorial
+python run_all.py --skip-foundations
 ```
 
 ## Recommended Learning Path
 
 1. Open [`START_HERE.md`](START_HERE.md) for the compact map.
-2. Open [`docs/lecture_note.pdf`](docs/lecture_note.pdf) for the tutorial note and mathematical setup.
-3. Run the tutorial examples first with `python run_all.py --skip-reference`.
-4. Read [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) while comparing it with [`examples/lecture/code/`](examples/lecture/code/).
-5. Run the reference smoke tests with `python run_all.py --skip-tutorial`.
+2. Open [`docs/network_control_foundations.pdf`](docs/network_control_foundations.pdf) for the tutorial note and mathematical setup.
+3. Run the foundation examples first with `python run_all.py --skip-reference`.
+4. Read [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) while comparing it with [`examples/foundations/code/`](examples/foundations/code/).
+5. Run the reference smoke tests with `python run_all.py --skip-foundations`.
 6. Use [`examples/reference/MODEL_TAXONOMY.md`](examples/reference/MODEL_TAXONOMY.md) first, then [`examples/reference/reference_repository_guide.md`](examples/reference/reference_repository_guide.md), to map the paper-level code back to the simplified examples.
 
 ## Output Preview
 
-Only representative previews are shown here. The detailed per-model figures, CSV files, and run notes live under `examples/lecture/results/` and `examples/reference/results/`.
+Only representative previews are shown here. The detailed per-model figures, CSV files, and run notes live under `examples/foundations/results/` and `examples/reference/results/`.
 
 **Tutorial examples: continuous, game, node-level, and hybrid teaching models**
 
-![Tutorial companion examples](examples/lecture/results/companion_contact_sheet.png)
+![Tutorial companion examples](examples/foundations/results/companion_contact_sheet.png)
 
 This contact sheet is a compact visual index for the teaching examples: degree-level control/game, node-level control/game, convergence diagnostics, and one hybrid control example. Time-axis plots show state/control evolution; iteration-axis plots show FBS convergence.
 
 **Scalability: degree-level FBS on synthetic scale-free networks from 100 to 2000 nodes**
 
-![Degree-level FBS scalability](examples/lecture/results/scalability_degree_sf/degree_control_scalability_100_2000.png)
+![Degree-level FBS scalability](examples/foundations/results/scalability_degree_sf/degree_control_scalability_100_2000.png)
 
 This plot reports 60 runs: 20 synthetic scale-free network sizes from 100 to 2000 nodes, with three repeats per size. The left panel shows median/min-max FBS solve time; the right panel explains why degree-level runtime grows slowly by tracking degree-class state dimension and FBS iterations.
 
@@ -111,17 +109,17 @@ This plot reports 60 runs: 20 synthetic scale-free network sizes from 100 to 200
 
 ![Reference smoke runs](examples/reference/results/reference_repos/reference_repo_contact_sheet.png)
 
-These smoke runs use small local sample data to check the three reference repositories without redistributing full paper datasets. They are grouped separately from the tutorial examples because they are paper-level code snapshots with their own upstream licenses.
+These smoke runs use small local sample data to check the three reference repositories without redistributing full paper datasets. They are grouped separately from the foundation examples because they are paper-level code snapshots with their own upstream licenses.
 
 After a fresh run, new outputs are written to timestamped or rerun folders:
 
 | Command | Output location |
 | --- | --- |
-| `python run_all.py --skip-reference` | `examples/lecture/results/rerun_YYYYMMDD_HHMMSS/` |
-| `python run_all.py --skip-tutorial` | `examples/reference/results/reference_repos_rerun/` |
+| `python run_all.py --skip-reference` | `examples/foundations/results/rerun_YYYYMMDD_HHMMSS/` |
+| `python run_all.py --skip-foundations` | `examples/reference/results/reference_repos_rerun/` |
 | `python run_all.py` | both locations above |
 
-The tutorial runner writes a generated `README.md`, `parameter_summary.csv`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `parameter_summary.csv`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a population-weighted degree-class mean, or a selected degree class.
+The foundation runner writes a generated `README.md`, `parameter_summary.csv`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `parameter_summary.csv`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a population-weighted degree-class mean, or a selected degree class.
 
 ## Core Layout
 
@@ -133,13 +131,13 @@ The tutorial runner writes a generated `README.md`, `parameter_summary.csv`, `fb
 ├── run_all.py
 ├── src/cybercontrol/
 ├── docs/
-│   ├── lecture_note.pdf
+│   ├── network_control_foundations.pdf
 │   ├── code_walkthrough_and_model_adaptation_guide.pdf
 │   ├── NOTATION_TO_CODE.md
 │   └── from_model_to_paper.md
 └── examples/
-    ├── lecture/
-    │   ├── code/        # tutorial Python code and runner
+    ├── foundations/
+    │   ├── code/        # foundation Python code and runner
     │   └── results/
     └── reference/
         ├── MODEL_TAXONOMY.md
@@ -151,9 +149,9 @@ The tutorial runner writes a generated `README.md`, `parameter_summary.csv`, `fb
 
 For a code-first map of the examples, see [`examples/README.md`](examples/README.md).
 
-### Tutorial examples
+### Foundation examples
 
-The tutorial examples are self-contained and should be the first code you run.
+The foundation examples are self-contained and should be the first code you run.
 
 - `simple_degree_k_control.py`: a compact degree-k SIS optimal-control example.
 - `network_control_examples.py`: degree-level games, node-level control/game models, and a hybrid impulse simulation.
@@ -161,7 +159,7 @@ The tutorial examples are self-contained and should be the first code you run.
 - `sample_data/`: a small edge list and adjacency matrix.
 - `results/`: precomputed figures and degree-distribution CSV files.
 
-Go deeper in [examples/lecture/README.md](examples/lecture/README.md).
+Go deeper in [examples/foundations/README.md](examples/foundations/README.md).
 
 ### Reference source snapshots
 
@@ -229,7 +227,7 @@ If `python-igraph` is the only difficult package and you only need the reference
 
 ```bash
 python -m pip install --target examples/reference/pydeps python-igraph
-python run_all.py --skip-tutorial
+python run_all.py --skip-foundations
 ```
 
 ## Public-repository Notes

@@ -6,9 +6,9 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 
 | Need | Command |
 |---|---|
-| Print tutorial model profiles | `python examples/lecture/code/model_profiles.py` |
-| Run a fast tutorial check | `python run_all.py --skip-reference --skip-scalability` |
-| Run reference-only smoke tests | `python run_all.py --skip-tutorial` |
+| Print foundation model profiles | `python examples/foundations/code/model_profiles.py` |
+| Run a fast foundation check | `python run_all.py --skip-reference --skip-scalability` |
+| Run reference-only smoke tests | `python run_all.py --skip-foundations` |
 | Find exact values after a run | open `parameter_summary.csv` in each output folder |
 
 ## Tutorial Model Parameters
@@ -26,10 +26,10 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 
 | Item | Value | Where to change |
 |---|---|---|
-| Simple FBS damping | `0.35` | `examples/lecture/code/model_profiles.py` |
-| Simple FBS tolerance | `1e-4` | `examples/lecture/code/model_profiles.py` |
-| Simple FBS max iterations | `50` | `examples/lecture/code/model_profiles.py` |
-| Companion runner time grid | `45` by default | `python run_all.py --tutorial-steps N` |
+| Simple FBS damping | `0.35` | `examples/foundations/code/model_profiles.py` |
+| Simple FBS tolerance | `1e-4` | `examples/foundations/code/model_profiles.py` |
+| Simple FBS max iterations | `50` | `examples/foundations/code/model_profiles.py` |
+| Companion runner time grid | `45` by default | `python run_all.py --foundation-steps N` |
 | Random baseline count | `75` per model/panel | `examples/common_diagnostics.py` |
 | Random baseline seed | `20260617` | `examples/common_diagnostics.py` |
 | Scalability node sizes | `100, 200, ..., 2000` | `--scalability-sizes` |

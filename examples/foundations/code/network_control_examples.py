@@ -9,9 +9,9 @@ It keeps the research-code-style examples in ONE Python file rather than many
 modules: graph loading, degree distribution, ODE helpers, degree-k models,
 node-level models, hybrid/impulse simulation, plotting, and CLI options.
 
-It uses standard packages for the heavy lifting:
+It uses standard packages and the shared package for the heavy lifting:
     networkx / pandas   realistic network datasets and adjacency conversion
-    scipy.solve_ivp     ODE integration for state and adjoint equations
+    cybercontrol        ODE-grid, projection, and quadrature helpers
 
 Recommended installation
 ------------------------
@@ -56,7 +56,7 @@ import argparse
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Optional
 
 import matplotlib
 matplotlib.use("Agg")
@@ -64,9 +64,20 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
-from scipy.integrate import solve_ivp
-from scipy.interpolate import interp1d
 
+EXAMPLES_DIR = Path(__file__).resolve().parents[2]
+ROOT_DIR = EXAMPLES_DIR.parent
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from cybercontrol.numerics import (
+    as_time_function as as_function,
+    project_box as clip,
+    solve_ode_grid as solve_grid,
+    trapezoid_integral as integral,
+)
+from cybercontrol.plotting import apply_clean_axes, plot_time_series
 from model_profiles import (
     DEGREE_CONTROL_PROFILE,
     DEGREE_GAME_PROFILE,
@@ -76,8 +87,6 @@ from model_profiles import (
     NODE_GAME_PROFILE,
 )
 
-
-EXAMPLES_DIR = Path(__file__).resolve().parents[2]
 if str(EXAMPLES_DIR) not in sys.path:
     sys.path.insert(0, str(EXAMPLES_DIR))
 
@@ -139,24 +148,9 @@ class TimeSeries:
     value: dict[str, float]
 
 
-# ---------------------------------------------------------------------------
-# General numerical helpers
-# ---------------------------------------------------------------------------
-
-
-def clip(x, lo=0.0, hi=1.0):
-    """Project a scalar/array to [lo, hi]."""
-    return np.minimum(np.maximum(x, lo), hi)
-
-
 def relax(new: np.ndarray, old: np.ndarray, weight: float = 0.35) -> np.ndarray:
     """Damped update for forward-backward sweep iterations."""
     return weight * new + (1.0 - weight) * old
-
-
-def integral(y: np.ndarray, t: np.ndarray) -> float:
-    """Trapezoidal integration with NumPy-version compatibility."""
-    return float(np.trapezoid(y, t) if hasattr(np, "trapezoid") else np.trapz(y, t))
 
 
 def convergence_values(delta_history: list[float], tol: float) -> dict[str, float]:
@@ -170,32 +164,6 @@ def convergence_values(delta_history: list[float], tol: float) -> dict[str, floa
     }
 
 
-def as_function(t: np.ndarray, Y: np.ndarray) -> Callable[[float], np.ndarray]:
-    """Vector-valued interpolation Y(tau) on the simulation grid."""
-    return interp1d(t, Y, axis=0, bounds_error=False, fill_value="extrapolate")
-
-
-def solve_grid(
-    rhs: Callable[[float, np.ndarray], np.ndarray],
-    y_boundary: np.ndarray,
-    t: np.ndarray,
-    *,
-    backward: bool = False,
-) -> np.ndarray:
-    """Solve an ODE on grid t using scipy.integrate.solve_ivp.
-
-    If backward=True, y_boundary is the terminal value y(T).  The returned array
-    is always ordered from t[0] to t[-1].
-    """
-    t_span = (t[-1], t[0]) if backward else (t[0], t[-1])
-    t_eval = t[::-1] if backward else t
-    sol = solve_ivp(rhs, t_span, y_boundary, t_eval=t_eval, rtol=1e-6, atol=1e-8)
-    if not sol.success:
-        raise RuntimeError(sol.message)
-    Y = sol.y.T
-    return Y[::-1] if backward else Y
-
-
 def savefig(path: Path) -> None:
     """Save the current figure and close it."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -203,24 +171,6 @@ def savefig(path: Path) -> None:
     plt.savefig(path, dpi=180)
     plt.close()
     print(f"saved {path}")
-
-
-def apply_clean_axes(ax, *, xlabel: str | None = None, ylabel: str | None = None,
-                     title: str | None = None) -> None:
-    """Apply the same readable axis style to all generated figures."""
-    if xlabel:
-        ax.set_xlabel(xlabel)
-    if ylabel:
-        ax.set_ylabel(ylabel)
-    if title:
-        ax.set_title(title)
-    ax.grid(True, alpha=0.25, linewidth=0.8)
-
-
-def plot_time_series(ax, t: np.ndarray, y: np.ndarray, label: str, **kwargs) -> None:
-    """Plot a continuous trajectory with the repository's default line style."""
-    kwargs.setdefault("linewidth", LINE_WIDTH)
-    ax.plot(t, y, label=label, **kwargs)
 
 
 def mark_event_times(ax, event_times: np.ndarray, *, color: str = "0.35",
