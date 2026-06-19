@@ -298,8 +298,8 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
     plt.close()
 
     plt.figure(figsize=(7.2, 4.2))
-    plt.plot(t, X @ p, label="state: degree-weighted mean infection", linewidth=2.0, linestyle="-")
-    plt.plot(t, U @ p, label="continuous control: degree-weighted mean", linewidth=2.0, linestyle="-.")
+    plt.plot(t, X @ p, label="state: population-weighted degree-class mean infection", linewidth=2.0, linestyle="-")
+    plt.plot(t, U @ p, label="continuous control: population-weighted degree-class mean", linewidth=2.0, linestyle="-.")
     for j in sorted(set([0, len(k) // 2, len(k) - 1])):
         plt.plot(t, X[:, j], "--", linewidth=1.5, label=f"state: degree k={int(k[j])}")
     plt.xlabel("time")

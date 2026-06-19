@@ -20,6 +20,8 @@ If this is your first visit, start with [`START_HERE.md`](START_HERE.md).
 | [`docs/lecture_note.pdf`](docs/lecture_note.pdf) | Tutorial note and mathematical setup |
 | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | How code maps to the math |
 | [`docs/PARAMETERS.md`](docs/PARAMETERS.md) | Main model parameters, solver settings, and baseline counts |
+| [`docs/NOTATION_TO_CODE.md`](docs/NOTATION_TO_CODE.md) | Mathematical notation mapped to Python variables |
+| [`docs/from_model_to_paper.md`](docs/from_model_to_paper.md) | Workflow from model formulation to paper experiments |
 | [`examples/lecture/`](examples/lecture/) | Clean tutorial examples |
 | [`examples/reference/`](examples/reference/) | Paper-level reference smoke runs |
 | [`examples/reference/MODEL_TAXONOMY.md`](examples/reference/MODEL_TAXONOMY.md) | Classifying the three reference repositories |
@@ -51,7 +53,7 @@ From the repository root:
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install -e .
 python run_all.py
 ```
 
@@ -119,18 +121,22 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 | `python run_all.py --skip-tutorial` | `examples/reference/results/reference_repos_rerun/` |
 | `python run_all.py` | both locations above |
 
-The tutorial runner writes a generated `README.md`, `parameter_summary.csv`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `parameter_summary.csv`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a degree-weighted mean, or a selected degree class.
+The tutorial runner writes a generated `README.md`, `parameter_summary.csv`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `parameter_summary.csv`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a population-weighted degree-class mean, or a selected degree class.
 
 ## Core Layout
 
 ```text
 .
 ├── README.md
+├── pyproject.toml
 ├── requirements.txt
 ├── run_all.py
+├── src/cybercontrol/
 ├── docs/
 │   ├── lecture_note.pdf
-│   └── code_walkthrough_and_model_adaptation_guide.pdf
+│   ├── code_walkthrough_and_model_adaptation_guide.pdf
+│   ├── NOTATION_TO_CODE.md
+│   └── from_model_to_paper.md
 └── examples/
     ├── lecture/
     │   ├── code/        # tutorial Python code and runner
@@ -193,6 +199,22 @@ When adapting the examples to a new model, work in this order:
 9. Run a small scalability check before increasing the node-level state dimension.
 
 For differential games, the computed controls are open-loop Nash candidates satisfying necessary conditions. Treat them as numerical candidates until unilateral-deviation checks support the interpretation.
+
+## Shared Package
+
+This repository is also the shared implementation source for the related tutorial repositories. The reusable package is `cybercontrol` under `src/`.
+
+```bash
+python -m pip install -e .
+python -m pytest
+python scripts/check_latex_style_sync.py
+```
+
+Note 1 and Note 2 can use the local package from a sibling workspace with:
+
+```bash
+python -m pip install -e ../network-control-differential-games
+```
 
 ## Troubleshooting
 

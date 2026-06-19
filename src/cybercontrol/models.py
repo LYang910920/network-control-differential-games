@@ -1,0 +1,106 @@
+"""Shared malware, propagation, and hybrid-control model components."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Dict
+
+import numpy as np
+
+from .numerics import project_simplex3
+
+Array = np.ndarray
+
+
+@dataclass
+class MalwareParams:
+    """Parameters for the basic controlled SIR malware model."""
+
+    beta: float = 0.65
+    gamma: float = 0.05
+    omega: float = 0.01
+
+
+def controlled_sir_rhs(x: Array, u_patch: float, u_clean: float, p: MalwareParams) -> Array:
+    """Continuous-control SIR malware dynamics for ``x = [S, I, R]``.
+
+    ``u_patch`` moves vulnerable devices into the protected/recovered class and
+    ``u_clean`` cleans compromised devices into the same class.
+    """
+
+    S, I, R = x[:3]
+    dS = -p.beta * S * I - u_patch * S + p.omega * R
+    dI = p.beta * S * I - (p.gamma + u_clean) * I
+    dR = u_patch * S + (p.gamma + u_clean) * I - p.omega * R
+    return np.array([dS, dI, dR], dtype=np.float64)
+
+
+@dataclass
+class HybridParams:
+    """Parameters for SIR malware dynamics with deception/awareness state."""
+
+    beta0: float = 0.65
+    gamma: float = 0.05
+    omega: float = 0.01
+    chi: float = 0.70
+    xi: float = 0.04
+    zeta: float = 0.08
+
+
+def hybrid_rhs(x: Array, dpar: Dict[str, float], apar: Dict[str, float], p: HybridParams) -> Array:
+    """Continuous flow for a sampled-data hybrid malware/deception model.
+
+    The discrete action has already been decoded into rates.  Instantaneous
+    jumps, such as isolation, should be applied before calling this RHS.
+    """
+
+    S, I, R, z = x
+    beta = apar.get("beta", p.beta0)
+    clean = dpar.get("clean", 0.0) * apar.get("stealth_factor", 1.0)
+    patch = dpar.get("patch", 0.0)
+    deceive = dpar.get("deceive", 0.0)
+    effective_beta = beta * max(0.0, 1.0 - p.chi * z)
+    dS = -effective_beta * S * I - patch * S + p.omega * R
+    dI = effective_beta * S * I - (p.gamma + clean) * I
+    dR = patch * S + (p.gamma + clean) * I - p.omega * R
+    dz = deceive * (1.0 - z) - p.xi * z - apar.get("deception_learning", 0.0) * z
+    return np.array([dS, dI, dR, dz], dtype=np.float64)
+
+
+def isolation_jump(x: Array, isolation_rate: float) -> Array:
+    """Apply an impulse that immediately moves infected mass ``I`` into ``R``."""
+
+    y = np.asarray(x, dtype=np.float64).copy()
+    removed = min(max(isolation_rate, 0.0) * y[1], y[1])
+    y[1] -= removed
+    y[2] += removed
+    return project_simplex3(y)
+
+
+def controlled_sir_rhs_torch(x, u, beta, gamma):
+    """Torch version of the controlled SIR model used by PINN examples.
+
+    Imports are intentionally local so the shared package remains usable without
+    PyTorch for the pure ODE examples.
+    """
+
+    import torch
+
+    S, I, R = x[:, 0:1], x[:, 1:2], x[:, 2:3]
+    return torch.cat(
+        [
+            -beta * S * I - u * S,
+            beta * S * I - gamma * I,
+            gamma * I + u * S,
+        ],
+        dim=1,
+    )
+
+
+def sir_rhs_torch(x, beta, gamma):
+    """Torch SIR RHS without control for inverse-PINN/PIDL data generation."""
+
+    import torch
+
+    S, I, R = x[..., 0], x[..., 1], x[..., 2]
+    return torch.stack([-beta * S * I, beta * S * I - gamma * I, gamma * I], dim=-1)

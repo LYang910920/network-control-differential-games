@@ -1005,12 +1005,12 @@ def save_baseline_comparison(
 def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
     plt.figure(figsize=FIGSIZE_SINGLE)
     ax = plt.gca()
-    plot_time_series(ax, result.t, result.x @ D.pk, "state: degree-weighted mean infection", linestyle="-")
+    plot_time_series(ax, result.t, result.x @ D.pk, "state: population-weighted degree-class mean infection", linestyle="-")
     plot_time_series(
         ax,
         result.t,
         result.controls["control"] @ D.pk,
-        "continuous control: degree-weighted mean",
+        "continuous control: population-weighted degree-class mean",
         linestyle="-.",
     )
     for j in sorted(set([0, len(D.k) // 2, len(D.k) - 1])):
@@ -1024,19 +1024,19 @@ def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> Non
 def plot_degree_game(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
     plt.figure(figsize=FIGSIZE_SINGLE)
     ax = plt.gca()
-    plot_time_series(ax, result.t, result.x @ D.pk, "state: degree-weighted mean infection", linestyle="-")
+    plot_time_series(ax, result.t, result.x @ D.pk, "state: population-weighted degree-class mean infection", linestyle="-")
     plot_time_series(
         ax,
         result.t,
         result.controls["attack"] @ D.pk,
-        "continuous attack strategy: degree-weighted mean",
+        "continuous attack strategy: population-weighted degree-class mean",
         linestyle="--",
     )
     plot_time_series(
         ax,
         result.t,
         result.controls["defense"] @ D.pk,
-        "continuous defense strategy: degree-weighted mean",
+        "continuous defense strategy: population-weighted degree-class mean",
         linestyle="-.",
     )
     high = int(np.argmax(D.k))

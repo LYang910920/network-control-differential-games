@@ -141,7 +141,7 @@ def describe_profiles() -> list[dict[str, str]]:
             "horizon": str(DEGREE_CONTROL_PROFILE.horizon),
             "rates": f"beta={DEGREE_CONTROL_PROFILE.beta}, delta={DEGREE_CONTROL_PROFILE.delta}",
             "bounds": f"0 <= u_k(t) <= {DEGREE_CONTROL_PROFILE.control_max}",
-            "notes": "state labels are degree-weighted mean and selected k classes",
+            "notes": "state labels are population-weighted degree-class mean and selected k classes",
         },
         {
             "name": "node-control",

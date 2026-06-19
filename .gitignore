@@ -7,6 +7,8 @@ __pycache__/
 venv/
 env/
 examples/reference/pydeps/
+src/*.egg-info/
+.pytest_cache/
 
 # Matplotlib and local cache folders
 .cache/

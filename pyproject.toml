@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cybercontrol"
+version = "0.1.0"
+description = "Shared teaching utilities for network optimal control, differential games, RL, and PINN/PIDL cyber-control examples."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "Luxing Yang"}]
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "networkx",
+    "python-igraph",
+]
+
+[project.optional-dependencies]
+torch = ["torch"]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
