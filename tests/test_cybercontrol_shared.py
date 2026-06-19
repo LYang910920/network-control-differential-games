@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from cybercontrol.io import require_outputs
+from cybercontrol.diagnostics import diagnostic_terms_for, rolling_mean, write_diagnostic_glossary
 from cybercontrol.models import MalwareParams, controlled_sir_rhs, controlled_sir_rhs_torch, isolation_jump
 from cybercontrol.network_models import (
     NodeSIPRSParams,
@@ -84,6 +85,19 @@ def test_require_outputs_flags_missing_or_empty_files(tmp_path):
         require_outputs([empty])
     with pytest.raises(RuntimeError, match="missing"):
         require_outputs([tmp_path / "missing.txt"])
+
+
+def test_training_diagnostic_helpers_write_reader_glossary(tmp_path):
+    assert np.allclose(rolling_mean([1.0, 3.0, float("nan"), 5.0], window=2), [1.0, 2.0, 3.0, 5.0], equal_nan=True)
+
+    terms = diagnostic_terms_for(["iteration", "evaluation return", "stationarity loss"])
+    assert [term.name for term in terms] == ["iteration", "evaluation return", "stationarity loss"]
+
+    out = tmp_path / "diagnostics.md"
+    write_diagnostic_glossary(out, terms, title="Test Diagnostics")
+    text = out.read_text(encoding="utf-8")
+    assert "evaluation return" in text
+    assert "PMP consistency" in text
 
 
 def test_torch_time_derivative_and_networks_keep_gradients():

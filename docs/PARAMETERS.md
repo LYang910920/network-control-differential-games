@@ -26,6 +26,7 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | `degree-level` | One state per observed degree class. Use it when degree distribution is the main network summary. |
 | `node-level` | One state per graph node. Use it when adjacency, local interventions, or node-specific outputs matter. |
 | `paper-level extension` | A research-ready adaptation with explicit model equations, parameters, baselines, multiple seeds or sensitivity checks, figure captions, and license/data notes. |
+| `training diagnostic` | A plotted/logged check of solver or learning behavior, such as FBSM control-update change, RL return, PINN residual loss, or baseline rollout metrics. Shared helper definitions live in `cybercontrol.diagnostics`. |
 
 ## Tutorial Model Parameters
 

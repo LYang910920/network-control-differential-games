@@ -51,6 +51,7 @@ Most users only need the root runner. The deeper files are listed here so the co
 | Scalability timing | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) | Paired degree-level versus sparse node-level FBS on the same SIS epidemic-control problem and the same synthetic SF graph seeds. |
 | Reference smoke runner | [`examples/reference/run_reference_smoke.py`](examples/reference/run_reference_smoke.py) | Paper-level smoke tests for the three reference repositories. |
 | Shared node models | [`src/cybercontrol/network_models.py`](src/cybercontrol/network_models.py) | Canonical node-level SIPS/SIPRS equations, graph pressure, NumPy/Torch RHS parity, and stochastic transition helper. |
+| Shared diagnostics | [`src/cybercontrol/diagnostics.py`](src/cybercontrol/diagnostics.py) | Common training-diagnostic glossary rows, rolling means, and figure-caption helpers used by the companion notes. |
 
 Before changing a model, read [`docs/PARAMETERS.md`](docs/PARAMETERS.md). For paper-specific adaptations, read [`docs/EXTENDING.md`](docs/EXTENDING.md) after the first smoke run. It points to the code hooks for continuous control, impulse control, hybrid control, degree-level models, node-level models, and reference-repository smoke runs.
 

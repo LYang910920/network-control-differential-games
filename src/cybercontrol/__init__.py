@@ -9,6 +9,7 @@ its own tutorial scripts and narrative.  Public modules stay small:
 - :mod:`cybercontrol.torch_utils` for PINN/PIDL neural-network helpers.
 - :mod:`cybercontrol.io` for reproducible outputs.
 - :mod:`cybercontrol.plotting` for lightweight figure helpers.
+- :mod:`cybercontrol.diagnostics` for training-diagnostic terms and captions.
 """
 
 from .numerics import (
@@ -44,6 +45,14 @@ from .network_models import (
 )
 from .io import require_outputs, set_seed, write_csv, write_json
 from .plotting import apply_clean_axes, clean_axes, plot_time_series
+from .diagnostics import (
+    COMMON_DIAGNOSTIC_TERMS,
+    DiagnosticTerm,
+    add_caption,
+    diagnostic_terms_for,
+    rolling_mean,
+    write_diagnostic_glossary,
+)
 
 __all__ = [
     "HybridParams",
@@ -52,9 +61,13 @@ __all__ = [
     "hybrid_rhs",
     "isolation_jump",
     "NodeSIPRSParams",
+    "COMMON_DIAGNOSTIC_TERMS",
+    "DiagnosticTerm",
+    "add_caption",
     "apply_clean_axes",
     "as_time_function",
     "clean_axes",
+    "diagnostic_terms_for",
     "plot_time_series",
     "project_box",
     "project_compartments",
@@ -63,6 +76,7 @@ __all__ = [
     "require_outputs",
     "rk4_integrate",
     "rk4_step",
+    "rolling_mean",
     "set_seed",
     "graph_pressure_numpy",
     "graph_pressure_torch",
@@ -77,5 +91,6 @@ __all__ = [
     "trapezoid",
     "trapezoid_integral",
     "write_csv",
+    "write_diagnostic_glossary",
     "write_json",
 ]
