@@ -46,7 +46,7 @@ Heavier sparse node-level scalability run:
 python run_all.py --skip-reference --include-node-scalability
 ```
 
-The default scalability run writes `scalability_degree_node_sf/` and compares degree-level FBS with dense node-level FBS on the same normalized SIS epidemic-control model. The heavy run adds `scalability_node_sf/` with a separate node-indexed sparse FBS stress test from 1000 to 10000 synthetic scale-free nodes. Use the heavy run after the paired comparison is working; do not mix its wall-clock times with the paired dense comparison.
+The default scalability run writes `scalability_degree_node_sf/` and compares degree-level FBS with sparse node-level FBS on the same normalized SIS epidemic-control model and the same synthetic scale-free graph seeds from 1000 to 10000 nodes. The heavy run adds `scalability_node_sf/` with a separate node-indexed sparse FBS stress test using a different node-only parameter profile. Do not mix its wall-clock times with the paired comparison.
 
 Outputs:
 

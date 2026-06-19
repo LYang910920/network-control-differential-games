@@ -42,7 +42,7 @@ tutorial note
 2. `src/cybercontrol/`: shared numerics, dynamics, neural-network helpers, plotting helpers, and IO.
 3. `examples/foundations/code/model_profiles.py`: smoke-run parameters such as horizon, rates, bounds, and impulse times.
 4. `examples/foundations/code/network_control_examples.py`: degree-level, node-level, game, and hybrid examples.
-5. `examples/foundations/code/scalability_analysis.py`: paired degree-level versus dense node-level FBS timing on the same normalized SIS epidemic-control model. Sparse node-only scaling is still available with `python run_all.py --skip-reference --include-node-scalability`.
+5. `examples/foundations/code/scalability_analysis.py`: paired degree-level versus sparse node-level FBS timing on the same normalized SIS epidemic-control model and the same synthetic SF graph seeds from 1000 to 10000 nodes.
 6. `examples/reference/run_reference_smoke.py`: paper-level smoke-run wrapper for the three reference repositories.
 
 ## Parameter First

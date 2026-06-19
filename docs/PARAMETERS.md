@@ -32,10 +32,10 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | Companion runner time grid | `45` by default | `python run_all.py --foundation-steps N` |
 | Random baseline count | `75` per model/panel | `examples/common_diagnostics.py` |
 | Random baseline seed | `20260617` | `examples/common_diagnostics.py` |
-| Paired degree/node scalability node sizes | `100, 250, 500, 1000, 2000` | `--scalability-sizes` |
+| Paired degree/node scalability node sizes | `1000, 2000, ..., 10000` | `--scalability-sizes` |
 | Paired degree/node scalability repeats | `2` by default | `--scalability-repeats` |
 | Paired degree/node scalability model | same normalized SIS epidemic-control problem for both levels | `examples/foundations/code/scalability_analysis.py` |
-| Paired degree/node scalability solver/FBS | fixed-grid RK4, `T=8`, `beta=1.20`, `delta=0.35`, `max_iter=80`, `tol=1e-4` | `--scalability-steps`, `--scalability-iterations` |
+| Paired degree/node scalability solver/FBS | fixed-grid RK4, sparse node adjacency, `T=8`, `beta=1.20`, `delta=0.35`, `max_iter=80`, `tol=1e-4` | `--scalability-steps`, `--scalability-iterations` |
 | Sparse node-only scalability node sizes | `1000, 2000, ..., 10000` | `--include-node-scalability --node-scalability-sizes ...` |
 | Sparse node-level scalability repeats | `1` by default | `--node-scalability-repeats` |
 | Sparse node-level scalability time grid | `25` intervals over `T=8` | `--node-scalability-steps` |

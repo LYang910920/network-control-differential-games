@@ -38,7 +38,7 @@ Most users only need the root runner. The deeper files are listed here so the co
 | Foundation runner | [`examples/foundations/code/run_foundation_examples.py`](examples/foundations/code/run_foundation_examples.py) | Rebuilds foundation figures, CSV files, and generated result notes. |
 | Minimal control example | [`examples/foundations/code/simple_degree_k_control.py`](examples/foundations/code/simple_degree_k_control.py) | Small degree-k continuous optimal-control example. |
 | Companion models | [`examples/foundations/code/network_control_examples.py`](examples/foundations/code/network_control_examples.py) | Degree-level, node-level, game, and hybrid/impulse examples. |
-| Scalability timing | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) | Paired degree-level versus dense node-level FBS on the same SIS epidemic-control problem, plus an optional sparse node-only stress test. |
+| Scalability timing | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) | Paired degree-level versus sparse node-level FBS on the same SIS epidemic-control problem and the same synthetic SF graph seeds. |
 | Reference smoke runner | [`examples/reference/run_reference_smoke.py`](examples/reference/run_reference_smoke.py) | Paper-level smoke tests for the three reference repositories. |
 
 Before changing a model, read [`docs/PARAMETERS.md`](docs/PARAMETERS.md). For paper-specific adaptations, read [`docs/EXTENDING.md`](docs/EXTENDING.md) after the first smoke run. It points to the code hooks for continuous control, impulse control, hybrid control, degree-level models, node-level models, and reference-repository smoke runs.
@@ -101,9 +101,9 @@ This contact sheet is a compact visual index for the tutorial examples: degree-l
 
 **Scalability: paired degree-level vs node-level FBS on the same epidemic model**
 
-![Paired degree/node FBS scalability](examples/foundations/results/scalability_degree_node_sf/degree_node_fbs_comparison_100_2000.png)
+![Paired degree/node FBS scalability](examples/foundations/results/scalability_degree_node_sf/degree_node_fbs_comparison_1000_10000.png)
 
-This plot compares degree-level and dense node-level FBS on the same normalized SIS epidemic-control problem, the same synthetic scale-free graphs, and the same fixed-grid RK4 sweep settings. The degree-level state is one entry per observed degree class; the node-level state is one entry per graph node. In the checked-in run at 2000 nodes, the degree-level median FBS time is about `0.286s`, while the node-level median is about `5.671s`; all runs converged.
+This plot compares degree-level and sparse node-level FBS from `1000` to `10000` nodes in steps of `1000`. For each network size and repeat, both rows use the same synthetic scale-free graph seed and the same normalized SIS epidemic-control problem. The degree-level state is one entry per observed degree class; the node-level state is one entry per graph node. In the checked-in run at 10000 nodes, the degree-level median FBS time is about `0.299s` with 75 degree classes, while the node-level median is about `2.449s` with 10000 node-indexed states; all runs converged.
 
 To regenerate the paired comparison, run:
 
@@ -111,7 +111,7 @@ To regenerate the paired comparison, run:
 python run_all.py --skip-reference
 ```
 
-The optional `--include-node-scalability` flag still runs a separate sparse node-only stress test from 1000 to 10000 nodes. It is useful for sparse implementation checks, but it is not the degree-vs-node comparison figure.
+The optional `--include-node-scalability` flag still runs a separate sparse node-only stress test. It is useful for implementation checks with a different node-only parameter profile, but it is not the degree-vs-node comparison figure.
 
 **Reference smoke runs: paper-level code checks for TIFS/TCSS repositories**
 
@@ -163,7 +163,7 @@ The foundation examples are self-contained and should be the first code you run.
 
 - `simple_degree_k_control.py`: a compact degree-k SIS optimal-control example.
 - `network_control_examples.py`: degree-level games, node-level control/game models, and a hybrid impulse simulation.
-- `scalability_analysis.py`: paired degree-level and dense node-level FBS timing on the same SIS epidemic-control problem, plus an optional sparse node-only stress test from 1000 to 10000 nodes.
+- `scalability_analysis.py`: paired degree-level and sparse node-level FBS timing on the same SIS epidemic-control problem and graph seeds from 1000 to 10000 nodes.
 - `sample_data/`: a small edge list and adjacency matrix.
 - `results/`: precomputed figures and degree-distribution CSV files.
 

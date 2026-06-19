@@ -104,16 +104,16 @@ python code/network_control_examples.py --examples hybrid --output-dir results/h
 
 ## Run paired degree/node scalability analysis
 
-Paired FBS timing on synthetic scale-free networks. For each graph size, the script runs degree-level FBS and dense node-level FBS on the same normalized SIS epidemic-control model, using the same graph seed, RK4 time grid, and FBS tolerance.
+Paired FBS timing on synthetic scale-free networks. For each graph size, the script runs degree-level FBS and sparse node-level FBS on the same normalized SIS epidemic-control model, using the same graph seed, RK4 time grid, and FBS tolerance.
 
 ```bash
 python code/scalability_analysis.py --output-dir results/scalability_degree_node_sf_new
 ```
 
-The default run uses sizes `100,250,500,1000,2000` with two repeats per size. To change it:
+The default run uses sizes `1000,2000,...,10000` with two repeats per size. To change it:
 
 ```bash
-python code/scalability_analysis.py --sizes 100,250,500 --repeats 2
+python code/scalability_analysis.py --sizes 1000,2000,3000 --repeats 2
 ```
 
 ## Existing results
@@ -129,7 +129,7 @@ results/companion_builtin_sf/degree_control_trajectory.png
 results/companion_builtin_sf/degree_game_trajectory.png
 results/companion_builtin_sf/node_control_trajectory.png
 results/companion_builtin_sf/hybrid_impulse_trajectory.png
-results/scalability_degree_node_sf/degree_node_fbs_comparison_100_2000.png
+results/scalability_degree_node_sf/degree_node_fbs_comparison_1000_10000.png
 ```
 
 The detailed subdirectories are grouped by purpose:
@@ -138,7 +138,7 @@ The detailed subdirectories are grouped by purpose:
 | --- | --- |
 | `simple_*` | Minimal degree-k continuous optimal-control smoke runs. |
 | `companion_*` | Degree-level, node-level, game, and hybrid examples on the same input graph. |
-| `scalability_degree_node_sf` | Paired degree-level versus dense node-level FBS runtime on the same epidemic-control problem. |
+| `scalability_degree_node_sf` | Paired degree-level versus sparse node-level FBS runtime on the same epidemic-control problem and graph seeds. |
 
 Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.
 
