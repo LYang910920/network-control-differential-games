@@ -9,6 +9,7 @@ network_control_foundations.pdf
 network_control_foundations.tex
 code_walkthrough_and_model_adaptation_guide.pdf
 code_walkthrough_and_model_adaptation_guide.tex
+slides/three_repo_student_onboarding/
 PARAMETERS.md
 EXTENDING.md
 ```
@@ -24,7 +25,10 @@ EXTENDING.md
 3. `PARAMETERS.md`
    - Main tutorial model parameters, solver settings, random-baseline counts, and state-label meanings.
 
-4. `EXTENDING.md`
+4. `slides/three_repo_student_onboarding/`
+   - Deakin-style student onboarding deck for the full three-repository tutorial family, with editable PPTX, PDF, speaker notes, asset manifest, rendered slide QA, and build script.
+
+5. `EXTENDING.md`
    - Compact student-facing map from the tutorial code to paper-level degree, node, impulse, hybrid, and reference-repository models.
 
 ## Copyright note

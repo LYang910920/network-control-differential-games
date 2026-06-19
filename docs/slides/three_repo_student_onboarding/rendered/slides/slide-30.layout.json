@@ -1,0 +1,1827 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/63ed97",
+    "id": "63ed97",
+    "slide": 30,
+    "layoutId": "/ppt/slideLayouts/slideLayout8.xml",
+    "layoutName": "Title and Content A",
+    "masterLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "Deakin TEAL",
+    "colors": {
+      "accent1": "#007D98",
+      "accent2": "#58BCAF",
+      "accent3": "#C74298",
+      "accent4": "#FFD923",
+      "accent5": "#FF9300",
+      "accent6": "#E1E1E1",
+      "bg1": "#FFFFFF",
+      "bg2": "#F5FAFB",
+      "tx1": "#17202A",
+      "tx2": "#59656F",
+      "dk1": "#000000",
+      "dk2": "#222222",
+      "lt1": "#FFFFFF",
+      "lt2": "#E1E1E1",
+      "hlink": "#007D98",
+      "folHlink": "#C74298"
+    },
+    "fontScheme": {
+      "name": "Calibri",
+      "majorFont": {
+        "latinTypeface": "Calibri"
+      },
+      "minorFont": {
+        "latinTypeface": "Calibri"
+      }
+    },
+    "typefaces": [
+      "Calibri"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "/ppt/slideLayouts/slideLayout8.xml",
+      "name": "Title and Content A",
+      "parentLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+      "elements": [
+        {
+          "order": 1,
+          "kind": "shape",
+          "scope": "layout",
+          "aid": "template/layout//ppt/slideLayouts/slideLayout8.xml/10",
+          "id": "10",
+          "name": "Title",
+          "bbox": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "text": "Click to add title",
+          "textPreview": "Click to add title",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Click to add title",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Click to add title"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 2,
+          "kind": "shape",
+          "scope": "layout",
+          "aid": "template/layout//ppt/slideLayouts/slideLayout8.xml/6",
+          "id": "6",
+          "name": "Body copy text",
+          "bbox": [
+            51.5,
+            184.67,
+            1070.21,
+            417.29
+          ],
+          "text": "Click on the relevant icon at the centre of the placeholder to add: Text / Table / Chart / SmartArt / Image / Media. There are five type styles in the template, available as List Levels. Press the Increase / Decrease button in the paragraph section of the home ribbon to move through the styles\n\nEdit Master text styles\nSecond level\nThird level\nFourth level\nFifth level",
+          "textPreview": "Click on the relevant icon at the centre of the placeholder to add: Text / Table / Chart / SmartArt / Image / Media. There are five type ...",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Click on the relevant icon at the centre of the placeholder to add: Text / Table / Chart / SmartArt / Image / Media. There are five type styles in the template, available as List Levels. Press the Increase / Decrease button in the paragraph section of the home ribbon to move through the styles",
+              "marginLeft": 0,
+              "indent": 0,
+              "lineSpacingPercent": 90000,
+              "spaceBefore": 1000,
+              "spaceAfter": 2400,
+              "resolvedTextStyle": {
+                "alignment": "left"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Click on the relevant icon at the ",
+                  "alignment": "left"
+                },
+                {
+                  "index": 2,
+                  "text": "centre",
+                  "alignment": "left"
+                },
+                {
+                  "index": 3,
+                  "text": " of the placeholder to add: Text / Table / Chart / SmartArt / Image / Media. There are five type styles in the template, available as List Levels. Press the Increase / Decrease button in the paragraph section of the home ribbon to move through the styles",
+                  "alignment": "left"
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "text": "Edit Master text styles",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Edit Master text styles"
+                }
+              ]
+            },
+            {
+              "index": 4,
+              "text": "Second level",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Second level"
+                }
+              ]
+            },
+            {
+              "index": 5,
+              "text": "Third level",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Third level"
+                }
+              ]
+            },
+            {
+              "index": 6,
+              "text": "Fourth level",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Fourth level"
+                }
+              ]
+            },
+            {
+              "index": 7,
+              "text": "Fifth level",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Fifth level"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 3,
+          "kind": "shape",
+          "scope": "layout",
+          "aid": "template/layout//ppt/slideLayouts/slideLayout8.xml/9",
+          "id": "9",
+          "name": "Slide Number",
+          "bbox": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "text": "‹#›",
+          "textPreview": "‹#›",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "‹#›",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "‹#›"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 4,
+          "kind": "shape",
+          "scope": "layout",
+          "aid": "template/layout//ppt/slideLayouts/slideLayout8.xml/7",
+          "id": "7",
+          "name": "Date",
+          "bbox": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "order": 5,
+          "kind": "shape",
+          "scope": "layout",
+          "aid": "template/layout//ppt/slideLayouts/slideLayout8.xml/8",
+          "id": "8",
+          "name": "Footer/CRICOS",
+          "bbox": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "text": "Deakin University CRICOS Provider Code: 00113B",
+          "textPreview": "Deakin University CRICOS Provider Code: 00113B",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Deakin University CRICOS Provider Code: 00113B",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Deakin University CRICOS Provider Code: 00113B"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "scope": "master",
+      "id": "/ppt/slideMasters/slideMaster1.xml",
+      "type": "master",
+      "elements": [
+        {
+          "order": 1,
+          "kind": "shape",
+          "scope": "master",
+          "aid": "template/master//ppt/slideMasters/slideMaster1.xml/2",
+          "id": "2",
+          "name": "Title",
+          "bbox": [
+            25.45,
+            43.75,
+            895.21,
+            85.4
+          ],
+          "geometry": "rect",
+          "text": "Click to add title",
+          "textPreview": "Click to add title",
+          "resolvedTextStyle": {
+            "anchor": 1,
+            "vertical": 1,
+            "verticalAlignment": "top",
+            "autoFit": "none",
+            "insets": {
+              "top": 4.8,
+              "right": 9.6,
+              "bottom": 4.8,
+              "left": 9.6
+            }
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Click to add title",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Click to add title"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 2,
+          "kind": "shape",
+          "scope": "master",
+          "aid": "template/master//ppt/slideMasters/slideMaster1.xml/3",
+          "id": "3",
+          "name": "Body copy text",
+          "bbox": [
+            51.57,
+            184.71,
+            1070.15,
+            417.25
+          ],
+          "geometry": "rect",
+          "text": "Click to edit Master text styles\nSecond level\nThird level\nFourth level\nFifth level",
+          "textPreview": "Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level",
+          "resolvedTextStyle": {
+            "vertical": 1,
+            "autoFit": "none",
+            "insets": {
+              "top": 4.8,
+              "right": 9.6,
+              "bottom": 4.8,
+              "left": 9.6
+            }
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Click to edit Master text styles",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Click to edit Master text styles"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "text": "Second level",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Second level"
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "text": "Third level",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Third level"
+                }
+              ]
+            },
+            {
+              "index": 4,
+              "text": "Fourth level",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Fourth level"
+                }
+              ]
+            },
+            {
+              "index": 5,
+              "text": "Fifth level",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Fifth level"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 3,
+          "kind": "shape",
+          "scope": "master",
+          "aid": "template/master//ppt/slideMasters/slideMaster1.xml/24",
+          "id": "24",
+          "name": "Header Graphic",
+          "bbox": [
+            0,
+            0,
+            920.66,
+            129.15
+          ],
+          "verticalFlip": true,
+          "geometry": "custom",
+          "resolvedTextStyle": {
+            "anchor": 2,
+            "verticalAlignment": "middle"
+          },
+          "fillColor": "accent1",
+          "lineWidth": 0
+        },
+        {
+          "order": 4,
+          "kind": "shape",
+          "scope": "master",
+          "aid": "template/master//ppt/slideMasters/slideMaster1.xml/6",
+          "id": "6",
+          "name": "Slide Number",
+          "bbox": [
+            25.45,
+            660.1,
+            60.47,
+            25.99
+          ],
+          "geometry": "rect",
+          "text": "‹#›",
+          "textPreview": "‹#›",
+          "resolvedTextStyle": {
+            "anchor": 2,
+            "vertical": 1,
+            "verticalAlignment": "middle",
+            "insets": {
+              "top": 4.8,
+              "right": 9.6,
+              "bottom": 4.8,
+              "left": 0
+            }
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "‹#›",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "‹#›"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 5,
+          "kind": "shape",
+          "scope": "master",
+          "aid": "template/master//ppt/slideMasters/slideMaster1.xml/4",
+          "id": "4",
+          "name": "Date",
+          "bbox": [
+            88.98,
+            664.64,
+            173.86,
+            21.44
+          ],
+          "geometry": "rect",
+          "resolvedTextStyle": {
+            "anchor": 2,
+            "vertical": 1,
+            "verticalAlignment": "middle",
+            "insets": {
+              "top": 4.8,
+              "right": 9.6,
+              "bottom": 4.8,
+              "left": 9.6
+            }
+          }
+        },
+        {
+          "order": 6,
+          "kind": "shape",
+          "scope": "master",
+          "aid": "template/master//ppt/slideMasters/slideMaster1.xml/11",
+          "id": "11",
+          "name": "Footer/CRICOS",
+          "bbox": [
+            25.45,
+            687.22,
+            695.43,
+            18.9
+          ],
+          "geometry": "rect",
+          "text": "Deakin University CRICOS Provider Code: 00113B",
+          "textPreview": "Deakin University CRICOS Provider Code: 00113B",
+          "resolvedTextStyle": {
+            "insets": {
+              "top": 3.78,
+              "right": 0,
+              "bottom": 3.78,
+              "left": 0
+            }
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Deakin University CRICOS Provider Code: 00113B",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Deakin University "
+                },
+                {
+                  "index": 2,
+                  "text": "CRICOS"
+                },
+                {
+                  "index": 3,
+                  "text": " Provider Code: "
+                },
+                {
+                  "index": 4,
+                  "text": "00113B"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/8v6psfil",
+      "id": "1",
+      "bbox": [
+        0,
+        0,
+        1280,
+        22
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#007D98",
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/fa9w3m94",
+      "id": "2",
+      "bbox": [
+        70,
+        28,
+        470,
+        24
+      ],
+      "geometry": "rect",
+      "text": "Game-learning companion",
+      "textPreview": "Game-learning companion",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#007D98",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Game-learning companion"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Game-learning companion",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#007D98",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Game-learning companion",
+              "fontSize": 24,
+              "color": "#007D98",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/qpg3ex0n",
+      "id": "3",
+      "bbox": [
+        1072,
+        28,
+        120,
+        24
+      ],
+      "geometry": "rect",
+      "text": "DEAKIN",
+      "textPreview": "DEAKIN",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#007D98",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "DEAKIN"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "DEAKIN",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#007D98",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "DEAKIN",
+              "fontSize": 24,
+              "color": "#007D98",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/x4nap4r6",
+      "id": "4",
+      "bbox": [
+        70,
+        620,
+        1060,
+        1
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#E1E1E1",
+      "lineWidth": 0
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/8jqh0fep",
+      "id": "5",
+      "bbox": [
+        70,
+        642,
+        800,
+        24
+      ],
+      "geometry": "rect",
+      "text": "Network control tutorial family | Deakin University CRICOS Provider Code: 00113B",
+      "textPreview": "Network control tutorial family | Deakin University CRICOS Provider Code: 00113B",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#59656F",
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Network control tutorial family | Deakin University CRICOS Provider"
+          },
+          {
+            "index": 2,
+            "text": "Code: 00113B"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Network control tutorial family | Deakin University CRICOS Provider Code: 00113B",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#59656F"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Network control tutorial family | Deakin University CRICOS Provider Code: 00113B",
+              "fontSize": 24,
+              "color": "#59656F"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/fyxobm58",
+      "id": "6",
+      "bbox": [
+        1140,
+        638,
+        58,
+        30
+      ],
+      "geometry": "rect",
+      "text": "30",
+      "textPreview": "30",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#007D98",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "30"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "30",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#007D98",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "30",
+              "fontSize": 24,
+              "color": "#007D98",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/qd4vmtwr",
+      "id": "7",
+      "name": "Title",
+      "bbox": [
+        70,
+        64,
+        760,
+        64
+      ],
+      "text": "One sampled transition",
+      "textPreview": "One sampled transition",
+      "resolvedFontSize": 41,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "vertical": 1,
+        "fontSize": 41,
+        "typeface": "Calibri",
+        "color": "#17202A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "One sampled transition"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "One sampled transition",
+          "resolvedTextStyle": {
+            "fontSize": 41,
+            "color": "#17202A",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "One sampled transition",
+              "fontSize": 41,
+              "color": "#17202A",
+              "bold": true
+            }
+          ],
+          "bulletCharacter": "",
+          "lineSpacingPercent": 90000,
+          "spaceBefore": 0
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/xs72x4na",
+      "id": "8",
+      "bbox": [
+        70,
+        126,
+        920,
+        42
+      ],
+      "geometry": "rect",
+      "text": "A learning step wraps a continuous-time simulation interval.",
+      "textPreview": "A learning step wraps a continuous-time simulation interval.",
+      "resolvedFontSize": 25,
+      "resolvedTextStyle": {
+        "fontSize": 25,
+        "typeface": "Calibri",
+        "color": "#007D98",
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A learning step wraps a continuous-time simulation interval."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A learning step wraps a continuous-time simulation interval.",
+          "resolvedTextStyle": {
+            "fontSize": 25,
+            "color": "#007D98"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A learning step wraps a continuous-time simulation interval.",
+              "fontSize": 25,
+              "color": "#007D98"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/87ed8bat",
+      "id": "9",
+      "bbox": [
+        74,
+        188,
+        390,
+        330
+      ],
+      "geometry": "rect",
+      "text": "- observe x(t_k-)\n- choose action\n- apply jump if any\n- flow to t_{k+1}\n- return reward and next state",
+      "textPreview": "- observe x(t_k-) | - choose action | - apply jump if any | - flow to t_{k+1} | - return reward and next state",
+      "resolvedFontSize": 28,
+      "resolvedTextStyle": {
+        "fontSize": 28,
+        "typeface": "Calibri",
+        "color": "#17202A",
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 6,
+        "lines": [
+          {
+            "index": 1,
+            "text": "- observe x(t_k-)"
+          },
+          {
+            "index": 2,
+            "text": "- choose action"
+          },
+          {
+            "index": 3,
+            "text": "- apply jump if any"
+          },
+          {
+            "index": 4,
+            "text": "- flow to t_{k+1}"
+          },
+          {
+            "index": 5,
+            "text": "- return reward and next"
+          },
+          {
+            "index": 6,
+            "text": "state"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "- observe x(t_k-)",
+          "resolvedTextStyle": {
+            "fontSize": 28,
+            "color": "#17202A"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "- observe x(t_k-)",
+              "fontSize": 28,
+              "color": "#17202A"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "- choose action",
+          "resolvedTextStyle": {
+            "fontSize": 28,
+            "color": "#17202A"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "- choose action",
+              "fontSize": 28,
+              "color": "#17202A"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 3,
+          "text": "- apply jump if any",
+          "resolvedTextStyle": {
+            "fontSize": 28,
+            "color": "#17202A"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "- apply jump if any",
+              "fontSize": 28,
+              "color": "#17202A"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 4,
+          "text": "- flow to t_{k+1}",
+          "resolvedTextStyle": {
+            "fontSize": 28,
+            "color": "#17202A"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "- flow to t_{k+1}",
+              "fontSize": 28,
+              "color": "#17202A"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 5,
+          "text": "- return reward and next state",
+          "resolvedTextStyle": {
+            "fontSize": 28,
+            "color": "#17202A"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "- return reward and next state",
+              "fontSize": 28,
+              "color": "#17202A"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ed8v6psf",
+      "id": "10",
+      "bbox": [
+        505,
+        244,
+        119.6,
+        130
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#007D98",
+      "lineWidth": 0
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/7y1kre1w",
+      "id": "11",
+      "bbox": [
+        517,
+        270,
+        95.6,
+        94
+      ],
+      "geometry": "rect",
+      "text": "observe x(t_k-)",
+      "textPreview": "observe x(t_k-)",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#FFFFFF",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "obser"
+          },
+          {
+            "index": 2,
+            "text": "ve"
+          },
+          {
+            "index": 3,
+            "text": "x(t_k-)"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "observe x(t_k-)",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#FFFFFF",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "observe x(t_k-)",
+              "fontSize": 24,
+              "color": "#FFFFFF",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/wjudg7ad",
+      "id": "12",
+      "bbox": [
+        627.6,
+        296,
+        16,
+        22
+      ],
+      "geometry": "rect",
+      "text": ">",
+      "textPreview": ">",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#FFD923",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": ">"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": ">",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#FFD923",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": ">",
+              "fontSize": 24,
+              "color": "#FFD923",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 13,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/p4r65wju",
+      "id": "13",
+      "bbox": [
+        642.6,
+        244,
+        119.6,
+        130
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#58BCAF",
+      "lineWidth": 0
+    },
+    {
+      "order": 14,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/i5sneloj",
+      "id": "14",
+      "bbox": [
+        654.6,
+        270,
+        95.6,
+        94
+      ],
+      "geometry": "rect",
+      "text": "choose action",
+      "textPreview": "choose action",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#FFFFFF",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "choos"
+          },
+          {
+            "index": 2,
+            "text": "e"
+          },
+          {
+            "index": 3,
+            "text": "action"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "choose action",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#FFFFFF",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "choose action",
+              "fontSize": 24,
+              "color": "#FFFFFF",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 15,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/7qpg3ex0",
+      "id": "15",
+      "bbox": [
+        765.2,
+        296,
+        16,
+        22
+      ],
+      "geometry": "rect",
+      "text": ">",
+      "textPreview": ">",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#FFD923",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": ">"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": ">",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#FFD923",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": ">",
+              "fontSize": 24,
+              "color": "#FFD923",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 16,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/0bi9s36h",
+      "id": "16",
+      "bbox": [
+        780.2,
+        244,
+        119.6,
+        130
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#007D98",
+      "lineWidth": 0
+    },
+    {
+      "order": 17,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/pwb2hwfy",
+      "id": "17",
+      "bbox": [
+        792.2,
+        270,
+        95.6,
+        94
+      ],
+      "geometry": "rect",
+      "text": "apply jump if any",
+      "textPreview": "apply jump if any",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#FFFFFF",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "apply"
+          },
+          {
+            "index": 2,
+            "text": "jump"
+          },
+          {
+            "index": 3,
+            "text": "if any"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "apply jump if any",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#FFFFFF",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "apply jump if any",
+              "fontSize": 24,
+              "color": "#FFFFFF",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 18,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/itgfmlkj",
+      "id": "18",
+      "bbox": [
+        902.8,
+        296,
+        16,
+        22
+      ],
+      "geometry": "rect",
+      "text": ">",
+      "textPreview": ">",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#FFD923",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": ">"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": ">",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#FFD923",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": ">",
+              "fontSize": 24,
+              "color": "#FFD923",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 19,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/7ed8bat4",
+      "id": "19",
+      "bbox": [
+        917.8,
+        244,
+        119.6,
+        130
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#58BCAF",
+      "lineWidth": 0
+    },
+    {
+      "order": 20,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/jqh0fepk",
+      "id": "20",
+      "bbox": [
+        929.8,
+        270,
+        95.6,
+        94
+      ],
+      "geometry": "rect",
+      "text": "flow to t_{k+1}",
+      "textPreview": "flow to t_{k+1}",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#FFFFFF",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 4,
+        "lines": [
+          {
+            "index": 1,
+            "text": "flow"
+          },
+          {
+            "index": 2,
+            "text": "to"
+          },
+          {
+            "index": 3,
+            "text": "t_{k+1"
+          },
+          {
+            "index": 4,
+            "text": "}"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "flow to t_{k+1}",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#FFFFFF",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "flow to t_{k+1}",
+              "fontSize": 24,
+              "color": "#FFFFFF",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 21,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/q5o7qpg3",
+      "id": "21",
+      "bbox": [
+        1040.4,
+        296,
+        16,
+        22
+      ],
+      "geometry": "rect",
+      "text": ">",
+      "textPreview": ">",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#FFD923",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": ">"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": ">",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#FFD923",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": ">",
+              "fontSize": 24,
+              "color": "#FFD923",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 22,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/1w7mp0bi",
+      "id": "22",
+      "bbox": [
+        1055.4,
+        244,
+        119.6,
+        130
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#007D98",
+      "lineWidth": 0
+    },
+    {
+      "order": 23,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/8bat47y1",
+      "id": "23",
+      "bbox": [
+        1067.4,
+        270,
+        95.6,
+        94
+      ],
+      "geometry": "rect",
+      "text": "return reward and next state",
+      "textPreview": "return reward and next state",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#FFFFFF",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 5,
+        "lines": [
+          {
+            "index": 1,
+            "text": "return"
+          },
+          {
+            "index": 2,
+            "text": "rewar"
+          },
+          {
+            "index": 3,
+            "text": "d and"
+          },
+          {
+            "index": 4,
+            "text": "next"
+          },
+          {
+            "index": 5,
+            "text": "state"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "return reward and next state",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#FFFFFF",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "return reward and next state",
+              "fontSize": 24,
+              "color": "#FFFFFF",
+              "bold": true
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 24,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/j2t83itg",
+      "id": "24",
+      "bbox": [
+        70,
+        548,
+        1060,
+        48
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#F5FAFB",
+      "lineColor": "#58BCAF",
+      "lineWidth": 1
+    },
+    {
+      "order": 25,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/qh0fepkz",
+      "id": "25",
+      "bbox": [
+        92,
+        560,
+        1015,
+        24
+      ],
+      "geometry": "rect",
+      "text": "A learning step wraps a continuous-time simulation interval.",
+      "textPreview": "A learning step wraps a continuous-time simulation interval.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "#17202A",
+        "alignment": "left",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A learning step wraps a continuous-time simulation interval."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A learning step wraps a continuous-time simulation interval.",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#17202A"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A learning step wraps a continuous-time simulation interval.",
+              "fontSize": 24,
+              "color": "#17202A"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}

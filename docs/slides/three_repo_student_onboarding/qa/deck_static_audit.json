@@ -1,0 +1,18 @@
+{
+  "slide_count": 61,
+  "core_slide_count": 55,
+  "appendix_slide_count": 6,
+  "duplicate_ids": [],
+  "missing_titles": [],
+  "dense_body_slides": [],
+  "code_line_limit_issues": [],
+  "generated_outputs": [
+    "three_repo_student_onboarding_deakin.pptx",
+    "three_repo_student_onboarding_deakin.pdf",
+    "deck_content.json",
+    "speaker_notes.md",
+    "asset_manifest.csv",
+    "rendered/contact_sheet.png",
+    "rendered/slides/slide-XX.png"
+  ]
+}

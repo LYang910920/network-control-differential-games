@@ -29,6 +29,7 @@ The public GitHub repository names are kept stable for links and installation co
 | [`START_HERE.md`](START_HERE.md) | Five-minute orientation |
 | [`docs/network_control_foundations.pdf`](docs/network_control_foundations.pdf) | Tutorial note and mathematical setup |
 | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | How code maps to the math |
+| [`docs/slides/three_repo_student_onboarding/`](docs/slides/three_repo_student_onboarding/) | Deakin-style student onboarding deck for the full three-repository tutorial family |
 | [`docs/PARAMETERS.md`](docs/PARAMETERS.md) | Main model parameters, solver settings, baseline counts, and shared term definitions |
 | [`docs/NOTATION_TO_CODE.md`](docs/NOTATION_TO_CODE.md) | Mathematical notation mapped to Python variables |
 | [`docs/from_model_to_paper.md`](docs/from_model_to_paper.md) | Workflow from model formulation to paper experiments |
@@ -153,6 +154,7 @@ The foundation runner writes a generated `README.md`, `parameter_summary.csv`, `
 ├── docs/
 │   ├── network_control_foundations.pdf
 │   ├── code_walkthrough_and_model_adaptation_guide.pdf
+│   ├── slides/three_repo_student_onboarding/
 │   ├── NOTATION_TO_CODE.md
 │   └── from_model_to_paper.md
 └── examples/
