@@ -35,7 +35,7 @@
 % -----------------------------------------------------------------------------
 % Colors and hyperref
 % -----------------------------------------------------------------------------
-\definecolor{DeakinBlue}{HTML}{1F4E79}
+\definecolor{TutorialBlue}{HTML}{1F4E79}
 \definecolor{SoftBlue}{HTML}{EAF3F8}
 \definecolor{SoftGreen}{HTML}{ECF8F1}
 \definecolor{SoftYellow}{HTML}{FFF7E6}
@@ -48,9 +48,9 @@
 
 \hypersetup{
   colorlinks=true,
-  linkcolor=DeakinBlue,
-  citecolor=DeakinBlue,
-  urlcolor=DeakinBlue,
+  linkcolor=TutorialBlue,
+  citecolor=TutorialBlue,
+  urlcolor=TutorialBlue,
   pdftitle={Optimal Control, Differential Games, Hybrid Control, and Games on Networks},
   pdfauthor={Lu-Xing Yang},
   pdfsubject={Self-contained tutorial note},
@@ -60,9 +60,9 @@
 % -----------------------------------------------------------------------------
 % Heading and page styles
 % -----------------------------------------------------------------------------
-\titleformat{\section}{\Large\bfseries\sffamily\color{DeakinBlue}}{\thesection}{0.7em}{}
-\titleformat{\subsection}{\large\bfseries\sffamily\color{DeakinBlue}}{\thesubsection}{0.7em}{}
-\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{DeakinBlue}}{\thesubsubsection}{0.7em}{}
+\titleformat{\section}{\Large\bfseries\sffamily\color{TutorialBlue}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\sffamily\color{TutorialBlue}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{TutorialBlue}}{\thesubsubsection}{0.7em}{}
 \titlespacing*{\section}{0pt}{1.0em}{0.45em}
 \titlespacing*{\subsection}{0pt}{0.8em}{0.35em}
 \titlespacing*{\subsubsection}{0pt}{0.6em}{0.25em}
@@ -93,7 +93,7 @@
   left=6pt,right=6pt,top=5pt,bottom=5pt,
   before skip=0.55em,after skip=0.75em
 }
-\newtcolorbox{definitionbox}[1]{colback=SoftBlue,colframe=DeakinBlue,title=\textbf{#1}}
+\newtcolorbox{definitionbox}[1]{colback=SoftBlue,colframe=TutorialBlue,title=\textbf{#1}}
 \newtcolorbox{examplebox}[1]{colback=SoftGreen,colframe=green!45!black,title=\textbf{#1}}
 \newtcolorbox{cautionbox}[1]{colback=SoftYellow,colframe=orange!80!black,title=\textbf{#1}}
 \newtcolorbox{sourcebox}[1]{colback=SoftRed,colframe=red!60!black,title=\textbf{#1}}
@@ -142,7 +142,7 @@
 \begin{titlepage}
 \centering
 \vspace*{1.5cm}
-{\sffamily\bfseries\Huge\color{DeakinBlue} Optimal Control, Differential Games, Hybrid Control, and Games on Networks\par}
+{\sffamily\bfseries\Huge\color{TutorialBlue} Optimal Control, Differential Games, Hybrid Control, and Games on Networks\par}
 \vspace{0.5cm}
 {\sffamily\Large A Self-Contained English Tutorial Note with Degree-Level and Node-Level Examples\par}
 \vspace{0.8cm}
@@ -154,7 +154,7 @@
 \vspace{0.35cm}
 {\large Companion Python files: \texttt{simple\_degree\_k\_control.py} and \texttt{network\_control\_examples.py}\par}
 \vfill
-\begin{tcolorbox}[width=0.86\textwidth,colback=SoftBlue,colframe=DeakinBlue]
+\begin{tcolorbox}[width=0.86\textwidth,colback=SoftBlue,colframe=TutorialBlue]
 \textbf{Purpose.} This note starts from controlled dynamical systems and develops optimal control, differential games, and hybrid/impulsive control in one coherent framework. It is written for propagation, defense, and intervention problems on networks. The mathematical sections introduce the state equation, payoff, Hamiltonian, PMP, HJB/HJI viewpoint, Nash equilibrium conditions, impulse jumps, and hybrid strategies. The computational sections give a simple degree-$k$ example first and then a compact companion script for degree-level games, node-level adjacency-matrix models, and hybrid/impulsive simulations. The degree-level workflow always computes $N_k$, $P(k)$, and $\langle k\rangle$ from the input network before solving models indexed by degree class $k$.
 \end{tcolorbox}
 \vfill
