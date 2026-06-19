@@ -1,6 +1,6 @@
 # Guide to the reference repositories
 
-This guide explains how the reference research-code repositories connect to the tutorial note and the two companion Python scripts. The three repositories correspond to the author's co-authored cyber/network-control publications: two IEEE TIFS papers and one IEEE TCSS paper. The goal is to help the reader move from the small tutorial examples to paper-level code without losing the mathematical structure.
+This guide explains how the reference research-code repositories connect to the tutorial note and the two tutorial Python scripts. The three repositories correspond to the author's co-authored cyber/network-control publications: two IEEE TIFS papers and one IEEE TCSS paper. The goal is to help the reader move from the small tutorial examples to paper-level code without losing the mathematical structure.
 
 ## Common computational pattern
 
@@ -14,7 +14,7 @@ All three repositories follow the same broad workflow:
 6. Evaluate the payoff or cost functional.
 7. Compare the computed strategy against random, constant, no-control, or ablation baselines.
 
-The companion scripts in this package use the same workflow with shorter equations and clearer variable names.
+The tutorial scripts in this package use the same workflow with shorter equations and clearer variable names.
 
 ## Classification map
 
@@ -108,4 +108,4 @@ How to read it with the tutorial note:
 2. Read `code/network_control_examples.py` section by section.
 3. Refresh the upstream reference repositories, if needed, with `download_reference_repositories.sh` from this directory.
 4. Compare each reference repository with the workflow above.
-5. Replace the simplified dynamics in the companion scripts with paper-specific dynamics only after the graph preprocessing and PMP structure are clear.
+5. Replace the simplified dynamics in the tutorial scripts with paper-specific dynamics only after the graph preprocessing and PMP structure are clear.

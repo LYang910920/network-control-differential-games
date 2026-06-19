@@ -152,10 +152,10 @@
 \vspace{0.35cm}
 {\large Informed by publications in IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals\par}
 \vspace{0.35cm}
-{\large Companion Python files: \texttt{simple\_degree\_k\_control.py} and \texttt{network\_control\_examples.py}\par}
+{\large Tutorial Python files: \texttt{simple\_degree\_k\_control.py} and \texttt{network\_control\_examples.py}\par}
 \vfill
 \begin{tcolorbox}[width=0.86\textwidth,colback=SoftBlue,colframe=TutorialBlue]
-\textbf{Purpose.} This note starts from controlled dynamical systems and develops optimal control, differential games, and hybrid/impulsive control in one coherent framework. It is written for propagation, defense, and intervention problems on networks. The mathematical sections introduce the state equation, payoff, Hamiltonian, PMP, HJB/HJI viewpoint, Nash equilibrium conditions, impulse jumps, and hybrid strategies. The computational sections give a simple degree-$k$ example first and then a compact companion script for degree-level games, node-level adjacency-matrix models, and hybrid/impulsive simulations. The degree-level workflow always computes $N_k$, $P(k)$, and $\langle k\rangle$ from the input network before solving models indexed by degree class $k$.
+\textbf{Purpose.} This note starts from controlled dynamical systems and develops optimal control, differential games, and hybrid/impulsive control in one coherent framework. It is written for propagation, defense, and intervention problems on networks. The mathematical sections introduce the state equation, payoff, Hamiltonian, PMP, HJB/HJI viewpoint, Nash equilibrium conditions, impulse jumps, and hybrid strategies. The computational sections give a simple degree-$k$ example first and then a main tutorial script for degree-level games, node-level adjacency-matrix models, and hybrid/impulsive simulations. The degree-level workflow always computes $N_k$, $P(k)$, and $\langle k\rangle$ from the input network before solving models indexed by degree class $k$.
 \end{tcolorbox}
 \vfill
 {\large \today\par}
@@ -274,7 +274,7 @@ where $P(k)$ is the degree distribution and $\langle k\rangle=\bar{k}$ is the av
 \end{equation}
 The implementation therefore stores one state and one control trajectory per observed degree value. For example, if the input network has degree classes $\mathcal{K}=\{2,3,4,7\}$, then the model state is $(x_2,x_3,x_4,x_7)$, not $(S,I,R)$.
 
-In the companion code, \texttt{compute\_degree\_distribution} returns the observed degree values, counts $N_k$, probabilities $P(k)$, and average degree $\langle k\rangle$. For directed networks, one must also decide what ``degree'' means. The code exposes a \texttt{degree\_mode} option: row degree counts incoming influencers under the convention $\dot{x}=f(Ax)$, column degree counts outgoing influence, total degree adds both, and undirected degree ignores orientation.
+In the tutorial code, \texttt{compute\_degree\_distribution} returns the observed degree values, counts $N_k$, probabilities $P(k)$, and average degree $\langle k\rangle$. For directed networks, one must also decide what ``degree'' means. The code exposes a \texttt{degree\_mode} option: row degree counts incoming influencers under the convention $\dot{x}=f(Ax)$, column degree counts outgoing influence, total degree adds both, and undirected degree ignores orientation.
 
 Degree-level models are compact and interpretable. They are useful when the network is large or only statistical network information is available. Their limitation is that they lose fine node-level structure: which node is connected to which node, which node is high value, and where attacks or defenses should be targeted.
 
@@ -307,7 +307,7 @@ To use such a dataset in this tutorial, the code first parses the full input net
 \end{enumerate}
 \end{examplebox}
 
-The companion code implements this workflow in the single-file functions \texttt{load\_network}, \texttt{graph\_to\_model\_matrix}, and \texttt{degree\_distribution\_from\_graph}. The convention used by the dynamics is
+The tutorial code implements this workflow in the single-file functions \texttt{load\_network}, \texttt{graph\_to\_model\_matrix}, and \texttt{degree\_distribution\_from\_graph}. The convention used by the dynamics is
 \begin{equation}
   \text{infection pressure on node } i=(Ax)_i=\sum_{j=1}^n a_{ij}x_j.
 \end{equation}
@@ -341,7 +341,7 @@ node_result = solve_node_control(A)
 \end{lstlisting}
 
 \begin{cautionbox}{Scaling warning}
-A real network can contain thousands or millions of nodes. The node-level PMP examples in this note intentionally use dense matrices so that the mathematics is transparent. For large datasets, use a subgraph, degree-level aggregation, sparse linear algebra, direct simulation with heuristic controls, graph neural networks, or reinforcement learning. The full HJB equation is even more expensive because its value function lives on the whole state space.
+A real network can contain thousands or millions of nodes. The node-level PMP examples in this note intentionally use dense matrices so that the mathematics is transparent. For large datasets, use a subgraph, degree-level aggregation, sparse linear algebra, direct simulation with heuristic controls, or other approximate methods. The full HJB equation is even more expensive because its value function lives on the whole state space.
 \end{cautionbox}
 
 
@@ -551,9 +551,9 @@ A hybrid differential game appears when at least one player uses continuous cont
 \toprule
 \textbf{Action type} & \textbf{Effect on state} & \textbf{Decision variables} & \textbf{Typical method} \\
 \midrule
-Continuous & Changes $\dot{x}$ over time & $u(t)$ & PMP + forward-backward sweep; direct collocation; RL \\
+Continuous & Changes $\dot{x}$ over time & $u(t)$ & PMP + forward-backward sweep; direct collocation; approximate dynamic programming \\
 Impulse & Instantaneous jump $x(t^+)\neq x(t^-)$ & $N$, $t_l$, $v_l$ & Impulse PMP; direct search; dynamic programming for small problems \\
-Hybrid & Both derivative changes and jumps & $u(t)$, $N$, $t_l$, $v_l$ & Nested optimization; heuristics; mixed-integer/control methods; hybrid RL \\
+Hybrid & Both derivative changes and jumps & $u(t)$, $N$, $t_l$, $v_l$ & Nested optimization; heuristics; mixed-integer/control methods \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -613,7 +613,7 @@ When the admissible set is a box, for example $u_j(t)\in[0,u_{j,\max}]$, an unco
 \begin{equation}
   u_j^*(t)=\Proj_{[0,u_{j,\max}]}\left(\widehat{u}_j(t)\right),
 \end{equation}
-where $\widehat{u}_j$ is obtained from $H_{u_j}=0$ before applying bounds. This is exactly the form used in the network examples and the companion Python code.
+where $\widehat{u}_j$ is obtained from $H_{u_j}=0$ before applying bounds. This is exactly the form used in the network examples and the tutorial Python code.
 
 \subsection{Sufficiency for Continuous Optimal Control}
 
@@ -864,7 +864,7 @@ A practical objective is
   \min\ \int_0^T\left[q\sum_i x_i(t)+\frac{1}{2}r\sum_i u_i(t)^2\right]\dd t
   +\sum_l\left(c_0+\frac{1}{2}c_z\|z_l\|^2\right).
 \end{equation}
-This model captures routine defense plus occasional high-cost intervention. The companion code uses a transparent simulation with fixed impulse times applied to high-degree nodes. This is not a full impulse PMP solver; it illustrates how continuous ODE segments and jump maps are combined in a hybrid-control computation.
+This model captures routine defense plus occasional high-cost intervention. The tutorial code uses a transparent simulation with fixed impulse times applied to high-degree nodes. This is not a full impulse PMP solver; it illustrates how continuous ODE segments and jump maps are combined in a hybrid-control computation.
 
 % -----------------------------------------------------------------------------
 \section{Numerical Solution Methods and Practical Cautions}
@@ -900,7 +900,7 @@ Instead of deriving adjoint equations, one can discretize the state and control 
 
 \subsection{Why HJB is Difficult in Network Models}
 
-Feedback optimal control and feedback differential games are theoretically attractive because the strategy can adapt to the observed state. The value function $V(x,t)$, however, is defined over the whole state space. For node-level network models with $n$ nodes, $x$ is $n$-dimensional. A grid-based HJB method suffers from the curse of dimensionality: even 20 nodes can be too large for classical gridding. This motivates approximate dynamic programming, reinforcement learning, neural operators, PINNs, and other learning-based methods.
+Feedback optimal control and feedback differential games are theoretically attractive because the strategy can adapt to the observed state. The value function $V(x,t)$, however, is defined over the whole state space. For node-level network models with $n$ nodes, $x$ is $n$-dimensional. A grid-based HJB method suffers from the curse of dimensionality: even 20 nodes can be too large for classical gridding. This motivates approximate dynamic programming, reduced-order modeling, and other scalable approximation methods.
 
 \subsection{Model Checking and Baseline Comparison}
 
@@ -916,28 +916,28 @@ Feedback optimal control and feedback differential games are theoretically attra
 
 % -----------------------------------------------------------------------------
 
-\section{Python Companion Code: Simple First, Then Research-Code-Style Examples}
+\section{Python Tutorial Code: Simple First, Then Research-Code-Style Examples}
 % -----------------------------------------------------------------------------
 
-The companion code is organized for teaching and reproducibility.  It avoids a large package structure, but still separates the learning path into two files:
+The tutorial code is organized for teaching and reproducibility.  It avoids a large package structure, but still separates the learning path into two files:
 \[
-\text{minimal degree-}k\text{ example} \quad \Longrightarrow \quad \text{compact research-code-style companion script}.
+\text{minimal degree-}k\text{ example} \quad \Longrightarrow \quad \text{compact research-code-style tutorial script}.
 \]
 The first file is short enough to read in one sitting.  The second file keeps all examples in one place, so the reader can see how graph loading, degree distribution, ODE integration, PMP updates, game updates, impulse simulation, plotting, and command-line options fit together.
 
-\subsection{Companion Files}
+\subsection{Tutorial Files}
 
 In this public repository, the commands in this section assume that you first move into \path{examples/foundations/}. From the repository root, you can also run all tutorial examples with \path{python run_all.py --skip-reference}.
 
 \begin{table}[h!]
 \centering
-\caption{Code and guide files in the companion package.}
+\caption{Code and guide files in the tutorial package.}
 \begin{tabularx}{\textwidth}{L{4.8cm}Y}
 \toprule
 \textbf{File} & \textbf{Purpose} \\
 \midrule
 \path{code/simple_degree_k_control.py} & Minimal degree-$k$ optimal-control script. It loads a graph, computes $N_k$, $P(k)$, and $\langle k\rangle$, solves one degree-$k$ PMP problem, and saves diagnostic figures. \\
-\path{code/network_control_examples.py} & Compact companion script containing degree-$k$ optimal control, degree-$k$ attacker-defender game, node-level optimal control, node-level game, hybrid/impulse simulation, graph loading, adjacency conversion, and plotting. \\
+\path{code/network_control_examples.py} & Main tutorial script containing degree-$k$ optimal control, degree-$k$ attacker-defender game, node-level optimal control, node-level game, hybrid/impulse simulation, graph loading, adjacency conversion, and plotting. \\
 \path{reference_repository_guide.md} & Explains how the three reference research-code repositories map to the mathematical workflow in this note: graph preprocessing, state dynamics, adjoints, Hamiltonian updates, impulse policies, payoffs, and baselines. \\
 \path{../reference/download_reference_repositories.sh} & Optional helper script that downloads the three reference GitHub repositories into \path{../reference/reference_repositories_upstream/}. \\
 \bottomrule
@@ -980,11 +980,11 @@ candidate_U = L * X / (control_weight * p_safe)
 U = damping * clip(candidate_U, 0.0, u_max) + (1.0 - damping) * U_old
 \end{lstlisting}
 
-\subsection{Run the Companion Examples}
+\subsection{Run the Main Examples}
 
-The companion script extends the same workflow to games, node-level models, and hybrid/impulse simulations.  The command-line interface makes it possible to run all examples or only one group.
+The main tutorial script extends the same workflow to games, node-level models, and hybrid/impulse simulations.  The command-line interface makes it possible to run all examples or only one group.
 
-\begin{lstlisting}[language=bash,caption={Run the companion examples.},numbers=none]
+\begin{lstlisting}[language=bash,caption={Run the main tutorial examples.},numbers=none]
 python code/network_control_examples.py
 python code/network_control_examples.py --examples degree
 python code/network_control_examples.py --examples node
@@ -1010,18 +1010,18 @@ python code/network_control_examples.py --adjacency-csv data/A.csv
 
 \subsection{How the Reference Repositories Fit In}
 
-The three reference repositories correspond to the author's co-authored cyber/network-control publications: two papers in IEEE TIFS and one paper in IEEE TCSS. They follow a common research-code pattern: network preprocessing, forward dynamics, backward adjoints, control or strategy update, payoff evaluation, and comparison/baseline experiments. The companion code uses the same pattern with smaller equations and shorter functions.
+The three reference repositories correspond to the author's co-authored cyber/network-control publications: two papers in IEEE TIFS and one paper in IEEE TCSS. They follow a common research-code pattern: network preprocessing, forward dynamics, backward adjoints, control or strategy update, payoff evaluation, and comparison/baseline experiments. The tutorial code uses the same pattern with smaller equations and shorter functions.
 
 \begin{table}[h!]
 \centering
-\caption{Mapping from the reference repositories to the companion examples.}
+\caption{Mapping from the reference repositories to the tutorial examples.}
 \begin{tabularx}{\textwidth}{L{4.0cm}L{5.4cm}Y}
 \toprule
 \textbf{Repository} & \textbf{Representative files/functions} & \textbf{Interpretation in this note} \\
 \midrule
-OpinionMalware (IEEE TIFS 2025) & Repository \path{OpinionMalware_TIFS_2025_Code}; \path{network.py}, \path{opinionMalware.py}; network construction, normalization, coupled forward malware/opinion dynamics, backward adjoints, impulse strategy search, payoff. & Node-level coupled dynamics with impulses. The hybrid simulation in the companion code is a minimal bridge before reading the full malware-opinion model. \\
+OpinionMalware (IEEE TIFS 2025) & Repository \path{OpinionMalware_TIFS_2025_Code}; \path{network.py}, \path{opinionMalware.py}; network construction, normalization, coupled forward malware/opinion dynamics, backward adjoints, impulse strategy search, payoff. & Node-level coupled dynamics with impulses. The hybrid simulation in the tutorial code is a minimal bridge before reading the full malware-opinion model. \\
 PropagandaWar (IEEE TIFS 2024) & Repository \path{PropagandaWar_TIFS_2024_Code}; \path{demo_network.py}, \path{propWar.py}, \path{comparison.py}; graph loading, degree distribution, forward/backward Nash sweep, hybrid strategy update, random-strategy comparison. & Closest to the degree-$k$ differential-game example. The same blocks appear: $P(k)$ preprocessing, state equations, adjoints, bounded strategy updates, and payoff comparison. \\
-Propaganda (IEEE TCSS 2025) & Repository \path{Propaganda_TCSS_2025_Code}; \path{prop_network.py}, \path{prop_propaganda.py}, \path{prop_cntrlComparison.py}, \path{prop_noAwareness.py}; network loading, impulse policy search, profit/payoff, random and no-awareness baselines. & Impulse-control workflow and ablation studies. The companion function \path{simulate_hybrid_impulse} gives the basic state-jump structure before the full paper-specific implementation. \\
+Propaganda (IEEE TCSS 2025) & Repository \path{Propaganda_TCSS_2025_Code}; \path{prop_network.py}, \path{prop_propaganda.py}, \path{prop_cntrlComparison.py}, \path{prop_noAwareness.py}; network loading, impulse policy search, profit/payoff, random and no-awareness baselines. & Impulse-control workflow and ablation studies. The tutorial function \path{simulate_hybrid_impulse} gives the basic state-jump structure before the full paper-specific implementation. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1036,7 +1036,7 @@ The file \path{reference_repository_guide.md} gives a reading map from the refer
 
 \subsection{Representative Outputs}
 
-The figures below are generated by the two companion scripts.  The precise curves depend on the network data, model parameters, normalization convention, and chosen degree definition.
+The figures below are generated by the two tutorial scripts.  The precise curves depend on the network data, model parameters, normalization convention, and chosen degree definition.
 
 \begin{figure}[p]
 \centering
@@ -1110,20 +1110,20 @@ This English tutorial note was consolidated from two uploaded source tutorial no
 
 
 \appendix
-\section{Companion Code Files}
+\section{Tutorial Code Files}
 \label{app:code}
 
 The package contains the following runnable code and guide files:
 
 \begin{itemize}
   \item \path{code/simple_degree_k_control.py}: minimal degree-$k$ optimal-control example.
-  \item \path{code/network_control_examples.py}: compact companion script for degree-level games, node-level models, and hybrid/impulse simulation.
+  \item \path{code/network_control_examples.py}: main tutorial script for degree-level games, node-level models, and hybrid/impulse simulation.
   \item \path{README.md}: installation, commands, and usage notes.
   \item \path{reference_repository_guide.md}: mapping between the reference GitHub repositories and the mathematical workflow in this tutorial note.
   \item \path{../reference/download_reference_repositories.sh}: optional script to download the reference repositories.
 \end{itemize}
 
-\begin{lstlisting}[language=bash,caption={Core commands for the companion code.},numbers=none]
+\begin{lstlisting}[language=bash,caption={Core commands for the tutorial code.},numbers=none]
 pip install -r requirements.txt
 
 python code/simple_degree_k_control.py
@@ -1138,6 +1138,6 @@ python code/network_control_examples.py --adjacency-csv sample_data/sample_adjac
 bash ../reference/download_reference_repositories.sh
 \end{lstlisting}
 
-This two-file code structure keeps the tutorial readable: the first script shows the degree-$k$ PMP logic, and the companion script shows how the same logic extends to games, node-level adjacency models, and hybrid/impulsive interventions.
+This two-file code structure keeps the tutorial readable: the first script shows the degree-$k$ PMP logic, and the main tutorial script shows how the same logic extends to games, node-level adjacency models, and hybrid/impulsive interventions.
 
 \end{document}

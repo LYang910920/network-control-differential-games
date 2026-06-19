@@ -23,8 +23,8 @@ Keep `docs/NOTATION_TO_CODE.md` open while translating equations into Python.
 | --- | --- |
 | Optimal control | No control, constant controls, random controls, PMP/FBSM candidate, sensitivity to initial state. |
 | Differential game | Fixed attacker vs varied defenders, fixed defender vs varied attackers, random unilateral deviations, Nash-gap proxy. |
-| RL/DRL/MADRL | Rule policy, random policy, no-defense policy, fixed-action policies, multiple random seeds. |
-| PINN/PIDL | Interpolation, wrong-parameter physics, known-physics-only, held-out trajectory, noisy-data run. |
+| Sampled-data policy method | Rule policy, random policy, no-defense policy, fixed-action policies, multiple random seeds. |
+| Data-assisted model check | Interpolation, wrong-parameter dynamics, known-mechanism-only run, held-out trajectory, noisy-data run. |
 | Impulse/hybrid | No impulse, fixed impulse schedule, randomized impulse times, continuous-only version, impulse-only version. |
 
 Use "PMP/FBS candidate" unless unilateral-deviation or Nash-gap evidence
@@ -38,25 +38,19 @@ Define `f(x,u)`, running/terminal cost, Hamiltonian, state equations, costate
 equations, stationarity/KKT condition, relaxation rule, and convergence metric.
 Plot control update versus iteration and state/control curves versus time.
 
-### RL, DRL, And MADRL
+### Sampled-Data Policy Methods
 
 Define observation, action, reward, transition order, horizon, and
 termination/truncation. Separate ODE solver substeps from sampled decision
 epochs. Compare against rule-based, fixed, and random policies before presenting
 learned policies.
 
-### PINN/PIDL
+### Data-Assisted Model Checks
 
 Split losses into data, ODE residual, boundary/initial condition,
-conservation/positivity, and regularization terms. For PIDL, keep known
-mechanisms explicit and learn only the missing correction. Report parameter
-error, state error, residual error, and sensitivity to collocation/data density.
-
-### PMP-Informed PINN
-
-Train state, costate, and control networks against Hamiltonian residuals. Be
-explicit about interior stationarity versus projected/KKT handling at active
-control bounds.
+conservation/positivity, and regularization terms. Keep known mechanisms
+explicit when adding learned correction terms. Report parameter error, state
+error, residual error, and sensitivity to data density.
 
 ### Hybrid And Impulse Games
 
@@ -78,7 +72,7 @@ other side varied.
 1. Motivation and threat/control scenario.
 2. Related work and gap.
 3. Model formulation and assumptions.
-4. Method: PMP, game conditions, RL/MADRL formulation, PINN/PIDL loss, or hybrid/impulse formulation.
+4. Method: PMP conditions, game conditions, sampled-data policy formulation, data-assisted residual, or hybrid/impulse formulation.
 5. Algorithm and implementation details.
 6. Experimental setup, parameters, datasets, and baselines.
 7. Results: convergence, state/control behavior, baseline comparison, ablation, sensitivity, and limitations.

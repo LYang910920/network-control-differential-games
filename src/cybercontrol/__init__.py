@@ -1,4 +1,4 @@
-"""Shared utilities for the cyber-control guide repository family.
+"""Shared utilities for the cyber-control tutorial repository.
 
 The package keeps reusable mechanics in one place while each repository keeps
 its own tutorial scripts and narrative.  Public modules stay small:
@@ -6,7 +6,7 @@ its own tutorial scripts and narrative.  Public modules stay small:
 - :mod:`cybercontrol.numerics` for projections and ODE integration.
 - :mod:`cybercontrol.models` for malware/hybrid dynamics and jump maps.
 - :mod:`cybercontrol.network_models` for node-level SIPS/SIPRS graph models.
-- :mod:`cybercontrol.torch_utils` for PINN/PIDL neural-network helpers.
+- :mod:`cybercontrol.torch_utils` for optional PyTorch helper blocks.
 - :mod:`cybercontrol.io` for reproducible outputs.
 - :mod:`cybercontrol.plotting` for lightweight figure helpers.
 - :mod:`cybercontrol.diagnostics` for training-diagnostic terms and captions.

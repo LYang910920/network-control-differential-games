@@ -1,6 +1,6 @@
 # Network Control and Differential Games: Foundations and Worked Examples
 
-Foundation tutorial materials, runnable examples, and reference-code smoke tests for network optimal control, differential games, and hybrid or impulsive interventions. This is the first repository in a three-part tutorial family: it establishes the mathematical notation, shared Python package, basic experiments, and reference-code smoke tests used by the two companion notes.
+Foundation tutorial materials, runnable examples, and reference-code smoke tests for network optimal control, differential games, and hybrid or impulsive interventions. The repository is designed to stand on its own: it introduces the notation, models, code structure, figures, and paper-level reference checks needed before moving to more specialized research prototypes.
 
 This repository is public, but it does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See [Repository License Notice](LICENSE), [Copyright and License Notes](COPYRIGHT_AND_LICENSE.md), and [Third-party Notices](THIRD_PARTY_NOTICES.md).
 
@@ -11,16 +11,6 @@ This tutorial was created from my research experience in optimal control, differ
 The repository is meant to be a tutorial bridge: start from the mathematical conditions, run small examples, and then inspect how similar ideas appear in paper-level research code.
 
 If this is your first visit, start with [`START_HERE.md`](START_HERE.md).
-
-## Repository Family
-
-The public GitHub repository names are kept stable for links and installation commands. For course pages, slides, or citations, the recommended display names are:
-
-| Order | Repository | Role |
-| ---: | --- | --- |
-| 0 | `network-control-differential-games` | **Foundation.** Mathematical setup, shared `cybercontrol` package, continuous/impulse/hybrid examples, degree-level versus node-level FBS scalability, and paper-level reference smoke runs. |
-| 1 | [`note1-cyber-control-games`](https://github.com/LYang910920/note1-cyber-control-games) | **Companion Note 1.** Builds on the foundation package for PMP/FBSM baselines, sampled-data MDPs, DDQN, compact CTDE, node-SIPRS MAPPO, and cyber differential-game learning. |
-| 2 | [`note2-pinn-pidl-cyber-control`](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | **Companion Note 2.** Builds on the same foundation package for inverse PINNs, PIDL, neural control, and PMP-informed residual learning. |
 
 ## Start Here
 
@@ -47,11 +37,11 @@ Most users only need the root runner. The deeper files are listed here so the co
 | Full repo check | [`run_all.py`](run_all.py) | Runs foundation examples and reference smoke tests from the repository root. |
 | Foundation runner | [`examples/foundations/code/run_foundation_examples.py`](examples/foundations/code/run_foundation_examples.py) | Rebuilds foundation figures, CSV files, and generated result notes. |
 | Minimal control example | [`examples/foundations/code/simple_degree_k_control.py`](examples/foundations/code/simple_degree_k_control.py) | Small degree-k continuous optimal-control example. |
-| Companion models | [`examples/foundations/code/network_control_examples.py`](examples/foundations/code/network_control_examples.py) | Degree-level, node-level, game, and hybrid/impulse examples. |
+| Main example suite | [`examples/foundations/code/network_control_examples.py`](examples/foundations/code/network_control_examples.py) | Degree-level, node-level, game, and hybrid/impulse examples. |
 | Scalability timing | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) | Paired degree-level versus sparse node-level FBS on the same SIS epidemic-control problem and the same synthetic SF graph seeds. |
 | Reference smoke runner | [`examples/reference/run_reference_smoke.py`](examples/reference/run_reference_smoke.py) | Paper-level smoke tests for the three reference repositories. |
 | Shared node models | [`src/cybercontrol/network_models.py`](src/cybercontrol/network_models.py) | Canonical node-level SIPS/SIPRS equations, graph pressure, NumPy/Torch RHS parity, and stochastic transition helper. |
-| Shared diagnostics | [`src/cybercontrol/diagnostics.py`](src/cybercontrol/diagnostics.py) | Common training-diagnostic glossary rows, rolling means, and figure-caption helpers used by the companion notes. |
+| Shared diagnostics | [`src/cybercontrol/diagnostics.py`](src/cybercontrol/diagnostics.py) | Common diagnostic glossary rows, rolling means, and figure-caption helpers. |
 
 Before changing a model, read [`docs/PARAMETERS.md`](docs/PARAMETERS.md). For paper-specific adaptations, read [`docs/EXTENDING.md`](docs/EXTENDING.md) after the first smoke run. It points to the code hooks for continuous control, impulse control, hybrid control, degree-level models, node-level models, and reference-repository smoke runs.
 
@@ -107,7 +97,7 @@ Only representative previews are shown here. The detailed per-model figures, CSV
 
 **Tutorial examples: continuous, game, node-level, and hybrid models**
 
-![Tutorial companion examples](examples/foundations/results/companion_contact_sheet.png)
+![Tutorial example contact sheet](examples/foundations/results/companion_contact_sheet.png)
 
 This contact sheet is a compact visual index for the tutorial examples: degree-level control/game, node-level control/game, convergence diagnostics, and one hybrid control example. Time-axis plots show state/control evolution; iteration-axis plots show FBS convergence.
 
@@ -195,13 +185,6 @@ Each snapshot keeps its upstream `README` and `LICENSE`. Full paper datasets are
 
 Go deeper in [examples/reference/README.md](examples/reference/README.md) and [examples/reference/MODEL_TAXONOMY.md](examples/reference/MODEL_TAXONOMY.md).
 
-## Related Tutorial Repositories
-
-| Repository | Use it for |
-| --- | --- |
-| [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | Continue from the foundation examples to game learning, PMP/FBSM baselines, ODE-RL, DDQN, compact CTDE, and node-SIPRS MAPPO cyber-control examples. |
-| [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | Continue from the same foundation package to PINN/PIDL, inverse learning, neural control, and PMP-informed neural cyber-control examples. |
-
 ## Model Adaptation Checklist
 
 When adapting the examples to a new model, work in this order:
@@ -220,18 +203,11 @@ For differential games, the computed controls are open-loop Nash candidates sati
 
 ## Shared Package
 
-This repository is also the shared implementation source for the related tutorial repositories. The reusable package is `cybercontrol` under `src/`.
+The reusable package is `cybercontrol` under `src/`. It keeps the common numerics, model equations, plotting helpers, and output utilities in one place so examples stay easier to read.
 
 ```bash
 python -m pip install -e .
 python -m pytest
-python scripts/check_latex_style_sync.py
-```
-
-Note 1 and Note 2 can use the local package from a sibling workspace with:
-
-```bash
-python -m pip install -e ../network-control-differential-games
 ```
 
 For graph-scale extensions, import SIPS/SIPRS dynamics from `cybercontrol.network_models`.  States are shaped `[nodes, compartments]`; `A[i,j]` means node `j` influences node `i`; patching moves `S -> P`; cleaning and natural recovery move `I -> R`; waning moves `P/R -> S`.

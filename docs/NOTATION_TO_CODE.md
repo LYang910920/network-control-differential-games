@@ -14,7 +14,7 @@ editing a model, cost, payoff, or figure label.
 | `u(t)` | `u`, `control` | Continuous control sampled on the time grid. |
 | `lambda(t)` | `lam`, `costate` | PMP costate trajectory. |
 | `f(x,u)` | `state_rhs`, `rhs`, `f_state` | ODE right-hand side. |
-| `H` | `hamiltonian`, `H` | Hamiltonian for PMP or PMP-informed PINN residuals. |
+| `H` | `hamiltonian`, `H` | Hamiltonian for PMP optimal-control or differential-game conditions. |
 | `J` | `objective`, `cost`, `payoff` | Objective/cost/payoff value. |
 
 ## Malware/SIR Variables
@@ -57,7 +57,7 @@ editing a model, cost, payoff, or figure label.
 | `cybercontrol.numerics` | RK4 integration, simplex projection, trapezoidal integration. |
 | `cybercontrol.models` | Malware SIR RHS, hybrid flow, isolation jump maps, Torch RHS helpers. |
 | `cybercontrol.network_models` | Node-level SIPS/SIPRS graph pressure, NumPy/Torch RHS functions, stochastic SIPRS transition helper. |
-| `cybercontrol.torch_utils` | MLP, simplex state networks, bounded control networks, positive transforms, autograd time derivatives. |
+| `cybercontrol.torch_utils` | Optional PyTorch helpers: MLPs, simplex state networks, bounded control networks, positive transforms, and autograd time derivatives. |
 | `cybercontrol.io` | CSV/JSON writing and reproducible seeding. |
 | `cybercontrol.plotting` | Shared plotting boxes/arrows and lightweight axis cleanup. |
 

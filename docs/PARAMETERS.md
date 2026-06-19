@@ -11,22 +11,22 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | Run reference-only smoke tests | `python run_all.py --skip-foundations` |
 | Find exact values after a run | open `parameter_summary.csv` in each output folder |
 
-## Terms Used Across The Repository Family
+## Terms Used In This Repository
 
 | Term | Meaning |
 |---|---|
 | `trajectory` | A time-indexed state/control/strategy path produced by solving or simulating one model. |
 | `baseline` | A comparison method for the same model, such as no control, constant control, random smooth control, no impulse, or unilateral strategy variation. |
 | `random baseline count` | Number of random policies or strategies sampled for a baseline panel. These are sanity checks, not exhaustive optimality certificates. |
-| `nominal parameter` | A parameter value assumed when designing a controller or baseline. Companion notes use this term when comparing a design-time model with a different deployed simulator. |
+| `nominal parameter` | A parameter value assumed when designing a controller or baseline; use it when comparing a design-time model with a changed simulation or stress-test setting. |
 | `stress test` | A deliberately harder or larger run used to check behavior under scaling, parameter mismatch, or changed network size. It is separate from a formal theorem. |
-| `rollout` | A forward simulation under a fixed control, strategy, or policy. Foundation examples usually call the resulting path a trajectory; Note 1 and Note 2 use rollout for learned-policy validation. |
+| `rollout` | A forward simulation under a fixed control, strategy, or policy. In the foundation examples, the resulting path is usually called a trajectory. |
 | `PMP` | Pontryagin's maximum principle: necessary conditions for a continuous-time optimal-control or differential-game candidate. |
 | `FBSM` | Forward-backward sweep method: numerically alternate state integration, costate integration, and control/strategy update until the update change is small. |
 | `degree-level` | One state per observed degree class. Use it when degree distribution is the main network summary. |
 | `node-level` | One state per graph node. Use it when adjacency, local interventions, or node-specific outputs matter. |
 | `paper-level extension` | A research-ready adaptation with explicit model equations, parameters, baselines, multiple seeds or sensitivity checks, figure captions, and license/data notes. |
-| `training diagnostic` | A plotted/logged check of solver or learning behavior, such as FBSM control-update change, RL return, PINN residual loss, or baseline rollout metrics. Shared helper definitions live in `cybercontrol.diagnostics`. |
+| `diagnostic` | A plotted/logged check of numerical behavior, such as FBSM control-update change, state conservation, runtime scaling, or baseline comparison. Shared helper definitions live in `cybercontrol.diagnostics`. |
 
 ## Tutorial Model Parameters
 
@@ -46,7 +46,7 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | Simple FBS damping | `0.35` | `examples/foundations/code/model_profiles.py` |
 | Simple FBS tolerance | `1e-4` | `examples/foundations/code/model_profiles.py` |
 | Simple FBS max iterations | `50` | `examples/foundations/code/model_profiles.py` |
-| Companion runner time grid | `45` by default | `python run_all.py --foundation-steps N` |
+| Foundation runner time grid | `45` by default | `python run_all.py --foundation-steps N` |
 | Random baseline count | `75` per model/panel | `examples/common_diagnostics.py` |
 | Random baseline seed | `20260617` | `examples/common_diagnostics.py` |
 | Paired degree/node scalability node sizes | `100, 1000, 10000, 100000, 1000000` | `--scalability-sizes` |
@@ -61,7 +61,7 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 
 ## Neural Hyperparameters
 
-This repository does not train neural networks. It focuses on optimal control, differential games, impulse/hybrid control, FBS convergence, and reference-code smoke runs. Neural training hyperparameters are made explicit in the companion Note 1 and Note 2 repositories.
+This repository does not train neural networks. It focuses on optimal control, differential games, impulse/hybrid control, FBS convergence, scalability checks, and reference-code smoke runs. If you add a neural experiment later, record the network width/depth, optimizer, learning rate, batch or collocation size, random seed, and stopping rule next to that experiment.
 
 ## Reading State Labels
 

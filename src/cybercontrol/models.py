@@ -82,7 +82,7 @@ def controlled_sir_rhs_torch(x, u_patch, beta, gamma, u_clean=0.0, omega=0.0):
 
     ``u_patch`` moves ``S -> R`` and ``u_clean`` moves ``I -> R``.  ``omega``
     returns recovered/protected mass to susceptibility.  The default
-    ``u_clean=0`` and ``omega=0`` preserve the older patch-only PINN examples,
+    ``u_clean=0`` and ``omega=0`` preserve older patch-only examples,
     but the mathematical semantics now match the NumPy function.
 
     Imports are intentionally local so the shared package remains usable without
@@ -113,7 +113,7 @@ def sir_patch_only_rhs_torch(x, u_patch, beta, gamma):
 
 
 def sir_rhs_torch(x, beta, gamma):
-    """Torch SIR RHS without control for inverse-PINN/PIDL data generation."""
+    """Torch SIR RHS without control for synthetic trajectory generation."""
 
     import torch
 

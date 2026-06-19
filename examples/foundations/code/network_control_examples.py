@@ -4,7 +4,7 @@
 """
 Single-file extension examples for network optimal control and differential games.
 
-This compact companion script can be read after the simple degree-k example.
+This main tutorial script can be read after the simple degree-k example.
 It keeps the research-code-style examples in ONE Python file rather than many
 modules: graph loading, degree distribution, ODE helpers, degree-k models,
 node-level models, hybrid/impulse simulation, plotting, and CLI options.

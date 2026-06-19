@@ -15,7 +15,7 @@ def project_box(values: Array, lower: float | Array = 0.0, upper: float | Array 
     """Project a scalar or array onto box constraints.
 
     This is the canonical helper for bounded states, controls, and strategies
-    in the repository family.  It uses NumPy broadcasting, so ``lower`` and
+    in the tutorial examples.  It uses NumPy broadcasting, so ``lower`` and
     ``upper`` may be scalars or arrays matching ``values``.
     """
 
@@ -109,8 +109,8 @@ def rk4_integrate(
 ) -> Tuple[Array, Array]:
     """Integrate an ODE over one decision interval by RK4 substeps.
 
-    The substeps are numerical solver points.  In sampled-data RL/MARL examples
-    they are not policy-decision epochs.
+    The substeps are numerical solver points.  In sampled-data examples they
+    are not policy-decision epochs.
     """
 
     if substeps <= 0:

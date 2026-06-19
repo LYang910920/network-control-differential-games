@@ -71,7 +71,7 @@ def main() -> None:
         dest="foundation_steps",
         type=int,
         default=45,
-        help="Time grid size for foundation companion examples.",
+        help="Time grid size for the main foundation examples.",
     )
     parser.add_argument("--tutorial-steps", dest="foundation_steps", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--skip-scalability", action="store_true", help="Skip the foundation scalability experiment.")

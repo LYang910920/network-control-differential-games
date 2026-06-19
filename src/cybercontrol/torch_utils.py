@@ -1,4 +1,4 @@
-"""PyTorch helpers for RL, PINN, PIDL, and PMP-informed PINN examples."""
+"""Optional PyTorch helper blocks for neural-control experiments."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ def configure_torch(seed: int | None = None, device: str | None = None, dtype: s
 
 
 class MLP(require_torch()[1].Module):
-    """Small fully connected network used across RL/PINN examples."""
+    """Small fully connected network used across neural examples."""
 
     def __init__(
         self,
@@ -139,7 +139,7 @@ def time_derivative(y, t):
 
 
 def rk4_step_torch(x, dt, rhs, project_simplex: bool = True):
-    """Torch RK4 step for synthetic PINN/PIDL trajectories."""
+    """Torch RK4 step for synthetic neural-training trajectories."""
 
     k1 = rhs(x)
     k2 = rhs(x + 0.5 * dt * k1)

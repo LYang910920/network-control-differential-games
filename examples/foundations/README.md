@@ -76,7 +76,7 @@ python code/simple_degree_k_control.py \
   --output-dir results/simple_sample_adjacency_new
 ```
 
-## Run compact companion examples
+## Run main foundation examples
 
 All compact examples:
 
@@ -137,7 +137,7 @@ The detailed subdirectories are grouped by purpose:
 | Folder pattern | Purpose |
 | --- | --- |
 | `simple_*` | Minimal degree-k continuous optimal-control smoke runs. |
-| `companion_*` | Degree-level, node-level, game, and hybrid examples on the same input graph. |
+| `companion_*` | Main foundation outputs for degree-level, node-level, game, and hybrid examples on the same input graph. |
 | `scalability_degree_node_sf` | Paired degree-level versus sparse node-level FBS runtime on the same epidemic-control problem and graph seeds. |
 
 Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.

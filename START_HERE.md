@@ -6,22 +6,21 @@ This page is the compact map for the tutorial. You can ignore most files at firs
 
 ```text
 foundation repository
-  -> notation, models, and shared cybercontrol package
+  -> notation, models, and reusable cybercontrol package
   -> degree-level and node-level network models
   -> continuous control, differential games, impulse control, hybrid control
   -> runnable foundation examples
   -> paper-level reference smoke runs
-  -> Note 1: PMP/FBSM, DDQN, compact CTDE, node-SIPRS MAPPO
-  -> Note 2: PINN/PIDL, inverse learning, neural control, PMP-informed residuals
 ```
 
-## Three-Repository Order
+## Foundation Scope
 
-| Step | Repository | What to do there |
+| Step | Topic | What to do here |
 |---:|---|---|
-| 0 | `network-control-differential-games` | Learn the notation, run the foundation examples, inspect degree-level/node-level scalability, and install the shared `cybercontrol` package. |
-| 1 | `note1-cyber-control-games` | Use the foundation package for cyber optimal control, sampled-data RL, and attacker-defender game learning. |
-| 2 | `note2-pinn-pidl-cyber-control` | Use the same foundation package for sparse-data PINN/PIDL, neural control, and PMP-informed residual training. |
+| 1 | Mathematical setup | Learn the state variables, controls, costs, Hamiltonian terms, and FBSM loop. |
+| 2 | Foundation examples | Run continuous control, differential game, impulse, and hybrid-control examples. |
+| 3 | Scale comparison | Compare degree-level and node-level FBS on the same synthetic scale-free networks. |
+| 4 | Reference smoke runs | Inspect small reproducibility checks for paper-level cyber-control repositories. |
 
 ## Five-Minute Path
 
@@ -50,7 +49,7 @@ foundation repository
 ## Code Reading Order
 
 1. `examples/foundations/code/simple_degree_k_control.py`: minimal degree-k continuous optimal control.
-2. `src/cybercontrol/`: shared numerics, dynamics, neural-network helpers, plotting helpers, and IO.
+2. `src/cybercontrol/`: reusable numerics, dynamics, optional PyTorch helpers, plotting helpers, and IO.
 3. `examples/foundations/code/model_profiles.py`: smoke-run parameters such as horizon, rates, bounds, and impulse times.
 4. `examples/foundations/code/network_control_examples.py`: degree-level, node-level, game, and hybrid examples.
 5. `examples/foundations/code/scalability_analysis.py`: paired degree-level versus sparse node-level FBS timing on the same normalized SIS epidemic-control model and the same synthetic SF graph seeds from 100 to 1000000 nodes.

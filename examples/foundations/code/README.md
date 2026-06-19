@@ -21,10 +21,10 @@ The examples use small, visible smoke-run settings. Each output folder also writ
 | Example | Time horizon | Propagation / recovery | Control or game bounds | What the state labels mean |
 | --- | ---: | --- | --- | --- |
 | Simple degree-k control | `T=14`, `220` grid steps by default | `beta=0.65`, `delta=0.18` | Continuous healing control `0 <= u_k(t) <= 1.2` | Degree-weighted mean plus selected degree classes `k`. |
-| Companion degree control | `T=14`, runner default `45` grid steps | `beta=0.65`, `delta=0.18` | Continuous healing control `0 <= u_k(t) <= 1.2` | Degree-weighted mean plus selected degree classes `k`. |
-| Companion degree game | `T=14`, runner default `45` grid steps | `beta=0.60`, `delta=0.15` | Continuous attack/defense in `[0, 1.2]` | Degree-weighted infection mean and high-degree class. |
-| Companion node control | `T=12`, at least `24` grid steps | `beta=0.90`, `delta=0.16` | Continuous node control `0 <= u_i(t) <= 1.2` | Mean and max over the reduced node set. |
-| Companion node game | `T=12`, at least `24` grid steps | `beta=0.95`, `delta=0.15` | Continuous attack/defense in `[0, 1.2]` | Mean over the reduced node set. |
+| Main degree control | `T=14`, runner default `45` grid steps | `beta=0.65`, `delta=0.18` | Continuous healing control `0 <= u_k(t) <= 1.2` | Degree-weighted mean plus selected degree classes `k`. |
+| Main degree game | `T=14`, runner default `45` grid steps | `beta=0.60`, `delta=0.15` | Continuous attack/defense in `[0, 1.2]` | Degree-weighted infection mean and high-degree class. |
+| Main node control | `T=12`, at least `24` grid steps | `beta=0.90`, `delta=0.16` | Continuous node control `0 <= u_i(t) <= 1.2` | Mean and max over the reduced node set. |
+| Main node game | `T=12`, at least `24` grid steps | `beta=0.95`, `delta=0.15` | Continuous attack/defense in `[0, 1.2]` | Mean over the reduced node set. |
 | Hybrid simulation | `T=12` | `beta=0.95`, `delta=0.15` | Continuous control range `0.10-0.52`; impulses at `t=3,6,9` reduce selected high-degree node states by `55%` | Mean and max over all reduced nodes; impulse times are vertical markers. |
 | Paired degree/node scalability analysis | default sizes `100,1000,10000,100000,1000000` | Same normalized SIS model: `T=8`, `beta=1.20`, `delta=0.35` | Fixed-grid RK4 FBS, sparse node adjacency, `60` intervals, tolerance `1e-4`, default `80` max iterations | Degree-level state dimension is degree classes; node-level state dimension is graph nodes; max degree is logged. |
 | Sparse node scalability analysis | default sizes `1000,2000,...,10000` when enabled | `beta=0.55`, `delta=0.20`, `T=8` | Fixed-grid RK4 FBS, tolerance `1e-4`, default `50` max iterations | State, costate, and control are node-indexed; report solver type with runtime. |

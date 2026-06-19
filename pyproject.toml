@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cybercontrol"
 version = "0.1.0"
-description = "Shared teaching utilities for network optimal control, differential games, RL, and PINN/PIDL cyber-control examples."
+description = "Teaching utilities for network optimal control, differential games, hybrid control, and cyber-control examples."
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
