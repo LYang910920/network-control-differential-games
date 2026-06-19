@@ -5,12 +5,23 @@ This page is the compact map for the tutorial. You can ignore most files at firs
 ## Big Picture
 
 ```text
-tutorial note
+foundation repository
+  -> notation, models, and shared cybercontrol package
   -> degree-level and node-level network models
   -> continuous control, differential games, impulse control, hybrid control
   -> runnable foundation examples
   -> paper-level reference smoke runs
+  -> Note 1: PMP/FBSM, DDQN, CTDE/MADRL, cyber game learning
+  -> Note 2: PINN/PIDL, inverse learning, neural control, PMP-informed residuals
 ```
+
+## Three-Repository Order
+
+| Step | Repository | What to do there |
+|---:|---|---|
+| 0 | `network-control-differential-games` | Learn the notation, run the foundation examples, inspect degree-level/node-level scalability, and install the shared `cybercontrol` package. |
+| 1 | `note1-cyber-control-games` | Use the foundation package for cyber optimal control, sampled-data RL, and attacker-defender game learning. |
+| 2 | `note2-pinn-pidl-cyber-control` | Use the same foundation package for sparse-data PINN/PIDL, neural control, and PMP-informed residual training. |
 
 ## Five-Minute Path
 

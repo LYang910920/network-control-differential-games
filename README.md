@@ -1,6 +1,6 @@
-# Network Optimal Control and Differential Games Tutorial
+# Network Control and Differential Games: Foundations and Worked Examples
 
-Tutorial materials, runnable examples, and reference-code smoke tests for network optimal control, differential games, and hybrid or impulsive interventions.
+Foundation tutorial materials, runnable examples, and reference-code smoke tests for network optimal control, differential games, and hybrid or impulsive interventions. This is the first repository in a three-part tutorial family: it establishes the mathematical notation, shared Python package, basic experiments, and reference-code smoke tests used by the two companion notes.
 
 This repository is public, but it does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See [Repository License Notice](LICENSE), [Copyright and License Notes](COPYRIGHT_AND_LICENSE.md), and [Third-party Notices](THIRD_PARTY_NOTICES.md).
 
@@ -11,6 +11,16 @@ This tutorial was created from my research experience in optimal control, differ
 The repository is meant to be a tutorial bridge: start from the mathematical conditions, run small examples, and then inspect how similar ideas appear in paper-level research code.
 
 If this is your first visit, start with [`START_HERE.md`](START_HERE.md).
+
+## Repository Family
+
+The public GitHub repository names are kept stable for links and installation commands. For course pages, slides, or citations, the recommended display names are:
+
+| Order | Repository | Role |
+| ---: | --- | --- |
+| 0 | `network-control-differential-games` | **Foundation.** Mathematical setup, shared `cybercontrol` package, continuous/impulse/hybrid examples, degree-level versus node-level FBS scalability, and paper-level reference smoke runs. |
+| 1 | [`note1-cyber-control-games`](https://github.com/LYang910920/note1-cyber-control-games) | **Companion Note 1.** Builds on the foundation package for PMP/FBSM baselines, sampled-data MDPs, DDQN, CTDE/MADRL, and cyber differential-game learning. |
+| 2 | [`note2-pinn-pidl-cyber-control`](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | **Companion Note 2.** Builds on the same foundation package for inverse PINNs, PIDL, neural control, and PMP-informed residual learning. |
 
 ## Start Here
 
@@ -187,8 +197,8 @@ Go deeper in [examples/reference/README.md](examples/reference/README.md) and [e
 
 | Repository | Use it for |
 | --- | --- |
-| [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | Game learning, PMP/FBSM baselines, ODE-RL, DDQN, and CTDE/MADRL cyber-control examples. |
-| [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | PINN/PIDL, inverse learning, neural control, and PMP-informed neural cyber-control examples. |
+| [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | Continue from the foundation examples to game learning, PMP/FBSM baselines, ODE-RL, DDQN, and CTDE/MADRL cyber-control examples. |
+| [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | Continue from the same foundation package to PINN/PIDL, inverse learning, neural control, and PMP-informed neural cyber-control examples. |
 
 ## Model Adaptation Checklist
 
