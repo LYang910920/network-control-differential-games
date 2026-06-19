@@ -29,7 +29,7 @@ The public GitHub repository names are kept stable for links and installation co
 | [`START_HERE.md`](START_HERE.md) | Five-minute orientation |
 | [`docs/network_control_foundations.pdf`](docs/network_control_foundations.pdf) | Tutorial note and mathematical setup |
 | [`docs/code_walkthrough_and_model_adaptation_guide.pdf`](docs/code_walkthrough_and_model_adaptation_guide.pdf) | How code maps to the math |
-| [`docs/PARAMETERS.md`](docs/PARAMETERS.md) | Main model parameters, solver settings, and baseline counts |
+| [`docs/PARAMETERS.md`](docs/PARAMETERS.md) | Main model parameters, solver settings, baseline counts, and shared term definitions |
 | [`docs/NOTATION_TO_CODE.md`](docs/NOTATION_TO_CODE.md) | Mathematical notation mapped to Python variables |
 | [`docs/from_model_to_paper.md`](docs/from_model_to_paper.md) | Workflow from model formulation to paper experiments |
 | [`examples/foundations/`](examples/foundations/) | Clean foundation examples |

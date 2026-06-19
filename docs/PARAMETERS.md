@@ -11,6 +11,17 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | Run reference-only smoke tests | `python run_all.py --skip-foundations` |
 | Find exact values after a run | open `parameter_summary.csv` in each output folder |
 
+## Terms Used Across The Repository Family
+
+| Term | Meaning |
+|---|---|
+| `trajectory` | A time-indexed state/control/strategy path produced by solving or simulating one model. |
+| `baseline` | A comparison method for the same model, such as no control, constant control, random smooth control, no impulse, or unilateral strategy variation. |
+| `random baseline count` | Number of random policies or strategies sampled for a baseline panel. These are sanity checks, not exhaustive optimality certificates. |
+| `nominal parameter` | A parameter value assumed when designing a controller or baseline. Companion notes use this term when comparing a design-time model with a different deployed simulator. |
+| `stress test` | A deliberately harder or larger run used to check behavior under scaling, parameter mismatch, or changed network size. It is separate from a formal theorem. |
+| `rollout` | A forward simulation under a fixed control, strategy, or policy. Foundation examples usually call the resulting path a trajectory; Note 1 and Note 2 use rollout for learned-policy validation. |
+
 ## Tutorial Model Parameters
 
 | Model | Control/game type | Horizon | Propagation/recovery | Bounds and costs |
