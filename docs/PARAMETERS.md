@@ -21,6 +21,11 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | `nominal parameter` | A parameter value assumed when designing a controller or baseline. Companion notes use this term when comparing a design-time model with a different deployed simulator. |
 | `stress test` | A deliberately harder or larger run used to check behavior under scaling, parameter mismatch, or changed network size. It is separate from a formal theorem. |
 | `rollout` | A forward simulation under a fixed control, strategy, or policy. Foundation examples usually call the resulting path a trajectory; Note 1 and Note 2 use rollout for learned-policy validation. |
+| `PMP` | Pontryagin's maximum principle: necessary conditions for a continuous-time optimal-control or differential-game candidate. |
+| `FBSM` | Forward-backward sweep method: numerically alternate state integration, costate integration, and control/strategy update until the update change is small. |
+| `degree-level` | One state per observed degree class. Use it when degree distribution is the main network summary. |
+| `node-level` | One state per graph node. Use it when adjacency, local interventions, or node-specific outputs matter. |
+| `paper-level extension` | A research-ready adaptation with explicit model equations, parameters, baselines, multiple seeds or sensitivity checks, figure captions, and license/data notes. |
 
 ## Tutorial Model Parameters
 

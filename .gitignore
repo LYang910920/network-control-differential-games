@@ -29,12 +29,12 @@ examples/**/.mplconfig/
 *.synctex.gz
 *.toc
 
-# Rerun output folders. Curated results are kept under results/reference_repos
-# and the named lecture result folders already committed in examples/lecture.
+# Rerun output folders. Curated tutorial/reference results stay committed;
+# local smoke-test reruns should stay out of version control.
 simple_outputs/
 example_outputs/
-examples/lecture/results/rerun_*/
-examples/lecture/results/test_*/
+examples/foundations/results/rerun_*/
+examples/foundations/results/test_*/
 examples/reference/results/test_*/
 examples/reference/results/reference_repos_rerun/
 
