@@ -65,5 +65,5 @@ Before treating a run as evidence rather than a tutorial smoke run:
 3. Report whether each state curve is a selected node, selected degree class, or average.
 4. For games, test unilateral deviations by fixing one player's computed strategy and varying the other player's strategy.
 5. Log FBS convergence and change parameters if the forward-backward sweep fails to converge.
-6. For node-level scale claims, run `python run_all.py --skip-reference --include-node-scalability` and report convergence, state dimension, solver type, and runtime. Do not compare adaptive degree-level seconds directly with sparse fixed-grid node-level seconds.
+6. For degree-level versus node-level scale claims, use the default paired run `python run_all.py --skip-reference` and report convergence, state dimension, solver type, and runtime from `scalability_degree_node_sf/`. The optional `--include-node-scalability` run is a separate sparse node-only stress test; use it to check larger node-indexed systems, not as the degree-vs-node comparison figure.
 7. Keep upstream licenses, paper citations, and dataset redistribution rights visible.

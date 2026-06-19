@@ -38,7 +38,7 @@ Most users only need the root runner. The deeper files are listed here so the co
 | Foundation runner | [`examples/foundations/code/run_foundation_examples.py`](examples/foundations/code/run_foundation_examples.py) | Rebuilds foundation figures, CSV files, and generated result notes. |
 | Minimal control example | [`examples/foundations/code/simple_degree_k_control.py`](examples/foundations/code/simple_degree_k_control.py) | Small degree-k continuous optimal-control example. |
 | Companion models | [`examples/foundations/code/network_control_examples.py`](examples/foundations/code/network_control_examples.py) | Degree-level, node-level, game, and hybrid/impulse examples. |
-| Scalability timing | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) | Degree-level scale-free graphs from 100 to 2000 nodes, plus optional sparse node-level FBS from 1000 to 10000 nodes. |
+| Scalability timing | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) | Paired degree-level versus dense node-level FBS on the same SIS epidemic-control problem, plus an optional sparse node-only stress test. |
 | Reference smoke runner | [`examples/reference/run_reference_smoke.py`](examples/reference/run_reference_smoke.py) | Paper-level smoke tests for the three reference repositories. |
 
 Before changing a model, read [`docs/PARAMETERS.md`](docs/PARAMETERS.md). For paper-specific adaptations, read [`docs/EXTENDING.md`](docs/EXTENDING.md) after the first smoke run. It points to the code hooks for continuous control, impulse control, hybrid control, degree-level models, node-level models, and reference-repository smoke runs.
@@ -99,25 +99,19 @@ Only representative previews are shown here. The detailed per-model figures, CSV
 
 This contact sheet is a compact visual index for the tutorial examples: degree-level control/game, node-level control/game, convergence diagnostics, and one hybrid control example. Time-axis plots show state/control evolution; iteration-axis plots show FBS convergence.
 
-**Scalability: degree-level FBS on synthetic scale-free networks from 100 to 2000 nodes**
+**Scalability: paired degree-level vs node-level FBS on the same epidemic model**
 
-![Degree-level FBS scalability](examples/foundations/results/scalability_degree_sf/degree_control_scalability_100_2000.png)
+![Paired degree/node FBS scalability](examples/foundations/results/scalability_degree_node_sf/degree_node_fbs_comparison_100_2000.png)
 
-This plot reports 60 runs: 20 synthetic scale-free network sizes from 100 to 2000 nodes, with three repeats per size. The left panel shows median/min-max FBS solve time; the right panel explains why degree-level runtime grows slowly by tracking degree-class state dimension and FBS iterations. The default degree run uses the adaptive ODE/FBS solver from the tutorial example.
+This plot compares degree-level and dense node-level FBS on the same normalized SIS epidemic-control problem, the same synthetic scale-free graphs, and the same fixed-grid RK4 sweep settings. The degree-level state is one entry per observed degree class; the node-level state is one entry per graph node. In the checked-in run at 2000 nodes, the degree-level median FBS time is about `0.286s`, while the node-level median is about `5.671s`; all runs converged.
 
-**Scalability: sparse node-level FBS from 1000 to 10000 nodes**
-
-![Sparse node-level FBS scalability](examples/foundations/results/scalability_node_sf/node_control_scalability_1000_10000.png)
-
-This heavier run keeps one state, costate, and control per node, uses a sparse adjacency matrix with fixed-grid RK4, and reports FBS convergence for 1000, 2000, ..., 10000 node-indexed states. In the checked-in run, every size converged within 18-19 FBS iterations; the 10000-node solve took about 0.65 seconds for the FBS step on this machine. Read this as a sparse node-level smoke/scaling check, not as a direct wall-clock comparison with the adaptive degree-level solver.
-
-To regenerate the node-level scale experiment, run:
+To regenerate the paired comparison, run:
 
 ```bash
-python run_all.py --skip-reference --include-node-scalability
+python run_all.py --skip-reference
 ```
 
-It is outside the default first run because it is a scale experiment, not a beginner smoke test.
+The optional `--include-node-scalability` flag still runs a separate sparse node-only stress test from 1000 to 10000 nodes. It is useful for sparse implementation checks, but it is not the degree-vs-node comparison figure.
 
 **Reference smoke runs: paper-level code checks for TIFS/TCSS repositories**
 
@@ -133,7 +127,7 @@ After a fresh run, new outputs are written to timestamped or rerun folders:
 | `python run_all.py --skip-foundations` | `examples/reference/results/reference_repos_rerun/` |
 | `python run_all.py` | both locations above |
 
-The foundation runner writes a generated `README.md`, `parameter_summary.csv`, `fbs_convergence.png`, model-specific baseline comparison figures, and a degree-level SF-network scalability plot. The reference runner writes `smoke_run_report.md`, `parameter_summary.csv`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a population-weighted degree-class mean, or a selected degree class.
+The foundation runner writes a generated `README.md`, `parameter_summary.csv`, `fbs_convergence.png`, model-specific baseline comparison figures, and the paired degree/node FBS scalability plot. The reference runner writes `smoke_run_report.md`, `parameter_summary.csv`, `reference_convergence.png`, and one baseline comparison figure per reference model. In these notes, iteration-axis plots inspect convergence of an algorithmic update loop, time-axis plots show state evolution or computed control/game strategies, and network-size plots show runtime scaling. Continuous controls are time-indexed curves sampled on the simulation grid, impulse controls act only at discrete event times and are drawn as vertical lines, and hybrid control combines both. State labels specify whether the curve is a node mean, a population-weighted degree-class mean, or a selected degree class.
 
 ## Core Layout
 
@@ -169,7 +163,7 @@ The foundation examples are self-contained and should be the first code you run.
 
 - `simple_degree_k_control.py`: a compact degree-k SIS optimal-control example.
 - `network_control_examples.py`: degree-level games, node-level control/game models, and a hybrid impulse simulation.
-- `scalability_analysis.py`: degree-level FBS runtime on synthetic scale-free networks from 100 to 2000 nodes, and optional sparse node-level FBS from 1000 to 10000 nodes.
+- `scalability_analysis.py`: paired degree-level and dense node-level FBS timing on the same SIS epidemic-control problem, plus an optional sparse node-only stress test from 1000 to 10000 nodes.
 - `sample_data/`: a small edge list and adjacency matrix.
 - `results/`: precomputed figures and degree-distribution CSV files.
 

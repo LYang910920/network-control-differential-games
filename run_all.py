@@ -32,6 +32,10 @@ def foundation_command(py: str, args: argparse.Namespace) -> list[str]:
         cmd.extend(["--scalability-sizes", args.scalability_sizes])
     if args.scalability_repeats is not None:
         cmd.extend(["--scalability-repeats", str(args.scalability_repeats)])
+    if args.scalability_steps is not None:
+        cmd.extend(["--scalability-steps", str(args.scalability_steps)])
+    if args.scalability_iterations is not None:
+        cmd.extend(["--scalability-iterations", str(args.scalability_iterations)])
     if args.include_node_scalability:
         cmd.append("--include-node-scalability")
     if args.node_scalability_sizes:
@@ -74,13 +78,25 @@ def main() -> None:
     parser.add_argument(
         "--scalability-sizes",
         default=None,
-        help="Optional comma-separated node counts for the foundation scalability experiment.",
+        help="Optional comma-separated node counts for the paired degree/node scalability experiment.",
     )
     parser.add_argument(
         "--scalability-repeats",
         type=int,
         default=None,
-        help="Optional repeat count per network size for the foundation scalability experiment.",
+        help="Optional repeat count per network size for the paired degree/node scalability experiment.",
+    )
+    parser.add_argument(
+        "--scalability-steps",
+        type=int,
+        default=None,
+        help="Optional time-grid size for the paired degree/node scalability experiment.",
+    )
+    parser.add_argument(
+        "--scalability-iterations",
+        type=int,
+        default=None,
+        help="Optional max FBS iterations for the paired degree/node scalability experiment.",
     )
     parser.add_argument(
         "--include-node-scalability",

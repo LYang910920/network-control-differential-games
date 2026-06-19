@@ -16,7 +16,7 @@ Use this track first. The scripts are small, self-contained, and written to show
 | --- | --- | --- |
 | `code/simple_degree_k_control.py` | Minimal degree-k SIS optimal-control example | First PMP/control run |
 | `code/network_control_examples.py` | Degree games, node-level models, hybrid impulse simulation | Compare model variants |
-| `code/scalability_analysis.py` | Synthetic scale-free runtime experiment | Check FBS runtime versus network size |
+| `code/scalability_analysis.py` | Paired degree/node runtime experiment | Compare degree-level and node-level FBS on the same SIS control problem |
 | `code/run_foundation_examples.py` | Runs all foundation examples and saves figures | Reproduce the included plots |
 
 Typical run from the repository root:
@@ -34,7 +34,7 @@ Fast foundation-only check without the scalability timing:
 python run_all.py --skip-reference --skip-scalability
 ```
 
-Short scalability timing while developing:
+Short paired degree/node scalability timing while developing:
 
 ```bash
 python run_all.py --skip-reference --scalability-sizes 100,200,300 --scalability-repeats 1
@@ -46,7 +46,7 @@ Heavier sparse node-level scalability run:
 python run_all.py --skip-reference --include-node-scalability
 ```
 
-The heavy run adds `scalability_node_sf/` with a node-indexed sparse FBS experiment from 1000 to 10000 synthetic scale-free nodes. Use it after the smaller degree-level run is working.
+The default scalability run writes `scalability_degree_node_sf/` and compares degree-level FBS with dense node-level FBS on the same normalized SIS epidemic-control model. The heavy run adds `scalability_node_sf/` with a separate node-indexed sparse FBS stress test from 1000 to 10000 synthetic scale-free nodes. Use the heavy run after the paired comparison is working; do not mix its wall-clock times with the paired dense comparison.
 
 Outputs:
 
@@ -97,4 +97,4 @@ The reference smoke runner also writes `parameter_summary.csv` with each paper-l
 | Forward dynamics | compact ODE/state functions | paper-specific propagation dynamics |
 | Backward adjoints | short PMP adjoint routines | longer model-specific adjoint systems |
 | Control update | bounded Hamiltonian update | continuous or impulse strategy search |
-| Validation | deterministic/random baseline plots plus degree-level and optional sparse node-level scalability timing | smoke tests, payoff summaries, and model-specific deterministic/random baseline checks |
+| Validation | deterministic/random baseline plots plus paired degree/node scalability and optional sparse node-only stress testing | smoke tests, payoff summaries, and model-specific deterministic/random baseline checks |

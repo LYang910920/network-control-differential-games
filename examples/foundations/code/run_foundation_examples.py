@@ -57,6 +57,8 @@ def parse_size_values(raw: str) -> list[int]:
 
 
 def scalability_plot_name(model_level: str, sizes: list[int]) -> str:
+    if model_level == "compare":
+        return f"degree_node_fbs_comparison_{min(sizes)}_{max(sizes)}.png"
     return f"{model_level}_control_scalability_{min(sizes)}_{max(sizes)}.png"
 
 
@@ -74,23 +76,22 @@ def write_results_readme(
     if include_scalability:
         scalability_axis = "- `network size`: the number of nodes in a synthetic scale-free network used for scalability timing.\n"
         scalability_guide_row = (
-            f"| `scalability_degree_sf/{scalability_plot}` | network size | Degree-level adaptive FBS runtime on "
-            "synthetic scale-free networks | Runtime trend from 100 to 2000 nodes, with repeat-to-repeat variation "
-            "and convergence diagnostics. |\n"
+            f"| `scalability_degree_node_sf/{scalability_plot}` | network size | Paired degree-level and dense node-level FBS runtime on "
+            "the same normalized SIS epidemic-control problem | Runtime and state-dimension comparison; node-level state is one entry per graph node. |\n"
         )
         scalability_index_row = (
-            f"| Scalability | `scalability_degree_sf/` | How does degree-level FBS runtime change from 100 to 2000 "
-            f"synthetic SF nodes? | `{scalability_plot}` |\n"
+            f"| Paired FBS scalability | `scalability_degree_node_sf/` | How much slower is node-level FBS than degree-level FBS on the same epidemic-control model? | `{scalability_plot}` |\n"
         )
     node_scalability_guide_row = ""
     node_scalability_index_row = ""
     if include_node_scalability:
         node_scalability_guide_row = (
             f"| `scalability_node_sf/{node_scalability_plot}` | network size | Sparse fixed-grid node-level FBS runtime on "
-            "synthetic scale-free networks | Runtime and convergence trend from 1000 to 10000 node-indexed states; compare only with the solver type in view. |\n"
+            "synthetic scale-free networks | Optional node-only stress test from 1000 to 10000 node-indexed states; "
+            "do not use it as the paired degree-vs-node comparison. |\n"
         )
         node_scalability_index_row = (
-            f"| Node-level scalability | `scalability_node_sf/` | How does sparse node-level FBS behave from 1000 "
+            f"| Sparse node-only stress test | `scalability_node_sf/` | How does sparse node-level FBS behave from 1000 "
             f"to 10000 nodes? | `{node_scalability_plot}` |\n"
         )
 
@@ -164,12 +165,12 @@ def main() -> None:
     parser.add_argument("--skip-scalability", action="store_true", help="Skip the synthetic SF scalability run.")
     parser.add_argument(
         "--scalability-sizes",
-        default=",".join(str(nodes) for nodes in range(100, 2001, 100)),
-        help="Comma-separated node counts for scalability analysis.",
+        default="100,250,500,1000,2000",
+        help="Comma-separated node counts for paired degree/node scalability analysis.",
     )
-    parser.add_argument("--scalability-repeats", type=int, default=3)
-    parser.add_argument("--scalability-steps", type=int, default=35)
-    parser.add_argument("--scalability-iterations", type=int, default=60)
+    parser.add_argument("--scalability-repeats", type=int, default=2)
+    parser.add_argument("--scalability-steps", type=int, default=80)
+    parser.add_argument("--scalability-iterations", type=int, default=80)
     parser.add_argument(
         "--include-node-scalability",
         action="store_true",
@@ -205,10 +206,10 @@ def main() -> None:
     companion_builtin = out / "companion_builtin_sf"
     companion_edges = out / "companion_sample_edges"
     companion_adjacency = out / "companion_sample_adjacency"
-    scalability_dir = out / "scalability_degree_sf"
+    scalability_dir = out / "scalability_degree_node_sf"
     node_scalability_dir = out / "scalability_node_sf"
     scalability_sizes = parse_size_values(args.scalability_sizes)
-    scalability_plot = scalability_plot_name("degree", scalability_sizes)
+    scalability_plot = scalability_plot_name("compare", scalability_sizes)
     node_scalability_sizes = parse_size_values(args.node_scalability_sizes)
     node_scalability_plot = scalability_plot_name("node", node_scalability_sizes)
 
@@ -256,7 +257,7 @@ def main() -> None:
             py,
             str(scalability),
             "--model-level",
-            "degree",
+            "compare",
             "--sizes",
             args.scalability_sizes,
             "--repeats",
@@ -372,8 +373,8 @@ def main() -> None:
     scalability_outputs = []
     if not args.skip_scalability:
         scalability_outputs = [
-            scalability_dir / "degree_control_scalability.csv",
-            scalability_dir / "degree_control_scalability_summary.csv",
+            scalability_dir / "paired_fbs_comparison.csv",
+            scalability_dir / "paired_fbs_comparison_summary.csv",
             scalability_dir / scalability_plot,
             scalability_dir / "scalability_summary.md",
         ]

@@ -11,7 +11,7 @@ diagnostics needed to trust the numerical result.
 | `simple_degree_k_control.py` | Minimal degree-k continuous optimal-control example | `simple_*/degree_control_trajectory.png` |
 | `network_control_examples.py` | Degree-level, node-level, differential-game, and hybrid/impulse examples | `companion_*/*_trajectory.png` |
 | `model_profiles.py` | Named smoke-run parameters shared by the foundation scripts | `parameter_summary.csv` |
-| `scalability_analysis.py` | Degree-level FBS timing on synthetic scale-free networks from 100 to 2000 nodes | `scalability_degree_sf/degree_control_scalability_100_2000.png` |
+| `scalability_analysis.py` | Paired degree-level versus dense node-level FBS timing on the same epidemic-control model | `scalability_degree_node_sf/degree_node_fbs_comparison_100_2000.png` |
 | `run_foundation_examples.py` | Rebuilds all foundation figures, CSV diagnostics, and generated indexes | `results/` |
 
 ## Parameter Quick Reference
@@ -26,7 +26,7 @@ The examples use small, visible smoke-run settings. Each output folder also writ
 | Companion node control | `T=12`, at least `24` grid steps | `beta=0.90`, `delta=0.16` | Continuous node control `0 <= u_i(t) <= 1.2` | Mean and max over the reduced node set. |
 | Companion node game | `T=12`, at least `24` grid steps | `beta=0.95`, `delta=0.15` | Continuous attack/defense in `[0, 1.2]` | Mean over the reduced node set. |
 | Hybrid simulation | `T=12` | `beta=0.95`, `delta=0.15` | Continuous control range `0.10-0.52`; impulses at `t=3,6,9` reduce selected high-degree node states by `55%` | Mean and max over all reduced nodes; impulse times are vertical markers. |
-| Degree scalability analysis | default sizes `100,200,...,2000` | Uses the degree-control profile above | Adaptive ODE/FBS, tolerance `1e-4`, default `60` max iterations | State dimension is number of observed degree classes, not node count. |
+| Paired degree/node scalability analysis | default sizes `100,250,500,1000,2000` | Same normalized SIS model: `T=8`, `beta=1.20`, `delta=0.35` | Fixed-grid RK4 FBS, tolerance `1e-4`, default `80` max iterations | Degree-level state dimension is degree classes; node-level state dimension is graph nodes. |
 | Sparse node scalability analysis | default sizes `1000,2000,...,10000` when enabled | `beta=0.55`, `delta=0.20`, `T=8` | Fixed-grid RK4 FBS, tolerance `1e-4`, default `50` max iterations | State, costate, and control are node-indexed; report solver type with runtime. |
 
 The root runner is usually easiest:

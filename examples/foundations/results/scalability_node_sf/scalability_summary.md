@@ -26,4 +26,4 @@ This run measures `node`-level forward-backward sweep (FBS) optimal control on s
 
 At 10000 nodes, the median FBS solve time was 0.651 seconds over 1 repeat(s). All runs at that size converged: True.
 
-Read runtime columns with the solver type. Degree-level runs use an adaptive ODE solve on the reduced degree-class system. Sparse node-level runs use fixed-grid RK4 and sparse matrix products on a node-indexed system. These are both useful smoke/scaling diagnostics, but their wall-clock times are not a direct solver-speed comparison.
+Read runtime columns with the solver type. The default paired comparison uses `--model-level compare` and runs degree-level and dense node-level FBS on the same SIS epidemic-control problem. Standalone `--model-level degree` and `--model-level node` runs are useful smoke/scaling diagnostics, but their wall-clock times are not the paired degree-vs-node comparison unless the solver, grid, graph seed, and model equations are matched explicitly.

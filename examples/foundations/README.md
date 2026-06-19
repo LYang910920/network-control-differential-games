@@ -102,18 +102,18 @@ Only hybrid impulse simulation:
 python code/network_control_examples.py --examples hybrid --output-dir results/hybrid_only
 ```
 
-## Run scalability analysis
+## Run paired degree/node scalability analysis
 
-Degree-level FBS timing on synthetic scale-free networks from 100 to 2000 nodes in steps of 100. The synthetic Barabasi-Albert graphs are generated with `python-igraph`; the rest of the model code uses NumPy/SciPy/Pandas/Matplotlib and NetworkX where those libraries make the code clearer.
+Paired FBS timing on synthetic scale-free networks. For each graph size, the script runs degree-level FBS and dense node-level FBS on the same normalized SIS epidemic-control model, using the same graph seed, RK4 time grid, and FBS tolerance.
 
 ```bash
-python code/scalability_analysis.py --output-dir results/scalability_degree_sf_new
+python code/scalability_analysis.py --output-dir results/scalability_degree_node_sf_new
 ```
 
-The default run uses sizes `100,200,...,2000` with three repeats per size. To change it:
+The default run uses sizes `100,250,500,1000,2000` with two repeats per size. To change it:
 
 ```bash
-python code/scalability_analysis.py --sizes 100,200,300,400,500 --repeats 3
+python code/scalability_analysis.py --sizes 100,250,500 --repeats 2
 ```
 
 ## Existing results
@@ -129,7 +129,7 @@ results/companion_builtin_sf/degree_control_trajectory.png
 results/companion_builtin_sf/degree_game_trajectory.png
 results/companion_builtin_sf/node_control_trajectory.png
 results/companion_builtin_sf/hybrid_impulse_trajectory.png
-results/scalability_degree_sf/degree_control_scalability_100_2000.png
+results/scalability_degree_node_sf/degree_node_fbs_comparison_100_2000.png
 ```
 
 The detailed subdirectories are grouped by purpose:
@@ -138,7 +138,7 @@ The detailed subdirectories are grouped by purpose:
 | --- | --- |
 | `simple_*` | Minimal degree-k continuous optimal-control smoke runs. |
 | `companion_*` | Degree-level, node-level, game, and hybrid examples on the same input graph. |
-| `scalability_degree_sf` | Degree-level FBS runtime from 100 to 2000 synthetic scale-free nodes. |
+| `scalability_degree_node_sf` | Paired degree-level versus dense node-level FBS runtime on the same epidemic-control problem. |
 
 Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.
 
@@ -153,4 +153,4 @@ For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh 
 3. How a forward-backward sweep solves the PMP state/adjoint/control update loop.
 4. How attacker-defender differential games extend the same workflow.
 5. How hybrid impulse simulations combine continuous ODE segments with jump updates.
-6. How degree-level aggregation changes the runtime profile as synthetic networks grow.
+6. How degree-level aggregation and node-indexed state dimension change the FBS runtime profile as synthetic networks grow.

@@ -58,8 +58,20 @@ from network_control_examples import (  # noqa: E402
 )
 
 
+DEFAULT_COMPARE_SIZES = (100, 250, 500, 1000, 2000)
 DEFAULT_DEGREE_SIZES = tuple(range(100, 2001, 100))
 DEFAULT_NODE_SIZES = tuple(range(1000, 10001, 1000))
+
+
+COMPARISON_DEFAULTS = {
+    "horizon": 8.0,
+    "beta": 1.20,
+    "delta": 0.35,
+    "state_weight": 1.0,
+    "control_weight": 3.0,
+    "control_max": 1.0,
+    "damping": 0.35,
+}
 
 
 NODE_SCALABILITY_DEFAULTS = {
@@ -100,6 +112,242 @@ def degree_distribution_from_igraph(graph: ig.Graph) -> DegreeData:
 def igraph_to_networkx(graph: ig.Graph) -> nx.Graph:
     """Use igraph's converter only for the optional node-level matrix workflow."""
     return nx.Graph(graph.to_networkx())
+
+
+def igraph_to_dense_adjacency(graph: ig.Graph) -> np.ndarray:
+    """Dense undirected adjacency matrix for paired degree/node FBS comparison."""
+    n = graph.vcount()
+    A = np.zeros((n, n), dtype=np.float64)
+    edges = np.asarray(graph.get_edgelist(), dtype=np.int64)
+    if edges.size:
+        A[edges[:, 0], edges[:, 1]] = 1.0
+        A[edges[:, 1], edges[:, 0]] = 1.0
+    np.fill_diagonal(A, 0.0)
+    return A
+
+
+def comparison_node_initial_state(degree: np.ndarray) -> np.ndarray:
+    """Use the same degree-based initial infection rule as the degree model."""
+    max_degree = max(float(degree.max(initial=1)), 1.0)
+    return np.clip(0.02 + 0.08 * degree / max_degree, 0.0, 0.18)
+
+
+def comparison_degree_initial_state(D: DegreeData) -> np.ndarray:
+    """Initial infected fraction for each degree class in the paired comparison."""
+    max_degree = max(float(D.k.max(initial=1.0)), 1.0)
+    return np.clip(0.02 + 0.08 * D.k / max_degree, 0.0, 0.18)
+
+
+def comparison_degree_theta(x: np.ndarray, D: DegreeData) -> float:
+    return float((D.k * D.pk) @ x / max(D.kbar, 1e-12))
+
+
+def comparison_degree_rhs(x: np.ndarray, u: np.ndarray, D: DegreeData) -> np.ndarray:
+    """Normalized degree-level SIS dynamics used only for paired scalability."""
+    params = COMPARISON_DEFAULTS
+    theta = comparison_degree_theta(x, D)
+    contact = (D.k / max(D.kbar, 1e-12)) * theta
+    return params["beta"] * (1.0 - x) * contact - (params["delta"] + u) * x
+
+
+def comparison_degree_jacobian(x: np.ndarray, u: np.ndarray, D: DegreeData) -> np.ndarray:
+    """Jacobian of comparison_degree_rhs with respect to degree-class state."""
+    params = COMPARISON_DEFAULTS
+    kbar = max(D.kbar, 1e-12)
+    dtheta = D.k * D.pk / kbar
+    contact_scale = D.k / kbar
+    theta = comparison_degree_theta(x, D)
+    J = params["beta"] * np.outer(contact_scale * (1.0 - x), dtheta)
+    J[np.diag_indices_from(J)] += -params["beta"] * contact_scale * theta - (params["delta"] + u)
+    return J
+
+
+def comparison_node_rhs(x: np.ndarray, u: np.ndarray, A: np.ndarray, kbar: float) -> np.ndarray:
+    """Normalized node-level SIS dynamics matched to comparison_degree_rhs."""
+    params = COMPARISON_DEFAULTS
+    pressure = (A @ x) / max(kbar, 1e-12)
+    return params["beta"] * (1.0 - x) * pressure - (params["delta"] + u) * x
+
+
+def comparison_node_adjoint_rhs(
+    mu: np.ndarray,
+    x: np.ndarray,
+    u: np.ndarray,
+    pressure: np.ndarray,
+    A: np.ndarray,
+    kbar: float,
+) -> np.ndarray:
+    """Scaled node-level costate RHS for the averaged node objective."""
+    params = COMPARISON_DEFAULTS
+    offdiag = params["beta"] * (A.T @ ((1.0 - x) * mu)) / max(kbar, 1e-12)
+    diag = (-params["beta"] * pressure - params["delta"] - u) * mu
+    return -params["state_weight"] - offdiag - diag
+
+
+def integrate_comparison_degree_state(D: DegreeData, t: np.ndarray, x0: np.ndarray, u: np.ndarray) -> np.ndarray:
+    """Forward RK4 integration for the paired degree-level comparison."""
+    x = np.empty((len(t), len(D.k)), dtype=np.float64)
+    x[0] = x0
+    for idx in range(len(t) - 1):
+        h = float(t[idx + 1] - t[idx])
+        u0, u1 = u[idx], u[idx + 1]
+        umid = 0.5 * (u0 + u1)
+        y0 = x[idx]
+        k1 = comparison_degree_rhs(y0, u0, D)
+        k2 = comparison_degree_rhs(np.clip(y0 + 0.5 * h * k1, 0.0, 1.0), umid, D)
+        k3 = comparison_degree_rhs(np.clip(y0 + 0.5 * h * k2, 0.0, 1.0), umid, D)
+        k4 = comparison_degree_rhs(np.clip(y0 + h * k3, 0.0, 1.0), u1, D)
+        x[idx + 1] = np.clip(y0 + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0, 0.0, 1.0)
+    return x
+
+
+def integrate_comparison_degree_adjoint(D: DegreeData, t: np.ndarray, x: np.ndarray, u: np.ndarray) -> np.ndarray:
+    """Backward RK4 integration for the paired degree-level costate."""
+    params = COMPARISON_DEFAULTS
+    lam = np.zeros_like(x)
+    for idx in range(len(t) - 2, -1, -1):
+        h = -float(t[idx + 1] - t[idx])
+        l1 = lam[idx + 1]
+        x1, x0 = x[idx + 1], x[idx]
+        u1, u0 = u[idx + 1], u[idx]
+        xmid, umid = 0.5 * (x0 + x1), 0.5 * (u0 + u1)
+
+        def rhs(lam_now: np.ndarray, x_now: np.ndarray, u_now: np.ndarray) -> np.ndarray:
+            return -params["state_weight"] * D.pk - comparison_degree_jacobian(x_now, u_now, D).T @ lam_now
+
+        k1 = rhs(l1, x1, u1)
+        k2 = rhs(l1 + 0.5 * h * k1, xmid, umid)
+        k3 = rhs(l1 + 0.5 * h * k2, xmid, umid)
+        k4 = rhs(l1 + h * k3, x0, u0)
+        lam[idx] = l1 + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
+    return lam
+
+
+def integrate_comparison_node_state(
+    A: np.ndarray,
+    kbar: float,
+    t: np.ndarray,
+    x0: np.ndarray,
+    u: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Forward RK4 integration for the paired dense node-level comparison."""
+    x = np.empty((len(t), A.shape[0]), dtype=np.float64)
+    pressure = np.empty_like(x)
+    x[0] = x0
+    pressure[0] = (A @ x0) / max(kbar, 1e-12)
+    for idx in range(len(t) - 1):
+        h = float(t[idx + 1] - t[idx])
+        u0, u1 = u[idx], u[idx + 1]
+        umid = 0.5 * (u0 + u1)
+        y0 = x[idx]
+        k1 = comparison_node_rhs(y0, u0, A, kbar)
+        k2 = comparison_node_rhs(np.clip(y0 + 0.5 * h * k1, 0.0, 1.0), umid, A, kbar)
+        k3 = comparison_node_rhs(np.clip(y0 + 0.5 * h * k2, 0.0, 1.0), umid, A, kbar)
+        k4 = comparison_node_rhs(np.clip(y0 + h * k3, 0.0, 1.0), u1, A, kbar)
+        x[idx + 1] = np.clip(y0 + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0, 0.0, 1.0)
+        pressure[idx + 1] = (A @ x[idx + 1]) / max(kbar, 1e-12)
+    return x, pressure
+
+
+def integrate_comparison_node_adjoint(
+    A: np.ndarray,
+    kbar: float,
+    t: np.ndarray,
+    x: np.ndarray,
+    pressure: np.ndarray,
+    u: np.ndarray,
+) -> np.ndarray:
+    """Backward RK4 integration for the paired dense node-level costate."""
+    mu = np.zeros_like(x)
+    for idx in range(len(t) - 2, -1, -1):
+        h = -float(t[idx + 1] - t[idx])
+        m1 = mu[idx + 1]
+        x1, x0 = x[idx + 1], x[idx]
+        p1, p0 = pressure[idx + 1], pressure[idx]
+        u1, u0 = u[idx + 1], u[idx]
+        xmid, pmid, umid = 0.5 * (x0 + x1), 0.5 * (p0 + p1), 0.5 * (u0 + u1)
+        k1 = comparison_node_adjoint_rhs(m1, x1, u1, p1, A, kbar)
+        k2 = comparison_node_adjoint_rhs(m1 + 0.5 * h * k1, xmid, umid, pmid, A, kbar)
+        k3 = comparison_node_adjoint_rhs(m1 + 0.5 * h * k2, xmid, umid, pmid, A, kbar)
+        k4 = comparison_node_adjoint_rhs(m1 + h * k3, x0, u0, p0, A, kbar)
+        mu[idx] = m1 + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
+    return mu
+
+
+def run_comparison_degree_fbs(D: DegreeData, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
+    """Fixed-grid degree-level FBS for the paired epidemic comparison."""
+    params = COMPARISON_DEFAULTS
+    t = np.linspace(0.0, params["horizon"], steps + 1)
+    u = np.zeros((len(t), len(D.k)), dtype=np.float64)
+    x0 = comparison_degree_initial_state(D)
+    delta_history: list[float] = []
+    for _ in range(iterations):
+        old_u = u.copy()
+        x = integrate_comparison_degree_state(D, t, x0, u)
+        lam = integrate_comparison_degree_adjoint(D, t, x, u)
+        denom = params["control_weight"] * np.maximum(D.pk, 1e-12)
+        candidate = np.clip(lam * x / denom, 0.0, params["control_max"])
+        u = params["damping"] * candidate + (1.0 - params["damping"]) * old_u
+        delta_u = float(np.max(np.abs(u - old_u)))
+        delta_history.append(delta_u)
+        if delta_u < tol:
+            break
+    x = integrate_comparison_degree_state(D, t, x0, u)
+    running = params["state_weight"] * (x @ D.pk) + 0.5 * params["control_weight"] * ((u * u) @ D.pk)
+    cost = float(np.trapezoid(running, t) if hasattr(np, "trapezoid") else np.trapz(running, t))
+    final_delta = float(delta_history[-1]) if delta_history else float("nan")
+    return {
+        "solver_type": "paired_fixed_grid_rk4",
+        "state_dimension": float(len(D.k)),
+        "degree_classes": float(len(D.k)),
+        "matrix_nonzeros": float("nan"),
+        "fbs_iterations": float(len(delta_history)),
+        "final_delta": final_delta,
+        "converged": float(final_delta < tol),
+        "cost": cost,
+        "mean_initial_state": float(x0 @ D.pk),
+        "mean_final_state": float(x[-1] @ D.pk),
+        "mean_control": float(u.mean()),
+        "max_control": float(u.max()),
+    }
+
+
+def run_comparison_node_fbs(A: np.ndarray, degree: np.ndarray, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
+    """Dense node-level FBS for the paired epidemic comparison."""
+    params = COMPARISON_DEFAULTS
+    kbar = float(degree.mean()) if len(degree) else 1.0
+    t = np.linspace(0.0, params["horizon"], steps + 1)
+    u = np.zeros((len(t), A.shape[0]), dtype=np.float64)
+    x0 = comparison_node_initial_state(degree)
+    delta_history: list[float] = []
+    for _ in range(iterations):
+        old_u = u.copy()
+        x, pressure = integrate_comparison_node_state(A, kbar, t, x0, u)
+        mu = integrate_comparison_node_adjoint(A, kbar, t, x, pressure, u)
+        candidate = np.clip(mu * x / params["control_weight"], 0.0, params["control_max"])
+        u = params["damping"] * candidate + (1.0 - params["damping"]) * old_u
+        delta_u = float(np.max(np.abs(u - old_u)))
+        delta_history.append(delta_u)
+        if delta_u < tol:
+            break
+    x, _ = integrate_comparison_node_state(A, kbar, t, x0, u)
+    running = params["state_weight"] * x.mean(axis=1) + 0.5 * params["control_weight"] * np.mean(u * u, axis=1)
+    cost = float(np.trapezoid(running, t) if hasattr(np, "trapezoid") else np.trapz(running, t))
+    final_delta = float(delta_history[-1]) if delta_history else float("nan")
+    return {
+        "solver_type": "paired_dense_fixed_grid_rk4",
+        "state_dimension": float(A.shape[0]),
+        "degree_classes": float("nan"),
+        "matrix_nonzeros": float(np.count_nonzero(A)),
+        "fbs_iterations": float(len(delta_history)),
+        "final_delta": final_delta,
+        "converged": float(final_delta < tol),
+        "cost": cost,
+        "mean_initial_state": float(x0.mean()),
+        "mean_final_state": float(x[-1].mean()),
+        "mean_control": float(u.mean()),
+        "max_control": float(u.max()),
+    }
 
 
 def igraph_to_sparse_model_matrix(graph: ig.Graph) -> sp.csr_matrix:
@@ -366,6 +614,44 @@ def run_node_trial(graph: ig.Graph, *, steps: int, iterations: int, tol: float, 
     }
 
 
+def run_paired_comparison_trials(graph: ig.Graph, *, steps: int, iterations: int, tol: float) -> list[dict[str, float | str]]:
+    """Run degree-level and dense node-level FBS on the same epidemic-control instance."""
+    degree_data = degree_distribution_from_igraph(graph)
+    A = igraph_to_dense_adjacency(graph)
+    degree = np.asarray(graph.degree(), dtype=np.float64)
+    shared = {
+        "horizon": float(COMPARISON_DEFAULTS["horizon"]),
+        "beta": float(COMPARISON_DEFAULTS["beta"]),
+        "delta": float(COMPARISON_DEFAULTS["delta"]),
+        "state_weight": float(COMPARISON_DEFAULTS["state_weight"]),
+        "control_weight": float(COMPARISON_DEFAULTS["control_weight"]),
+        "control_max": float(COMPARISON_DEFAULTS["control_max"]),
+        "damping": float(COMPARISON_DEFAULTS["damping"]),
+        "mean_degree": float(degree.mean()) if len(degree) else float("nan"),
+    }
+
+    rows: list[dict[str, float | str]] = []
+    for model_level, runner in (
+        ("degree", lambda: run_comparison_degree_fbs(degree_data, steps=steps, iterations=iterations, tol=tol)),
+        ("node", lambda: run_comparison_node_fbs(A, degree, steps=steps, iterations=iterations, tol=tol)),
+    ):
+        solve_start = time.perf_counter()
+        stats = runner()
+        solve_seconds = time.perf_counter() - solve_start
+        rows.append(
+            {
+                "model_level": model_level,
+                "comparison_type": "paired_degree_node_epidemic",
+                "prep_seconds": 0.0,
+                "fbs_seconds": solve_seconds,
+                "total_seconds": solve_seconds,
+                **shared,
+                **stats,
+            }
+        )
+    return rows
+
+
 def run_scalability_experiment(args: argparse.Namespace) -> pd.DataFrame:
     rows: list[dict[str, float | int | str]] = []
     for nodes in args.sizes:
@@ -374,8 +660,11 @@ def run_scalability_experiment(args: argparse.Namespace) -> pd.DataFrame:
             # then separates median behavior from repeat-to-repeat variation.
             seed = args.seed + 1000 * repeat + nodes
             graph = synthetic_scale_free_graph(nodes, args.attachment_m, seed)
-            if args.model_level == "degree":
+            if args.model_level == "compare":
+                trial_rows = run_paired_comparison_trials(graph, steps=args.steps, iterations=args.iterations, tol=args.tolerance)
+            elif args.model_level == "degree":
                 stats = run_degree_trial(graph, steps=args.steps, iterations=args.iterations, tol=args.tolerance)
+                trial_rows = [stats]
             else:
                 stats = run_node_trial(
                     graph,
@@ -384,27 +673,29 @@ def run_scalability_experiment(args: argparse.Namespace) -> pd.DataFrame:
                     tol=args.tolerance,
                     solver=args.node_solver,
                 )
+                trial_rows = [stats]
 
-            row: dict[str, float | int | str] = {
-                "network_model": "Barabasi-Albert scale-free",
-                "nodes": nodes,
-                "edges": graph.ecount(),
-                "attachment_m": args.attachment_m,
-                "repeat": repeat,
-                "seed": seed,
-                "time_grid_steps": args.steps,
-                "max_fbs_iterations": args.iterations,
-                "tolerance": args.tolerance,
-            }
-            row.update(stats)
-            rows.append(row)
-            print(
-                f"n={nodes:4d} repeat={repeat} level={args.model_level} "
-                f"solver={stats.get('solver_type', 'degree')} "
-                f"fbs={stats['fbs_seconds']:.3f}s iterations={int(stats['fbs_iterations'])} "
-                f"converged={bool(stats['converged'])}",
-                flush=True,
-            )
+            for stats in trial_rows:
+                row: dict[str, float | int | str] = {
+                    "network_model": "Barabasi-Albert scale-free",
+                    "nodes": nodes,
+                    "edges": graph.ecount(),
+                    "attachment_m": args.attachment_m,
+                    "repeat": repeat,
+                    "seed": seed,
+                    "time_grid_steps": args.steps,
+                    "max_fbs_iterations": args.iterations,
+                    "tolerance": args.tolerance,
+                }
+                row.update(stats)
+                rows.append(row)
+                print(
+                    f"n={nodes:4d} repeat={repeat} level={stats['model_level']} "
+                    f"solver={stats.get('solver_type', 'degree')} "
+                    f"fbs={float(stats['fbs_seconds']):.3f}s iterations={int(float(stats['fbs_iterations']))} "
+                    f"converged={bool(stats['converged'])}",
+                    flush=True,
+                )
     return pd.DataFrame(rows)
 
 
@@ -428,10 +719,94 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
 def plot_filename(model_level: str, summary: pd.DataFrame) -> str:
     node_min = int(summary["nodes"].min())
     node_max = int(summary["nodes"].max())
+    if model_level == "compare":
+        return f"degree_node_fbs_comparison_{node_min}_{node_max}.png"
     return f"{model_level}_control_scalability_{node_min}_{node_max}.png"
 
 
+def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path) -> Path:
+    """Plot the paired degree-level versus node-level epidemic FBS comparison."""
+    fig, axes = plt.subplots(1, 2, figsize=(11.4, 4.4))
+    styles = {
+        "degree": {
+            "color": "tab:blue",
+            "marker": "o",
+            "linestyle": "-",
+            "label": "degree-level FBS (state = degree classes)",
+        },
+        "node": {
+            "color": "tab:orange",
+            "marker": "s",
+            "linestyle": "--",
+            "label": "node-level FBS (state = graph nodes)",
+        },
+    }
+    node_min = int(summary["nodes"].min())
+    node_max = int(summary["nodes"].max())
+    x_ticks = sorted(summary["nodes"].unique())
+    margin = max(10, int(0.04 * (node_max - node_min + 1)))
+
+    ax = axes[0]
+    for model_level, group in summary.groupby("model_level", sort=False):
+        style = styles[str(model_level)]
+        raw_group = raw[raw["model_level"] == model_level]
+        ax.scatter(raw_group["nodes"], raw_group["fbs_seconds"], color=style["color"], alpha=0.25, s=28)
+        ax.plot(
+            group["nodes"],
+            group["fbs_seconds_median"],
+            marker=style["marker"],
+            linestyle=style["linestyle"],
+            linewidth=2.2,
+            color=style["color"],
+            label=style["label"],
+        )
+        ax.fill_between(
+            group["nodes"].to_numpy(float),
+            group["fbs_seconds_min"].to_numpy(float),
+            group["fbs_seconds_max"].to_numpy(float),
+            color=style["color"],
+            alpha=0.10,
+        )
+    ax.set_xlabel("number of nodes in the same synthetic SF network")
+    ax.set_ylabel("FBS solve time (seconds)")
+    ax.set_title("Runtime on the same SIS epidemic-control problem")
+    ax.set_xlim(node_min - margin, node_max + margin)
+    ax.set_xticks(x_ticks)
+    ax.grid(True, alpha=0.25)
+    ax.legend(frameon=False, fontsize=8)
+
+    ax = axes[1]
+    for model_level, group in summary.groupby("model_level", sort=False):
+        style = styles[str(model_level)]
+        ax.plot(
+            group["nodes"],
+            group["state_dimension_median"],
+            marker=style["marker"],
+            linestyle=style["linestyle"],
+            linewidth=2.0,
+            color=style["color"],
+            label=style["label"],
+        )
+    ax.set_xlabel("number of nodes in the same synthetic SF network")
+    ax.set_ylabel("FBS state dimension")
+    ax.set_title("Why node-level FBS is more expensive")
+    ax.set_xlim(node_min - margin, node_max + margin)
+    ax.set_xticks(x_ticks)
+    ax.grid(True, alpha=0.25)
+    ax.legend(frameon=False, fontsize=8)
+
+    fig.suptitle("Paired degree-level vs node-level FBS: same normalized SIS epidemic model")
+    fig.tight_layout()
+    path = out_dir / plot_filename("compare", summary)
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
 def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str) -> Path:
+    if model_level == "compare":
+        return plot_paired_comparison(summary, raw, out_dir)
+
     fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.2))
     color = "tab:blue" if model_level == "degree" else "tab:orange"
     node_min = int(summary["nodes"].min())
@@ -506,6 +881,52 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
 
 
 def write_report(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str, plot_path: Path) -> None:
+    if model_level == "compare":
+        largest_node = int(summary["nodes"].max())
+        largest = summary[summary["nodes"] == largest_node].sort_values("model_level")
+        rows = "\n".join(
+            f"| {row.model_level} | {row.solver_type} | {row.state_dimension_median:.0f} | "
+            f"{row.fbs_iterations_median:.0f} | {row.fbs_seconds_median:.3f} | {bool(row.all_runs_converged)} |"
+            for row in largest.itertuples(index=False)
+        )
+        params = COMPARISON_DEFAULTS
+        text = f"""# Paired Degree-Level vs Node-Level FBS Comparison
+
+This run compares two FBS discretizations of the same normalized SIS epidemic-control problem on the same synthetic Barabasi-Albert scale-free graphs.
+
+## What Was Measured
+
+- Network sizes: {", ".join(str(int(n)) for n in sorted(raw["nodes"].unique()))} nodes.
+- Repeats per size: {int(raw["repeat"].max())}.
+- Synthetic network model: Barabasi-Albert scale-free graph with attachment parameter `m={int(raw["attachment_m"].iloc[0])}`.
+- Epidemic/control model: normalized SIS, `T={params["horizon"]}`, `beta={params["beta"]}`, `delta={params["delta"]}`, state weight `{params["state_weight"]}`, control weight `{params["control_weight"]}`, `u_max={params["control_max"]}`.
+- Numerical solver for both rows: fixed-grid RK4 inside forward-backward sweep.
+- Time grid: `{int(raw["time_grid_steps"].iloc[0])}` intervals over the control horizon.
+- Maximum FBS iterations: `{int(raw["max_fbs_iterations"].iloc[0])}`.
+- FBS tolerance: `{float(raw["tolerance"].iloc[0]):.0e}`.
+- Runtime column: `fbs_seconds`, measuring only the FBS solve after graph generation.
+
+## Main Output
+
+| File | Meaning |
+| --- | --- |
+| `{plot_path.name}` | Paired runtime and state-dimension comparison. |
+| `paired_fbs_comparison.csv` | One row per model level, size, and repeat. |
+| `paired_fbs_comparison_summary.csv` | Median/min/max runtime and convergence summary by model level and size. |
+
+## Quick Reading
+
+At {largest_node} nodes:
+
+| Model level | Solver label | FBS state dimension | FBS iterations | Median FBS seconds | All runs converged |
+| --- | --- | ---: | ---: | ---: | --- |
+{rows}
+
+This is the comparison plot to use when asking whether node-level FBS is more expensive than degree-level FBS. The degree-level row keeps one state/control/costate per observed degree class. The node-level row keeps one state/control/costate per graph node on the same epidemic model, so it should take longer as node count grows.
+"""
+        (out_dir / "scalability_summary.md").write_text(text)
+        return
+
     largest = summary.sort_values("nodes").iloc[-1]
     solver_type = str(raw["solver_type"].iloc[0])
     text = f"""# Scalability Analysis
@@ -536,20 +957,25 @@ This run measures `{model_level}`-level forward-backward sweep (FBS) optimal con
 
 At {int(largest["nodes"])} nodes, the median FBS solve time was {largest["fbs_seconds_median"]:.3f} seconds over {int(largest["repeats"])} repeat(s). All runs at that size converged: {bool(largest["all_runs_converged"])}.
 
-Read runtime columns with the solver type. Degree-level runs use an adaptive ODE solve on the reduced degree-class system. Sparse node-level runs use fixed-grid RK4 and sparse matrix products on a node-indexed system. These are both useful smoke/scaling diagnostics, but their wall-clock times are not a direct solver-speed comparison.
+Read runtime columns with the solver type. The default paired comparison uses `--model-level compare` and runs degree-level and dense node-level FBS on the same SIS epidemic-control problem. Standalone `--model-level degree` and `--model-level node` runs are useful smoke/scaling diagnostics, but their wall-clock times are not the paired degree-vs-node comparison unless the solver, grid, graph seed, and model equations are matched explicitly.
 """
     (out_dir / "scalability_summary.md").write_text(text)
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run SF-network scalability analysis for FBS optimal control.")
-    parser.add_argument("--model-level", choices=["degree", "node"], default="degree")
+    parser.add_argument(
+        "--model-level",
+        choices=["compare", "degree", "node"],
+        default="compare",
+        help="Use 'compare' for paired degree/node FBS on the same SIS model; standalone modes are diagnostics.",
+    )
     parser.add_argument("--sizes", type=parse_sizes, default=None, help="Comma-separated node counts.")
     parser.add_argument("--node-solver", choices=["sparse", "dense"], default="sparse")
-    parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--repeats", type=int, default=2)
     parser.add_argument("--attachment-m", type=int, default=3)
-    parser.add_argument("--steps", type=int, default=35)
-    parser.add_argument("--iterations", type=int, default=60)
+    parser.add_argument("--steps", type=int, default=80)
+    parser.add_argument("--iterations", type=int, default=80)
     parser.add_argument("--tolerance", type=float, default=1e-4)
     parser.add_argument("--seed", type=int, default=20260617)
     parser.add_argument("--output-dir", type=Path, default=None)
@@ -559,15 +985,24 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
     if args.sizes is None:
-        args.sizes = list(DEFAULT_NODE_SIZES if args.model_level == "node" else DEFAULT_DEGREE_SIZES)
+        if args.model_level == "compare":
+            args.sizes = list(DEFAULT_COMPARE_SIZES)
+        elif args.model_level == "node":
+            args.sizes = list(DEFAULT_NODE_SIZES)
+        else:
+            args.sizes = list(DEFAULT_DEGREE_SIZES)
     if args.output_dir is None:
-        args.output_dir = Path(f"results/scalability_{args.model_level}_sf")
+        default_folder = (
+            "scalability_degree_node_sf" if args.model_level == "compare" else f"scalability_{args.model_level}_sf"
+        )
+        args.output_dir = Path("results") / default_folder
     args.output_dir.mkdir(parents=True, exist_ok=True)
     df = run_scalability_experiment(args)
     summary = summarize(df)
 
-    raw_path = args.output_dir / f"{args.model_level}_control_scalability.csv"
-    summary_path = args.output_dir / f"{args.model_level}_control_scalability_summary.csv"
+    prefix = "paired_fbs_comparison" if args.model_level == "compare" else f"{args.model_level}_control_scalability"
+    raw_path = args.output_dir / f"{prefix}.csv"
+    summary_path = args.output_dir / f"{prefix}_summary.csv"
     df.to_csv(raw_path, index=False)
     summary.to_csv(summary_path, index=False)
     legacy_plot = args.output_dir / f"{args.model_level}_control_scalability.png"
