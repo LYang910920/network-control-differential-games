@@ -34,10 +34,12 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | Random baseline seed | `20260617` | `examples/common_diagnostics.py` |
 | Degree-level scalability node sizes | `100, 200, ..., 2000` | `--scalability-sizes` |
 | Degree-level scalability repeats | `3` by default | `--scalability-repeats` |
+| Degree-level scalability solver | adaptive ODE/FBS on degree classes | `examples/foundations/code/scalability_analysis.py` |
+| Degree-level scalability time grid | `35` sampled intervals over `T=14`; adaptive ODE substeps are internal | `--scalability-steps` |
 | Sparse node-level scalability node sizes | `1000, 2000, ..., 10000` | `--include-node-scalability --node-scalability-sizes ...` |
 | Sparse node-level scalability repeats | `1` by default | `--node-scalability-repeats` |
 | Sparse node-level scalability time grid | `25` intervals over `T=8` | `--node-scalability-steps` |
-| Sparse node-level scalability FBS | `max_iter=50`, `tol=1e-4`, damping `0.25` | `examples/foundations/code/scalability_analysis.py` |
+| Sparse node-level scalability solver/FBS | fixed-grid RK4, `max_iter=50`, `tol=1e-4`, damping `0.25` | `examples/foundations/code/scalability_analysis.py` |
 | Sparse node-level scalability rates/costs | `beta=0.55`, `delta=0.20`, state weight `1.0`, control weight `8.0`, `u_max=0.8` | `NODE_SCALABILITY_DEFAULTS` |
 
 ## Neural Hyperparameters

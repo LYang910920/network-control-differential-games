@@ -1,7 +1,7 @@
 """Shared utilities for the cyber-control guide repository family.
 
 The package keeps reusable mechanics in one place while each repository keeps
-its own teaching scripts and narrative.  Public modules are intentionally small:
+its own tutorial scripts and narrative.  Public modules stay small:
 
 - :mod:`cybercontrol.numerics` for projections and ODE integration.
 - :mod:`cybercontrol.models` for malware/hybrid dynamics and jump maps.

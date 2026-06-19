@@ -36,7 +36,7 @@ Then open `examples/foundations/code/model_profiles.py`. It collects the time ho
 
 ## From Tutorial Code To Paper Models
 
-| Paper-model ingredient | First teaching hook | What to preserve while extending |
+| Paper-model ingredient | First tutorial hook | What to preserve while extending |
 |---|---|---|
 | New graph data | edge-list or adjacency CLI options | clear convention for whether `A[i,j]` means `j` influences `i` |
 | New state variables | `TimeSeries`, degree/node state arrays | labels showing degree class, node, or aggregate average |
@@ -65,5 +65,5 @@ Before treating a run as evidence rather than a tutorial smoke run:
 3. Report whether each state curve is a selected node, selected degree class, or average.
 4. For games, test unilateral deviations by fixing one player's computed strategy and varying the other player's strategy.
 5. Log FBS convergence and change parameters if the forward-backward sweep fails to converge.
-6. For node-level scale claims, run `python run_all.py --skip-reference --include-node-scalability` and report convergence as well as runtime.
+6. For node-level scale claims, run `python run_all.py --skip-reference --include-node-scalability` and report convergence, state dimension, solver type, and runtime. Do not compare adaptive degree-level seconds directly with sparse fixed-grid node-level seconds.
 7. Keep upstream licenses, paper citations, and dataset redistribution rights visible.

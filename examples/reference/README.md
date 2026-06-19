@@ -65,7 +65,7 @@ reference_repositories/
 └── Propaganda_TCSS_2025_Code/
 ```
 
-The snapshots include source files plus upstream README and LICENSE files. Full paper datasets are intentionally not included. To refresh the snapshots from upstream, run:
+The snapshots include source files plus upstream README and LICENSE files. Full paper datasets are not included. To refresh the snapshots from upstream, run:
 
 ```bash
 bash download_reference_repositories.sh
@@ -127,7 +127,7 @@ results/reference_repos/propaganda_tcss_timeseries.csv
 
 For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `smoke_run_report.md` into its output directory.
 
-Plot convention: continuous controls and game strategies are time-indexed curves sampled on the simulation grid; projected continuous strategies may have flat bound segments but still enter the ODE between event times. Impulse controls act only at discrete event times and are drawn as vertical lines; hybrid control combines both. State labels indicate whether each trajectory is a node mean over all nodes or a degree-weighted mean over degree classes. The smoke-run parameters are intentionally small-scale but chosen so continuous strategies vary visibly, impulse-induced state changes are clear, iteration diagnostics stabilize, and computed strategies can be compared with no-control/no-impulse and 75 random-strategy baselines. For concrete values such as `T`, `h`, rate parameters, impulse intervals, event indices, and bounds, start with `results/reference_repos/parameter_summary.csv`.
+Plot convention: continuous controls and game strategies are time-indexed curves sampled on the simulation grid; projected continuous strategies may have flat bound segments but still enter the ODE between event times. Impulse controls act only at discrete event times and are drawn as vertical lines; hybrid control combines both. State labels indicate whether each trajectory is a node mean over all nodes or a degree-weighted mean over degree classes. The smoke-run parameters are small-scale but chosen so continuous strategies vary visibly, impulse-induced state changes are clear, iteration diagnostics stabilize, and computed strategies can be compared with no-control/no-impulse and 75 random-strategy baselines. For concrete values such as `T`, `h`, rate parameters, impulse intervals, event indices, and bounds, start with `results/reference_repos/parameter_summary.csv`.
 
 ## What each smoke run does
 

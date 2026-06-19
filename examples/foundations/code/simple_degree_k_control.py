@@ -4,7 +4,7 @@
 """
 Simple degree-k network optimal-control example.
 
-This is the short teaching script to read first.  It does four things:
+This is the short tutorial script to read first.  It does four things:
 
 1. load a network from an edge list, an adjacency CSV, or a built-in demo graph;
 2. compute the empirical degree distribution N_k, P(k), and average degree <k>;

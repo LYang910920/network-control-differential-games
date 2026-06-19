@@ -8,7 +8,7 @@ This repository is public, but it does **not** grant a single blanket open-sourc
 
 This tutorial was created from my research experience in optimal control, differential games, hybrid/impulsive control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
 
-The repository is meant to be an educational bridge: start from the mathematical conditions, run small teaching examples, and then inspect how similar ideas appear in paper-level research code.
+The repository is meant to be a tutorial bridge: start from the mathematical conditions, run small examples, and then inspect how similar ideas appear in paper-level research code.
 
 If this is your first visit, start with [`START_HERE.md`](START_HERE.md).
 
@@ -93,23 +93,23 @@ python run_all.py --skip-foundations
 
 Only representative previews are shown here. The detailed per-model figures, CSV files, and run notes live under `examples/foundations/results/` and `examples/reference/results/`.
 
-**Tutorial examples: continuous, game, node-level, and hybrid teaching models**
+**Tutorial examples: continuous, game, node-level, and hybrid models**
 
 ![Tutorial companion examples](examples/foundations/results/companion_contact_sheet.png)
 
-This contact sheet is a compact visual index for the teaching examples: degree-level control/game, node-level control/game, convergence diagnostics, and one hybrid control example. Time-axis plots show state/control evolution; iteration-axis plots show FBS convergence.
+This contact sheet is a compact visual index for the tutorial examples: degree-level control/game, node-level control/game, convergence diagnostics, and one hybrid control example. Time-axis plots show state/control evolution; iteration-axis plots show FBS convergence.
 
 **Scalability: degree-level FBS on synthetic scale-free networks from 100 to 2000 nodes**
 
 ![Degree-level FBS scalability](examples/foundations/results/scalability_degree_sf/degree_control_scalability_100_2000.png)
 
-This plot reports 60 runs: 20 synthetic scale-free network sizes from 100 to 2000 nodes, with three repeats per size. The left panel shows median/min-max FBS solve time; the right panel explains why degree-level runtime grows slowly by tracking degree-class state dimension and FBS iterations.
+This plot reports 60 runs: 20 synthetic scale-free network sizes from 100 to 2000 nodes, with three repeats per size. The left panel shows median/min-max FBS solve time; the right panel explains why degree-level runtime grows slowly by tracking degree-class state dimension and FBS iterations. The default degree run uses the adaptive ODE/FBS solver from the tutorial example.
 
 **Scalability: sparse node-level FBS from 1000 to 10000 nodes**
 
 ![Sparse node-level FBS scalability](examples/foundations/results/scalability_node_sf/node_control_scalability_1000_10000.png)
 
-This heavier run keeps one state, costate, and control per node, uses a sparse adjacency matrix, and reports FBS convergence for 1000, 2000, ..., 10000 node-indexed states. In the checked-in run, every size converged within 18-19 FBS iterations; the 10000-node solve took about 0.62 seconds for the FBS step on this machine.
+This heavier run keeps one state, costate, and control per node, uses a sparse adjacency matrix with fixed-grid RK4, and reports FBS convergence for 1000, 2000, ..., 10000 node-indexed states. In the checked-in run, every size converged within 18-19 FBS iterations; the 10000-node solve took about 0.65 seconds for the FBS step on this machine. Read this as a sparse node-level smoke/scaling check, not as a direct wall-clock comparison with the adaptive degree-level solver.
 
 To regenerate the node-level scale experiment, run:
 
@@ -117,7 +117,7 @@ To regenerate the node-level scale experiment, run:
 python run_all.py --skip-reference --include-node-scalability
 ```
 
-It is intentionally not part of the default first run because it is a scale experiment, not a beginner smoke test.
+It is outside the default first run because it is a scale experiment, not a beginner smoke test.
 
 **Reference smoke runs: paper-level code checks for TIFS/TCSS repositories**
 
@@ -247,7 +247,7 @@ python run_all.py --skip-foundations
 ## Public-repository Notes
 
 - No project-wide open-source license is granted by default; see [`LICENSE`](LICENSE).
-- Tutorial PDFs and LaTeX sources are included as educational materials; confirm redistribution rights before reusing them elsewhere.
+- Tutorial PDFs and LaTeX sources are included as tutorial materials; confirm redistribution rights before reusing them elsewhere.
 - Third-party source snapshots retain their upstream licenses and citations.
-- Full paper datasets are intentionally not vendored.
+- Full paper datasets are not vendored.
 - Generated figures and CSV files are included for quick inspection and reproducibility checks.

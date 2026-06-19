@@ -26,7 +26,8 @@ The examples use small, visible smoke-run settings. Each output folder also writ
 | Companion node control | `T=12`, at least `24` grid steps | `beta=0.90`, `delta=0.16` | Continuous node control `0 <= u_i(t) <= 1.2` | Mean and max over the reduced node set. |
 | Companion node game | `T=12`, at least `24` grid steps | `beta=0.95`, `delta=0.15` | Continuous attack/defense in `[0, 1.2]` | Mean over the reduced node set. |
 | Hybrid simulation | `T=12` | `beta=0.95`, `delta=0.15` | Continuous control range `0.10-0.52`; impulses at `t=3,6,9` reduce selected high-degree node states by `55%` | Mean and max over all reduced nodes; impulse times are vertical markers. |
-| Scalability analysis | default sizes `100,200,...,2000` | Uses the degree-control profile above | FBS tolerance `1e-4`, default `60` max iterations | State dimension is number of observed degree classes, not node count. |
+| Degree scalability analysis | default sizes `100,200,...,2000` | Uses the degree-control profile above | Adaptive ODE/FBS, tolerance `1e-4`, default `60` max iterations | State dimension is number of observed degree classes, not node count. |
+| Sparse node scalability analysis | default sizes `1000,2000,...,10000` when enabled | `beta=0.55`, `delta=0.20`, `T=8` | Fixed-grid RK4 FBS, tolerance `1e-4`, default `50` max iterations | State, costate, and control are node-indexed; report solver type with runtime. |
 
 The root runner is usually easiest:
 

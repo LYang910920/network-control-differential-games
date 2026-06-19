@@ -10,7 +10,7 @@ summary plot.
 
 Degree-level FBS is the default because the state dimension is the number of
 observed degree classes, not the number of nodes. This makes the 2000-node
-experiment lightweight enough for a teaching repository while still showing how
+experiment lightweight enough for a tutorial repository while still showing how
 runtime changes as the underlying network grows.
 
 The optional node-level experiment is heavier and uses sparse matrices. Its
@@ -18,7 +18,7 @@ default grid is 1000, 2000, ..., 10000 nodes. This keeps the mathematical object
 node-indexed, while using igraph and scipy.sparse for the work that should be
 handled by libraries rather than hand-written graph code.
 
-The graph work is intentionally delegated to libraries: igraph generates the
+The graph work is delegated to libraries: igraph generates the
 scale-free networks and degree vectors, pandas aggregates timing summaries, and
 Matplotlib renders the final diagnostic plot. The control solver receives only
 the reduced mathematical objects it actually needs.
@@ -185,6 +185,9 @@ def sparse_node_adjoint_rhs(
     delta: float,
     state_weight: float,
 ) -> np.ndarray:
+    # The reported objective is averaged over nodes. Here lam is the scaled
+    # costate n*lambda, which keeps the stationarity update in run_sparse_node_fbs
+    # free of repeated 1/n factors.
     diag_part = (-beta * pressure - delta - u) * lam
     offdiag_part = beta * (A.T @ ((1.0 - x) * lam))
     return -state_weight - offdiag_part - diag_part
@@ -289,7 +292,7 @@ def run_degree_trial(graph: ig.Graph, *, steps: int, iterations: int, tol: float
 
     return {
         "model_level": "degree",
-        "solver_type": "degree",
+        "solver_type": "adaptive_solve_ivp",
         "state_dimension": float(len(degree_data.k)),
         "degree_classes": float(len(degree_data.k)),
         "matrix_nonzeros": float("nan"),
@@ -406,7 +409,7 @@ def run_scalability_experiment(args: argparse.Namespace) -> pd.DataFrame:
 
 
 def summarize(df: pd.DataFrame) -> pd.DataFrame:
-    grouped = df.groupby(["model_level", "nodes"], as_index=False).agg(
+    grouped = df.groupby(["model_level", "solver_type", "nodes"], as_index=False).agg(
         fbs_seconds_median=("fbs_seconds", "median"),
         fbs_seconds_min=("fbs_seconds", "min"),
         fbs_seconds_max=("fbs_seconds", "max"),
@@ -504,6 +507,7 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
 
 def write_report(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str, plot_path: Path) -> None:
     largest = summary.sort_values("nodes").iloc[-1]
+    solver_type = str(raw["solver_type"].iloc[0])
     text = f"""# Scalability Analysis
 
 This run measures `{model_level}`-level forward-backward sweep (FBS) optimal control on synthetic Barabasi-Albert scale-free networks.
@@ -513,6 +517,7 @@ This run measures `{model_level}`-level forward-backward sweep (FBS) optimal con
 - Network sizes: {", ".join(str(int(n)) for n in sorted(raw["nodes"].unique()))} nodes.
 - Repeats per size: {int(raw["repeat"].max())}.
 - Synthetic network model: Barabasi-Albert scale-free graph with attachment parameter `m={int(raw["attachment_m"].iloc[0])}`.
+- Numerical solver: `{solver_type}`.
 - Time grid: `{int(raw["time_grid_steps"].iloc[0])}` intervals over the control horizon.
 - Maximum FBS iterations: `{int(raw["max_fbs_iterations"].iloc[0])}`.
 - FBS tolerance: `{float(raw["tolerance"].iloc[0]):.0e}`.
@@ -531,7 +536,7 @@ This run measures `{model_level}`-level forward-backward sweep (FBS) optimal con
 
 At {int(largest["nodes"])} nodes, the median FBS solve time was {largest["fbs_seconds_median"]:.3f} seconds over {int(largest["repeats"])} repeat(s). All runs at that size converged: {bool(largest["all_runs_converged"])}.
 
-For degree-level models, the FBS state dimension is the number of observed degree classes, so it grows much more slowly than the number of nodes. For node-level models, the state, costate, and control are indexed by node. The optional large-node run therefore uses a sparse adjacency matrix and reports convergence of a node-indexed FBS sweep rather than converting the graph to a dense teaching matrix.
+Read runtime columns with the solver type. Degree-level runs use an adaptive ODE solve on the reduced degree-class system. Sparse node-level runs use fixed-grid RK4 and sparse matrix products on a node-indexed system. These are both useful smoke/scaling diagnostics, but their wall-clock times are not a direct solver-speed comparison.
 """
     (out_dir / "scalability_summary.md").write_text(text)
 

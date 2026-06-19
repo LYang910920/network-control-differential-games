@@ -7,6 +7,7 @@ This run measures `node`-level forward-backward sweep (FBS) optimal control on s
 - Network sizes: 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000 nodes.
 - Repeats per size: 1.
 - Synthetic network model: Barabasi-Albert scale-free graph with attachment parameter `m=3`.
+- Numerical solver: `sparse`.
 - Time grid: `25` intervals over the control horizon.
 - Maximum FBS iterations: `50`.
 - FBS tolerance: `1e-04`.
@@ -23,6 +24,6 @@ This run measures `node`-level forward-backward sweep (FBS) optimal control on s
 
 ## Quick Reading
 
-At 10000 nodes, the median FBS solve time was 0.619 seconds over 1 repeat(s). All runs at that size converged: True.
+At 10000 nodes, the median FBS solve time was 0.651 seconds over 1 repeat(s). All runs at that size converged: True.
 
-For degree-level models, the FBS state dimension is the number of observed degree classes, so it grows much more slowly than the number of nodes. For node-level models, the state, costate, and control are indexed by node. The optional large-node run therefore uses a sparse adjacency matrix and reports convergence of a node-indexed FBS sweep rather than converting the graph to a dense teaching matrix.
+Read runtime columns with the solver type. Degree-level runs use an adaptive ODE solve on the reduced degree-class system. Sparse node-level runs use fixed-grid RK4 and sparse matrix products on a node-indexed system. These are both useful smoke/scaling diagnostics, but their wall-clock times are not a direct solver-speed comparison.
