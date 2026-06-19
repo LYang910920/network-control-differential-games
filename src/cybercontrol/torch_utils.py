@@ -70,16 +70,42 @@ class MLP(require_torch()[1].Module):
         return self.net(x)
 
 
-class SimplexStateNet(require_torch()[1].Module):
-    """Time-to-state network whose outputs live on the SIR simplex."""
+def project_compartments_torch(values, axis: int = -1, eps: float = 1e-12):
+    """Torch compartment projection along ``axis``."""
 
-    def __init__(self, width: int = 64, depth: int = 2):
+    torch, _ = require_torch()
+    y = torch.clamp(values, min=0.0)
+    total = y.sum(dim=axis, keepdim=True)
+    out = y / total.clamp_min(eps)
+    empty = total <= eps
+    if torch.any(empty):
+        out = out.clone()
+        out = torch.where(empty.expand_as(out), torch.zeros_like(out), out)
+        index = [slice(None)] * out.ndim
+        index[axis % out.ndim] = 0
+        out_tuple = tuple(index)
+        out[out_tuple] = torch.where(empty.squeeze(axis), torch.ones_like(out[out_tuple]), out[out_tuple])
+    return out
+
+
+class CompartmentStateNet(require_torch()[1].Module):
+    """Time-to-state network whose outputs live on a ``C``-compartment simplex."""
+
+    def __init__(self, compartments: int = 3, width: int = 64, depth: int = 2):
         super().__init__()
-        self.raw = MLP(1, 3, width=width, depth=depth)
+        self.compartments = compartments
+        self.raw = MLP(1, compartments, width=width, depth=depth)
 
     def forward(self, t):
         torch, _ = require_torch()
         return torch.softmax(self.raw(t), dim=-1)
+
+
+class SimplexStateNet(CompartmentStateNet):
+    """Backward-compatible SIR state network with three compartments."""
+
+    def __init__(self, width: int = 64, depth: int = 2):
+        super().__init__(compartments=3, width=width, depth=depth)
 
 
 class BoundedControlNet(require_torch()[1].Module):

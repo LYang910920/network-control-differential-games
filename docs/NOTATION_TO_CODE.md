@@ -56,6 +56,18 @@ editing a model, cost, payoff, or figure label.
 | --- | --- |
 | `cybercontrol.numerics` | RK4 integration, simplex projection, trapezoidal integration. |
 | `cybercontrol.models` | Malware SIR RHS, hybrid flow, isolation jump maps, Torch RHS helpers. |
+| `cybercontrol.network_models` | Node-level SIPS/SIPRS graph pressure, NumPy/Torch RHS functions, stochastic SIPRS transition helper. |
 | `cybercontrol.torch_utils` | MLP, simplex state networks, bounded control networks, positive transforms, autograd time derivatives. |
 | `cybercontrol.io` | CSV/JSON writing and reproducible seeding. |
 | `cybercontrol.plotting` | Shared plotting boxes/arrows and lightweight axis cleanup. |
+
+## Node SIPS/SIPRS Variables
+
+| Mathematical symbol | Python variable | Meaning |
+| --- | --- | --- |
+| `x_i=[S_i,I_i,P_i]` | `x[i, :]` with shape `(nodes, 3)` | SIPS node state. |
+| `x_i=[S_i,I_i,P_i,R_i]` | `x[i, :]` with shape `(nodes, 4)` | SIPRS node state. |
+| `\widetilde A_{ij}` | `adjacency[i, j]` | Node `j` contributes infection pressure to node `i`. |
+| `u_i^p` | `patch[i]` | Preventive patching rate, `S -> P`. |
+| `u_i^c` | `clean[i]` | Cleaning/remediation rate, `I -> R`. |
+| `\omega_p,\omega_r` | `NodeSIPRSParams.omega_p`, `.omega_r` | Waning rates `P -> S` and `R -> S`. |

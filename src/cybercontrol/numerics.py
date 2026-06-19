@@ -39,6 +39,33 @@ def project_simplex(values: Array, eps: float = 1e-12) -> Array:
     return y / total
 
 
+def project_compartments(values: Array, axis: int = -1, eps: float = 1e-12) -> Array:
+    """Project compartment arrays to nonnegative unit mass along ``axis``.
+
+    This is the generic form used by node-level models.  A state shaped
+    ``[N, C]`` is projected node-by-node when ``axis=-1``; a batch shaped
+    ``[B, N, C]`` follows the same convention.  If a compartment vector has no
+    positive mass after clipping, the first compartment receives unit mass.
+    """
+
+    y = np.moveaxis(np.maximum(np.asarray(values, dtype=np.float64), 0.0), axis, -1)
+    if y.ndim == 1:
+        total = float(y.sum())
+        if total <= eps:
+            out = np.zeros_like(y)
+            out[0] = 1.0
+            return np.moveaxis(out, -1, axis)
+        return np.moveaxis(y / total, -1, axis)
+    total = y.sum(axis=-1, keepdims=True)
+    out = y / np.where(total > eps, total, 1.0)
+    empty = np.squeeze(total <= eps, axis=-1)
+    if np.any(empty):
+        out = np.array(out, copy=True)
+        out[empty, :] = 0.0
+        out[empty, 0] = 1.0
+    return np.moveaxis(out, -1, axis)
+
+
 def project_simplex3(x: Array, eps: float = 1e-12) -> Array:
     """Project the first three entries of ``x`` to a nonnegative unit simplex.
 

@@ -77,8 +77,13 @@ def isolation_jump(x: Array, isolation_rate: float) -> Array:
     return project_simplex3(y)
 
 
-def controlled_sir_rhs_torch(x, u, beta, gamma):
-    """Torch version of the controlled SIR model used by PINN examples.
+def controlled_sir_rhs_torch(x, u_patch, beta, gamma, u_clean=0.0, omega=0.0):
+    """Torch version of :func:`controlled_sir_rhs`.
+
+    ``u_patch`` moves ``S -> R`` and ``u_clean`` moves ``I -> R``.  ``omega``
+    returns recovered/protected mass to susceptibility.  The default
+    ``u_clean=0`` and ``omega=0`` preserve the older patch-only PINN examples,
+    but the mathematical semantics now match the NumPy function.
 
     Imports are intentionally local so the shared package remains usable without
     PyTorch for the pure ODE examples.
@@ -86,15 +91,25 @@ def controlled_sir_rhs_torch(x, u, beta, gamma):
 
     import torch
 
-    S, I, R = x[:, 0:1], x[:, 1:2], x[:, 2:3]
+    S, I, R = x[..., 0:1], x[..., 1:2], x[..., 2:3]
+    if not torch.is_tensor(u_clean):
+        u_clean = torch.as_tensor(u_clean, dtype=x.dtype, device=x.device)
+    if not torch.is_tensor(omega):
+        omega = torch.as_tensor(omega, dtype=x.dtype, device=x.device)
     return torch.cat(
         [
-            -beta * S * I - u * S,
-            beta * S * I - gamma * I,
-            gamma * I + u * S,
+            -beta * S * I - u_patch * S + omega * R,
+            beta * S * I - (gamma + u_clean) * I,
+            u_patch * S + (gamma + u_clean) * I - omega * R,
         ],
-        dim=1,
+        dim=-1,
     )
+
+
+def sir_patch_only_rhs_torch(x, u_patch, beta, gamma):
+    """Explicit patch-only Torch SIR RHS retained for older examples."""
+
+    return controlled_sir_rhs_torch(x, u_patch, beta, gamma, u_clean=0.0, omega=0.0)
 
 
 def sir_rhs_torch(x, beta, gamma):

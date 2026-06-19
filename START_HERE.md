@@ -11,7 +11,7 @@ foundation repository
   -> continuous control, differential games, impulse control, hybrid control
   -> runnable foundation examples
   -> paper-level reference smoke runs
-  -> Note 1: PMP/FBSM, DDQN, CTDE/MADRL, cyber game learning
+  -> Note 1: PMP/FBSM, DDQN, compact CTDE, node-SIPRS MAPPO
   -> Note 2: PINN/PIDL, inverse learning, neural control, PMP-informed residuals
 ```
 
