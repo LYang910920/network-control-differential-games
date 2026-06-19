@@ -28,7 +28,6 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Callable
 
 import matplotlib
 matplotlib.use("Agg")
@@ -36,13 +35,21 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
-from scipy.integrate import solve_ivp
-from scipy.interpolate import interp1d
-
-from model_profiles import DegreeControlProfile, SIMPLE_DEGREE_CONTROL
-
 
 EXAMPLES_DIR = Path(__file__).resolve().parents[2]
+ROOT_DIR = EXAMPLES_DIR.parent
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from cybercontrol.numerics import (
+    as_time_function,
+    project_box as clip,
+    solve_ode_grid as solve_ode_on_grid,
+    trapezoid_integral as trapz,
+)
+from model_profiles import DegreeControlProfile, SIMPLE_DEGREE_CONTROL
+
 if str(EXAMPLES_DIR) not in sys.path:
     sys.path.insert(0, str(EXAMPLES_DIR))
 
@@ -53,34 +60,6 @@ from common_diagnostics import (  # noqa: E402
     save_control_baseline_plot,
     write_baseline_table,
 )
-
-
-# -----------------------------------------------------------------------------
-# Small numerical helpers
-# -----------------------------------------------------------------------------
-
-
-def clip(z: np.ndarray, lo: float = 0.0, hi: float = 1.0) -> np.ndarray:
-    return np.minimum(np.maximum(z, lo), hi)
-
-
-def trapz(y: np.ndarray, t: np.ndarray) -> float:
-    return float(np.trapezoid(y, t) if hasattr(np, "trapezoid") else np.trapz(y, t))
-
-
-def as_time_function(t: np.ndarray, values: np.ndarray) -> Callable[[float], np.ndarray]:
-    return interp1d(t, values, axis=0, bounds_error=False, fill_value="extrapolate")
-
-
-def solve_ode_on_grid(rhs, y0: np.ndarray, t: np.ndarray, *, backward: bool = False) -> np.ndarray:
-    """Solve an ODE on grid t.  For backward=True, y0 is the terminal value."""
-    span = (t[-1], t[0]) if backward else (t[0], t[-1])
-    grid = t[::-1] if backward else t
-    sol = solve_ivp(rhs, span, y0, t_eval=grid, rtol=1e-6, atol=1e-8)
-    if not sol.success:
-        raise RuntimeError(sol.message)
-    out = sol.y.T
-    return out[::-1] if backward else out
 
 
 # -----------------------------------------------------------------------------

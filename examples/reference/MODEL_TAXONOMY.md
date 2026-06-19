@@ -57,8 +57,8 @@ This is the reference repository to read first if the goal is to understand how 
 
 | Goal | Start with |
 | --- | --- |
-| Understand degree-level PMP/Nash workflows | `examples/lecture/code/simple_degree_k_control.py`, then `PropagandaWar_TIFS_2024_Code/propWar.py` |
-| Understand hybrid/impulsive differential games | `examples/lecture/code/network_control_examples.py --examples degree`, then `PropagandaWar_TIFS_2024_Code` |
-| Understand node-level optimal control | `examples/lecture/code/network_control_examples.py --examples node`, then `Propaganda_TCSS_2025_Code` |
+| Understand degree-level PMP/Nash workflows | `examples/foundations/code/simple_degree_k_control.py`, then `PropagandaWar_TIFS_2024_Code/propWar.py` |
+| Understand hybrid/impulsive differential games | `examples/foundations/code/network_control_examples.py --examples degree`, then `PropagandaWar_TIFS_2024_Code` |
+| Understand node-level optimal control | `examples/foundations/code/network_control_examples.py --examples node`, then `Propaganda_TCSS_2025_Code` |
 | Understand malware-opinion coupled dynamics | `OpinionMalware_TIFS_2025_Code/network.py`, then `OpinionMalware_TIFS_2025_Code/opinionMalware.py` |
 | Understand awareness-aware impulse control | `Propaganda_TCSS_2025_Code/prop_network.py`, then `Propaganda_TCSS_2025_Code/prop_propaganda.py` |

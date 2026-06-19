@@ -5,8 +5,21 @@ from __future__ import annotations
 from typing import Callable, Tuple
 
 import numpy as np
+from scipy.integrate import solve_ivp
+from scipy.interpolate import interp1d
 
 Array = np.ndarray
+
+
+def project_box(values: Array, lower: float | Array = 0.0, upper: float | Array = 1.0) -> Array:
+    """Project a scalar or array onto box constraints.
+
+    This is the canonical helper for bounded states, controls, and strategies
+    in the repository family.  It uses NumPy broadcasting, so ``lower`` and
+    ``upper`` may be scalars or arrays matching ``values``.
+    """
+
+    return np.minimum(np.maximum(np.asarray(values, dtype=np.float64), lower), upper)
 
 
 def project_simplex(values: Array, eps: float = 1e-12) -> Array:
@@ -87,9 +100,47 @@ def rk4_integrate(
     return y, np.asarray(path)
 
 
-def trapezoid(y: Array, x: Array) -> float:
+def trapezoid_integral(y: Array, x: Array) -> float:
     """Compatibility wrapper for NumPy trapezoidal integration."""
 
     if hasattr(np, "trapezoid"):
         return float(np.trapezoid(y, x))
     return float(np.trapz(y, x))
+
+
+def trapezoid(y: Array, x: Array) -> float:
+    """Backward-compatible alias for :func:`trapezoid_integral`."""
+
+    return trapezoid_integral(y, x)
+
+
+def as_time_function(t: Array, values: Array) -> Callable[[float], Array]:
+    """Return a vector-valued interpolation function on a time grid."""
+
+    return interp1d(t, values, axis=0, bounds_error=False, fill_value="extrapolate")
+
+
+def solve_ode_grid(
+    rhs: Callable[[float, Array], Array],
+    y_boundary: Array,
+    t: Array,
+    *,
+    backward: bool = False,
+    rtol: float = 1e-6,
+    atol: float = 1e-8,
+) -> Array:
+    """Solve an ODE on grid ``t`` and return rows ordered from start to end.
+
+    If ``backward=True``, ``y_boundary`` is interpreted as the terminal value at
+    ``t[-1]``.  This helper is used by forward-backward sweep examples so the
+    forward state and backward costate integrations share one implementation.
+    """
+
+    time_grid = np.asarray(t, dtype=np.float64)
+    span = (time_grid[-1], time_grid[0]) if backward else (time_grid[0], time_grid[-1])
+    eval_grid = time_grid[::-1] if backward else time_grid
+    sol = solve_ivp(rhs, span, np.asarray(y_boundary, dtype=np.float64), t_eval=eval_grid, rtol=rtol, atol=atol)
+    if not sol.success:
+        raise RuntimeError(sol.message)
+    out = sol.y.T
+    return out[::-1] if backward else out

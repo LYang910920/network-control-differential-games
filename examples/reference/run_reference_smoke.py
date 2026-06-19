@@ -30,6 +30,7 @@ REF_DIR = PACKAGE_DIR / "reference_repositories"
 OUT_DIR = HERE / "results" / "reference_repos_rerun"
 PYDEPS = HERE / "pydeps"
 EXAMPLES_DIR = HERE.parent
+SRC_DIR = ROOT_DIR / "src"
 LINE_WIDTH = 2.0
 FIGSIZE_REFERENCE = (14.4, 3.9)
 BASELINE_ROWS: list[dict[str, object]] = []
@@ -38,6 +39,9 @@ PARAMETER_ROWS: list[dict[str, object]] = []
 
 if str(EXAMPLES_DIR) not in sys.path:
     sys.path.insert(0, str(EXAMPLES_DIR))
+
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
 if PYDEPS.exists():
     sys.path.insert(0, str(PYDEPS))
@@ -53,22 +57,8 @@ from common_diagnostics import (  # noqa: E402
     smooth_random_controls,
     write_baseline_table,
 )
-
-
-def apply_clean_axes(ax, *, xlabel: str | None = None, ylabel: str | None = None,
-                     title: str | None = None) -> None:
-    if xlabel:
-        ax.set_xlabel(xlabel)
-    if ylabel:
-        ax.set_ylabel(ylabel)
-    if title:
-        ax.set_title(title)
-    ax.grid(True, alpha=0.25, linewidth=0.8)
-
-
-def plot_time_series(ax, t: np.ndarray, y: np.ndarray, label: str, **kwargs) -> None:
-    kwargs.setdefault("linewidth", LINE_WIDTH)
-    ax.plot(t, y, label=label, **kwargs)
+from cybercontrol.io import require_outputs  # noqa: E402
+from cybercontrol.plotting import apply_clean_axes, plot_time_series  # noqa: E402
 
 
 def event_indices_from_values(
@@ -190,18 +180,6 @@ def record_parameter(repo: str, scope: str, parameter: str, value: object, meani
 def value_range(lower: float, upper: float) -> str:
     """Compact display for numeric bounds such as 0.3-3."""
     return f"{float(lower):g}-{float(upper):g}"
-
-
-def require_outputs(paths: list[Path]) -> None:
-    missing = [path for path in paths if not path.exists()]
-    empty = [path for path in paths if path.exists() and path.stat().st_size == 0]
-    if missing or empty:
-        details = []
-        if missing:
-            details.append("missing: " + ", ".join(str(path) for path in missing))
-        if empty:
-            details.append("empty: " + ", ".join(str(path) for path in empty))
-        raise RuntimeError("Expected output check failed; " + "; ".join(details))
 
 
 def require_reference_repos() -> None:

@@ -1,19 +1,19 @@
-# Tutorial Examples
+# Foundation Examples
 
-This directory contains the self-contained tutorial examples from the network optimal-control and differential-games tutorial package.
+This directory contains the self-contained foundation examples from the network optimal-control and differential-games tutorial package.
 
 ## Contents
 
 ```text
-lecture/
+foundations/
 ├── README.md
 ├── requirements.txt
-├── run_all_lecture_examples.py   # compatibility wrapper
+├── run_foundation_examples.py   # convenience wrapper
 ├── code/
 │   ├── simple_degree_k_control.py
 │   ├── network_control_examples.py
 │   ├── scalability_analysis.py
-│   └── run_all_lecture_examples.py
+│   └── run_foundation_examples.py
 ├── sample_data/
 │   ├── sample_edges.csv
 │   └── sample_adjacency.csv
@@ -31,7 +31,7 @@ python -m pip install -r ../../requirements.txt
 ## Run all examples
 
 ```bash
-python code/run_all_lecture_examples.py
+python code/run_foundation_examples.py
 ```
 
 By default, outputs are written to:
@@ -43,10 +43,10 @@ results/rerun_YYYYMMDD_HHMMSS/
 Specify a destination:
 
 ```bash
-python code/run_all_lecture_examples.py --output-root results/my_run
+python code/run_foundation_examples.py --output-root results/my_run
 ```
 
-The legacy command `python run_all_lecture_examples.py` still works; it calls the runner in `code/`.
+The wrapper command `python run_foundation_examples.py` calls the runner in `code/`.
 
 ## Run simple degree-k control only
 

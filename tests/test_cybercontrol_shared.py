@@ -1,8 +1,16 @@
 import numpy as np
 import pytest
 
+from cybercontrol.io import require_outputs
 from cybercontrol.models import MalwareParams, controlled_sir_rhs, isolation_jump
-from cybercontrol.numerics import project_simplex3, rk4_integrate
+from cybercontrol.numerics import (
+    as_time_function,
+    project_box,
+    project_simplex3,
+    rk4_integrate,
+    solve_ode_grid,
+    trapezoid_integral,
+)
 
 
 def test_rk4_controlled_sir_preserves_simplex_after_projection():
@@ -26,6 +34,36 @@ def test_isolation_jump_is_impulsive_and_mass_preserving():
     assert x_plus[2] > x0[2]
     assert np.isclose(x_plus[:3].sum(), 1.0)
     assert np.isclose(x_plus[3], x0[3])
+
+
+def test_grid_helpers_share_projection_quadrature_and_interpolation():
+    t = np.linspace(0.0, 1.0, 11)
+    clipped = project_box(np.array([-1.0, 0.25, 2.0]), 0.0, 1.0)
+    assert np.allclose(clipped, [0.0, 0.25, 1.0])
+    assert np.isclose(trapezoid_integral(t, t), 0.5)
+
+    values = np.column_stack([t, t * t])
+    value_at_half = as_time_function(t, values)(0.5)
+    assert np.allclose(value_at_half, [0.5, 0.25])
+
+    rhs_forward = lambda tau, y: np.array([1.0])
+    forward = solve_ode_grid(rhs_forward, np.array([0.0]), t)
+    backward = solve_ode_grid(rhs_forward, np.array([1.0]), t, backward=True)
+    assert np.allclose(forward[:, 0], t)
+    assert np.allclose(backward[:, 0], t)
+
+
+def test_require_outputs_flags_missing_or_empty_files(tmp_path):
+    good = tmp_path / "good.txt"
+    empty = tmp_path / "empty.txt"
+    good.write_text("ok\n", encoding="utf-8")
+    empty.write_text("", encoding="utf-8")
+
+    require_outputs([good])
+    with pytest.raises(RuntimeError, match="empty"):
+        require_outputs([empty])
+    with pytest.raises(RuntimeError, match="missing"):
+        require_outputs([tmp_path / "missing.txt"])
 
 
 def test_torch_time_derivative_and_networks_keep_gradients():

@@ -7,7 +7,7 @@ This directory has two tracks.
 Path:
 
 ```text
-examples/lecture/
+examples/foundations/
 ```
 
 Use this track first. The scripts are small, self-contained, and written to show the modeling pattern clearly.
@@ -17,7 +17,7 @@ Use this track first. The scripts are small, self-contained, and written to show
 | `code/simple_degree_k_control.py` | Minimal degree-k SIS optimal-control example | First PMP/control run |
 | `code/network_control_examples.py` | Degree games, node-level models, hybrid impulse simulation | Compare model variants |
 | `code/scalability_analysis.py` | Synthetic scale-free runtime experiment | Check FBS runtime versus network size |
-| `code/run_all_lecture_examples.py` | Runs all tutorial examples and saves figures | Reproduce the included plots |
+| `code/run_foundation_examples.py` | Runs all foundation examples and saves figures | Reproduce the included plots |
 
 Typical run from the repository root:
 
@@ -28,7 +28,7 @@ python -m pip install -r requirements.txt
 python run_all.py --skip-reference
 ```
 
-Fast tutorial-only check without the scalability timing:
+Fast foundation-only check without the scalability timing:
 
 ```bash
 python run_all.py --skip-reference --skip-scalability
@@ -43,10 +43,10 @@ python run_all.py --skip-reference --scalability-sizes 100,200,300 --scalability
 Outputs:
 
 ```text
-examples/lecture/results/rerun_YYYYMMDD_HHMMSS/
+examples/foundations/results/rerun_YYYYMMDD_HHMMSS/
 ```
 
-Each tutorial result folder includes `parameter_summary.csv` so the time horizon, grid size, propagation/recovery rates, control bounds, impulse settings, and random-baseline count are visible without reading the source first.
+Each foundation result folder includes `parameter_summary.csv` so the time horizon, grid size, propagation/recovery rates, control bounds, impulse settings, and random-baseline count are visible without reading the source first.
 
 ## Track 2: Reference Smoke Runs
 
@@ -56,7 +56,7 @@ Path:
 examples/reference/
 ```
 
-Use this track after the tutorial examples. It keeps source snapshots from three upstream research repositories and runs small smoke tests with local sample data. The three reference repositories correspond to the author's co-authored cyber/network-control papers: two in IEEE TIFS and one in IEEE TCSS.
+Use this track after the foundation examples. It keeps source snapshots from three upstream research repositories and runs small smoke tests with local sample data. The three reference repositories correspond to the author's co-authored cyber/network-control papers: two in IEEE TIFS and one in IEEE TCSS.
 
 | File or folder | Purpose |
 | --- | --- |
@@ -70,7 +70,7 @@ Use this track after the tutorial examples. It keeps source snapshots from three
 Typical run from the repository root:
 
 ```bash
-python run_all.py --skip-tutorial
+python run_all.py --skip-foundations
 ```
 
 Outputs:
