@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from cybercontrol.plotting import panel_label, publication_style, save_publication_figure
+
 
 RANDOM_BASELINE_COUNT = 75
 RANDOM_BASELINE_SEED = 20260617
@@ -247,7 +249,8 @@ def save_control_baseline_plot(
 
     labels = deterministic["scenario"].tolist()
     x_pos = np.arange(len(labels) + (1 if len(random_values) else 0))
-    fig, ax = plt.subplots(figsize=(7.4, 4.2))
+    with publication_style():
+        fig, ax = plt.subplots(figsize=(7.16, 4.0))
     colors = ["tab:blue"] + ["0.65"] * max(0, len(deterministic) - 1)
     ax.bar(x_pos[: len(deterministic)], deterministic["value"], color=colors, width=0.62)
 
@@ -269,10 +272,17 @@ def save_control_baseline_plot(
     ax.set_xticks(x_pos)
     ax.set_xticklabels(labels, rotation=16, ha="right")
     ax.set_ylabel(ylabel)
-    ax.set_title(title)
+    panel_label(ax, title)
     ax.grid(True, axis="y", alpha=0.25)
     fig.tight_layout()
-    fig.savefig(path, dpi=180)
+    save_publication_figure(
+        fig,
+        path,
+        metadata={
+            "figure_type": "same-model baseline comparison",
+            "random_baseline_count": int(len(random_values)),
+        },
+    )
     plt.close(fig)
 
 
@@ -286,7 +296,8 @@ def save_game_baseline_plot(
     """Plot one game model with fixed-opponent unilateral baseline panels."""
     df = pd.DataFrame(rows)
     panels = list(dict.fromkeys(df["panel"].tolist()))
-    fig, axes = plt.subplots(1, len(panels), figsize=(6.0 * len(panels), 4.2), squeeze=False)
+    with publication_style():
+        fig, axes = plt.subplots(1, len(panels), figsize=(3.58 * len(panels), 4.0), squeeze=False)
 
     for ax, panel in zip(axes.ravel(), panels):
         panel_df = df[df["panel"] == panel]
@@ -323,10 +334,16 @@ def save_game_baseline_plot(
         ax.set_xticks(x_pos)
         ax.set_xticklabels(labels, rotation=16, ha="right")
         ax.set_ylabel(ylabel)
-        ax.set_title(panel)
+        panel_label(ax, panel)
         ax.grid(True, axis="y", alpha=0.25)
 
-    fig.suptitle(title)
     fig.tight_layout()
-    fig.savefig(path, dpi=180)
+    save_publication_figure(
+        fig,
+        path,
+        metadata={
+            "figure_type": "same-game unilateral baseline comparison",
+            "caption_hint": title,
+        },
+    )
     plt.close(fig)

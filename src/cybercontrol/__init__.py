@@ -8,7 +8,7 @@ its own tutorial scripts and narrative.  Public modules stay small:
 - :mod:`cybercontrol.network_models` for node-level SIPS/SIPRS graph models.
 - :mod:`cybercontrol.torch_utils` for optional PyTorch helper blocks.
 - :mod:`cybercontrol.io` for reproducible outputs.
-- :mod:`cybercontrol.plotting` for lightweight figure helpers.
+- :mod:`cybercontrol.plotting` for guide and publication figure helpers.
 - :mod:`cybercontrol.diagnostics` for training-diagnostic terms and captions.
 """
 
@@ -44,7 +44,25 @@ from .network_models import (
     sample_node_siprs_step,
 )
 from .io import require_outputs, set_seed, write_csv, write_json
-from .plotting import apply_clean_axes, clean_axes, plot_time_series
+from .plotting import (
+    GUIDE_DPI,
+    IEEE_DOUBLE_COLUMN_IN,
+    IEEE_SINGLE_COLUMN_IN,
+    PUBLICATION_COLORS,
+    PUBLICATION_DPI,
+    PUBLICATION_LINESTYLES,
+    PUBLICATION_MARKERS,
+    apply_clean_axes,
+    clean_axes,
+    figure_size,
+    guide_style,
+    panel_label,
+    plot_time_series,
+    publication_style,
+    save_guide_figure,
+    save_publication_figure,
+    style_axis,
+)
 from .diagnostics import (
     COMMON_DIAGNOSTIC_TERMS,
     DiagnosticTerm,
@@ -63,11 +81,21 @@ __all__ = [
     "NodeSIPRSParams",
     "COMMON_DIAGNOSTIC_TERMS",
     "DiagnosticTerm",
+    "GUIDE_DPI",
+    "IEEE_DOUBLE_COLUMN_IN",
+    "IEEE_SINGLE_COLUMN_IN",
+    "PUBLICATION_COLORS",
+    "PUBLICATION_DPI",
+    "PUBLICATION_LINESTYLES",
+    "PUBLICATION_MARKERS",
     "add_caption",
     "apply_clean_axes",
     "as_time_function",
     "clean_axes",
     "diagnostic_terms_for",
+    "figure_size",
+    "guide_style",
+    "panel_label",
     "plot_time_series",
     "project_box",
     "project_compartments",
@@ -77,7 +105,10 @@ __all__ = [
     "rk4_integrate",
     "rk4_step",
     "rolling_mean",
+    "publication_style",
     "set_seed",
+    "save_guide_figure",
+    "save_publication_figure",
     "graph_pressure_numpy",
     "graph_pressure_torch",
     "node_sips_rhs_numpy",
@@ -88,6 +119,7 @@ __all__ = [
     "normalize_adjacency",
     "solve_ode_grid",
     "sample_node_siprs_step",
+    "style_axis",
     "trapezoid",
     "trapezoid_integral",
     "write_csv",

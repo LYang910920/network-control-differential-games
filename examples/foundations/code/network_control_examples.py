@@ -77,7 +77,7 @@ from cybercontrol.numerics import (
     solve_ode_grid as solve_grid,
     trapezoid_integral as integral,
 )
-from cybercontrol.plotting import apply_clean_axes, plot_time_series
+from cybercontrol.plotting import apply_clean_axes, plot_time_series, save_publication_figure
 from model_profiles import (
     DEGREE_CONTROL_PROFILE,
     DEGREE_GAME_PROFILE,
@@ -168,7 +168,7 @@ def savefig(path: Path) -> None:
     """Save the current figure and close it."""
     path.parent.mkdir(parents=True, exist_ok=True)
     plt.tight_layout()
-    plt.savefig(path, dpi=180)
+    save_publication_figure(plt.gcf(), path, metadata={"source": "foundation example"})
     plt.close()
     print(f"saved {path}")
 
@@ -414,7 +414,7 @@ def save_degree_distribution(D: DegreeData, out_dir: Path) -> None:
     ax.bar(D.k, D.pk, color="tab:blue", alpha=0.85)
     apply_clean_axes(ax, xlabel="degree k", ylabel="P(k)",
                      title=f"Empirical degree distribution; average degree={D.kbar:.2f}")
-    savefig(out_dir / "degree_distribution.png")
+    savefig(out_dir / "degree_distribution")
 
 
 def high_degree_nodes(A: np.ndarray, m: int) -> np.ndarray:
@@ -848,7 +848,7 @@ def save_fbs_convergence(results: dict[str, TimeSeries], out_dir: Path) -> None:
     apply_clean_axes(ax, xlabel="FBS iteration", ylabel="max control/strategy change", title="Forward-backward sweep convergence")
     ax.axhline(1e-4, color="0.45", linestyle=":", linewidth=1.4, label="tolerance=1e-4")
     ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "fbs_convergence.png")
+    savefig(out_dir / "fbs_convergence")
 
 
 def save_baseline_comparison(
@@ -966,9 +966,9 @@ def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> Non
     for j in sorted(set([0, len(D.k) // 2, len(D.k) - 1])):
         plot_time_series(ax, result.t, result.x[:, j], f"state: degree k={int(D.k[j])}", linestyle="--", linewidth=1.5)
     apply_clean_axes(ax, xlabel="time", ylabel="state / control",
-                     title=f"Degree-k continuous optimal control; cost={result.value['cost']:.2f}")
+                     title=f"Degree-k continuous optimal control, cost={result.value['cost']:.2f}")
     ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "degree_control_trajectory.png")
+    savefig(out_dir / "degree_control_trajectory")
 
 
 def plot_degree_game(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
@@ -992,9 +992,9 @@ def plot_degree_game(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
     high = int(np.argmax(D.k))
     plot_time_series(ax, result.t, result.x[:, high], f"state: high degree k={int(D.k[high])}", linestyle=":", linewidth=1.8)
     apply_clean_axes(ax, xlabel="time", ylabel="state / control",
-                     title=f"Degree-k continuous differential game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
+                     title=f"Degree-k continuous differential game, JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
     ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "degree_game_trajectory.png")
+    savefig(out_dir / "degree_game_trajectory")
 
 
 def plot_node_control(result: TimeSeries, out_dir: Path) -> None:
@@ -1010,9 +1010,9 @@ def plot_node_control(result: TimeSeries, out_dir: Path) -> None:
         linestyle="-.",
     )
     apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
-                     title=f"Node-level continuous optimal control; cost={result.value['cost']:.2f}")
+                     title=f"Node-level continuous optimal control, cost={result.value['cost']:.2f}")
     ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "node_control_trajectory.png")
+    savefig(out_dir / "node_control_trajectory")
 
 
 def plot_node_game(result: TimeSeries, out_dir: Path) -> None:
@@ -1034,9 +1034,9 @@ def plot_node_game(result: TimeSeries, out_dir: Path) -> None:
         linestyle="-.",
     )
     apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
-                     title=f"Node-level continuous differential game; JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
+                     title=f"Node-level continuous differential game, JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
     ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "node_game_trajectory.png")
+    savefig(out_dir / "node_game_trajectory")
 
 
 def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
@@ -1078,7 +1078,14 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
     )
     ax_control.legend(frameon=False, ncol=2, fontsize=8)
     fig.tight_layout()
-    fig.savefig(out_dir / "hybrid_impulse_trajectory.png", dpi=180)
+    save_publication_figure(
+        fig,
+        out_dir / "hybrid_impulse_trajectory.png",
+        metadata={
+            "model": "hybrid impulse example",
+            "control_type": "continuous plus impulse control",
+        },
+    )
     plt.close(fig)
     print(f"saved {out_dir / 'hybrid_impulse_trajectory.png'}")
 

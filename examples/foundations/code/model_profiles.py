@@ -181,6 +181,6 @@ def describe_profiles() -> list[dict[str, str]]:
 if __name__ == "__main__":
     for row in describe_profiles():
         print(
-            f"{row['name']}: type={row['type']}; horizon={row['horizon']}; "
-            f"{row['rates']}; {row['bounds']}; {row['notes']}"
+            f"{row['name']}: type={row['type']}, horizon={row['horizon']}, "
+            f"{row['rates']}, {row['bounds']}, {row['notes']}"
         )

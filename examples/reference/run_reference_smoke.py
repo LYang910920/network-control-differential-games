@@ -58,7 +58,13 @@ from common_diagnostics import (  # noqa: E402
     write_baseline_table,
 )
 from cybercontrol.io import require_outputs  # noqa: E402
-from cybercontrol.plotting import apply_clean_axes, plot_time_series  # noqa: E402
+from cybercontrol.plotting import (  # noqa: E402
+    apply_clean_axes,
+    panel_label,
+    plot_time_series,
+    save_guide_figure,
+    save_publication_figure,
+)
 
 
 def event_indices_from_values(
@@ -385,7 +391,16 @@ def run_opinion_malware() -> dict[str, float]:
     apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="impulse controls: discrete event lines")
     axes[2].legend(frameon=False, fontsize=8)
     fig.tight_layout()
-    fig.savefig(OUT_DIR / "opinion_malware.png", dpi=180)
+    save_publication_figure(
+        fig,
+        OUT_DIR / "opinion_malware",
+        metadata={
+            "source": "reference_smoke",
+            "model": "OpinionMalware",
+            "control_type": "impulse",
+            "state_summary": "node-level means over all nodes",
+        },
+    )
     plt.close(fig)
 
     sys.path.remove(str(repo))
@@ -644,7 +659,16 @@ def run_propaganda_war() -> dict[str, float]:
     apply_clean_axes(axes[2], xlabel="time", ylabel="strategy value", title="hybrid control: continuous + impulse strategies")
     axes[2].legend(frameon=False, ncol=2, fontsize=8)
     fig.tight_layout()
-    fig.savefig(OUT_DIR / "propaganda_war.png", dpi=180)
+    save_publication_figure(
+        fig,
+        OUT_DIR / "propaganda_war",
+        metadata={
+            "source": "reference_smoke",
+            "model": "PropagandaWar",
+            "control_type": "hybrid continuous plus impulse",
+            "state_summary": "degree-weighted means",
+        },
+    )
     plt.close(fig)
 
     sys.path.remove(str(repo))
@@ -830,7 +854,16 @@ def run_propaganda_tcss() -> dict[str, float]:
     apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="impulse controls: discrete event lines")
     axes[2].legend(frameon=False, fontsize=8)
     fig.tight_layout()
-    fig.savefig(OUT_DIR / "propaganda_tcss.png", dpi=180)
+    save_publication_figure(
+        fig,
+        OUT_DIR / "propaganda_tcss",
+        metadata={
+            "source": "reference_smoke",
+            "model": "Propaganda TCSS",
+            "control_type": "impulse",
+            "state_summary": "node-level means over all nodes",
+        },
+    )
     plt.close(fig)
 
     sys.path.remove(str(repo))
@@ -851,12 +884,17 @@ def make_contact_sheet() -> None:
     flat_axes = axes.ravel()
     for ax, (title, path) in zip(flat_axes, images):
         ax.imshow(plt.imread(path))
-        ax.set_title(title)
+        panel_label(ax, title, x=0.0, y=1.01)
         ax.axis("off")
     for ax in flat_axes[len(images):]:
         ax.axis("off")
     fig.tight_layout()
-    fig.savefig(OUT_DIR / "reference_repo_contact_sheet.png", dpi=180)
+    save_guide_figure(
+        fig,
+        OUT_DIR / "reference_repo_contact_sheet",
+        formats=("png", "pdf"),
+        metadata={"source": "reference_smoke", "purpose": "contact sheet"},
+    )
     plt.close(fig)
 
 
@@ -875,7 +913,11 @@ def write_reference_diagnostics() -> None:
         apply_clean_axes(ax, xlabel="iteration", ylabel="absolute change", title="Reference smoke-run convergence diagnostics")
         ax.legend(frameon=False, fontsize=7)
         fig.tight_layout()
-        fig.savefig(OUT_DIR / "reference_convergence.png", dpi=180)
+        save_publication_figure(
+            fig,
+            OUT_DIR / "reference_convergence",
+            metadata={"source": "reference_smoke", "purpose": "convergence diagnostics"},
+        )
         plt.close(fig)
 
     if BASELINE_ROWS:
