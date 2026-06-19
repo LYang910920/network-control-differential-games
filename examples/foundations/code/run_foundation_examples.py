@@ -77,7 +77,7 @@ def write_results_readme(
         scalability_axis = "- `network size`: the number of nodes in a synthetic scale-free network used for scalability timing.\n"
         scalability_guide_row = (
             f"| `scalability_degree_node_sf/{scalability_plot}` | network size | Paired degree-level and sparse node-level FBS runtime on "
-            "the same normalized SIS epidemic-control problem | Runtime and state-dimension comparison; node-level state is one entry per graph node and uses sparse adjacency products. |\n"
+            "the same normalized SIS epidemic-control problem | Log-scaled runtime, state-dimension, and max-degree comparison; node-level state is one entry per graph node and uses sparse adjacency products. |\n"
         )
         scalability_index_row = (
             f"| Paired FBS scalability | `scalability_degree_node_sf/` | How much slower is node-level FBS than degree-level FBS on the same epidemic-control model and graph seeds? | `{scalability_plot}` |\n"
@@ -165,11 +165,11 @@ def main() -> None:
     parser.add_argument("--skip-scalability", action="store_true", help="Skip the synthetic SF scalability run.")
     parser.add_argument(
         "--scalability-sizes",
-        default="1000,2000,3000,4000,5000,6000,7000,8000,9000,10000",
+        default="100,1000,10000,100000,1000000",
         help="Comma-separated node counts for paired degree/node scalability analysis.",
     )
-    parser.add_argument("--scalability-repeats", type=int, default=2)
-    parser.add_argument("--scalability-steps", type=int, default=80)
+    parser.add_argument("--scalability-repeats", type=int, default=1)
+    parser.add_argument("--scalability-steps", type=int, default=60)
     parser.add_argument("--scalability-iterations", type=int, default=80)
     parser.add_argument(
         "--include-node-scalability",

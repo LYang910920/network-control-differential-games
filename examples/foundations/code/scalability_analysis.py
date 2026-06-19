@@ -4,14 +4,15 @@
 """Scalability analysis for forward-backward sweep optimal control.
 
 The default experiment uses synthetic Barabasi-Albert scale-free networks with
-1000, 2000, ..., 10000 nodes. For each graph seed, it runs both degree-level FBS
-and node-level FBS on the same normalized SIS epidemic-control problem, records
-runtime/convergence diagnostics, and writes one paired comparison plot.
+100, 1000, 10000, 100000, and 1000000 nodes. For each graph seed, it runs both
+degree-level FBS and node-level FBS on the same normalized SIS epidemic-control
+problem, records runtime/convergence diagnostics, and writes one paired
+comparison plot.
 
 Degree-level FBS has one state/control/costate per observed degree class.
 Node-level FBS has one state/control/costate per graph node. The paired
 node-level solver uses sparse matrix products so the same tutorial comparison
-can reach 10000-node synthetic graphs without materializing dense adjacency
+can reach million-node synthetic graphs without materializing dense adjacency
 matrices.
 
 The graph work is delegated to libraries: igraph generates the
@@ -30,6 +31,7 @@ from pathlib import Path
 
 import igraph as ig
 import matplotlib
+from matplotlib.ticker import FixedLocator, FuncFormatter
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -54,7 +56,7 @@ from network_control_examples import (  # noqa: E402
 )
 
 
-DEFAULT_COMPARE_SIZES = tuple(range(1000, 10001, 1000))
+DEFAULT_COMPARE_SIZES = (100, 1000, 10000, 100000, 1000000)
 DEFAULT_DEGREE_SIZES = tuple(range(100, 2001, 100))
 DEFAULT_NODE_SIZES = tuple(range(1000, 10001, 1000))
 
@@ -100,6 +102,11 @@ def synthetic_scale_free_graph(nodes: int, attachment_m: int, seed: int) -> ig.G
 def degree_distribution_from_igraph(graph: ig.Graph) -> DegreeData:
     """Reduce a node-level graph to the degree-k state used by the FBS solver."""
     degree = np.asarray(graph.degree(), dtype=int)
+    return degree_distribution_from_degree(degree)
+
+
+def degree_distribution_from_degree(degree: np.ndarray) -> DegreeData:
+    """Reduce a node-degree vector to the degree-k state used by the FBS solver."""
     k, Nk = np.unique(degree, return_counts=True)
     pk = Nk / Nk.sum()
     return DegreeData(k=k.astype(float), Nk=Nk.astype(int), pk=pk.astype(float), kbar=float(k @ pk), node_degree=degree)
@@ -143,11 +150,16 @@ def comparison_degree_theta(x: np.ndarray, D: DegreeData) -> float:
     return float((D.k * D.pk) @ x / max(D.kbar, 1e-12))
 
 
+def comparison_degree_scale(D: DegreeData) -> float:
+    """Use the graph's maximum degree to keep large-SF contact pressure stable."""
+    return max(float(D.k.max(initial=1.0)), 1.0)
+
+
 def comparison_degree_rhs(x: np.ndarray, u: np.ndarray, D: DegreeData) -> np.ndarray:
     """Normalized degree-level SIS dynamics used only for paired scalability."""
     params = COMPARISON_DEFAULTS
     theta = comparison_degree_theta(x, D)
-    contact = (D.k / max(D.kbar, 1e-12)) * theta
+    contact = (D.k / comparison_degree_scale(D)) * theta
     return params["beta"] * (1.0 - x) * contact - (params["delta"] + u) * x
 
 
@@ -156,17 +168,17 @@ def comparison_degree_jacobian(x: np.ndarray, u: np.ndarray, D: DegreeData) -> n
     params = COMPARISON_DEFAULTS
     kbar = max(D.kbar, 1e-12)
     dtheta = D.k * D.pk / kbar
-    contact_scale = D.k / kbar
+    contact_scale = D.k / comparison_degree_scale(D)
     theta = comparison_degree_theta(x, D)
     J = params["beta"] * np.outer(contact_scale * (1.0 - x), dtheta)
     J[np.diag_indices_from(J)] += -params["beta"] * contact_scale * theta - (params["delta"] + u)
     return J
 
 
-def comparison_node_rhs(x: np.ndarray, u: np.ndarray, A: sp.csr_matrix, kbar: float) -> np.ndarray:
+def comparison_node_rhs(x: np.ndarray, u: np.ndarray, A: sp.csr_matrix, degree_scale: float) -> np.ndarray:
     """Normalized node-level SIS dynamics matched to comparison_degree_rhs."""
     params = COMPARISON_DEFAULTS
-    pressure = (A @ x) / max(kbar, 1e-12)
+    pressure = (A @ x) / max(degree_scale, 1e-12)
     return params["beta"] * (1.0 - x) * pressure - (params["delta"] + u) * x
 
 
@@ -176,11 +188,11 @@ def comparison_node_adjoint_rhs(
     u: np.ndarray,
     pressure: np.ndarray,
     A: sp.csr_matrix,
-    kbar: float,
+    degree_scale: float,
 ) -> np.ndarray:
     """Scaled node-level costate RHS for the averaged node objective."""
     params = COMPARISON_DEFAULTS
-    offdiag = params["beta"] * (A.T @ ((1.0 - x) * mu)) / max(kbar, 1e-12)
+    offdiag = params["beta"] * (A.T @ ((1.0 - x) * mu)) / max(degree_scale, 1e-12)
     diag = (-params["beta"] * pressure - params["delta"] - u) * mu
     return -params["state_weight"] - offdiag - diag
 
@@ -226,7 +238,7 @@ def integrate_comparison_degree_adjoint(D: DegreeData, t: np.ndarray, x: np.ndar
 
 def integrate_comparison_node_state(
     A: sp.csr_matrix,
-    kbar: float,
+    degree_scale: float,
     t: np.ndarray,
     x0: np.ndarray,
     u: np.ndarray,
@@ -235,24 +247,24 @@ def integrate_comparison_node_state(
     x = np.empty((len(t), A.shape[0]), dtype=np.float64)
     pressure = np.empty_like(x)
     x[0] = x0
-    pressure[0] = (A @ x0) / max(kbar, 1e-12)
+    pressure[0] = (A @ x0) / max(degree_scale, 1e-12)
     for idx in range(len(t) - 1):
         h = float(t[idx + 1] - t[idx])
         u0, u1 = u[idx], u[idx + 1]
         umid = 0.5 * (u0 + u1)
         y0 = x[idx]
-        k1 = comparison_node_rhs(y0, u0, A, kbar)
-        k2 = comparison_node_rhs(np.clip(y0 + 0.5 * h * k1, 0.0, 1.0), umid, A, kbar)
-        k3 = comparison_node_rhs(np.clip(y0 + 0.5 * h * k2, 0.0, 1.0), umid, A, kbar)
-        k4 = comparison_node_rhs(np.clip(y0 + h * k3, 0.0, 1.0), u1, A, kbar)
+        k1 = comparison_node_rhs(y0, u0, A, degree_scale)
+        k2 = comparison_node_rhs(np.clip(y0 + 0.5 * h * k1, 0.0, 1.0), umid, A, degree_scale)
+        k3 = comparison_node_rhs(np.clip(y0 + 0.5 * h * k2, 0.0, 1.0), umid, A, degree_scale)
+        k4 = comparison_node_rhs(np.clip(y0 + h * k3, 0.0, 1.0), u1, A, degree_scale)
         x[idx + 1] = np.clip(y0 + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0, 0.0, 1.0)
-        pressure[idx + 1] = (A @ x[idx + 1]) / max(kbar, 1e-12)
+        pressure[idx + 1] = (A @ x[idx + 1]) / max(degree_scale, 1e-12)
     return x, pressure
 
 
 def integrate_comparison_node_adjoint(
     A: sp.csr_matrix,
-    kbar: float,
+    degree_scale: float,
     t: np.ndarray,
     x: np.ndarray,
     pressure: np.ndarray,
@@ -267,12 +279,47 @@ def integrate_comparison_node_adjoint(
         p1, p0 = pressure[idx + 1], pressure[idx]
         u1, u0 = u[idx + 1], u[idx]
         xmid, pmid, umid = 0.5 * (x0 + x1), 0.5 * (p0 + p1), 0.5 * (u0 + u1)
-        k1 = comparison_node_adjoint_rhs(m1, x1, u1, p1, A, kbar)
-        k2 = comparison_node_adjoint_rhs(m1 + 0.5 * h * k1, xmid, umid, pmid, A, kbar)
-        k3 = comparison_node_adjoint_rhs(m1 + 0.5 * h * k2, xmid, umid, pmid, A, kbar)
-        k4 = comparison_node_adjoint_rhs(m1 + h * k3, x0, u0, p0, A, kbar)
+        k1 = comparison_node_adjoint_rhs(m1, x1, u1, p1, A, degree_scale)
+        k2 = comparison_node_adjoint_rhs(m1 + 0.5 * h * k1, xmid, umid, pmid, A, degree_scale)
+        k3 = comparison_node_adjoint_rhs(m1 + 0.5 * h * k2, xmid, umid, pmid, A, degree_scale)
+        k4 = comparison_node_adjoint_rhs(m1 + h * k3, x0, u0, p0, A, degree_scale)
         mu[idx] = m1 + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
     return mu
+
+
+def update_comparison_node_control(
+    A: sp.csr_matrix,
+    degree_scale: float,
+    t: np.ndarray,
+    x: np.ndarray,
+    pressure: np.ndarray,
+    u: np.ndarray,
+) -> tuple[np.ndarray, float]:
+    """Backward sweep that updates node controls without storing all costates."""
+    params = COMPARISON_DEFAULTS
+    new_u = np.empty_like(u)
+    mu_next = np.zeros(A.shape[0], dtype=np.float64)
+
+    terminal_candidate = np.zeros(A.shape[0], dtype=np.float64)
+    new_u[-1] = params["damping"] * terminal_candidate + (1.0 - params["damping"]) * u[-1]
+    max_delta = float(np.max(np.abs(new_u[-1] - u[-1])))
+
+    for idx in range(len(t) - 2, -1, -1):
+        h = -float(t[idx + 1] - t[idx])
+        x1, x0 = x[idx + 1], x[idx]
+        p1, p0 = pressure[idx + 1], pressure[idx]
+        u1, u0 = u[idx + 1], u[idx]
+        xmid, pmid, umid = 0.5 * (x0 + x1), 0.5 * (p0 + p1), 0.5 * (u0 + u1)
+        k1 = comparison_node_adjoint_rhs(mu_next, x1, u1, p1, A, degree_scale)
+        k2 = comparison_node_adjoint_rhs(mu_next + 0.5 * h * k1, xmid, umid, pmid, A, degree_scale)
+        k3 = comparison_node_adjoint_rhs(mu_next + 0.5 * h * k2, xmid, umid, pmid, A, degree_scale)
+        k4 = comparison_node_adjoint_rhs(mu_next + h * k3, x0, u0, p0, A, degree_scale)
+        mu_now = mu_next + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
+        candidate = np.clip(mu_now * x0 / params["control_weight"], 0.0, params["control_max"])
+        new_u[idx] = params["damping"] * candidate + (1.0 - params["damping"]) * u0
+        max_delta = max(max_delta, float(np.max(np.abs(new_u[idx] - u0))))
+        mu_next = mu_now
+    return new_u, max_delta
 
 
 def run_comparison_degree_fbs(D: DegreeData, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
@@ -316,22 +363,18 @@ def run_comparison_degree_fbs(D: DegreeData, *, steps: int, iterations: int, tol
 def run_comparison_node_fbs(A: sp.csr_matrix, degree: np.ndarray, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
     """Sparse node-level FBS for the paired epidemic comparison."""
     params = COMPARISON_DEFAULTS
-    kbar = float(degree.mean()) if len(degree) else 1.0
+    degree_scale = max(float(degree.max(initial=1.0)), 1.0)
     t = np.linspace(0.0, params["horizon"], steps + 1)
     u = np.zeros((len(t), A.shape[0]), dtype=np.float64)
     x0 = comparison_node_initial_state(degree)
     delta_history: list[float] = []
     for _ in range(iterations):
-        old_u = u.copy()
-        x, pressure = integrate_comparison_node_state(A, kbar, t, x0, u)
-        mu = integrate_comparison_node_adjoint(A, kbar, t, x, pressure, u)
-        candidate = np.clip(mu * x / params["control_weight"], 0.0, params["control_max"])
-        u = params["damping"] * candidate + (1.0 - params["damping"]) * old_u
-        delta_u = float(np.max(np.abs(u - old_u)))
+        x, pressure = integrate_comparison_node_state(A, degree_scale, t, x0, u)
+        u, delta_u = update_comparison_node_control(A, degree_scale, t, x, pressure, u)
         delta_history.append(delta_u)
         if delta_u < tol:
             break
-    x, _ = integrate_comparison_node_state(A, kbar, t, x0, u)
+    x, _ = integrate_comparison_node_state(A, degree_scale, t, x0, u)
     running = params["state_weight"] * x.mean(axis=1) + 0.5 * params["control_weight"] * np.mean(u * u, axis=1)
     cost = float(np.trapezoid(running, t) if hasattr(np, "trapezoid") else np.trapz(running, t))
     final_delta = float(delta_history[-1]) if delta_history else float("nan")
@@ -615,11 +658,18 @@ def run_node_trial(graph: ig.Graph, *, steps: int, iterations: int, tol: float, 
     }
 
 
-def run_paired_comparison_trials(graph: ig.Graph, *, steps: int, iterations: int, tol: float) -> list[dict[str, float | str]]:
+def run_paired_comparison_trials(
+    graph: ig.Graph,
+    *,
+    degree: np.ndarray,
+    steps: int,
+    iterations: int,
+    tol: float,
+) -> list[dict[str, float | str]]:
     """Run degree-level and sparse node-level FBS on the same epidemic-control instance."""
-    degree_data = degree_distribution_from_igraph(graph)
+    degree_float = degree.astype(float, copy=False)
+    degree_data = degree_distribution_from_degree(degree.astype(int, copy=False))
     A = igraph_to_sparse_adjacency(graph)
-    degree = np.asarray(graph.degree(), dtype=np.float64)
     shared = {
         "horizon": float(COMPARISON_DEFAULTS["horizon"]),
         "beta": float(COMPARISON_DEFAULTS["beta"]),
@@ -628,13 +678,14 @@ def run_paired_comparison_trials(graph: ig.Graph, *, steps: int, iterations: int
         "control_weight": float(COMPARISON_DEFAULTS["control_weight"]),
         "control_max": float(COMPARISON_DEFAULTS["control_max"]),
         "damping": float(COMPARISON_DEFAULTS["damping"]),
-        "mean_degree": float(degree.mean()) if len(degree) else float("nan"),
+        "mean_degree": float(degree_float.mean()) if len(degree_float) else float("nan"),
+        "max_degree": float(degree_float.max(initial=0.0)),
     }
 
     rows: list[dict[str, float | str]] = []
     for model_level, runner in (
         ("degree", lambda: run_comparison_degree_fbs(degree_data, steps=steps, iterations=iterations, tol=tol)),
-        ("node", lambda: run_comparison_node_fbs(A, degree, steps=steps, iterations=iterations, tol=tol)),
+        ("node", lambda: run_comparison_node_fbs(A, degree_float, steps=steps, iterations=iterations, tol=tol)),
     ):
         solve_start = time.perf_counter()
         stats = runner()
@@ -661,8 +712,17 @@ def run_scalability_experiment(args: argparse.Namespace) -> pd.DataFrame:
             # then separates median behavior from repeat-to-repeat variation.
             seed = args.seed + 1000 * repeat + nodes
             graph = synthetic_scale_free_graph(nodes, args.attachment_m, seed)
+            degree = np.asarray(graph.degree(), dtype=np.int64)
+            mean_degree = float(degree.mean()) if len(degree) else float("nan")
+            max_degree = float(degree.max(initial=0))
             if args.model_level == "compare":
-                trial_rows = run_paired_comparison_trials(graph, steps=args.steps, iterations=args.iterations, tol=args.tolerance)
+                trial_rows = run_paired_comparison_trials(
+                    graph,
+                    degree=degree,
+                    steps=args.steps,
+                    iterations=args.iterations,
+                    tol=args.tolerance,
+                )
             elif args.model_level == "degree":
                 stats = run_degree_trial(graph, steps=args.steps, iterations=args.iterations, tol=args.tolerance)
                 trial_rows = [stats]
@@ -687,6 +747,8 @@ def run_scalability_experiment(args: argparse.Namespace) -> pd.DataFrame:
                     "time_grid_steps": args.steps,
                     "max_fbs_iterations": args.iterations,
                     "tolerance": args.tolerance,
+                    "mean_degree": mean_degree,
+                    "max_degree": max_degree,
                 }
                 row.update(stats)
                 rows.append(row)
@@ -710,6 +772,10 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
         state_dimension_median=("state_dimension", "median"),
         degree_classes_median=("degree_classes", "median"),
         matrix_nonzeros_median=("matrix_nonzeros", "median"),
+        mean_degree_median=("mean_degree", "median"),
+        max_degree_median=("max_degree", "median"),
+        max_degree_min=("max_degree", "min"),
+        max_degree_max=("max_degree", "max"),
         converged_runs=("converged", "sum"),
         repeats=("repeat", "count"),
     )
@@ -725,9 +791,18 @@ def plot_filename(model_level: str, summary: pd.DataFrame) -> str:
     return f"{model_level}_control_scalability_{node_min}_{node_max}.png"
 
 
+def compact_node_tick(value: float, _position: int | None = None) -> str:
+    """Readable log-axis labels for network sizes."""
+    if value >= 1_000_000:
+        return f"{value / 1_000_000:g}M"
+    if value >= 1_000:
+        return f"{value / 1_000:g}k"
+    return f"{int(value)}"
+
+
 def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path) -> Path:
     """Plot the paired degree-level versus node-level epidemic FBS comparison."""
-    fig, axes = plt.subplots(1, 2, figsize=(11.4, 4.4))
+    fig, axes = plt.subplots(1, 3, figsize=(15.2, 4.4))
     styles = {
         "degree": {
             "color": "tab:blue",
@@ -745,7 +820,7 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
     node_min = int(summary["nodes"].min())
     node_max = int(summary["nodes"].max())
     x_ticks = sorted(summary["nodes"].unique())
-    margin = max(10, int(0.04 * (node_max - node_min + 1)))
+    x_formatter = FuncFormatter(compact_node_tick)
 
     ax = axes[0]
     for model_level, group in summary.groupby("model_level", sort=False):
@@ -768,11 +843,13 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
             color=style["color"],
             alpha=0.10,
         )
+    ax.set_xscale("log")
+    ax.set_yscale("log")
     ax.set_xlabel("number of nodes in the same synthetic SF network")
     ax.set_ylabel("FBS solve time (seconds)")
     ax.set_title("Runtime on the same SIS model and graph seeds")
-    ax.set_xlim(node_min - margin, node_max + margin)
-    ax.set_xticks(x_ticks)
+    ax.xaxis.set_major_locator(FixedLocator(x_ticks))
+    ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
     ax.legend(frameon=False, fontsize=8)
 
@@ -788,15 +865,54 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
             color=style["color"],
             label=style["label"],
         )
+    ax.set_xscale("log")
+    ax.set_yscale("log")
     ax.set_xlabel("number of nodes in the same synthetic SF network")
     ax.set_ylabel("FBS state dimension")
     ax.set_title("State dimension: degree classes vs graph nodes")
-    ax.set_xlim(node_min - margin, node_max + margin)
-    ax.set_xticks(x_ticks)
+    ax.xaxis.set_major_locator(FixedLocator(x_ticks))
+    ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
     ax.legend(frameon=False, fontsize=8)
 
-    fig.suptitle("Paired degree-level vs node-level FBS: same synthetic SF graphs")
+    ax = axes[2]
+    graph_summary = (
+        raw.drop_duplicates(["nodes", "repeat", "seed"])
+        .groupby("nodes", as_index=False)
+        .agg(
+            max_degree_median=("max_degree", "median"),
+            max_degree_min=("max_degree", "min"),
+            max_degree_max=("max_degree", "max"),
+        )
+    )
+    ax.plot(
+        graph_summary["nodes"],
+        graph_summary["max_degree_median"],
+        marker="^",
+        linestyle="-.",
+        linewidth=2.0,
+        color="tab:green",
+        label="median max degree",
+    )
+    ax.fill_between(
+        graph_summary["nodes"].to_numpy(float),
+        graph_summary["max_degree_min"].to_numpy(float),
+        graph_summary["max_degree_max"].to_numpy(float),
+        color="tab:green",
+        alpha=0.12,
+        label="min-max over graph seeds",
+    )
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("number of nodes in the same synthetic SF network")
+    ax.set_ylabel("maximum degree")
+    ax.set_title("Synthetic SF hubs grow with network size")
+    ax.xaxis.set_major_locator(FixedLocator(x_ticks))
+    ax.xaxis.set_major_formatter(x_formatter)
+    ax.grid(True, alpha=0.25)
+    ax.legend(frameon=False, fontsize=8)
+
+    fig.suptitle("Paired degree-level vs node-level FBS on synthetic SF graphs (log scale)")
     fig.tight_layout()
     path = out_dir / plot_filename("compare", summary)
     fig.savefig(path, dpi=180)
@@ -890,6 +1006,22 @@ def write_report(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_
             f"{row.fbs_iterations_median:.0f} | {row.fbs_seconds_median:.3f} | {bool(row.all_runs_converged)} |"
             for row in largest.itertuples(index=False)
         )
+        graph_summary = (
+            raw.drop_duplicates(["nodes", "repeat", "seed"])
+            .groupby("nodes", as_index=False)
+            .agg(
+                edges_median=("edges", "median"),
+                mean_degree_median=("mean_degree", "median"),
+                max_degree_median=("max_degree", "median"),
+                max_degree_min=("max_degree", "min"),
+                max_degree_max=("max_degree", "max"),
+            )
+        )
+        graph_rows = "\n".join(
+            f"| {int(row.nodes)} | {int(row.edges_median)} | {row.mean_degree_median:.2f} | "
+            f"{row.max_degree_median:.0f} | {row.max_degree_min:.0f}-{row.max_degree_max:.0f} |"
+            for row in graph_summary.itertuples(index=False)
+        )
         params = COMPARISON_DEFAULTS
         text = f"""# Paired Degree-Level vs Node-Level FBS Comparison
 
@@ -901,6 +1033,7 @@ This run compares two FBS discretizations of the same normalized SIS epidemic-co
 - Repeats per size: {int(raw["repeat"].max())}.
 - Synthetic network model: Barabasi-Albert scale-free graph with attachment parameter `m={int(raw["attachment_m"].iloc[0])}`.
 - Epidemic/control model: normalized SIS, `T={params["horizon"]}`, `beta={params["beta"]}`, `delta={params["delta"]}`, state weight `{params["state_weight"]}`, control weight `{params["control_weight"]}`, `u_max={params["control_max"]}`.
+- Contact-pressure normalization: each graph's maximum degree, shared by the degree-level and node-level rows.
 - Numerical solver for both rows: fixed-grid RK4 inside forward-backward sweep.
 - Node-level implementation: sparse adjacency matrix; state/control/costate are still node-indexed.
 - Time grid: `{int(raw["time_grid_steps"].iloc[0])}` intervals over the control horizon.
@@ -912,7 +1045,7 @@ This run compares two FBS discretizations of the same normalized SIS epidemic-co
 
 | File | Meaning |
 | --- | --- |
-| `{plot_path.name}` | Paired runtime and state-dimension comparison. |
+| `{plot_path.name}` | Paired runtime, state-dimension, and max-degree comparison. |
 | `paired_fbs_comparison.csv` | One row per model level, size, and repeat. |
 | `paired_fbs_comparison_summary.csv` | Median/min/max runtime and convergence summary by model level and size. |
 
@@ -924,7 +1057,13 @@ At {largest_node} nodes:
 | --- | --- | ---: | ---: | ---: | --- |
 {rows}
 
-This is the comparison plot to use when asking whether node-level FBS is more expensive than degree-level FBS. The degree-level row keeps one state/control/costate per observed degree class. The node-level row keeps one state/control/costate per graph node on the same epidemic model and the same graph seed. Sparse matrix products keep the 10000-node run practical, but the node-indexed FBS state is still much larger.
+## Synthetic SF Degree Growth Check
+
+| Nodes | Edges | Mean degree | Median max degree | Max-degree range |
+| ---: | ---: | ---: | ---: | ---: |
+{graph_rows}
+
+This is the comparison plot to use when asking whether node-level FBS is more expensive than degree-level FBS. The degree-level row keeps one state/control/costate per observed degree class. The node-level row keeps one state/control/costate per graph node on the same epidemic model and the same graph seed. Sparse matrix products keep the million-node run practical, but the node-indexed FBS state is still much larger.
 """
         (out_dir / "scalability_summary.md").write_text(text)
         return
@@ -974,9 +1113,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--sizes", type=parse_sizes, default=None, help="Comma-separated node counts.")
     parser.add_argument("--node-solver", choices=["sparse", "dense"], default="sparse")
-    parser.add_argument("--repeats", type=int, default=2)
+    parser.add_argument("--repeats", type=int, default=1)
     parser.add_argument("--attachment-m", type=int, default=3)
-    parser.add_argument("--steps", type=int, default=80)
+    parser.add_argument("--steps", type=int, default=60)
     parser.add_argument("--iterations", type=int, default=80)
     parser.add_argument("--tolerance", type=float, default=1e-4)
     parser.add_argument("--seed", type=int, default=20260617)

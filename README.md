@@ -101,9 +101,9 @@ This contact sheet is a compact visual index for the tutorial examples: degree-l
 
 **Scalability: paired degree-level vs node-level FBS on the same epidemic model**
 
-![Paired degree/node FBS scalability](examples/foundations/results/scalability_degree_node_sf/degree_node_fbs_comparison_1000_10000.png)
+![Paired degree/node FBS scalability](examples/foundations/results/scalability_degree_node_sf/degree_node_fbs_comparison_100_1000000.png)
 
-This plot compares degree-level and sparse node-level FBS from `1000` to `10000` nodes in steps of `1000`. For each network size and repeat, both rows use the same synthetic scale-free graph seed and the same normalized SIS epidemic-control problem. The degree-level state is one entry per observed degree class; the node-level state is one entry per graph node. In the checked-in run at 10000 nodes, the degree-level median FBS time is about `0.299s` with 75 degree classes, while the node-level median is about `2.449s` with 10000 node-indexed states; all runs converged.
+This plot compares degree-level and sparse node-level FBS at `100`, `1,000`, `10,000`, `100,000`, and `1,000,000` nodes. For each network size, both rows use the same synthetic scale-free graph seed and the same normalized SIS epidemic-control problem. The degree-level state is one entry per observed degree class; the node-level state is one entry per graph node. In the checked-in million-node run, degree-level FBS has `305` degree-class states and takes about `0.563s`; node-level FBS has `1,000,000` node-indexed states and takes about `133.781s`; all runs converged. The third panel checks that the synthetic SF maximum degree grows visibly from `24` to `1513`.
 
 To regenerate the paired comparison, run:
 
@@ -163,7 +163,7 @@ The foundation examples are self-contained and should be the first code you run.
 
 - `simple_degree_k_control.py`: a compact degree-k SIS optimal-control example.
 - `network_control_examples.py`: degree-level games, node-level control/game models, and a hybrid impulse simulation.
-- `scalability_analysis.py`: paired degree-level and sparse node-level FBS timing on the same SIS epidemic-control problem and graph seeds from 1000 to 10000 nodes.
+- `scalability_analysis.py`: paired degree-level and sparse node-level FBS timing on the same SIS epidemic-control problem and graph seeds from 100 to 1000000 nodes.
 - `sample_data/`: a small edge list and adjacency matrix.
 - `results/`: precomputed figures and degree-distribution CSV files.
 

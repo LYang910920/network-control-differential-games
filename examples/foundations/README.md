@@ -110,10 +110,10 @@ Paired FBS timing on synthetic scale-free networks. For each graph size, the scr
 python code/scalability_analysis.py --output-dir results/scalability_degree_node_sf_new
 ```
 
-The default run uses sizes `1000,2000,...,10000` with two repeats per size. To change it:
+The default run uses sizes `100,1000,10000,100000,1000000` with one graph seed per size. To change it:
 
 ```bash
-python code/scalability_analysis.py --sizes 1000,2000,3000 --repeats 2
+python code/scalability_analysis.py --sizes 100,1000,10000 --repeats 2
 ```
 
 ## Existing results
@@ -129,7 +129,7 @@ results/companion_builtin_sf/degree_control_trajectory.png
 results/companion_builtin_sf/degree_game_trajectory.png
 results/companion_builtin_sf/node_control_trajectory.png
 results/companion_builtin_sf/hybrid_impulse_trajectory.png
-results/scalability_degree_node_sf/degree_node_fbs_comparison_1000_10000.png
+results/scalability_degree_node_sf/degree_node_fbs_comparison_100_1000000.png
 ```
 
 The detailed subdirectories are grouped by purpose:
