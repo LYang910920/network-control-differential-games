@@ -40,6 +40,14 @@ Short scalability timing while developing:
 python run_all.py --skip-reference --scalability-sizes 100,200,300 --scalability-repeats 1
 ```
 
+Heavier sparse node-level scalability run:
+
+```bash
+python run_all.py --skip-reference --include-node-scalability
+```
+
+The heavy run adds `scalability_node_sf/` with a node-indexed sparse FBS experiment from 1000 to 10000 synthetic scale-free nodes. Use it after the smaller degree-level run is working.
+
 Outputs:
 
 ```text
@@ -89,4 +97,4 @@ The reference smoke runner also writes `parameter_summary.csv` with each paper-l
 | Forward dynamics | compact ODE/state functions | paper-specific propagation dynamics |
 | Backward adjoints | short PMP adjoint routines | longer model-specific adjoint systems |
 | Control update | bounded Hamiltonian update | continuous or impulse strategy search |
-| Validation | deterministic/random baseline plots plus scalability timing | smoke tests, payoff summaries, and model-specific deterministic/random baseline checks |
+| Validation | deterministic/random baseline plots plus degree-level and optional sparse node-level scalability timing | smoke tests, payoff summaries, and model-specific deterministic/random baseline checks |

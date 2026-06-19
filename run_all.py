@@ -32,6 +32,16 @@ def foundation_command(py: str, args: argparse.Namespace) -> list[str]:
         cmd.extend(["--scalability-sizes", args.scalability_sizes])
     if args.scalability_repeats is not None:
         cmd.extend(["--scalability-repeats", str(args.scalability_repeats)])
+    if args.include_node_scalability:
+        cmd.append("--include-node-scalability")
+    if args.node_scalability_sizes:
+        cmd.extend(["--node-scalability-sizes", args.node_scalability_sizes])
+    if args.node_scalability_repeats is not None:
+        cmd.extend(["--node-scalability-repeats", str(args.node_scalability_repeats)])
+    if args.node_scalability_steps is not None:
+        cmd.extend(["--node-scalability-steps", str(args.node_scalability_steps)])
+    if args.node_scalability_iterations is not None:
+        cmd.extend(["--node-scalability-iterations", str(args.node_scalability_iterations)])
     return cmd
 
 
@@ -71,6 +81,34 @@ def main() -> None:
         type=int,
         default=None,
         help="Optional repeat count per network size for the foundation scalability experiment.",
+    )
+    parser.add_argument(
+        "--include-node-scalability",
+        action="store_true",
+        help="Also run the heavier sparse node-level scalability experiment.",
+    )
+    parser.add_argument(
+        "--node-scalability-sizes",
+        default=None,
+        help="Optional comma-separated node counts for sparse node-level scalability.",
+    )
+    parser.add_argument(
+        "--node-scalability-repeats",
+        type=int,
+        default=None,
+        help="Optional repeat count for sparse node-level scalability.",
+    )
+    parser.add_argument(
+        "--node-scalability-steps",
+        type=int,
+        default=None,
+        help="Optional time-grid size for sparse node-level scalability.",
+    )
+    parser.add_argument(
+        "--node-scalability-iterations",
+        type=int,
+        default=None,
+        help="Optional max FBS iterations for sparse node-level scalability.",
     )
     parser.add_argument(
         "--reference-pydeps",

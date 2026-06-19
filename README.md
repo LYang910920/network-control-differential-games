@@ -38,7 +38,7 @@ Most users only need the root runner. The deeper files are listed here so the co
 | Foundation runner | [`examples/foundations/code/run_foundation_examples.py`](examples/foundations/code/run_foundation_examples.py) | Rebuilds foundation figures, CSV files, and generated result notes. |
 | Minimal control example | [`examples/foundations/code/simple_degree_k_control.py`](examples/foundations/code/simple_degree_k_control.py) | Small degree-k continuous optimal-control example. |
 | Companion models | [`examples/foundations/code/network_control_examples.py`](examples/foundations/code/network_control_examples.py) | Degree-level, node-level, game, and hybrid/impulse examples. |
-| Scalability timing | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) | `python-igraph` scale-free graphs from 100 to 2000 nodes. |
+| Scalability timing | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) | Degree-level scale-free graphs from 100 to 2000 nodes, plus optional sparse node-level FBS from 1000 to 10000 nodes. |
 | Reference smoke runner | [`examples/reference/run_reference_smoke.py`](examples/reference/run_reference_smoke.py) | Paper-level smoke tests for the three reference repositories. |
 
 Before changing a model, read [`docs/PARAMETERS.md`](docs/PARAMETERS.md). For paper-specific adaptations, read [`docs/EXTENDING.md`](docs/EXTENDING.md) after the first smoke run. It points to the code hooks for continuous control, impulse control, hybrid control, degree-level models, node-level models, and reference-repository smoke runs.
@@ -105,6 +105,20 @@ This contact sheet is a compact visual index for the teaching examples: degree-l
 
 This plot reports 60 runs: 20 synthetic scale-free network sizes from 100 to 2000 nodes, with three repeats per size. The left panel shows median/min-max FBS solve time; the right panel explains why degree-level runtime grows slowly by tracking degree-class state dimension and FBS iterations.
 
+**Scalability: sparse node-level FBS from 1000 to 10000 nodes**
+
+![Sparse node-level FBS scalability](examples/foundations/results/scalability_node_sf/node_control_scalability_1000_10000.png)
+
+This heavier run keeps one state, costate, and control per node, uses a sparse adjacency matrix, and reports FBS convergence for 1000, 2000, ..., 10000 node-indexed states. In the checked-in run, every size converged within 18-19 FBS iterations; the 10000-node solve took about 0.62 seconds for the FBS step on this machine.
+
+To regenerate the node-level scale experiment, run:
+
+```bash
+python run_all.py --skip-reference --include-node-scalability
+```
+
+It is intentionally not part of the default first run because it is a scale experiment, not a beginner smoke test.
+
 **Reference smoke runs: paper-level code checks for TIFS/TCSS repositories**
 
 ![Reference smoke runs](examples/reference/results/reference_repos/reference_repo_contact_sheet.png)
@@ -155,7 +169,7 @@ The foundation examples are self-contained and should be the first code you run.
 
 - `simple_degree_k_control.py`: a compact degree-k SIS optimal-control example.
 - `network_control_examples.py`: degree-level games, node-level control/game models, and a hybrid impulse simulation.
-- `scalability_analysis.py`: degree-level FBS runtime on synthetic scale-free networks from 100 to 2000 nodes.
+- `scalability_analysis.py`: degree-level FBS runtime on synthetic scale-free networks from 100 to 2000 nodes, and optional sparse node-level FBS from 1000 to 10000 nodes.
 - `sample_data/`: a small edge list and adjacency matrix.
 - `results/`: precomputed figures and degree-distribution CSV files.
 

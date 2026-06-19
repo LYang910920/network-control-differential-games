@@ -31,6 +31,7 @@ Then open `examples/foundations/code/model_profiles.py`. It collects the time ho
 |---|---|---|---|
 | Degree-level | one state per observed degree class `k` | the paper model depends on degree distribution or mean-field contact pressure | `DegreeData`, degree-control/game functions |
 | Node-level | one state per selected graph node | adjacency, centrality, local interventions, or node-specific control matters | `NetworkData.A`, node-control/game functions |
+| Sparse node-level scalability | one state, costate, and control per graph node | you want to stress-test FBS convergence from 1000 to 10000 nodes | `scalability_analysis.py --model-level node --node-solver sparse` |
 | Reference repo smoke run | paper-level source snapshot plus lightweight wrapper | you want to compare tutorial intuition with the author's IEEE TIFS/TCSS code | `examples/reference/run_reference_smoke.py` |
 
 ## From Tutorial Code To Paper Models
@@ -64,4 +65,5 @@ Before treating a run as evidence rather than a tutorial smoke run:
 3. Report whether each state curve is a selected node, selected degree class, or average.
 4. For games, test unilateral deviations by fixing one player's computed strategy and varying the other player's strategy.
 5. Log FBS convergence and change parameters if the forward-backward sweep fails to converge.
-6. Keep upstream licenses, paper citations, and dataset redistribution rights visible.
+6. For node-level scale claims, run `python run_all.py --skip-reference --include-node-scalability` and report convergence as well as runtime.
+7. Keep upstream licenses, paper citations, and dataset redistribution rights visible.

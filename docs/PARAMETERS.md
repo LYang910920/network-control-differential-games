@@ -32,8 +32,13 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | Companion runner time grid | `45` by default | `python run_all.py --foundation-steps N` |
 | Random baseline count | `75` per model/panel | `examples/common_diagnostics.py` |
 | Random baseline seed | `20260617` | `examples/common_diagnostics.py` |
-| Scalability node sizes | `100, 200, ..., 2000` | `--scalability-sizes` |
-| Scalability repeats | `3` by default | `--scalability-repeats` |
+| Degree-level scalability node sizes | `100, 200, ..., 2000` | `--scalability-sizes` |
+| Degree-level scalability repeats | `3` by default | `--scalability-repeats` |
+| Sparse node-level scalability node sizes | `1000, 2000, ..., 10000` | `--include-node-scalability --node-scalability-sizes ...` |
+| Sparse node-level scalability repeats | `1` by default | `--node-scalability-repeats` |
+| Sparse node-level scalability time grid | `25` intervals over `T=8` | `--node-scalability-steps` |
+| Sparse node-level scalability FBS | `max_iter=50`, `tol=1e-4`, damping `0.25` | `examples/foundations/code/scalability_analysis.py` |
+| Sparse node-level scalability rates/costs | `beta=0.55`, `delta=0.20`, state weight `1.0`, control weight `8.0`, `u_max=0.8` | `NODE_SCALABILITY_DEFAULTS` |
 
 ## Neural Hyperparameters
 
