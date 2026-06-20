@@ -22,6 +22,7 @@ from cybercontrol.numerics import (
     solve_ode_grid,
     trapezoid_integral,
 )
+from cybercontrol.plotting import figure_size, publication_style, save_publication_figure
 
 
 def test_rk4_controlled_sir_preserves_simplex_after_projection():
@@ -87,6 +88,41 @@ def test_require_outputs_flags_missing_or_empty_files(tmp_path):
         require_outputs([tmp_path / "missing.txt"])
 
 
+def test_publication_figure_export_writes_vector_raster_and_manifest(tmp_path):
+    import json
+
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    with publication_style():
+        fig, ax = plt.subplots(figsize=figure_size("single", ratio=0.6))
+        ax.plot([0, 1], [0, 1], label="diagnostic")
+        ax.set_xlabel("iteration")
+        ax.set_ylabel("loss")
+        ax.legend(frameon=False)
+        written = save_publication_figure(
+            fig,
+            tmp_path / "diagnostic_panel",
+            metadata={"source": "unit-test", "meaning": "publication export contract"},
+        )
+        plt.close(fig)
+
+    assert (tmp_path / "diagnostic_panel.pdf") in written
+    assert (tmp_path / "diagnostic_panel.png") in written
+    manifest = tmp_path / "diagnostic_panel.figure.json"
+    assert manifest in written
+
+    payload = json.loads(manifest.read_text(encoding="utf-8"))
+    assert payload["style"] == "publication"
+    assert payload["dpi"] == 600
+    assert payload["formats"] == ["pdf", "png"]
+    assert payload["width_in"] > 0
+    assert payload["height_in"] > 0
+    assert payload["metadata"]["source"] == "unit-test"
+
+
 def test_training_diagnostic_helpers_write_reader_glossary(tmp_path):
     assert np.allclose(rolling_mean([1.0, 3.0, float("nan"), 5.0], window=2), [1.0, 2.0, 3.0, 5.0], equal_nan=True)
 
@@ -102,7 +138,18 @@ def test_training_diagnostic_helpers_write_reader_glossary(tmp_path):
 
 def test_torch_time_derivative_and_networks_keep_gradients():
     torch = pytest.importorskip("torch")
-    from cybercontrol.torch_utils import BoundedControlNet, MLP, SimplexStateNet, project_compartments_torch, time_derivative
+    from cybercontrol.torch_utils import (
+        BoundedControlNet,
+        MLP,
+        SimplexStateNet,
+        configure_torch,
+        project_compartments_torch,
+        time_derivative,
+    )
+
+    _, resolved_device, resolved_dtype = configure_torch(seed=0, device="cpu", threads=1)
+    assert resolved_device == "cpu"
+    assert resolved_dtype == torch.float32
 
     t = torch.linspace(0.0, 1.0, 8).view(-1, 1)
     t.requires_grad_(True)

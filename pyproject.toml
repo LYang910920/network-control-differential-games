@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Teaching utilities for network optimal control, differential games, hybrid control, and cyber-control examples."
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = {text = "See LICENSE and COPYRIGHT_AND_LICENSE.md"}
 authors = [{name = "Luxing Yang"}]
 dependencies = [
     "numpy",
@@ -16,12 +16,14 @@ dependencies = [
     "pandas",
     "matplotlib",
     "networkx",
-    "python-igraph",
 ]
 
 [project.optional-dependencies]
+graph = ["python-igraph"]
+reference = ["python-igraph"]
 torch = ["torch"]
-dev = ["pytest"]
+dev = ["pytest", "ruff"]
+all = ["python-igraph", "torch", "pytest", "ruff"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

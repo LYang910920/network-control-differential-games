@@ -23,7 +23,12 @@ def require_torch():
 
 
 def configure_torch(seed: int | None = None, device: str | None = None, dtype: str = "float32", threads: int = 1):
-    """Set seeds/thread count and return ``(torch, device, dtype)``."""
+    """Set seeds/thread count and return ``(torch, device, dtype)``.
+
+    ``device=None`` and ``device="auto"`` prefer CUDA, then Apple MPS, then CPU.
+    Explicit ``"cuda"`` or ``"mps"`` requests fail early when unavailable so a
+    training run does not silently move to a different backend.
+    """
 
     torch, _ = require_torch()
     if threads is not None and threads > 0:
@@ -34,7 +39,23 @@ def configure_torch(seed: int | None = None, device: str | None = None, dtype: s
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
-    resolved_device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    if device in (None, "auto"):
+        if torch.cuda.is_available():
+            resolved_device = "cuda"
+        elif getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
+            resolved_device = "mps"
+        else:
+            resolved_device = "cpu"
+    else:
+        resolved_device = str(device)
+        if resolved_device == "cuda" and not torch.cuda.is_available():
+            raise RuntimeError("CUDA was requested, but torch.cuda.is_available() is false.")
+        if resolved_device == "mps":
+            mps_backend = getattr(torch.backends, "mps", None)
+            if mps_backend is None or not torch.backends.mps.is_available():
+                raise RuntimeError("Apple MPS was requested, but torch.backends.mps.is_available() is false.")
+        if resolved_device not in {"cpu", "cuda", "mps"}:
+            raise ValueError(f"Unsupported torch device {resolved_device!r}; use 'auto', 'cpu', 'cuda', or 'mps'.")
     resolved_dtype = getattr(torch, dtype)
     torch.set_default_dtype(resolved_dtype)
     return torch, resolved_device, resolved_dtype

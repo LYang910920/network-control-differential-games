@@ -26,7 +26,7 @@ def project_simplex(values: Array, eps: float = 1e-12) -> Array:
     """Return a nonnegative vector normalized to unit mass.
 
     This helper is a practical renormalization for compartment models.  It is
-    deliberately simple and readable; use a true Euclidean projection if your
+    intentionally simple and readable; use a true Euclidean projection if your
     optimization algorithm requires exact projection geometry.
     """
 

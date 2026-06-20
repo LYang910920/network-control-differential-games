@@ -26,6 +26,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from cybercontrol.io import require_outputs
+from cybercontrol.plotting import panel_label, save_guide_figure
 
 
 def run(cmd: list[str], env: dict[str, str]) -> None:
@@ -41,14 +42,19 @@ def make_contact_sheet(items: list[tuple[str, Path]], out_path: Path, cols: int 
 
     for ax, (title, path) in zip(flat_axes, items):
         ax.imshow(plt.imread(path))
-        ax.set_title(title)
+        panel_label(ax, title, x=0.0, y=0.98)
         ax.axis("off")
 
     for ax in flat_axes[len(items):]:
         ax.axis("off")
 
     fig.tight_layout()
-    fig.savefig(out_path, dpi=180)
+    save_guide_figure(
+        fig,
+        out_path,
+        formats=("png", "pdf"),
+        metadata={"figure_type": "foundation output contact sheet"},
+    )
     plt.close(fig)
 
 

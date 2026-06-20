@@ -40,6 +40,8 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
+from cybercontrol.plotting import panel_label, publication_style, save_publication_figure
+
 
 CODE_DIR = Path(__file__).resolve().parent
 EXAMPLES_DIR = CODE_DIR.parents[1]
@@ -802,7 +804,8 @@ def compact_node_tick(value: float, _position: int | None = None) -> str:
 
 def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path) -> Path:
     """Plot the paired degree-level versus node-level epidemic FBS comparison."""
-    fig, axes = plt.subplots(1, 3, figsize=(15.2, 4.4))
+    with publication_style():
+        fig, axes = plt.subplots(1, 3, figsize=(7.16, 3.2))
     styles = {
         "degree": {
             "color": "tab:blue",
@@ -847,7 +850,7 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
     ax.set_yscale("log")
     ax.set_xlabel("number of nodes in the same synthetic SF network")
     ax.set_ylabel("FBS solve time (seconds)")
-    ax.set_title("Runtime on the same SIS model and graph seeds")
+    panel_label(ax, "(a) runtime on paired synthetic SF graphs")
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
@@ -869,7 +872,7 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
     ax.set_yscale("log")
     ax.set_xlabel("number of nodes in the same synthetic SF network")
     ax.set_ylabel("FBS state dimension")
-    ax.set_title("State dimension: degree classes vs graph nodes")
+    panel_label(ax, "(b) state dimension")
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
@@ -906,16 +909,23 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
     ax.set_yscale("log")
     ax.set_xlabel("number of nodes in the same synthetic SF network")
     ax.set_ylabel("maximum degree")
-    ax.set_title("Synthetic SF hubs grow with network size")
+    panel_label(ax, "(c) maximum degree")
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
     ax.legend(frameon=False, fontsize=8)
 
-    fig.suptitle("Paired degree-level vs node-level FBS on synthetic SF graphs (log scale)")
     fig.tight_layout()
     path = out_dir / plot_filename("compare", summary)
-    fig.savefig(path, dpi=180)
+    save_publication_figure(
+        fig,
+        path,
+        metadata={
+            "figure_type": "scalability comparison",
+            "network": "synthetic scale-free",
+            "scale": "log-log",
+        },
+    )
     plt.close(fig)
     return path
 
@@ -924,7 +934,8 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
     if model_level == "compare":
         return plot_paired_comparison(summary, raw, out_dir)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.2))
+    with publication_style():
+        fig, axes = plt.subplots(1, 2, figsize=(7.16, 3.6))
     color = "tab:blue" if model_level == "degree" else "tab:orange"
     node_min = int(summary["nodes"].min())
     node_max = int(summary["nodes"].max())
@@ -952,7 +963,7 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
     )
     ax.set_xlabel("number of nodes in synthetic SF network")
     ax.set_ylabel("FBS solve time (seconds)")
-    ax.set_title(f"{model_level.title()}-level FBS runtime")
+    panel_label(ax, f"(a) {model_level}-level FBS runtime")
     margin = max(25, int(0.025 * (node_max - node_min + 1)))
     ax.set_xlim(node_min - margin, node_max + margin)
     ax.set_xticks(x_ticks)
@@ -980,7 +991,7 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
     ax.set_xlabel("number of nodes in synthetic SF network")
     ax.set_ylabel("state dimension", color="tab:green")
     ax2.set_ylabel("FBS iterations", color="tab:purple")
-    ax.set_title("Why runtime changes")
+    panel_label(ax, "(b) state dimension and iterations")
     ax.set_xlim(node_min - margin, node_max + margin)
     ax.set_xticks(x_ticks)
     ax.grid(True, alpha=0.25)
@@ -989,10 +1000,18 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax.legend(lines + lines2, labels + labels2, frameon=False, fontsize=8, loc="upper left")
 
-    fig.suptitle(f"Scalability analysis on synthetic scale-free networks ({node_min}-{node_max} nodes)")
     fig.tight_layout()
     path = out_dir / plot_filename(model_level, summary)
-    fig.savefig(path, dpi=180)
+    save_publication_figure(
+        fig,
+        path,
+        metadata={
+            "figure_type": "scalability analysis",
+            "network": "synthetic scale-free",
+            "model_level": model_level,
+            "node_range": f"{node_min}-{node_max}",
+        },
+    )
     plt.close(fig)
     return path
 

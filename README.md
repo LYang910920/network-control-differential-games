@@ -53,13 +53,14 @@ From the repository root:
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e .
+python -m pip install -e ".[graph,dev]"
 python run_all.py
 ```
 
-`python-igraph` is used by the foundation scalability experiment and by the reference smoke runner. If it is hard to install in the active environment, you can still run the non-scalability foundation examples:
+`python-igraph` is used by the foundation scalability experiment and by the reference smoke runner. It is an optional package extra rather than a core import. If it is hard to install in the active environment, install only the core package and run the non-scalability foundation examples:
 
 ```bash
+python -m pip install -e .
 python run_all.py --skip-reference --skip-scalability
 ```
 

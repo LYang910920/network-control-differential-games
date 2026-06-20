@@ -48,6 +48,7 @@ from cybercontrol.numerics import (
     solve_ode_grid as solve_ode_on_grid,
     trapezoid_integral as trapz,
 )
+from cybercontrol.plotting import panel_label, save_publication_figure
 from model_profiles import DegreeControlProfile, SIMPLE_DEGREE_CONTROL
 
 if str(EXAMPLES_DIR) not in sys.path:
@@ -271,9 +272,13 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
     plt.bar(k, p)
     plt.xlabel("degree k")
     plt.ylabel("P(k)")
-    plt.title(f"Empirical degree distribution; average degree = {kbar:.2f}")
+    panel_label(plt.gca(), f"Empirical degree distribution, average degree = {kbar:.2f}")
     plt.tight_layout()
-    plt.savefig(out_dir / "degree_distribution.png", dpi=180)
+    save_publication_figure(
+        plt.gcf(),
+        out_dir / "degree_distribution.png",
+        metadata={"model": "simple degree-k control", "figure_type": "degree distribution"},
+    )
     plt.close()
 
     plt.figure(figsize=(7.2, 4.2))
@@ -283,10 +288,14 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
         plt.plot(t, X[:, j], "--", linewidth=1.5, label=f"state: degree k={int(k[j])}")
     plt.xlabel("time")
     plt.ylabel("state / control")
-    plt.title(f"Degree-k continuous optimal control; cost={cost:.2f}")
+    panel_label(plt.gca(), f"Degree-k continuous optimal control, cost={cost:.2f}")
     plt.legend(frameon=False, fontsize=8)
     plt.tight_layout()
-    plt.savefig(out_dir / "degree_control_trajectory.png", dpi=180)
+    save_publication_figure(
+        plt.gcf(),
+        out_dir / "degree_control_trajectory.png",
+        metadata={"model": "simple degree-k control", "control_type": "continuous"},
+    )
     plt.close()
 
     pd.DataFrame(
@@ -304,11 +313,15 @@ def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray
     plt.axhline(tolerance, color="0.45", linestyle=":", linewidth=1.4, label=f"tolerance={tolerance:.0e}")
     plt.xlabel("FBS iteration")
     plt.ylabel("max control change")
-    plt.title(f"Forward-backward sweep convergence; converged={converged}")
+    panel_label(plt.gca(), f"Forward-backward sweep convergence, converged={converged}")
     plt.grid(True, alpha=0.25)
     plt.legend(frameon=False, fontsize=8)
     plt.tight_layout()
-    plt.savefig(out_dir / "fbs_convergence.png", dpi=180)
+    save_publication_figure(
+        plt.gcf(),
+        out_dir / "fbs_convergence.png",
+        metadata={"model": "simple degree-k control", "x_axis": "FBS iteration"},
+    )
     plt.close()
 
     baseline_rows = control_baseline_rows(
