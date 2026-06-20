@@ -43,7 +43,7 @@ Then open `examples/foundations/code/model_profiles.py`. It collects the time ho
 | New propagation model | RHS functions inside `network_control_examples.py` | nonnegative states and visible parameter summary |
 | New payoff/objective | cost and reward terms near the FBS/game update | separate state cost, control cost, attack reward, and terminal terms |
 | New impulses | `HybridImpulseProfile` and hybrid simulation block | event times, jump magnitudes, and pre/post-jump diagnostics |
-| Larger random baselines | `examples/common_diagnostics.py` | same model compared only with its own baselines |
+| Larger random baselines | `src/cybercontrol/baseline_diagnostics.py` | same model compared only with its own baselines |
 | Paper-level repository | `examples/reference/MODEL_TAXONOMY.md` | upstream citation, license, and model classification |
 
 ## Reference Repository Bridge

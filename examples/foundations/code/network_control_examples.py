@@ -53,10 +53,8 @@ Degree-level models are indexed by observed degree classes k, not compartments:
 from __future__ import annotations
 
 import argparse
-import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import matplotlib
 matplotlib.use("Agg")
@@ -65,32 +63,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
-EXAMPLES_DIR = Path(__file__).resolve().parents[2]
-ROOT_DIR = EXAMPLES_DIR.parent
-SRC_DIR = ROOT_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-
-from cybercontrol.numerics import (
-    as_time_function as as_function,
-    project_box as clip,
-    solve_ode_grid as solve_grid,
-    trapezoid_integral as integral,
-)
-from cybercontrol.plotting import apply_clean_axes, plot_time_series, save_publication_figure
-from model_profiles import (
-    DEGREE_CONTROL_PROFILE,
-    DEGREE_GAME_PROFILE,
-    HYBRID_PROFILE,
-    HybridImpulseProfile,
-    NODE_CONTROL_PROFILE,
-    NODE_GAME_PROFILE,
-)
-
-if str(EXAMPLES_DIR) not in sys.path:
-    sys.path.insert(0, str(EXAMPLES_DIR))
-
-from common_diagnostics import (  # noqa: E402
+from cybercontrol.baseline_diagnostics import (
     RANDOM_BASELINE_COUNT,
     RANDOM_BASELINE_SEED,
     control_baseline_rows,
@@ -99,6 +72,31 @@ from common_diagnostics import (  # noqa: E402
     save_game_baseline_plot,
     write_baseline_table,
 )
+from cybercontrol.numerics import (
+    as_time_function as as_function,
+    project_box as clip,
+    solve_ode_grid as solve_grid,
+    trapezoid_integral as integral,
+)
+from cybercontrol.plotting import apply_clean_axes, plot_time_series, save_publication_figure
+try:
+    from .model_profiles import (
+        DEGREE_CONTROL_PROFILE,
+        DEGREE_GAME_PROFILE,
+        HYBRID_PROFILE,
+        HybridImpulseProfile,
+        NODE_CONTROL_PROFILE,
+        NODE_GAME_PROFILE,
+    )
+except ImportError:
+    from model_profiles import (
+        DEGREE_CONTROL_PROFILE,
+        DEGREE_GAME_PROFILE,
+        HYBRID_PROFILE,
+        HybridImpulseProfile,
+        NODE_CONTROL_PROFILE,
+        NODE_GAME_PROFILE,
+    )
 
 
 LINE_WIDTH = 2.0

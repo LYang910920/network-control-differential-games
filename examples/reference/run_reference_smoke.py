@@ -27,28 +27,20 @@ import pandas as pd
 ROOT_DIR = HERE.parents[1]
 PACKAGE_DIR = HERE
 REF_DIR = PACKAGE_DIR / "reference_repositories"
-OUT_DIR = HERE / "results" / "reference_repos_rerun"
+OUT_DIR = ROOT_DIR / "artifacts" / "reference_runs" / "reference_repos_rerun"
 PYDEPS = HERE / "pydeps"
-EXAMPLES_DIR = HERE.parent
-SRC_DIR = ROOT_DIR / "src"
 LINE_WIDTH = 2.0
 FIGSIZE_REFERENCE = (14.4, 3.9)
 BASELINE_ROWS: list[dict[str, object]] = []
 CONVERGENCE_ROWS: list[dict[str, object]] = []
 PARAMETER_ROWS: list[dict[str, object]] = []
 
-if str(EXAMPLES_DIR) not in sys.path:
-    sys.path.insert(0, str(EXAMPLES_DIR))
-
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-
 if PYDEPS.exists():
     sys.path.insert(0, str(PYDEPS))
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-from common_diagnostics import (  # noqa: E402
+from cybercontrol.baseline_diagnostics import (
     RANDOM_BASELINE_COUNT,
     RANDOM_BASELINE_SEED,
     random_impulse_series,
@@ -57,8 +49,8 @@ from common_diagnostics import (  # noqa: E402
     smooth_random_controls,
     write_baseline_table,
 )
-from cybercontrol.io import require_outputs  # noqa: E402
-from cybercontrol.plotting import (  # noqa: E402
+from cybercontrol.io import require_outputs
+from cybercontrol.plotting import (
     apply_clean_axes,
     panel_label,
     plot_time_series,

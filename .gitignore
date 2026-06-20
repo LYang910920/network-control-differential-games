@@ -13,6 +13,7 @@ src/*.egg-info/
 # Matplotlib and local cache folders
 .cache/
 .mplconfig/
+artifacts/
 examples/**/.cache/
 examples/**/.mplconfig/
 
@@ -29,14 +30,12 @@ examples/**/.mplconfig/
 *.synctex.gz
 *.toc
 
-# Rerun output folders. Curated tutorial/reference results stay committed;
-# local smoke-test reruns should stay out of version control.
+# Rerun output folders stay out of version control. Curated README assets live
+# under docs/assets/.
 simple_outputs/
 example_outputs/
-examples/foundations/results/rerun_*/
-examples/foundations/results/test_*/
-examples/reference/results/test_*/
-examples/reference/results/reference_repos_rerun/
+docs/assets/*.pdf
+docs/assets/*.figure.json
 
 # Do not commit local full-paper datasets unless their redistribution rights
 # are clear. The repository keeps third-party source files and licenses, but

@@ -5,18 +5,10 @@
 
 from __future__ import annotations
 
-import importlib.util
-from pathlib import Path
-
 import numpy as np
 import scipy.sparse as sp
 
-
-MODULE_PATH = Path(__file__).resolve().parents[1] / "examples" / "foundations" / "code" / "scalability_analysis.py"
-SPEC = importlib.util.spec_from_file_location("scalability_analysis", MODULE_PATH)
-assert SPEC is not None and SPEC.loader is not None
-scalability_analysis = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(scalability_analysis)
+from examples.foundations.code import scalability_analysis
 
 
 def test_sparse_node_adjoint_matches_finite_difference_jacobian() -> None:

@@ -12,7 +12,7 @@ def build_parser() -> argparse.ArgumentParser:
         "targets",
         nargs="*",
         type=Path,
-        help="Style files that should match tex/cyberguide.sty.",
+        help="Style files that should match docs/source/cyberguide.sty.",
     )
     return parser
 
@@ -20,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     repo = Path(__file__).resolve().parents[1]
-    canonical = repo / "tex" / "cyberguide.sty"
+    canonical = repo / "docs" / "source" / "cyberguide.sty"
     if not canonical.exists():
         print(f"missing canonical style: {canonical}")
         return 1

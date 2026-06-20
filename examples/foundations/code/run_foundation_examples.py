@@ -13,8 +13,6 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parents[1]
 ROOT_DIR = HERE.parents[1]
 SRC_DIR = ROOT_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
 
 os.environ.setdefault("MPLCONFIGDIR", str((HERE / ".mplconfig").resolve()))
 os.environ.setdefault("XDG_CACHE_HOME", str((HERE / ".cache").resolve()))
@@ -164,7 +162,7 @@ def main() -> None:
     parser.add_argument(
         "--output-root",
         type=Path,
-        default=HERE / "results" / ("rerun_" + datetime.now().strftime("%Y%m%d_%H%M%S")),
+        default=ROOT_DIR / "artifacts" / "foundation_runs" / ("rerun_" + datetime.now().strftime("%Y%m%d_%H%M%S")),
         help="Directory where rerun outputs will be written.",
     )
     parser.add_argument("--steps", type=int, default=45, help="Time-grid size for the main foundation examples.")

@@ -117,5 +117,5 @@ def sir_rhs_torch(x, beta, gamma):
 
     import torch
 
-    S, I, R = x[..., 0], x[..., 1], x[..., 2]
+    S, I = x[..., 0], x[..., 1]
     return torch.stack([-beta * S * I, beta * S * I - gamma * I, gamma * I], dim=-1)

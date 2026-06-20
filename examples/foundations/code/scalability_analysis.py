@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import random
-import sys
 import time
 from pathlib import Path
 
@@ -41,21 +40,20 @@ import pandas as pd
 import scipy.sparse as sp
 
 from cybercontrol.plotting import panel_label, publication_style, save_publication_figure
-
-
-CODE_DIR = Path(__file__).resolve().parent
-EXAMPLES_DIR = CODE_DIR.parents[1]
-if str(CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(CODE_DIR))
-if str(EXAMPLES_DIR) not in sys.path:
-    sys.path.insert(0, str(EXAMPLES_DIR))
-
-from network_control_examples import (  # noqa: E402
-    DegreeData,
-    graph_to_model_matrix,
-    solve_degree_control,
-    solve_node_control,
-)
+try:
+    from .network_control_examples import (
+        DegreeData,
+        graph_to_model_matrix,
+        solve_degree_control,
+        solve_node_control,
+    )
+except ImportError:
+    from network_control_examples import (
+        DegreeData,
+        graph_to_model_matrix,
+        solve_degree_control,
+        solve_node_control,
+    )
 
 
 DEFAULT_COMPARE_SIZES = (100, 1000, 10000, 100000, 1000000)
@@ -820,8 +818,6 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
             "label": "node-level sparse FBS (state = graph nodes)",
         },
     }
-    node_min = int(summary["nodes"].min())
-    node_max = int(summary["nodes"].max())
     x_ticks = sorted(summary["nodes"].unique())
     x_formatter = FuncFormatter(compact_node_tick)
 

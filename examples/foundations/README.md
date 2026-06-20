@@ -17,7 +17,6 @@ foundations/
 ├── sample_data/
 │   ├── sample_edges.csv
 │   └── sample_adjacency.csv
-└── results/
 ```
 
 ## Install
@@ -37,13 +36,13 @@ python code/run_foundation_examples.py
 By default, outputs are written to:
 
 ```text
-results/rerun_YYYYMMDD_HHMMSS/
+../../artifacts/foundation_runs/rerun_YYYYMMDD_HHMMSS/
 ```
 
 Specify a destination:
 
 ```bash
-python code/run_foundation_examples.py --output-root results/my_run
+python code/run_foundation_examples.py --output-root ../../artifacts/foundation_runs/my_run
 ```
 
 The wrapper command `python run_foundation_examples.py` calls the runner in `code/`.
@@ -53,7 +52,7 @@ The wrapper command `python run_foundation_examples.py` calls the runner in `cod
 Built-in demo graph:
 
 ```bash
-python code/simple_degree_k_control.py --output-dir results/simple_builtin_sf_new
+python code/simple_degree_k_control.py --output-dir ../../artifacts/foundation_runs/simple_builtin_sf_new
 ```
 
 Sample edge list:
@@ -65,7 +64,7 @@ python code/simple_degree_k_control.py \
   --has-header \
   --source-col source \
   --target-col target \
-  --output-dir results/simple_sample_edges_new
+  --output-dir ../../artifacts/foundation_runs/simple_sample_edges_new
 ```
 
 Sample adjacency matrix:
@@ -73,7 +72,7 @@ Sample adjacency matrix:
 ```bash
 python code/simple_degree_k_control.py \
   --adjacency-csv sample_data/sample_adjacency.csv \
-  --output-dir results/simple_sample_adjacency_new
+  --output-dir ../../artifacts/foundation_runs/simple_sample_adjacency_new
 ```
 
 ## Run main foundation examples
@@ -81,25 +80,25 @@ python code/simple_degree_k_control.py \
 All compact examples:
 
 ```bash
-python code/network_control_examples.py --output-dir results/companion_builtin_sf_new
+python code/network_control_examples.py --output-dir ../../artifacts/foundation_runs/companion_builtin_sf_new
 ```
 
 Only degree-level control/game:
 
 ```bash
-python code/network_control_examples.py --examples degree --output-dir results/degree_only
+python code/network_control_examples.py --examples degree --output-dir ../../artifacts/foundation_runs/degree_only
 ```
 
 Only node-level control/game:
 
 ```bash
-python code/network_control_examples.py --examples node --output-dir results/node_only
+python code/network_control_examples.py --examples node --output-dir ../../artifacts/foundation_runs/node_only
 ```
 
 Only hybrid impulse simulation:
 
 ```bash
-python code/network_control_examples.py --examples hybrid --output-dir results/hybrid_only
+python code/network_control_examples.py --examples hybrid --output-dir ../../artifacts/foundation_runs/hybrid_only
 ```
 
 ## Run paired degree/node scalability analysis
@@ -107,7 +106,7 @@ python code/network_control_examples.py --examples hybrid --output-dir results/h
 Paired FBS timing on synthetic scale-free networks. For each graph size, the script runs degree-level FBS and sparse node-level FBS on the same normalized SIS epidemic-control model, using the same graph seed, RK4 time grid, and FBS tolerance.
 
 ```bash
-python code/scalability_analysis.py --output-dir results/scalability_degree_node_sf_new
+python code/scalability_analysis.py --output-dir ../../artifacts/foundation_runs/scalability_degree_node_sf_new
 ```
 
 The default run uses sizes `100,1000,10000,100000,1000000` with one graph seed per size. To change it:
@@ -116,23 +115,9 @@ The default run uses sizes `100,1000,10000,100000,1000000` with one graph seed p
 python code/scalability_analysis.py --sizes 100,1000,10000 --repeats 2
 ```
 
-## Existing results
+## Output groups
 
-Useful precomputed figures:
-
-```text
-results/simple_contact_sheet.png
-results/companion_contact_sheet.png
-results/README.md
-results/companion_builtin_sf/fbs_convergence.png
-results/companion_builtin_sf/degree_control_trajectory.png
-results/companion_builtin_sf/degree_game_trajectory.png
-results/companion_builtin_sf/node_control_trajectory.png
-results/companion_builtin_sf/hybrid_impulse_trajectory.png
-results/scalability_degree_node_sf/degree_node_fbs_comparison_100_1000000.png
-```
-
-The detailed subdirectories are grouped by purpose:
+Fresh runs write detailed figures and CSVs under `artifacts/foundation_runs/`. The README uses only curated assets from `docs/assets/`.
 
 | Folder pattern | Purpose |
 | --- | --- |
@@ -144,7 +129,7 @@ Control comparisons include 75 random smooth-control baselines. Game comparisons
 
 Each `simple_*` and `companion_*` result folder also includes `parameter_summary.csv`, which lists the concrete smoke-run settings: time horizon, grid size, infection/contact rate, recovery rate, control or strategy bounds, impulse times, and baseline count.
 
-For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes a generated `README.md` into its output directory.
+Each fresh run also writes a generated `README.md` into its output directory.
 
 ## What to learn here
 

@@ -47,8 +47,8 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | Simple FBS tolerance | `1e-4` | `examples/foundations/code/model_profiles.py` |
 | Simple FBS max iterations | `50` | `examples/foundations/code/model_profiles.py` |
 | Foundation runner time grid | `45` by default | `python run_all.py --foundation-steps N` |
-| Random baseline count | `75` per model/panel | `examples/common_diagnostics.py` |
-| Random baseline seed | `20260617` | `examples/common_diagnostics.py` |
+| Random baseline count | `75` per model/panel | `src/cybercontrol/baseline_diagnostics.py` |
+| Random baseline seed | `20260617` | `src/cybercontrol/baseline_diagnostics.py` |
 | Paired degree/node scalability node sizes | `100, 1000, 10000, 100000, 1000000` | `--scalability-sizes` |
 | Paired degree/node scalability repeats | `1` by default | `--scalability-repeats` |
 | Paired degree/node scalability model | same normalized SIS epidemic-control problem for both levels; contact pressure is scaled by each graph's maximum degree | `examples/foundations/code/scalability_analysis.py` |

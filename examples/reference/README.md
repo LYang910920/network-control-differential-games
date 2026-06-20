@@ -34,8 +34,7 @@ reference/
 ├── reference_repository_guide.md
 ├── reference_repositories/
 ├── sample_data/
-├── patches/
-└── results/
+└── patches/
 ```
 
 ## Install
@@ -82,13 +81,13 @@ python run_reference_smoke.py
 Outputs are written to:
 
 ```text
-results/reference_repos_rerun/
+../../artifacts/reference_runs/reference_repos_rerun/
 ```
 
 Choose a destination:
 
 ```bash
-python run_reference_smoke.py --output-dir results/my_run
+python run_reference_smoke.py --output-dir ../../artifacts/reference_runs/my_run
 ```
 
 If your downloaded repositories are somewhere else, pass the parent directory that contains `reference_repositories/`:
@@ -96,38 +95,12 @@ If your downloaded repositories are somewhere else, pass the parent directory th
 ```bash
 python run_reference_smoke.py \
   --package-dir /path/to/package_or_reference_workspace \
-  --output-dir results/my_run
+  --output-dir ../../artifacts/reference_runs/my_run
 ```
 
-## Existing results
+Fresh runs write `smoke_run_report.md`, `smoke_run_summary.csv`, per-model time-series CSVs, and baseline-comparison figures into the selected output directory. The README uses only the curated contact sheet in `docs/assets/`.
 
-The current curated run is stored in:
-
-```text
-results/reference_repos/
-```
-
-Key files:
-
-```text
-results/reference_repos/reference_repo_contact_sheet.png
-results/reference_repos/smoke_run_summary.csv
-results/reference_repos/smoke_run_report.md
-results/reference_repos/reference_convergence.png
-results/reference_repos/opinion_malware_baseline_comparison.png
-results/reference_repos/propaganda_war_baseline_comparison.png
-results/reference_repos/propaganda_tcss_baseline_comparison.png
-results/reference_repos/reference_convergence.csv
-results/reference_repos/baseline_comparison.csv
-results/reference_repos/parameter_summary.csv
-results/reference_repos/opinion_malware_timeseries.csv
-results/reference_repos/propaganda_war_timeseries.csv
-results/reference_repos/propaganda_tcss_timeseries.csv
-```
-
-For figure interpretation, see [`FIGURE_GUIDE.md`](FIGURE_GUIDE.md). Each fresh run also writes `smoke_run_report.md` into its output directory.
-
-Plot convention: continuous controls and game strategies are time-indexed curves sampled on the simulation grid; projected continuous strategies may have flat bound segments but still enter the ODE between event times. Impulse controls act only at discrete event times and are drawn as vertical lines; hybrid control combines both. State labels indicate whether each trajectory is a node mean over all nodes or a degree-weighted mean over degree classes. The smoke-run parameters are small-scale but chosen so continuous strategies vary visibly, impulse-induced state changes are clear, iteration diagnostics stabilize, and computed strategies can be compared with no-control/no-impulse and 75 random-strategy baselines. For concrete values such as `T`, `h`, rate parameters, impulse intervals, event indices, and bounds, start with `results/reference_repos/parameter_summary.csv`.
+Plot convention: continuous controls and game strategies are time-indexed curves sampled on the simulation grid; projected continuous strategies may have flat bound segments but still enter the ODE between event times. Impulse controls act only at discrete event times and are drawn as vertical lines; hybrid control combines both. State labels indicate whether each trajectory is a node mean over all nodes or a degree-weighted mean over degree classes. For concrete values such as `T`, `h`, rate parameters, impulse intervals, event indices, and bounds, start with the generated `parameter_summary.csv`.
 
 ## What each smoke run does
 

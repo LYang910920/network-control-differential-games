@@ -51,7 +51,7 @@ The default scalability run writes `scalability_degree_node_sf/` and compares de
 Outputs:
 
 ```text
-examples/foundations/results/rerun_YYYYMMDD_HHMMSS/
+artifacts/foundation_runs/rerun_YYYYMMDD_HHMMSS/
 ```
 
 Each foundation result folder includes `parameter_summary.csv` so the time horizon, grid size, propagation/recovery rates, control bounds, impulse settings, and random-baseline count are visible without reading the source first.
@@ -84,7 +84,7 @@ python run_all.py --skip-foundations
 Outputs:
 
 ```text
-examples/reference/results/reference_repos_rerun/
+artifacts/reference_runs/reference_repos_rerun/
 ```
 
 The reference smoke runner also writes `parameter_summary.csv` with each paper-level smoke run's horizon, step size, rate parameters, impulse event indices, strategy bounds, and baseline count.

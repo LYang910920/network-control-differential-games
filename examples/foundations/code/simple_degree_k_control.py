@@ -26,7 +26,6 @@ Run:
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import matplotlib
@@ -36,12 +35,13 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
-EXAMPLES_DIR = Path(__file__).resolve().parents[2]
-ROOT_DIR = EXAMPLES_DIR.parent
-SRC_DIR = ROOT_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-
+from cybercontrol.baseline_diagnostics import (
+    RANDOM_BASELINE_COUNT,
+    RANDOM_BASELINE_SEED,
+    control_baseline_rows,
+    save_control_baseline_plot,
+    write_baseline_table,
+)
 from cybercontrol.numerics import (
     as_time_function,
     project_box as clip,
@@ -49,18 +49,10 @@ from cybercontrol.numerics import (
     trapezoid_integral as trapz,
 )
 from cybercontrol.plotting import panel_label, save_publication_figure
-from model_profiles import DegreeControlProfile, SIMPLE_DEGREE_CONTROL
-
-if str(EXAMPLES_DIR) not in sys.path:
-    sys.path.insert(0, str(EXAMPLES_DIR))
-
-from common_diagnostics import (  # noqa: E402
-    RANDOM_BASELINE_COUNT,
-    RANDOM_BASELINE_SEED,
-    control_baseline_rows,
-    save_control_baseline_plot,
-    write_baseline_table,
-)
+try:
+    from .model_profiles import DegreeControlProfile, SIMPLE_DEGREE_CONTROL
+except ImportError:
+    from model_profiles import DegreeControlProfile, SIMPLE_DEGREE_CONTROL
 
 
 # -----------------------------------------------------------------------------
