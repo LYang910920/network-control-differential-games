@@ -72,7 +72,7 @@ This avoids accidentally vendoring external datasets into your own repository hi
 
 ## Generated Results
 
-The files in `examples/*/results/` are generated outputs from the tutorial and smoke-run scripts. They are included for convenience and reproducibility checks. If you publish these figures, cite the relevant tutorial code and upstream reference repositories as appropriate.
+Generated reruns are written to ignored folders such as `artifacts/`, `simple_outputs/`, `example_outputs/`, and the output directory selected for `examples/reference/run_reference_smoke.py`. Curated README figures and current PDFs are kept under `docs/assets/` and `docs/` for convenience and reproducibility checks. If you publish these figures, cite the relevant tutorial code and upstream reference repositories as appropriate.
 
 ## Practical Publishing Recommendation
 
