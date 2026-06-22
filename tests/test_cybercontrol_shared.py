@@ -355,3 +355,43 @@ def test_node_siprs_heterogeneous_torch_parity():
         clean=torch.tensor(clean),
     )
     assert np.allclose(actual.detach().numpy(), expected, rtol=1e-6, atol=1e-7)
+
+
+def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
+    from examples.foundations.code import network_control_examples as ex
+
+    D = ex.DegreeData(
+        k=np.array([1.0, 3.0, 6.0]),
+        Nk=np.array([4, 3, 2]),
+        pk=np.array([4 / 9, 3 / 9, 2 / 9], dtype=float),
+        kbar=float(np.array([1.0, 3.0, 6.0]) @ np.array([4 / 9, 3 / 9, 2 / 9])),
+        node_degree=np.array([1, 1, 1, 1, 3, 3, 3, 6, 6]),
+    )
+    t = np.linspace(0.0, 1.0, 6)
+    u = np.full((len(t), len(D.k)), 0.05)
+    x, cost = ex.evaluate_degree_control_policy(D, t, u)
+    model = ex.degree_control_model(D)
+    expected_cost = ex.integral((x * model.state_weight) @ D.pk + 0.5 * ((u * u * model.control_weight) @ D.pk), t)
+
+    assert np.isclose(cost, expected_cost)
+    assert not np.allclose(model.state_weight, model.state_weight.mean())
+
+    A = ex.normalize_adjacency(
+        np.array(
+            [
+                [0.0, 1.0, 0.0],
+                [1.0, 0.0, 1.0],
+                [0.0, 1.0, 0.0],
+            ]
+        ),
+        "row",
+    )
+    attack = np.full((len(t), A.shape[0]), 0.03)
+    defense = np.full((len(t), A.shape[0]), 0.04)
+    x_game, ja, jd = ex.evaluate_node_game_strategy(A, t, attack, defense)
+    game_model = ex.node_game_model(A)
+    expected_ja = ex.integral((game_model.attack_reward * x_game).sum(axis=1) - 0.5 * (attack * attack * game_model.attack_cost).sum(axis=1), t)
+    expected_jd = ex.integral(-(game_model.defense_loss * x_game).sum(axis=1) - 0.5 * (defense * defense * game_model.defense_cost).sum(axis=1), t)
+
+    assert np.isclose(ja, expected_ja)
+    assert np.isclose(jd, expected_jd)
