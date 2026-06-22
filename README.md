@@ -89,6 +89,18 @@ python -m pytest -q
 python run_all.py --skip-reference --skip-scalability
 ```
 
+Extended local scalability check:
+
+```bash
+python examples/foundations/code/scalability_analysis.py \
+  --model-level compare \
+  --sizes 100,1000,10000,100000,1000000 \
+  --steps 12 --iterations 35 --tolerance 1e-3 --repeats 1 \
+  --output-dir artifacts/extended_validation/scalability_degree_node_100_to_1m
+```
+
+This bounded million-node run converged for every paired degree/node case. At 1,000,000 nodes, the degree-level FBS state had 305 degree classes and solved in about 0.08 seconds; the sparse node-level FBS state had 1,000,000 nodes and solved in about 17.4 seconds.
+
 LaTeX sources live in `docs/source/`; current PDFs live in `docs/`. Build PDFs from the source directory and copy only the final PDF back to `docs/`.
 
 ## Citation and License

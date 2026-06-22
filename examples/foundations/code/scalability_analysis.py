@@ -803,7 +803,7 @@ def compact_node_tick(value: float, _position: int | None = None) -> str:
 def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path) -> Path:
     """Plot the paired degree-level versus node-level epidemic FBS comparison."""
     with publication_style():
-        fig, axes = plt.subplots(1, 3, figsize=(7.16, 3.2))
+        fig, axes = plt.subplots(3, 1, figsize=(7.16, 6.4), sharex=True)
     styles = {
         "degree": {
             "color": "tab:blue",
@@ -844,13 +844,12 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
         )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("number of nodes in the same synthetic SF network")
-    ax.set_ylabel("FBS solve time (seconds)")
-    panel_label(ax, "(a) runtime on paired synthetic SF graphs")
+    ax.set_ylabel("FBS seconds")
+    panel_label(ax, "(a) runtime")
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
-    ax.legend(frameon=False, fontsize=8)
+    ax.legend(frameon=False, fontsize=7, loc="upper left")
 
     ax = axes[1]
     for model_level, group in summary.groupby("model_level", sort=False):
@@ -866,13 +865,12 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
         )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("number of nodes in the same synthetic SF network")
     ax.set_ylabel("FBS state dimension")
     panel_label(ax, "(b) state dimension")
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
-    ax.legend(frameon=False, fontsize=8)
+    ax.legend(frameon=False, fontsize=7, loc="upper left")
 
     ax = axes[2]
     graph_summary = (
@@ -903,15 +901,15 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
     )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("number of nodes in the same synthetic SF network")
     ax.set_ylabel("maximum degree")
     panel_label(ax, "(c) maximum degree")
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
-    ax.legend(frameon=False, fontsize=8)
+    ax.legend(frameon=False, fontsize=7, loc="upper left")
+    ax.set_xlabel("nodes in the same synthetic SF graph")
 
-    fig.tight_layout()
+    fig.tight_layout(h_pad=1.2)
     path = out_dir / plot_filename("compare", summary)
     save_publication_figure(
         fig,

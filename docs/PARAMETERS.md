@@ -69,6 +69,7 @@ The advanced degree and node examples resolve these base values into heterogeneo
 | Paired degree/node scalability repeats | `1` by default | `--scalability-repeats` |
 | Paired degree/node scalability model | same normalized SIS epidemic-control problem for both levels; contact pressure is scaled by each graph's maximum degree | `examples/foundations/code/scalability_analysis.py` |
 | Paired degree/node scalability solver/FBS | fixed-grid RK4, sparse node adjacency, `T=8`, `beta=1.20`, `delta=0.35`, `60` intervals, `max_iter=80`, `tol=1e-4` | `--scalability-steps`, `--scalability-iterations` |
+| Bounded million-node validation run | `100` to `1,000,000` nodes, `12` intervals, `35` max iterations, `tol=1e-3`; all paired degree/node rows converged in the local validation run | `artifacts/extended_validation/scalability_degree_node_100_to_1m/` |
 | Sparse node-only scalability node sizes | `1000, 2000, ..., 10000` | `--include-node-scalability --node-scalability-sizes ...` |
 | Sparse node-level scalability repeats | `1` by default | `--node-scalability-repeats` |
 | Sparse node-level scalability time grid | `25` intervals over `T=8` | `--node-scalability-steps` |
