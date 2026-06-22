@@ -7,6 +7,7 @@ from cybercontrol.models import MalwareParams, controlled_sir_rhs, controlled_si
 from cybercontrol.network_models import (
     NodeSIPRSParams,
     community_correlated_node_siprs_params,
+    contiguous_community_index,
     graph_pressure_numpy,
     node_sips_rhs_numpy,
     node_siprs_rhs_numpy,
@@ -38,7 +39,9 @@ from cybercontrol.plotting import figure_size, publication_style, save_publicati
 def test_rk4_controlled_sir_preserves_simplex_after_projection():
     params = MalwareParams(beta=0.8, gamma=0.15, omega=0.02)
     x0 = np.array([0.95, 0.05, 0.0])
-    rhs = lambda x, t: controlled_sir_rhs(x, u_patch=0.2, u_clean=0.1, p=params)
+
+    def rhs(x, t):
+        return controlled_sir_rhs(x, u_patch=0.2, u_clean=0.1, p=params)
 
     xT, path = rk4_integrate(rhs, x0, t0=0.0, dt=1.0, substeps=20, project=project_simplex3)
 
@@ -68,7 +71,9 @@ def test_grid_helpers_share_projection_quadrature_and_interpolation():
     value_at_half = as_time_function(t, values)(0.5)
     assert np.allclose(value_at_half, [0.5, 0.25])
 
-    rhs_forward = lambda tau, y: np.array([1.0])
+    def rhs_forward(tau, y):
+        return np.array([1.0])
+
     forward = solve_ode_grid(rhs_forward, np.array([0.0]), t)
     backward = solve_ode_grid(rhs_forward, np.array([1.0]), t, backward=True)
     assert np.allclose(forward[:, 0], t)
@@ -355,6 +360,17 @@ def test_node_siprs_heterogeneous_torch_parity():
         clean=torch.tensor(clean),
     )
     assert np.allclose(actual.detach().numpy(), expected, rtol=1e-6, atol=1e-7)
+
+
+def test_contiguous_community_index_is_validated_and_deterministic():
+    labels = contiguous_community_index(8, 3)
+
+    assert labels.tolist() == [0, 0, 0, 1, 1, 1, 2, 2]
+    assert labels.dtype.kind in {"i", "u"}
+    with pytest.raises(ValueError):
+        contiguous_community_index(0, 3)
+    with pytest.raises(ValueError):
+        contiguous_community_index(8, 0)
 
 
 def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():

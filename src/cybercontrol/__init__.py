@@ -35,6 +35,7 @@ from .models import (
 from .network_models import (
     NodeSIPRSParams,
     community_correlated_node_siprs_params,
+    contiguous_community_index,
     degree_correlated_node_siprs_params,
     graph_pressure_numpy,
     graph_pressure_torch,
@@ -111,6 +112,7 @@ __all__ = [
     "hybrid_rhs",
     "isolation_jump",
     "NodeSIPRSParams",
+    "contiguous_community_index",
     "DegreeSISParams",
     "NodeSISParams",
     "COMMON_DIAGNOSTIC_TERMS",

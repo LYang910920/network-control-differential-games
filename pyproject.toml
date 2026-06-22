@@ -27,3 +27,14 @@ all = ["python-igraph", "torch", "pytest", "ruff"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests", "scripts", "examples/foundations/code", "examples/reference/run_reference_smoke.py"]
+exclude = ["examples/reference/reference_repositories"]
+
+[tool.ruff.lint]
+extend-ignore = [
+    "E402",  # examples set cache/backend paths before importing plotting libraries
+    "E741",  # compartment notation uses I for infected state
+]

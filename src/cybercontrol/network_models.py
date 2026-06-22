@@ -25,6 +25,16 @@ from .numerics import project_compartments
 Array = np.ndarray
 
 
+def contiguous_community_index(nodes: int, communities: int) -> Array:
+    """Assign nodes to contiguous community labels ``0, ..., communities-1``."""
+
+    if nodes <= 0:
+        raise ValueError("nodes must be positive")
+    if communities <= 0:
+        raise ValueError("communities must be positive")
+    return np.minimum(np.arange(nodes, dtype=int) * int(communities) // int(nodes), int(communities) - 1)
+
+
 @dataclass(frozen=True)
 class NodeSIPRSParams:
     """Scalar-or-array rates and costs for node-level SIPS/SIPRS models.

@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-import importlib
 import argparse
+import importlib.util
 import os
 import sys
 from pathlib import Path
@@ -28,27 +28,42 @@ ROOT_DIR = HERE.parents[1]
 PACKAGE_DIR = HERE
 REF_DIR = PACKAGE_DIR / "reference_repositories"
 OUT_DIR = ROOT_DIR / "artifacts" / "reference_runs" / "reference_repos_rerun"
-PYDEPS = HERE / "pydeps"
 LINE_WIDTH = 2.0
 FIGSIZE_REFERENCE = (14.4, 3.9)
 BASELINE_ROWS: list[dict[str, object]] = []
 CONVERGENCE_ROWS: list[dict[str, object]] = []
 PARAMETER_ROWS: list[dict[str, object]] = []
 
-def prepend_import_path(path: Path) -> None:
-    resolved = str(path.resolve())
-    if resolved not in sys.path:
-        sys.path.insert(0, resolved)
+
+_MISSING_MODULE = object()
+_PREVIOUS_MODULES: dict[str, object] = {}
 
 
-def discard_import_path(path: Path) -> None:
-    resolved = str(path.resolve())
-    if resolved in sys.path:
-        sys.path.remove(resolved)
+def load_reference_module(repo: Path, module_name: str, dependencies: tuple[str, ...] = ()):
+    """Load a reference module from an explicit file path."""
+
+    for name in (*dependencies, module_name):
+        if name not in _PREVIOUS_MODULES:
+            _PREVIOUS_MODULES[name] = sys.modules.get(name, _MISSING_MODULE)
+        module_path = repo / f"{name}.py"
+        spec = importlib.util.spec_from_file_location(name, module_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"cannot load {name!r} from {module_path}")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        spec.loader.exec_module(module)
+    return sys.modules[module_name]
 
 
-if PYDEPS.exists():
-    prepend_import_path(PYDEPS)
+def restore_reference_modules(*module_names: str) -> None:
+    """Restore module registry entries touched by ``load_reference_module``."""
+
+    for name in module_names:
+        previous = _PREVIOUS_MODULES.pop(name, _MISSING_MODULE)
+        if previous is _MISSING_MODULE:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = previous
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -245,8 +260,7 @@ def apply_opinion_malware_compat(repo: Path) -> None:
 def run_opinion_malware() -> dict[str, float]:
     repo = REF_DIR / "OpinionMalware_TIFS_2025_Code"
     apply_opinion_malware_compat(repo)
-    prepend_import_path(repo)
-    om = importlib.import_module("opinionMalware")
+    om = load_reference_module(repo, "opinionMalware", dependencies=("network",))
 
     file_path = PACKAGE_DIR / "sample_data" / "opinion_malware_edges.edges"
     _, social_network, scale_free_network = om.create_multiplex_network_with_connected_nodes_edges(
@@ -407,14 +421,13 @@ def run_opinion_malware() -> dict[str, float]:
     )
     plt.close(fig)
 
-    discard_import_path(repo)
+    restore_reference_modules("network", "opinionMalware")
     return {"nodes": float(n), "J0": float(J[0]), "J_final": float(J[-1])}
 
 
 def run_propaganda_war() -> dict[str, float]:
     repo = REF_DIR / "PropagandaWar_TIFS_2024_Code"
-    prepend_import_path(repo)
-    pw = importlib.import_module("propWar")
+    pw = load_reference_module(repo, "propWar", dependencies=("demo_network",))
 
     red_graph = nx.barabasi_albert_graph(36, 2, seed=10)
     blue_graph = nx.watts_strogatz_graph(34, 4, 0.18, seed=11)
@@ -675,14 +688,13 @@ def run_propaganda_war() -> dict[str, float]:
     )
     plt.close(fig)
 
-    discard_import_path(repo)
+    restore_reference_modules("demo_network", "propWar")
     return {"red_degree_classes": float(len(pw.kr)), "J_red_final": float(jr[-1]), "J_blue_final": float(jb[-1])}
 
 
 def run_propaganda_tcss() -> dict[str, float]:
     repo = REF_DIR / "Propaganda_TCSS_2025_Code"
-    prepend_import_path(repo)
-    pp = importlib.import_module("prop_propaganda")
+    pp = load_reference_module(repo, "prop_propaganda", dependencies=("prop_network",))
 
     A = pd.read_csv(PACKAGE_DIR / "sample_data" / "sample_adjacency.csv", header=None).to_numpy(float)
     A[A < 0] = 0
@@ -870,7 +882,7 @@ def run_propaganda_tcss() -> dict[str, float]:
     )
     plt.close(fig)
 
-    discard_import_path(repo)
+    restore_reference_modules("prop_network", "prop_propaganda")
     return {"nodes": float(n), "J0": float(J[0]), "J_final": float(J[-1])}
 
 
@@ -1057,7 +1069,7 @@ The exact values are also exported to `parameter_summary.csv`.
 
 
 def main() -> None:
-    global PACKAGE_DIR, REF_DIR, OUT_DIR, PYDEPS
+    global PACKAGE_DIR, REF_DIR, OUT_DIR
 
     parser = argparse.ArgumentParser(description="Run lightweight smoke tests for the three reference repositories.")
     parser.add_argument(
@@ -1075,17 +1087,14 @@ def main() -> None:
     parser.add_argument(
         "--pydeps",
         type=Path,
-        default=PYDEPS,
-        help="Optional local dependency directory containing python-igraph.",
+        default=None,
+        help=argparse.SUPPRESS,
     )
     args = parser.parse_args()
 
     PACKAGE_DIR = args.package_dir.resolve()
     REF_DIR = PACKAGE_DIR / "reference_repositories"
     OUT_DIR = args.output_dir.resolve()
-    PYDEPS = args.pydeps.resolve()
-    if args.pydeps.exists():
-        prepend_import_path(PYDEPS)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     require_reference_repos()
 

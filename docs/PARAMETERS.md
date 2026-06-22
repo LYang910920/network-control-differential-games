@@ -41,7 +41,7 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | Node-level game | continuous differential game | `T=12` | `beta=0.95`, `delta=0.15` | attack/defense in `[0, 1.2]`, attack cost `4.0`, defense cost `4.5` |
 | Hybrid impulse model | continuous plus impulse control | `T=12` | `beta=0.95`, `delta=0.15` | continuous control in `[0.10, 0.52]`, impulses at `t=3,6,9`, impulse fraction `0.55` |
 
-The advanced degree and node examples resolve these base values into heterogeneous arrays. Degree-level control/game runs use degree-correlated susceptibility, infectivity, recovery, state weights, costs, and bounds with neutral/assortative mixing. Node-level control/game runs use degree-correlated node susceptibility, infectivity, recovery, state weights, game costs, and bounds. Each run writes the resolved arrays to `parameter_summary.csv`, and each baseline-comparison panel evaluates policies or strategies under the same resolved heterogeneous model.
+The advanced degree and node examples resolve these base values into heterogeneous arrays. Degree-level control/game runs use degree-correlated susceptibility, infectivity, recovery, state weights, costs, and bounds with neutral/assortative mixing. Node-level control/game runs use degree-correlated node susceptibility, infectivity, recovery, state weights, game costs, and bounds. Each run writes the resolved arrays, summary statistics, profile seed/strength, and matched-mean homogeneous scalar baselines to `parameter_summary.csv`. Each baseline-comparison panel evaluates policies or strategies under the same resolved heterogeneous model.
 
 ## Heterogeneous Profile Helpers
 

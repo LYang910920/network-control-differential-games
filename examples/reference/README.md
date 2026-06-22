@@ -45,13 +45,7 @@ source ../../.venv/bin/activate
 python -m pip install -r ../../requirements.txt
 ```
 
-If `python-igraph` is inconvenient to install in the active environment, install it locally:
-
-```bash
-python -m pip install --target pydeps python-igraph
-```
-
-The runner will automatically look for `pydeps/`.
+The reference runner imports the curated source files by explicit file path. Python package dependencies, including `python-igraph`, should be installed in the active environment rather than through a local `pydeps/` path.
 
 ## Reference source code
 

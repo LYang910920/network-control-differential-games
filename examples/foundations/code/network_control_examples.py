@@ -1166,7 +1166,20 @@ def write_parameter_summary(out_dir: Path, args: argparse.Namespace, D: DegreeDa
         rows.append({"model": model, "parameter": parameter, "value": value, "meaning": meaning})
 
     def add_array(model: str, parameter: str, values: np.ndarray, meaning: str) -> None:
-        add(model, parameter, np.array2string(np.asarray(values), precision=4, separator=";"), meaning)
+        arr = np.asarray(values, dtype=float)
+        add(model, parameter, np.array2string(arr, precision=4, separator=";"), meaning)
+        add(
+            model,
+            f"{parameter}_summary",
+            f"mean={arr.mean():.4g}; min={arr.min():.4g}; max={arr.max():.4g}",
+            "Summary statistics for the resolved heterogeneous array.",
+        )
+        add(
+            model,
+            f"matched_mean_homogeneous_{parameter}",
+            f"{arr.mean():.6g}",
+            "Scalar matched-mean homogeneous value to use as a simple baseline profile.",
+        )
 
     add("input graph", "full_nodes", D.node_degree.size, "Number of nodes used to compute the empirical degree distribution.")
     add("input graph", "degree_classes", len(D.k), "Number of observed degree classes in degree-level models.")
@@ -1179,6 +1192,7 @@ def write_parameter_summary(out_dir: Path, args: argparse.Namespace, D: DegreeDa
     add(DEGREE_CONTROL_PROFILE.label, "delta", DEGREE_CONTROL_PROFILE.delta, "Natural recovery/removal rate before control.")
     add(DEGREE_CONTROL_PROFILE.label, "u_max", DEGREE_CONTROL_PROFILE.control_max, "Upper bound for continuous healing control u_k(t).")
     add(DEGREE_CONTROL_PROFILE.label, "state/control weights", f"{DEGREE_CONTROL_PROFILE.state_weight}/{DEGREE_CONTROL_PROFILE.control_weight}", "Objective tradeoff between infection and control effort.")
+    add(DEGREE_CONTROL_PROFILE.label, "heterogeneity_profile", "degree_correlated_sis_params(strength=0.28)", "Deterministic degree-correlated physical/economic heterogeneity; no random seed is used.")
     degree_control_params = degree_control_model(D)
     for name in ("susceptibility", "infectivity", "recovery", "state_weight", "control_weight", "control_bound"):
         add_array(DEGREE_CONTROL_PROFILE.label, f"resolved_{name}_by_degree_class", getattr(degree_control_params, name), "Class-specific heterogeneous array used by the degree-level FBS solve.")
@@ -1189,6 +1203,7 @@ def write_parameter_summary(out_dir: Path, args: argparse.Namespace, D: DegreeDa
     add(DEGREE_GAME_PROFILE.label, "delta", DEGREE_GAME_PROFILE.delta, "Natural recovery/removal rate before defense.")
     add(DEGREE_GAME_PROFILE.label, "attack/defense bounds", f"{DEGREE_GAME_PROFILE.attack_max}/{DEGREE_GAME_PROFILE.defense_max}", "Upper bounds for continuous attack and defense strategies.")
     add(DEGREE_GAME_PROFILE.label, "payoff weights", f"{DEGREE_GAME_PROFILE.reward_attacker}/{DEGREE_GAME_PROFILE.loss_defender}", "Attacker reward and defender loss weights on infection.")
+    add(DEGREE_GAME_PROFILE.label, "heterogeneity_profile", "degree_correlated_sis_params(strength=0.22)", "Deterministic degree-correlated physical/economic heterogeneity; no random seed is used.")
     degree_game_params = degree_game_model(D)
     for name in ("susceptibility", "infectivity", "recovery", "attack_reward", "defense_loss", "attack_cost", "defense_cost", "attack_bound", "defense_bound"):
         add_array(DEGREE_GAME_PROFILE.label, f"resolved_{name}_by_degree_class", getattr(degree_game_params, name), "Class-specific heterogeneous array used by the degree-level game solve and baseline comparison.")
@@ -1200,6 +1215,7 @@ def write_parameter_summary(out_dir: Path, args: argparse.Namespace, D: DegreeDa
     add(NODE_CONTROL_PROFILE.label, "delta", NODE_CONTROL_PROFILE.delta, "Node-level natural recovery/removal rate before control.")
     add(NODE_CONTROL_PROFILE.label, "u_max", NODE_CONTROL_PROFILE.control_max, "Upper bound for continuous node control u_i(t).")
     add(NODE_CONTROL_PROFILE.label, "initial infected nodes", 2, "The two highest-degree nodes start with infection 0.12; others start at 0.02.")
+    add(NODE_CONTROL_PROFILE.label, "heterogeneity_profile", "degree_correlated_node_sis_params(strength=0.28)", "Deterministic degree-correlated node heterogeneity; no random seed is used.")
     node_control_params = node_control_model(A)
     for name in ("susceptibility", "infectivity", "recovery", "state_weight", "control_weight", "control_bound"):
         add_array(NODE_CONTROL_PROFILE.label, f"resolved_{name}_by_node", getattr(node_control_params, name), "Node-specific heterogeneous array used by the node-level FBS solve.")
@@ -1209,6 +1225,7 @@ def write_parameter_summary(out_dir: Path, args: argparse.Namespace, D: DegreeDa
     add(NODE_GAME_PROFILE.label, "beta", NODE_GAME_PROFILE.beta, "Node-level infection/contact rate under attack and defense.")
     add(NODE_GAME_PROFILE.label, "delta", NODE_GAME_PROFILE.delta, "Node-level natural recovery/removal rate before defense.")
     add(NODE_GAME_PROFILE.label, "attack/defense bounds", f"{NODE_GAME_PROFILE.attack_max}/{NODE_GAME_PROFILE.defense_max}", "Upper bounds for continuous attack and defense strategies.")
+    add(NODE_GAME_PROFILE.label, "heterogeneity_profile", "degree_correlated_node_sis_params(strength=0.22)", "Deterministic degree-correlated node heterogeneity; no random seed is used.")
     node_game_params = node_game_model(A)
     for name in ("susceptibility", "infectivity", "recovery", "attack_reward", "defense_loss", "attack_cost", "defense_cost", "attack_bound", "defense_bound"):
         add_array(NODE_GAME_PROFILE.label, f"resolved_{name}_by_node", getattr(node_game_params, name), "Node-specific heterogeneous array used by the node-level game solve and baseline comparison.")
