@@ -274,6 +274,14 @@ where $P(k)$ is the degree distribution and $\langle k\rangle=\bar{k}$ is the av
 \end{equation}
 The implementation therefore stores one state and one control trajectory per observed degree value. For example, if the input network has degree classes $\mathcal{K}=\{2,3,4,7\}$, then the model state is $(x_2,x_3,x_4,x_7)$, not $(S,I,R)$.
 
+The code also supports class-specific physical and economic parameters.  With susceptibility $s_k$, infectivity $\iota_k$, recovery $\delta_k$, and row-stochastic mixing $M_{k\ell}$, the heterogeneous pressure is
+\[
+  \lambda_k(t)=s_k k\sum_{\ell\in\mathcal{K}} M_{k\ell}\iota_\ell x_\ell(t),
+  \qquad
+  \dot{x}_k(t)=(1-x_k(t))\lambda_k(t)-(\delta_k+u_k(t))x_k(t).
+\]
+Scalar inputs are explicitly broadcast by \texttt{cybercontrol.heterogeneity}, so the homogeneous model remains a special case.
+
 In the tutorial code, \texttt{compute\_degree\_distribution} returns the observed degree values, counts $N_k$, probabilities $P(k)$, and average degree $\langle k\rangle$. For directed networks, one must also decide what ``degree'' means. The code exposes a \texttt{degree\_mode} option: row degree counts incoming influencers under the convention $\dot{x}=f(Ax)$, column degree counts outgoing influence, total degree adds both, and undirected degree ignores orientation.
 
 Degree-level models are compact and interpretable. They are useful when the network is large or only statistical network information is available. Their limitation is that they lose fine node-level structure: which node is connected to which node, which node is high value, and where attacks or defenses should be targeted.

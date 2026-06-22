@@ -6,12 +6,22 @@ from cybercontrol.diagnostics import diagnostic_terms_for, rolling_mean, write_d
 from cybercontrol.models import MalwareParams, controlled_sir_rhs, controlled_sir_rhs_torch, isolation_jump
 from cybercontrol.network_models import (
     NodeSIPRSParams,
+    community_correlated_node_siprs_params,
     graph_pressure_numpy,
     node_sips_rhs_numpy,
     node_siprs_rhs_numpy,
     node_siprs_rhs_torch,
     normalize_adjacency,
     sample_node_siprs_step,
+)
+from cybercontrol.heterogeneity import (
+    DegreeSISParams,
+    degree_correlated_sis_params,
+    degree_sis_jacobian,
+    degree_sis_rhs,
+    finite_difference_jacobian,
+    neutral_degree_mixing,
+    node_heterogeneity_summary,
 )
 from cybercontrol.numerics import (
     as_time_function,
@@ -231,6 +241,65 @@ def test_node_sips_siprs_mass_and_sparse_pressure_parity():
     assert np.allclose(sips_rhs.sum(axis=1), 0.0)
 
 
+def test_degree_sis_heterogeneity_preserves_scalar_compatibility_and_jacobian():
+    k = np.array([1.0, 3.0, 6.0])
+    p = np.array([0.5, 0.3, 0.2])
+    x = np.array([0.08, 0.16, 0.24])
+    u = np.array([0.02, 0.04, 0.06])
+    scalar = DegreeSISParams(susceptibility=0.7, recovery=0.18).resolve(k, p)
+
+    theta = float((k * p) @ x / (k @ p))
+    expected = 0.7 * k * (1.0 - x) * theta - (0.18 + u) * x
+    assert np.allclose(degree_sis_rhs(x, u, k, scalar), expected)
+    assert np.allclose(neutral_degree_mixing(k, p).sum(axis=1), 1.0)
+
+    heterogeneous = degree_correlated_sis_params(k, p, strength=0.25)
+    analytic = degree_sis_jacobian(x, u, k, heterogeneous)
+    numeric = finite_difference_jacobian(lambda y: degree_sis_rhs(y, u, k, heterogeneous), x)
+    assert np.allclose(analytic, numeric, rtol=1e-5, atol=1e-7)
+    assert heterogeneous.summaries()[0]["name"] == "susceptibility"
+
+
+def test_node_siprs_heterogeneous_arrays_dense_sparse_and_summaries():
+    sp = pytest.importorskip("scipy.sparse")
+    A = normalize_adjacency(
+        np.array(
+            [
+                [0.0, 1.0, 0.0],
+                [1.0, 0.0, 1.0],
+                [0.0, 1.0, 0.0],
+            ]
+        )
+    )
+    x = np.array(
+        [
+            [0.80, 0.10, 0.05, 0.05],
+            [0.72, 0.18, 0.05, 0.05],
+            [0.68, 0.22, 0.05, 0.05],
+        ]
+    )
+    params = NodeSIPRSParams(
+        beta=np.array([0.7, 0.8, 0.9]),
+        susceptibility=np.array([0.9, 1.1, 1.3]),
+        infectivity=np.array([1.2, 0.8, 1.0]),
+        gamma=np.array([0.12, 0.16, 0.20]),
+        omega_p=np.array([0.02, 0.03, 0.04]),
+        omega_r=0.01,
+        criticality=np.array([1.0, 1.5, 2.0]),
+        patch_bound=np.array([0.03, 0.04, 0.05]),
+        clean_bound=0.06,
+    )
+    rhs_dense = node_siprs_rhs_numpy(x, A, params, patch=0.5, clean=np.array([0.02, 0.07, 0.08]))
+    rhs_sparse = node_siprs_rhs_numpy(x, sp.csr_matrix(A), params, patch=0.5, clean=np.array([0.02, 0.07, 0.08]))
+
+    assert np.allclose(rhs_dense, rhs_sparse)
+    assert np.allclose(rhs_dense.sum(axis=1), 0.0)
+    resolved = params.resolve(3)
+    summary = node_heterogeneity_summary(resolved)
+    assert summary.shape == (4,)
+    assert resolved.risk_score()[2] > resolved.risk_score()[0]
+
+
 def test_node_siprs_torch_parity_and_stochastic_step():
     torch = pytest.importorskip("torch")
     A = normalize_adjacency(np.array([[0.0, 1.0], [1.0, 0.0]], dtype=np.float64))
@@ -257,3 +326,32 @@ def test_node_siprs_torch_parity_and_stochastic_step():
     )
     assert sampled.shape == (4,)
     assert set(sampled.tolist()).issubset({0, 1, 2, 3})
+
+
+def test_node_siprs_heterogeneous_torch_parity():
+    torch = pytest.importorskip("torch")
+    community = np.array([0, 0, 1, 1])
+    params = community_correlated_node_siprs_params(community, strength=0.4)
+    A = normalize_adjacency(np.ones((4, 4)) - np.eye(4))
+    x = project_compartments(
+        np.array(
+            [
+                [0.82, 0.10, 0.04, 0.04],
+                [0.70, 0.20, 0.05, 0.05],
+                [0.65, 0.25, 0.05, 0.05],
+                [0.76, 0.14, 0.05, 0.05],
+            ]
+        )
+    )
+    patch = np.array([0.08, 0.02, 0.04, 0.01])
+    clean = np.array([0.01, 0.03, 0.02, 0.04])
+
+    expected = node_siprs_rhs_numpy(x, A, params, patch=patch, clean=clean)
+    actual = node_siprs_rhs_torch(
+        torch.tensor(x),
+        torch.tensor(A),
+        params,
+        patch=torch.tensor(patch),
+        clean=torch.tensor(clean),
+    )
+    assert np.allclose(actual.detach().numpy(), expected, rtol=1e-6, atol=1e-7)

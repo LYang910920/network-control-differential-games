@@ -25,6 +25,8 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | `FBSM` | Forward-backward sweep method: numerically alternate state integration, costate integration, and control/strategy update until the update change is small. |
 | `degree-level` | One state per observed degree class. Use it when degree distribution is the main network summary. |
 | `node-level` | One state per graph node. Use it when adjacency, local interventions, or node-specific outputs matter. |
+| `heterogeneous parameter` | A class- or node-specific physical/economic value such as susceptibility, infectivity, recovery, criticality, cost, or control bound. Scalars are still accepted and explicitly broadcast. |
+| `degree mixing matrix` | Row-stochastic matrix `M[k,l]` used in degree-level infection pressure. Neutral mixing uses `l P(l)/<k>`; assortative mixing puts more weight on similar degree classes. |
 | `paper-level extension` | A research-ready adaptation with explicit model equations, parameters, baselines, multiple seeds or sensitivity checks, figure captions, and license/data notes. |
 | `diagnostic` | A plotted/logged check of numerical behavior, such as FBSM control-update change, state conservation, runtime scaling, or baseline comparison. Shared helper definitions live in `cybercontrol.diagnostics`. |
 
@@ -38,6 +40,20 @@ Use this page before changing equations or solver loops. It makes the smoke-run 
 | Degree-level game | continuous differential game | `T=14` | `beta=0.60`, `delta=0.15` | attack/defense in `[0, 1.2]`, attack cost `3.0`, defense cost `4.0` |
 | Node-level game | continuous differential game | `T=12` | `beta=0.95`, `delta=0.15` | attack/defense in `[0, 1.2]`, attack cost `4.0`, defense cost `4.5` |
 | Hybrid impulse model | continuous plus impulse control | `T=12` | `beta=0.95`, `delta=0.15` | continuous control in `[0.10, 0.52]`, impulses at `t=3,6,9`, impulse fraction `0.55` |
+
+The advanced degree and node examples resolve these base values into heterogeneous arrays. Degree-level control/game runs use degree-correlated susceptibility, infectivity, recovery, state weights, and bounds with neutral/assortative mixing. Node-level control/game runs use degree-correlated node susceptibility, infectivity, recovery, state weights, and control bounds. Each run writes the resolved arrays to `parameter_summary.csv`.
+
+## Heterogeneous Profile Helpers
+
+| Helper | Purpose |
+|---|---|
+| `DegreeSISParams(...).resolve(k, p)` | Broadcast scalar or array degree parameters and validate shapes. |
+| `degree_correlated_sis_params(k, p, strength=...)` | Build degree-correlated physical/economic parameters plus assortative mixing. |
+| `NodeSISParams(...).resolve(nodes)` | Broadcast scalar or array node-SIS parameters. |
+| `degree_correlated_node_sis_params(A, strength=...)` | Build node-SIS risk/cost/bound arrays correlated with graph degree. |
+| `NodeSIPRSParams(...).resolve(nodes)` | Broadcast scalar or array node-SIPRS rates, criticality, bounds, costs, and efficacy. |
+| `community_correlated_node_siprs_params(communities, strength=...)` | Build SIPRS parameters correlated with known community labels. |
+| `seeded_lognormal_*_params(...)` | Build reproducible positive heterogeneity for sensitivity tests. |
 
 ## Solver And Baseline Parameters
 

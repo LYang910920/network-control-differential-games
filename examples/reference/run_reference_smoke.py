@@ -35,8 +35,20 @@ BASELINE_ROWS: list[dict[str, object]] = []
 CONVERGENCE_ROWS: list[dict[str, object]] = []
 PARAMETER_ROWS: list[dict[str, object]] = []
 
+def prepend_import_path(path: Path) -> None:
+    resolved = str(path.resolve())
+    if resolved not in sys.path:
+        sys.path.insert(0, resolved)
+
+
+def discard_import_path(path: Path) -> None:
+    resolved = str(path.resolve())
+    if resolved in sys.path:
+        sys.path.remove(resolved)
+
+
 if PYDEPS.exists():
-    sys.path.insert(0, str(PYDEPS))
+    prepend_import_path(PYDEPS)
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -233,7 +245,7 @@ def apply_opinion_malware_compat(repo: Path) -> None:
 def run_opinion_malware() -> dict[str, float]:
     repo = REF_DIR / "OpinionMalware_TIFS_2025_Code"
     apply_opinion_malware_compat(repo)
-    sys.path.insert(0, str(repo))
+    prepend_import_path(repo)
     om = importlib.import_module("opinionMalware")
 
     file_path = PACKAGE_DIR / "sample_data" / "opinion_malware_edges.edges"
@@ -395,13 +407,13 @@ def run_opinion_malware() -> dict[str, float]:
     )
     plt.close(fig)
 
-    sys.path.remove(str(repo))
+    discard_import_path(repo)
     return {"nodes": float(n), "J0": float(J[0]), "J_final": float(J[-1])}
 
 
 def run_propaganda_war() -> dict[str, float]:
     repo = REF_DIR / "PropagandaWar_TIFS_2024_Code"
-    sys.path.insert(0, str(repo))
+    prepend_import_path(repo)
     pw = importlib.import_module("propWar")
 
     red_graph = nx.barabasi_albert_graph(36, 2, seed=10)
@@ -663,13 +675,13 @@ def run_propaganda_war() -> dict[str, float]:
     )
     plt.close(fig)
 
-    sys.path.remove(str(repo))
+    discard_import_path(repo)
     return {"red_degree_classes": float(len(pw.kr)), "J_red_final": float(jr[-1]), "J_blue_final": float(jb[-1])}
 
 
 def run_propaganda_tcss() -> dict[str, float]:
     repo = REF_DIR / "Propaganda_TCSS_2025_Code"
-    sys.path.insert(0, str(repo))
+    prepend_import_path(repo)
     pp = importlib.import_module("prop_propaganda")
 
     A = pd.read_csv(PACKAGE_DIR / "sample_data" / "sample_adjacency.csv", header=None).to_numpy(float)
@@ -858,7 +870,7 @@ def run_propaganda_tcss() -> dict[str, float]:
     )
     plt.close(fig)
 
-    sys.path.remove(str(repo))
+    discard_import_path(repo)
     return {"nodes": float(n), "J0": float(J[0]), "J_final": float(J[-1])}
 
 
@@ -1045,7 +1057,7 @@ The exact values are also exported to `parameter_summary.csv`.
 
 
 def main() -> None:
-    global PACKAGE_DIR, REF_DIR, OUT_DIR
+    global PACKAGE_DIR, REF_DIR, OUT_DIR, PYDEPS
 
     parser = argparse.ArgumentParser(description="Run lightweight smoke tests for the three reference repositories.")
     parser.add_argument(
@@ -1071,8 +1083,9 @@ def main() -> None:
     PACKAGE_DIR = args.package_dir.resolve()
     REF_DIR = PACKAGE_DIR / "reference_repositories"
     OUT_DIR = args.output_dir.resolve()
+    PYDEPS = args.pydeps.resolve()
     if args.pydeps.exists():
-        sys.path.insert(0, str(args.pydeps.resolve()))
+        prepend_import_path(PYDEPS)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     require_reference_repos()
 

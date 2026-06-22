@@ -40,6 +40,11 @@ editing a model, cost, payoff, or figure label.
 | `<k>` | `kbar` | Mean degree. |
 | `Theta(t)` | `theta`, `Theta` | Degree-weighted infection pressure, typically `sum(k * P(k) * x_k) / kbar`. |
 | `sum_k P(k)x_k` | `x @ p`, `result.x @ D.pk` | Population-weighted degree-class mean. Do not label this as degree-weighted unless `k P(k)` is used. |
+| `M_{k\ell}` | `ResolvedDegreeSISParams.mixing` | Row-stochastic degree mixing matrix. Neutral mixing uses `ell * P(ell) / <k>`. |
+| `s_k,\iota_k,\delta_k` | `susceptibility`, `infectivity`, `recovery` | Class-specific physical parameters; scalars broadcast to all degree classes. |
+| `q_k,r_k,\bar u_k` | `state_weight`, `control_weight`, `control_bound` | Class-specific objective weight and control bound. |
+| `\lambda_k=s_k k sum_\ell M_{k\ell}\iota_\ell x_\ell` | `degree_sis_force(x, k, params)` | Heterogeneous degree-class infection pressure. |
+| `\dot x_k=(1-x_k)\lambda_k-(\delta_k+u_k)x_k` | `degree_sis_rhs(x, u, k, params)` | Heterogeneous degree-level SIS dynamics. |
 
 ## Control Types
 
@@ -56,6 +61,7 @@ editing a model, cost, payoff, or figure label.
 | --- | --- |
 | `cybercontrol.numerics` | RK4 integration, simplex projection, trapezoidal integration. |
 | `cybercontrol.models` | Malware SIR RHS, hybrid flow, isolation jump maps, Torch RHS helpers. |
+| `cybercontrol.heterogeneity` | Scalar-or-array degree/node parameters, profile factories, SIS RHS/Jacobians, and finite-difference checks. |
 | `cybercontrol.network_models` | Node-level SIPS/SIPRS graph pressure, NumPy/Torch RHS functions, stochastic SIPRS transition helper. |
 | `cybercontrol.torch_utils` | Optional PyTorch helpers: MLPs, simplex state networks, bounded control networks, positive transforms, and autograd time derivatives. |
 | `cybercontrol.io` | CSV/JSON writing and reproducible seeding. |
@@ -71,3 +77,6 @@ editing a model, cost, payoff, or figure label.
 | `u_i^p` | `patch[i]` | Preventive patching rate, `S -> P`. |
 | `u_i^c` | `clean[i]` | Cleaning/remediation rate, `I -> R`. |
 | `\omega_p,\omega_r` | `NodeSIPRSParams.omega_p`, `.omega_r` | Waning rates `P -> S` and `R -> S`. |
+| `s_i,\iota_i,\gamma_i` | `NodeSIPRSParams.susceptibility`, `.infectivity`, `.gamma` | Per-node susceptibility, infectivity and recovery; scalars broadcast to all nodes. |
+| `c_i,\bar u_i,\eta_i` | `criticality`, `patch/clean_cost`, `patch/clean_bound`, `patch/clean_efficacy` | Per-node economic weight, action cost, bound and efficacy. |
+| `\lambda_i=s_i sum_j A_{ij}\iota_j I_j` | `node_siprs_transition_rates(...)[\"infection\"]` | Heterogeneous infection pressure used by NumPy and Torch RHS functions. |

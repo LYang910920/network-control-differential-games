@@ -42,6 +42,7 @@ from cybercontrol.baseline_diagnostics import (
     save_control_baseline_plot,
     write_baseline_table,
 )
+from cybercontrol.heterogeneity import DegreeSISParams, degree_sis_jacobian, degree_sis_rhs
 from cybercontrol.numerics import (
     as_time_function,
     project_box as clip,
@@ -121,17 +122,16 @@ def theta(x: np.ndarray, k: np.ndarray, p: np.ndarray, kbar: float) -> float:
 
 def state_rhs(x: np.ndarray, u: np.ndarray, k: np.ndarray, p: np.ndarray, kbar: float,
               beta: float, delta: float) -> np.ndarray:
-    """Degree-k SIS dynamics with degree-specific control u_k."""
-    return beta * k * (1.0 - x) * theta(x, k, p, kbar) - (delta + u) * x
+    """Degree-k SIS dynamics with scalar inputs broadcast through the shared API."""
+    model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(k, p)
+    return degree_sis_rhs(x, u, k, model)
 
 
 def state_jacobian(x: np.ndarray, u: np.ndarray, k: np.ndarray, p: np.ndarray, kbar: float,
                    beta: float, delta: float) -> np.ndarray:
     """Jacobian of state_rhs with respect to x."""
-    dtheta_dx = k * p / max(kbar, 1e-12)
-    J = beta * np.outer(k * (1.0 - x), dtheta_dx)
-    J[np.diag_indices_from(J)] += -beta * k * theta(x, k, p, kbar) - (delta + u)
-    return J
+    model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(k, p)
+    return degree_sis_jacobian(x, u, k, model)
 
 
 def initial_degree_state(k: np.ndarray, profile: DegreeControlProfile = SIMPLE_DEGREE_CONTROL) -> np.ndarray:
@@ -168,30 +168,33 @@ def solve_degree_k_control(
     m = len(k)
     U = np.zeros((len(t), m))
     X0 = initial_degree_state(k)
+    model = DegreeSISParams(
+        susceptibility=beta,
+        recovery=delta,
+        state_weight=infection_weight,
+        control_weight=control_weight,
+        control_bound=u_max,
+    ).resolve(k, p)
     delta_history: list[float] = []
 
     for it in range(iterations):
         U_old = U.copy()
         U_of_t = as_time_function(t, U)
 
-        X = clip(solve_ode_on_grid(
-            lambda tau, y: state_rhs(y, U_of_t(tau), k, p, kbar, beta, delta),
-            X0,
-            t,
-        ))
+        X = clip(solve_ode_on_grid(lambda tau, y: degree_sis_rhs(y, U_of_t(tau), k, model), X0, t))
         X_of_t = as_time_function(t, X)
 
         def adjoint_rhs(tau: float, lam: np.ndarray) -> np.ndarray:
             x_now = X_of_t(tau)
             u_now = U_of_t(tau)
-            J = state_jacobian(x_now, u_now, k, p, kbar, beta, delta)
-            return -infection_weight * p - J.T @ lam
+            J = degree_sis_jacobian(x_now, u_now, k, model)
+            return -model.state_weight * p - J.T @ lam
 
         Lambda = solve_ode_on_grid(adjoint_rhs, np.zeros(m), t, backward=True)
 
         # Stationarity of the Hamiltonian gives r P(k) u_k - lambda_k x_k = 0.
-        candidate = Lambda * X / (control_weight * np.maximum(p, 1e-12))
-        U = damping * clip(candidate, 0.0, u_max) + (1.0 - damping) * U_old
+        candidate = Lambda * X / (model.control_weight * np.maximum(p, 1e-12))
+        U = damping * clip(candidate, 0.0, model.control_bound) + (1.0 - damping) * U_old
 
         delta_u = float(np.max(np.abs(U - U_old)))
         delta_history.append(delta_u)
@@ -220,12 +223,14 @@ def evaluate_degree_k_control(
     """Evaluate the degree-k objective for a fixed control curve."""
     X0 = initial_degree_state(k)
     U_of_t = as_time_function(t, U)
-    X = clip(solve_ode_on_grid(
-        lambda tau, y: state_rhs(y, U_of_t(tau), k, p, kbar, beta, delta),
-        X0,
-        t,
-    ))
-    cost = trapz(infection_weight * (X @ p) + 0.5 * control_weight * ((U * U) @ p), t)
+    model = DegreeSISParams(
+        susceptibility=beta,
+        recovery=delta,
+        state_weight=infection_weight,
+        control_weight=control_weight,
+    ).resolve(k, p)
+    X = clip(solve_ode_on_grid(lambda tau, y: degree_sis_rhs(y, U_of_t(tau), k, model), X0, t))
+    cost = trapz((X * model.state_weight) @ p + 0.5 * ((U * U * model.control_weight) @ p), t)
     return X, cost
 
 

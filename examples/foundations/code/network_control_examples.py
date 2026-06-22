@@ -72,6 +72,17 @@ from cybercontrol.baseline_diagnostics import (
     save_game_baseline_plot,
     write_baseline_table,
 )
+from cybercontrol.heterogeneity import (
+    DegreeSISParams,
+    NodeSISParams,
+    degree_correlated_node_sis_params,
+    degree_correlated_sis_params,
+    degree_sis_jacobian,
+    degree_sis_rhs,
+    node_sis_force,
+    node_sis_jacobian,
+    node_sis_rhs,
+)
 from cybercontrol.numerics import (
     as_time_function as as_function,
     project_box as clip,
@@ -444,23 +455,32 @@ def theta_degree(x: np.ndarray, D: DegreeData) -> float:
 
 
 def degree_rhs(x: np.ndarray, u: np.ndarray, D: DegreeData, beta: float, delta: float) -> np.ndarray:
-    """Degree-k SIS dynamics with healing/control u_k."""
-    return beta * D.k * (1 - x) * theta_degree(x, D) - (delta + u) * x
+    """Degree-k SIS dynamics with scalar inputs broadcast through shared arrays."""
+    model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(D.k, D.pk)
+    return degree_sis_rhs(x, u, D.k, model)
 
 
 def degree_jacobian(x: np.ndarray, u: np.ndarray, D: DegreeData, beta: float, delta: float) -> np.ndarray:
     """Jacobian of degree_rhs with respect to x."""
-    dtheta = D.k * D.pk / max(D.kbar, 1e-12)
-    J = beta * np.outer(D.k * (1 - x), dtheta)
-    J[np.diag_indices_from(J)] += -beta * D.k * theta_degree(x, D) - (delta + u)
-    return J
+    model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(D.k, D.pk)
+    return degree_sis_jacobian(x, u, D.k, model)
 
 
 def solve_degree_control(D: DegreeData, steps: int = 45, iterations: int = 40, tol: float = 1e-4) -> TimeSeries:
     """PMP forward-backward sweep for u_k(t)."""
     params = DEGREE_CONTROL_PROFILE
-    beta, delta = params.beta, params.delta
-    q, r, u_max = params.state_weight, params.control_weight, params.control_max
+    model = degree_correlated_sis_params(
+        D.k,
+        D.pk,
+        strength=0.28,
+        base=DegreeSISParams(
+            susceptibility=params.beta,
+            recovery=params.delta,
+            state_weight=params.state_weight,
+            control_weight=params.control_weight,
+            control_bound=params.control_max,
+        ),
+    )
     t = np.linspace(0, params.horizon, steps + 1)
     u = np.zeros((len(t), len(D.k)))
     x0 = degree_initial_state(D)
@@ -469,23 +489,23 @@ def solve_degree_control(D: DegreeData, steps: int = 45, iterations: int = 40, t
     for _ in range(iterations):
         old_u = u.copy()
         u_fun = as_function(t, u)
-        x = clip(solve_grid(lambda tau, y: degree_rhs(y, u_fun(tau), D, beta, delta), x0, t))
+        x = clip(solve_grid(lambda tau, y: degree_sis_rhs(y, u_fun(tau), D.k, model), x0, t))
         x_fun = as_function(t, x)
 
         def adjoint(tau, lam):
             x_now, u_now = x_fun(tau), u_fun(tau)
-            return -q * D.pk - degree_jacobian(x_now, u_now, D, beta, delta).T @ lam
+            return -model.state_weight * D.pk - degree_sis_jacobian(x_now, u_now, D.k, model).T @ lam
 
         lam = solve_grid(adjoint, np.zeros(len(D.k)), t, backward=True)
-        u = relax(clip(lam * x / (r * np.maximum(D.pk, 1e-12)), 0, u_max), old_u)
+        u = relax(clip(lam * x / (model.control_weight * np.maximum(D.pk, 1e-12)), 0, model.control_bound), old_u)
         delta_u = float(np.max(abs(u - old_u)))
         delta_history.append(delta_u)
         if delta_u < tol:
             break
 
     u_fun = as_function(t, u)
-    x = clip(solve_grid(lambda tau, y: degree_rhs(y, u_fun(tau), D, beta, delta), x0, t))
-    cost = integral(q * (x @ D.pk) + 0.5 * r * ((u * u) @ D.pk), t)
+    x = clip(solve_grid(lambda tau, y: degree_sis_rhs(y, u_fun(tau), D.k, model), x0, t))
+    cost = integral((x * model.state_weight) @ D.pk + 0.5 * ((u * u * model.control_weight) @ D.pk), t)
     return TimeSeries(
         t=t,
         x=x,
@@ -494,16 +514,21 @@ def solve_degree_control(D: DegreeData, steps: int = 45, iterations: int = 40, t
     )
 
 
-def degree_game_rhs(x, attack, defend, D, beta, delta):
+def degree_game_rhs(x, attack, defend, D, beta, delta, model=None):
     """Degree-k attacker-defender dynamics."""
-    return beta * (1 + attack) * D.k * (1 - x) * theta_degree(x, D) - (delta + defend) * x
+    model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(D.k, D.pk) if model is None else model
+    pressure = model.mixing @ (model.infectivity * x)
+    force = model.susceptibility * (1.0 + attack) * D.k * pressure
+    return (1.0 - x) * force - (model.recovery + defend) * x
 
 
-def degree_game_jacobian(x, attack, defend, D, beta, delta):
+def degree_game_jacobian(x, attack, defend, D, beta, delta, model=None):
     """Jacobian of degree_game_rhs with respect to x."""
-    dtheta = D.k * D.pk / max(D.kbar, 1e-12)
-    J = beta * np.outer((1 + attack) * D.k * (1 - x), dtheta)
-    J[np.diag_indices_from(J)] += -beta * (1 + attack) * D.k * theta_degree(x, D) - (delta + defend)
+    model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(D.k, D.pk) if model is None else model
+    pressure = model.mixing @ (model.infectivity * x)
+    B = model.susceptibility[:, None] * (1.0 + attack)[:, None] * D.k[:, None] * model.mixing * model.infectivity[None, :]
+    J = (1.0 - x)[:, None] * B
+    J[np.diag_indices_from(J)] -= model.susceptibility * (1.0 + attack) * D.k * pressure + model.recovery + defend
     return J
 
 
@@ -511,9 +536,21 @@ def solve_degree_game(D: DegreeData, steps: int = 45, iterations: int = 45, tol:
     """Open-loop Nash forward-backward sweep by degree class k."""
     params = DEGREE_GAME_PROFILE
     beta, delta = params.beta, params.delta
-    reward_A, loss_D = params.reward_attacker, params.loss_defender
-    cost_A, cost_D = params.cost_attack, params.cost_defense
-    a_max, d_max = params.attack_max, params.defense_max
+    model = degree_correlated_sis_params(
+        D.k,
+        D.pk,
+        strength=0.22,
+        base=DegreeSISParams(
+            susceptibility=beta,
+            recovery=delta,
+            attack_reward=params.reward_attacker,
+            defense_loss=params.loss_defender,
+            attack_cost=params.cost_attack,
+            defense_cost=params.cost_defense,
+            attack_bound=params.attack_max,
+            defense_bound=params.defense_max,
+        ),
+    )
     t = np.linspace(0, params.horizon, steps + 1)
     attack = np.zeros((len(t), len(D.k)))
     defend = np.zeros_like(attack)
@@ -523,34 +560,34 @@ def solve_degree_game(D: DegreeData, steps: int = 45, iterations: int = 45, tol:
     for _ in range(iterations):
         old_a, old_d = attack.copy(), defend.copy()
         a_fun, d_fun = as_function(t, attack), as_function(t, defend)
-        x = clip(solve_grid(lambda tau, y: degree_game_rhs(y, a_fun(tau), d_fun(tau), D, beta, delta), x0, t))
+        x = clip(solve_grid(lambda tau, y: degree_game_rhs(y, a_fun(tau), d_fun(tau), D, beta, delta, model), x0, t))
         x_fun = as_function(t, x)
 
         def adjoint_attacker(tau, lam):
             x_now, a_now, d_now = x_fun(tau), a_fun(tau), d_fun(tau)
-            J = degree_game_jacobian(x_now, a_now, d_now, D, beta, delta)
-            return -reward_A * D.pk - J.T @ lam
+            J = degree_game_jacobian(x_now, a_now, d_now, D, beta, delta, model)
+            return -model.attack_reward * D.pk - J.T @ lam
 
         def adjoint_defender(tau, lam):
             x_now, a_now, d_now = x_fun(tau), a_fun(tau), d_fun(tau)
-            J = degree_game_jacobian(x_now, a_now, d_now, D, beta, delta)
-            return loss_D * D.pk - J.T @ lam
+            J = degree_game_jacobian(x_now, a_now, d_now, D, beta, delta, model)
+            return model.defense_loss * D.pk - J.T @ lam
 
         lam_A = solve_grid(adjoint_attacker, np.zeros(len(D.k)), t, backward=True)
         lam_D = solve_grid(adjoint_defender, np.zeros(len(D.k)), t, backward=True)
-        theta = np.array([theta_degree(row, D) for row in x])[:, None]
-        marginal_attack = beta * D.k[None, :] * (1 - x) * theta
-        attack = relax(clip(lam_A * marginal_attack / (cost_A * np.maximum(D.pk, 1e-12)), 0, a_max), old_a)
-        defend = relax(clip(-lam_D * x / (cost_D * np.maximum(D.pk, 1e-12)), 0, d_max), old_d)
+        pressure = np.vstack([model.mixing @ (model.infectivity * row) for row in x])
+        marginal_attack = model.susceptibility[None, :] * D.k[None, :] * (1.0 - x) * pressure
+        attack = relax(clip(lam_A * marginal_attack / (model.attack_cost * np.maximum(D.pk, 1e-12)), 0, model.attack_bound), old_a)
+        defend = relax(clip(-lam_D * x / (model.defense_cost * np.maximum(D.pk, 1e-12)), 0, model.defense_bound), old_d)
         delta_controls = float(max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d))))
         delta_history.append(delta_controls)
         if delta_controls < tol:
             break
 
     a_fun, d_fun = as_function(t, attack), as_function(t, defend)
-    x = clip(solve_grid(lambda tau, y: degree_game_rhs(y, a_fun(tau), d_fun(tau), D, beta, delta), x0, t))
-    JA = integral(reward_A * (x @ D.pk) - 0.5 * cost_A * ((attack * attack) @ D.pk), t)
-    JD = integral(-loss_D * (x @ D.pk) - 0.5 * cost_D * ((defend * defend) @ D.pk), t)
+    x = clip(solve_grid(lambda tau, y: degree_game_rhs(y, a_fun(tau), d_fun(tau), D, beta, delta, model), x0, t))
+    JA = integral((model.attack_reward * x) @ D.pk - 0.5 * ((attack * attack * model.attack_cost) @ D.pk), t)
+    JD = integral(-(model.defense_loss * x) @ D.pk - 0.5 * ((defend * defend * model.defense_cost) @ D.pk), t)
     return TimeSeries(
         t=t,
         x=x,
@@ -566,23 +603,20 @@ def solve_degree_game(D: DegreeData, steps: int = 45, iterations: int = 45, tol:
 
 def node_rhs(x: np.ndarray, u: np.ndarray, A: np.ndarray, beta: float, delta: float) -> np.ndarray:
     """Node-level SIS dynamics."""
-    pressure = A @ x
-    return beta * (1 - x) * pressure - (delta + u) * x
+    model = NodeSISParams(beta=beta, recovery=delta).resolve(A.shape[0])
+    return node_sis_rhs(x, u, A, model)
 
 
 def node_jacobian(x: np.ndarray, u: np.ndarray, A: np.ndarray, beta: float, delta: float) -> np.ndarray:
     """Jacobian of node_rhs with respect to x."""
-    pressure = A @ x
-    J = beta * ((1 - x)[:, None] * A)
-    J[np.diag_indices_from(J)] += -beta * pressure - (delta + u)
-    return J
+    model = NodeSISParams(beta=beta, recovery=delta).resolve(A.shape[0])
+    return node_sis_jacobian(x, u, A, model)
 
 
 def solve_node_control(A: np.ndarray, steps: int = 30, iterations: int = 35, tol: float = 1e-4) -> TimeSeries:
     """PMP forward-backward sweep for node controls u_i(t)."""
     params = NODE_CONTROL_PROFILE
-    beta, delta = params.beta, params.delta
-    q, r, u_max = params.state_weight, params.control_weight, params.control_max
+    model = degree_correlated_node_sis_params(A, strength=0.28)
     t, n = np.linspace(0, params.horizon, steps + 1), A.shape[0]
     u = np.zeros((len(t), n))
     x0 = node_initial_state(A)
@@ -591,23 +625,23 @@ def solve_node_control(A: np.ndarray, steps: int = 30, iterations: int = 35, tol
     for _ in range(iterations):
         old_u = u.copy()
         u_fun = as_function(t, u)
-        x = clip(solve_grid(lambda tau, y: node_rhs(y, u_fun(tau), A, beta, delta), x0, t))
+        x = clip(solve_grid(lambda tau, y: node_sis_rhs(y, u_fun(tau), A, model), x0, t))
         x_fun = as_function(t, x)
 
         def adjoint(tau, lam):
             x_now, u_now = x_fun(tau), u_fun(tau)
-            return -q * np.ones(n) - node_jacobian(x_now, u_now, A, beta, delta).T @ lam
+            return -model.state_weight - node_sis_jacobian(x_now, u_now, A, model).T @ lam
 
         lam = solve_grid(adjoint, np.zeros(n), t, backward=True)
-        u = relax(clip(lam * x / r, 0, u_max), old_u)
+        u = relax(clip(lam * x / model.control_weight, 0, model.control_bound), old_u)
         delta_u = float(np.max(abs(u - old_u)))
         delta_history.append(delta_u)
         if delta_u < tol:
             break
 
     u_fun = as_function(t, u)
-    x = clip(solve_grid(lambda tau, y: node_rhs(y, u_fun(tau), A, beta, delta), x0, t))
-    cost = integral(q * x.sum(axis=1) + 0.5 * r * (u * u).sum(axis=1), t)
+    x = clip(solve_grid(lambda tau, y: node_sis_rhs(y, u_fun(tau), A, model), x0, t))
+    cost = integral((x * model.state_weight).sum(axis=1) + 0.5 * (u * u * model.control_weight).sum(axis=1), t)
     return TimeSeries(
         t=t,
         x=x,
@@ -618,25 +652,25 @@ def solve_node_control(A: np.ndarray, steps: int = 30, iterations: int = 35, tol
 
 def node_game_rhs(x, attack, defend, A, beta, delta):
     """Node-level attacker-defender dynamics."""
-    pressure = A @ x
-    return beta * (1 + attack) * (1 - x) * pressure - (delta + defend) * x
+    model = NodeSISParams(beta=beta, recovery=delta).resolve(A.shape[0])
+    force = (1.0 + attack) * node_sis_force(x, A, model)
+    return (1.0 - x) * force - (model.recovery + defend) * x
 
 
 def node_game_jacobian(x, attack, defend, A, beta, delta):
     """Jacobian of node_game_rhs with respect to x."""
-    pressure = A @ x
-    J = beta * ((1 + attack) * (1 - x))[:, None] * A
-    J[np.diag_indices_from(J)] += -beta * (1 + attack) * pressure - (delta + defend)
+    model = NodeSISParams(beta=beta, recovery=delta).resolve(A.shape[0])
+    pressure = A @ (model.infectivity * x)
+    B = model.beta[:, None] * model.susceptibility[:, None] * (1.0 + attack)[:, None] * A * model.infectivity[None, :]
+    J = (1.0 - x)[:, None] * B
+    J[np.diag_indices_from(J)] -= model.beta * model.susceptibility * (1.0 + attack) * pressure + model.recovery + defend
     return J
 
 
 def solve_node_game(A: np.ndarray, steps: int = 30, iterations: int = 40, tol: float = 1e-4) -> TimeSeries:
     """Open-loop Nash forward-backward sweep for node-level attack/defense."""
     params = NODE_GAME_PROFILE
-    beta, delta = params.beta, params.delta
-    reward_A, loss_D = params.reward_attacker, params.loss_defender
-    cost_A, cost_D = params.cost_attack, params.cost_defense
-    a_max, d_max = params.attack_max, params.defense_max
+    model = degree_correlated_node_sis_params(A, strength=0.22)
     t, n = np.linspace(0, params.horizon, steps + 1), A.shape[0]
     attack = np.zeros((len(t), n))
     defend = np.zeros_like(attack)
@@ -646,31 +680,40 @@ def solve_node_game(A: np.ndarray, steps: int = 30, iterations: int = 40, tol: f
     for _ in range(iterations):
         old_a, old_d = attack.copy(), defend.copy()
         a_fun, d_fun = as_function(t, attack), as_function(t, defend)
-        x = clip(solve_grid(lambda tau, y: node_game_rhs(y, a_fun(tau), d_fun(tau), A, beta, delta), x0, t))
+        x = clip(solve_grid(lambda tau, y: (1.0 - y) * (1.0 + a_fun(tau)) * node_sis_force(y, A, model) - (model.recovery + d_fun(tau)) * y, x0, t))
         x_fun = as_function(t, x)
 
         def adjoint_A(tau, lam):
             x_now, a_now, d_now = x_fun(tau), a_fun(tau), d_fun(tau)
-            return -reward_A * np.ones(n) - node_game_jacobian(x_now, a_now, d_now, A, beta, delta).T @ lam
+            pressure = A @ (model.infectivity * x_now)
+            B = model.beta[:, None] * model.susceptibility[:, None] * (1.0 + a_now)[:, None] * A * model.infectivity[None, :]
+            J = (1.0 - x_now)[:, None] * B
+            J[np.diag_indices_from(J)] -= model.beta * model.susceptibility * (1.0 + a_now) * pressure + model.recovery + d_now
+            return -model.attack_reward - J.T @ lam
 
         def adjoint_D(tau, lam):
             x_now, a_now, d_now = x_fun(tau), a_fun(tau), d_fun(tau)
-            return loss_D * np.ones(n) - node_game_jacobian(x_now, a_now, d_now, A, beta, delta).T @ lam
+            pressure = A @ (model.infectivity * x_now)
+            B = model.beta[:, None] * model.susceptibility[:, None] * (1.0 + a_now)[:, None] * A * model.infectivity[None, :]
+            J = (1.0 - x_now)[:, None] * B
+            J[np.diag_indices_from(J)] -= model.beta * model.susceptibility * (1.0 + a_now) * pressure + model.recovery + d_now
+            return model.defense_loss - J.T @ lam
 
         lam_A = solve_grid(adjoint_A, np.zeros(n), t, backward=True)
         lam_D = solve_grid(adjoint_D, np.zeros(n), t, backward=True)
-        pressure = np.vstack([A @ row for row in x])
-        attack = relax(clip(lam_A * beta * (1 - x) * pressure / cost_A, 0, a_max), old_a)
-        defend = relax(clip(-lam_D * x / cost_D, 0, d_max), old_d)
+        pressure = np.vstack([A @ (model.infectivity * row) for row in x])
+        marginal_attack = model.beta[None, :] * model.susceptibility[None, :] * (1.0 - x) * pressure
+        attack = relax(clip(lam_A * marginal_attack / model.attack_cost, 0, model.attack_bound), old_a)
+        defend = relax(clip(-lam_D * x / model.defense_cost, 0, model.defense_bound), old_d)
         delta_controls = float(max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d))))
         delta_history.append(delta_controls)
         if delta_controls < tol:
             break
 
     a_fun, d_fun = as_function(t, attack), as_function(t, defend)
-    x = clip(solve_grid(lambda tau, y: node_game_rhs(y, a_fun(tau), d_fun(tau), A, beta, delta), x0, t))
-    JA = integral(reward_A * x.sum(axis=1) - 0.5 * cost_A * (attack * attack).sum(axis=1), t)
-    JD = integral(-loss_D * x.sum(axis=1) - 0.5 * cost_D * (defend * defend).sum(axis=1), t)
+    x = clip(solve_grid(lambda tau, y: (1.0 - y) * (1.0 + a_fun(tau)) * node_sis_force(y, A, model) - (model.recovery + d_fun(tau)) * y, x0, t))
+    JA = integral((model.attack_reward * x).sum(axis=1) - 0.5 * (attack * attack * model.attack_cost).sum(axis=1), t)
+    JD = integral(-(model.defense_loss * x).sum(axis=1) - 0.5 * (defend * defend * model.defense_cost).sum(axis=1), t)
     return TimeSeries(
         t=t,
         x=x,
@@ -1100,6 +1143,9 @@ def write_parameter_summary(out_dir: Path, args: argparse.Namespace, D: DegreeDa
     def add(model: str, parameter: str, value: object, meaning: str) -> None:
         rows.append({"model": model, "parameter": parameter, "value": value, "meaning": meaning})
 
+    def add_array(model: str, parameter: str, values: np.ndarray, meaning: str) -> None:
+        add(model, parameter, np.array2string(np.asarray(values), precision=4, separator=";"), meaning)
+
     add("input graph", "full_nodes", D.node_degree.size, "Number of nodes used to compute the empirical degree distribution.")
     add("input graph", "degree_classes", len(D.k), "Number of observed degree classes in degree-level models.")
     add("input graph", "node_level_state_dimension", A.shape[0], "Reduced node count used by dense node-level PMP/game examples.")
@@ -1111,6 +1157,20 @@ def write_parameter_summary(out_dir: Path, args: argparse.Namespace, D: DegreeDa
     add(DEGREE_CONTROL_PROFILE.label, "delta", DEGREE_CONTROL_PROFILE.delta, "Natural recovery/removal rate before control.")
     add(DEGREE_CONTROL_PROFILE.label, "u_max", DEGREE_CONTROL_PROFILE.control_max, "Upper bound for continuous healing control u_k(t).")
     add(DEGREE_CONTROL_PROFILE.label, "state/control weights", f"{DEGREE_CONTROL_PROFILE.state_weight}/{DEGREE_CONTROL_PROFILE.control_weight}", "Objective tradeoff between infection and control effort.")
+    degree_control_model = degree_correlated_sis_params(
+        D.k,
+        D.pk,
+        strength=0.28,
+        base=DegreeSISParams(
+            susceptibility=DEGREE_CONTROL_PROFILE.beta,
+            recovery=DEGREE_CONTROL_PROFILE.delta,
+            state_weight=DEGREE_CONTROL_PROFILE.state_weight,
+            control_weight=DEGREE_CONTROL_PROFILE.control_weight,
+            control_bound=DEGREE_CONTROL_PROFILE.control_max,
+        ),
+    )
+    for name in ("susceptibility", "infectivity", "recovery", "state_weight", "control_bound"):
+        add_array(DEGREE_CONTROL_PROFILE.label, f"resolved_{name}_by_degree_class", getattr(degree_control_model, name), "Class-specific heterogeneous array used by the degree-level FBS solve.")
 
     add(DEGREE_GAME_PROFILE.label, "horizon", DEGREE_GAME_PROFILE.horizon, "Total simulated time.")
     add(DEGREE_GAME_PROFILE.label, "time_grid_steps", args.steps, "Number of intervals in the degree-level game time grid.")
@@ -1126,6 +1186,9 @@ def write_parameter_summary(out_dir: Path, args: argparse.Namespace, D: DegreeDa
     add(NODE_CONTROL_PROFILE.label, "delta", NODE_CONTROL_PROFILE.delta, "Node-level natural recovery/removal rate before control.")
     add(NODE_CONTROL_PROFILE.label, "u_max", NODE_CONTROL_PROFILE.control_max, "Upper bound for continuous node control u_i(t).")
     add(NODE_CONTROL_PROFILE.label, "initial infected nodes", 2, "The two highest-degree nodes start with infection 0.12; others start at 0.02.")
+    node_control_model = degree_correlated_node_sis_params(A, strength=0.28)
+    for name in ("susceptibility", "infectivity", "recovery", "state_weight", "control_bound"):
+        add_array(NODE_CONTROL_PROFILE.label, f"resolved_{name}_by_node", getattr(node_control_model, name), "Node-specific heterogeneous array used by the node-level FBS solve.")
 
     add(NODE_GAME_PROFILE.label, "horizon", NODE_GAME_PROFILE.horizon, "Total simulated time.")
     add(NODE_GAME_PROFILE.label, "time_grid_steps", node_steps, "Number of intervals in the node-level game time grid.")

@@ -12,7 +12,7 @@ This tutorial was created from my research experience in optimal control, differ
 
 | Order | Repository | Role |
 |---:|---|---|
-| 0 | `network-control-differential-games` | Foundation notation, shared `cybercontrol` package, continuous/impulse/hybrid examples, degree-vs-node scalability, and reference smoke runs. |
+| 0 | `network-control-differential-games` | Foundation notation, shared `cybercontrol` package, heterogeneous degree/node equations, continuous/impulse/hybrid examples, scalability, and reference smoke runs. |
 | 1 | [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | FBSM baselines, sampled-data MDP conversion, DDQN defense, compact CTDE, and node-SIPRS MAPPO. |
 | 2 | [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | PINN/PIDL inverse learning, neural control, PMP-informed losses, and graph-state residual examples. |
 
@@ -51,6 +51,7 @@ python run_all.py --skip-reference --skip-scalability
 | Notation mapped to Python variables | `docs/NOTATION_TO_CODE.md` |
 | Paper workflow and extensions | `docs/from_model_to_paper.md`, `docs/EXTENDING.md` |
 | Shared package | `src/cybercontrol/` |
+| Heterogeneous degree/node parameters | `src/cybercontrol/heterogeneity.py`, `src/cybercontrol/network_models.py` |
 | Foundation example runner | `examples/foundations/code/run_foundation_examples.py` |
 | Minimal degree-level control example | `examples/foundations/code/simple_degree_k_control.py` |
 | Main continuous/game/hybrid examples | `examples/foundations/code/network_control_examples.py` |
@@ -60,7 +61,7 @@ python run_all.py --skip-reference --skip-scalability
 
 ## Representative Experiments
 
-The foundation examples compare degree-level control/game models, node-level variants, convergence diagnostics, and hybrid impulse behavior.
+The foundation examples compare heterogeneous degree-level control/game models, heterogeneous node-level variants, convergence diagnostics, and hybrid impulse behavior.
 
 ![Foundation examples contact sheet](docs/assets/foundation_examples_contact_sheet.png)
 
@@ -75,7 +76,7 @@ The reference smoke runs execute lightweight checks for the paper-level reposito
 ## Extension Route
 
 1. Read `docs/PARAMETERS.md` before changing model horizons, rates, graph sizes, impulse settings, or FBS tolerances.
-2. Use `src/cybercontrol/` for shared numerics, graph equations, Torch helpers, plotting, metrics, and output utilities.
+2. Use `src/cybercontrol/` for shared numerics, heterogeneous parameter profiles, graph equations, Torch helpers, plotting, metrics, and output utilities.
 3. Keep new paper-specific code in examples or companion repositories unless at least two real callers need a shared helper.
 4. Store rerun CSVs, temporary figures, and medium-run diagnostics under ignored `artifacts/`.
 5. Preserve third-party reference snapshots and their license files.
