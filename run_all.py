@@ -126,12 +126,6 @@ def main() -> None:
         default=None,
         help="Optional max FBS iterations for sparse node-level scalability.",
     )
-    parser.add_argument(
-        "--reference-pydeps",
-        type=Path,
-        default=ROOT / "examples" / "reference" / "pydeps",
-        help="Optional local dependency directory containing python-igraph.",
-    )
     args = parser.parse_args()
 
     env = os.environ.copy()
@@ -149,8 +143,6 @@ def main() -> None:
     if not args.skip_reference:
         reference_dir = ROOT / "examples" / "reference"
         cmd = [py, "run_reference_smoke.py"]
-        if args.reference_pydeps.exists():
-            cmd.extend(["--pydeps", str(args.reference_pydeps)])
         run(cmd, reference_dir, env)
 
     print("\nDone.")

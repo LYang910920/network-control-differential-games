@@ -53,15 +53,26 @@ python run_all.py --skip-reference --skip-scalability
 | Shared package | `src/cybercontrol/` |
 | Heterogeneous degree/node parameters | `src/cybercontrol/heterogeneity.py`, `src/cybercontrol/network_models.py` |
 | Foundation example runner | `examples/foundations/code/run_foundation_examples.py` |
-| Minimal degree-level control example | `examples/foundations/code/simple_degree_k_control.py` |
-| Main continuous/game/hybrid examples | `examples/foundations/code/network_control_examples.py` |
+| Minimal degree-level control example | `examples/foundations/code/simple_degree_k_control.py` (homogeneous scalar profile) |
+| Main continuous/game/hybrid examples | `examples/foundations/code/network_control_examples.py` (canonical heterogeneous runs) |
 | Degree-vs-node scalability | `examples/foundations/code/scalability_analysis.py` |
 | Reference repository smoke runs | `examples/reference/run_reference_smoke.py` |
 | Reference model taxonomy | `examples/reference/MODEL_TAXONOMY.md`, `examples/reference/reference_repository_guide.md` |
 
+## Capability Status
+
+| Capability | API / file | Command | Metrics | Validation status |
+|---|---|---|---|---|
+| Heterogeneous degree-level optimal control | `cybercontrol.heterogeneity`, `network_control_examples.py::solve_degree_control` | `python run_all.py --skip-reference --skip-scalability` | cost, FBS convergence, matched-mean cost, random-control baselines | per-class susceptibility, infectivity, recovery, weights, costs, bounds |
+| Heterogeneous degree-level attacker-defender game | `solve_degree_game` | same command | attacker/defender payoff, unilateral baseline matrix | per-class rewards, losses, costs, bounds, assortative mixing |
+| Heterogeneous node-level optimal control | `solve_node_control` | same command | cost, node-mean state/control, matched-mean cost | per-node rates, weights, costs, bounds |
+| Heterogeneous node-level attacker-defender game | `solve_node_game` | same command | attacker/defender payoff, unilateral baseline matrix | per-node rewards, losses, costs, bounds |
+
+The simple degree-k file remains a short homogeneous example. The advanced foundation script uses the shared heterogeneous equations and writes `heterogeneous_vs_matched_mean.csv`.
+
 ## Representative Experiments
 
-The foundation examples compare heterogeneous degree-level control/game models, heterogeneous node-level variants, convergence diagnostics, and hybrid impulse behavior.
+The foundation examples compare heterogeneous degree-level control/game models, heterogeneous node-level variants, matched-mean homogeneous baselines, convergence diagnostics, and hybrid impulse behavior.
 
 ![Foundation examples contact sheet](docs/assets/foundation_examples_contact_sheet.png)
 

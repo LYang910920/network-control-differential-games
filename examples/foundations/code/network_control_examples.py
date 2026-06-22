@@ -503,10 +503,16 @@ def degree_game_model(D: DegreeData):
     )
 
 
-def solve_degree_control(D: DegreeData, steps: int = 45, iterations: int = 40, tol: float = 1e-4) -> TimeSeries:
+def solve_degree_control(
+    D: DegreeData,
+    steps: int = 45,
+    iterations: int = 40,
+    tol: float = 1e-4,
+    model=None,
+) -> TimeSeries:
     """PMP forward-backward sweep for u_k(t)."""
     params = DEGREE_CONTROL_PROFILE
-    model = degree_control_model(D)
+    model = degree_control_model(D) if model is None else model
     t = np.linspace(0, params.horizon, steps + 1)
     u = np.zeros((len(t), len(D.k)))
     x0 = degree_initial_state(D)
@@ -558,11 +564,17 @@ def degree_game_jacobian(x, attack, defend, D, beta, delta, model=None):
     return J
 
 
-def solve_degree_game(D: DegreeData, steps: int = 45, iterations: int = 45, tol: float = 1e-4) -> TimeSeries:
+def solve_degree_game(
+    D: DegreeData,
+    steps: int = 45,
+    iterations: int = 45,
+    tol: float = 1e-4,
+    model=None,
+) -> TimeSeries:
     """Open-loop Nash forward-backward sweep by degree class k."""
     params = DEGREE_GAME_PROFILE
     beta, delta = params.beta, params.delta
-    model = degree_game_model(D)
+    model = degree_game_model(D) if model is None else model
     t = np.linspace(0, params.horizon, steps + 1)
     attack = np.zeros((len(t), len(D.k)))
     defend = np.zeros_like(attack)
@@ -635,10 +647,16 @@ def node_game_model(A: np.ndarray):
     return degree_correlated_node_sis_params(A, strength=0.22)
 
 
-def solve_node_control(A: np.ndarray, steps: int = 30, iterations: int = 35, tol: float = 1e-4) -> TimeSeries:
+def solve_node_control(
+    A: np.ndarray,
+    steps: int = 30,
+    iterations: int = 35,
+    tol: float = 1e-4,
+    model=None,
+) -> TimeSeries:
     """PMP forward-backward sweep for node controls u_i(t)."""
     params = NODE_CONTROL_PROFILE
-    model = node_control_model(A)
+    model = node_control_model(A) if model is None else model
     t, n = np.linspace(0, params.horizon, steps + 1), A.shape[0]
     u = np.zeros((len(t), n))
     x0 = node_initial_state(A)
@@ -689,10 +707,16 @@ def node_game_jacobian(x, attack, defend, A, beta, delta, model=None):
     return J
 
 
-def solve_node_game(A: np.ndarray, steps: int = 30, iterations: int = 40, tol: float = 1e-4) -> TimeSeries:
+def solve_node_game(
+    A: np.ndarray,
+    steps: int = 30,
+    iterations: int = 40,
+    tol: float = 1e-4,
+    model=None,
+) -> TimeSeries:
     """Open-loop Nash forward-backward sweep for node-level attack/defense."""
     params = NODE_GAME_PROFILE
-    model = node_game_model(A)
+    model = node_game_model(A) if model is None else model
     t, n = np.linspace(0, params.horizon, steps + 1), A.shape[0]
     attack = np.zeros((len(t), n))
     defend = np.zeros_like(attack)
@@ -707,18 +731,12 @@ def solve_node_game(A: np.ndarray, steps: int = 30, iterations: int = 40, tol: f
 
         def adjoint_A(tau, lam):
             x_now, a_now, d_now = x_fun(tau), a_fun(tau), d_fun(tau)
-            pressure = A @ (model.infectivity * x_now)
-            B = model.beta[:, None] * model.susceptibility[:, None] * (1.0 + a_now)[:, None] * A * model.infectivity[None, :]
-            J = (1.0 - x_now)[:, None] * B
-            J[np.diag_indices_from(J)] -= model.beta * model.susceptibility * (1.0 + a_now) * pressure + model.recovery + d_now
+            J = node_game_jacobian(x_now, a_now, d_now, A, 0.0, 0.0, model)
             return -model.attack_reward - J.T @ lam
 
         def adjoint_D(tau, lam):
             x_now, a_now, d_now = x_fun(tau), a_fun(tau), d_fun(tau)
-            pressure = A @ (model.infectivity * x_now)
-            B = model.beta[:, None] * model.susceptibility[:, None] * (1.0 + a_now)[:, None] * A * model.infectivity[None, :]
-            J = (1.0 - x_now)[:, None] * B
-            J[np.diag_indices_from(J)] -= model.beta * model.susceptibility * (1.0 + a_now) * pressure + model.recovery + d_now
+            J = node_game_jacobian(x_now, a_now, d_now, A, 0.0, 0.0, model)
             return model.defense_loss - J.T @ lam
 
         lam_A = solve_grid(adjoint_A, np.zeros(n), t, backward=True)
@@ -827,6 +845,77 @@ def evaluate_degree_control_policy(D: DegreeData, t: np.ndarray, u: np.ndarray) 
     x = clip(solve_grid(lambda tau, y: degree_sis_rhs(y, u_fun(tau), D.k, model), x0, t))
     cost = integral((x * model.state_weight) @ D.pk + 0.5 * ((control * control * model.control_weight) @ D.pk), t)
     return x, cost
+
+
+def _matched_mean_rows(
+    name: str,
+    level: str,
+    problem: str,
+    heterogeneous: TimeSeries,
+    matched: TimeSeries,
+) -> list[dict[str, object]]:
+    """Rows for heterogeneous-vs-matched-mean comparison tables."""
+
+    rows: list[dict[str, object]] = []
+    for profile, result in (("heterogeneous", heterogeneous), ("matched_mean_homogeneous", matched)):
+        base = {
+            "example": name,
+            "model_level": level,
+            "problem": problem,
+            "profile": profile,
+            "iterations": int(result.value.get("iterations", len(result.controls.get("fbs_delta", [])))),
+            "converged": bool(result.value.get("converged", False)),
+            "final_delta": float(result.value.get("final_delta", np.nan)),
+        }
+        if problem == "optimal_control":
+            rows.append({**base, "metric": "cost", "value": float(result.value["cost"])})
+        else:
+            rows.append({**base, "metric": "attacker_payoff", "value": float(result.value["JA"])})
+            rows.append({**base, "metric": "defender_payoff", "value": float(result.value["JD"])})
+    return rows
+
+
+def save_matched_mean_comparison(
+    results: dict[str, TimeSeries],
+    D: DegreeData,
+    A: np.ndarray,
+    out_dir: Path,
+) -> None:
+    """Solve matched-mean homogeneous baselines with the same canonical solvers."""
+
+    rows: list[dict[str, object]] = []
+    if "degree_control" in results:
+        matched = solve_degree_control(
+            D,
+            steps=len(results["degree_control"].t) - 1,
+            model=degree_control_model(D).matched_mean(),
+        )
+        rows.extend(_matched_mean_rows("degree_control", "degree", "optimal_control", results["degree_control"], matched))
+    if "degree_game" in results:
+        matched = solve_degree_game(
+            D,
+            steps=len(results["degree_game"].t) - 1,
+            model=degree_game_model(D).matched_mean(),
+        )
+        rows.extend(_matched_mean_rows("degree_game", "degree", "attacker_defender_game", results["degree_game"], matched))
+    if "node_control" in results:
+        matched = solve_node_control(
+            A,
+            steps=len(results["node_control"].t) - 1,
+            model=node_control_model(A).matched_mean(),
+        )
+        rows.extend(_matched_mean_rows("node_control", "node", "optimal_control", results["node_control"], matched))
+    if "node_game" in results:
+        matched = solve_node_game(
+            A,
+            steps=len(results["node_game"].t) - 1,
+            model=node_game_model(A).matched_mean(),
+        )
+        rows.extend(_matched_mean_rows("node_game", "node", "attacker_defender_game", results["node_game"], matched))
+    if rows:
+        path = out_dir / "heterogeneous_vs_matched_mean.csv"
+        pd.DataFrame(rows).to_csv(path, index=False)
+        print(f"saved heterogeneous vs matched-mean comparison to {path}")
 
 
 def evaluate_node_control_policy(A: np.ndarray, t: np.ndarray, u: np.ndarray) -> tuple[np.ndarray, float]:
@@ -1290,6 +1379,7 @@ def run(args: argparse.Namespace) -> None:
 
     save_fbs_convergence(results, out_dir)
     save_baseline_comparison(results, D, net.A, out_dir)
+    save_matched_mean_comparison(results, D, net.A, out_dir)
 
 
 def build_parser() -> argparse.ArgumentParser:
