@@ -62,21 +62,20 @@ editing a model, cost, payoff, or figure label.
 | `cybercontrol.numerics` | RK4 integration, simplex projection, trapezoidal integration. |
 | `cybercontrol.models` | Malware SIR RHS, hybrid flow, isolation jump maps, Torch RHS helpers. |
 | `cybercontrol.heterogeneity` | Scalar-or-array degree/node parameters, profile factories, SIS RHS/Jacobians, and finite-difference checks. |
-| `cybercontrol.network_models` | Node-level SIPS/SIPRS graph pressure, NumPy/Torch RHS functions, stochastic SIPRS transition helper. |
+| `cybercontrol.network_models` | Node-level SIPS graph pressure, NumPy/Torch RHS functions, stochastic SIPS transition helper. |
 | `cybercontrol.torch_utils` | Optional PyTorch helpers: MLPs, simplex state networks, bounded control networks, positive transforms, and autograd time derivatives. |
 | `cybercontrol.io` | CSV/JSON writing and reproducible seeding. |
 | `cybercontrol.plotting` | Shared plotting boxes/arrows and lightweight axis cleanup. |
 
-## Node SIPS/SIPRS Variables
+## Node SIPS Variables
 
 | Mathematical symbol | Python variable | Meaning |
 | --- | --- | --- |
 | `x_i=[S_i,I_i,P_i]` | `x[i, :]` with shape `(nodes, 3)` | SIPS node state. |
-| `x_i=[S_i,I_i,P_i,R_i]` | `x[i, :]` with shape `(nodes, 4)` | SIPRS node state. |
 | `\widetilde A_{ij}` | `adjacency[i, j]` | Node `j` contributes infection pressure to node `i`. |
 | `u_i^p` | `patch[i]` | Preventive patching rate, `S -> P`. |
-| `u_i^c` | `clean[i]` | Cleaning/remediation rate, `I -> R`. |
-| `\omega_p,\omega_r` | `NodeSIPRSParams.omega_p`, `.omega_r` | Waning rates `P -> S` and `R -> S`. |
-| `s_i,\iota_i,\gamma_i` | `NodeSIPRSParams.susceptibility`, `.infectivity`, `.gamma` | Per-node susceptibility, infectivity and recovery; scalars broadcast to all nodes. |
+| `u_i^c` | `clean[i]` | Cleaning/remediation rate, `I -> P`. |
+| `\omega_i` | `NodeSIPSParams.omega` | Waning rate `P -> S`. |
+| `s_i,\iota_i,\gamma_i` | `NodeSIPSParams.susceptibility`, `.infectivity`, `.gamma` | Per-node susceptibility, infectivity and recovery; scalars broadcast to all nodes. |
 | `c_i,\bar u_i,\eta_i` | `criticality`, `patch/clean_cost`, `patch/clean_bound`, `patch/clean_efficacy` | Per-node economic weight, action cost, bound and efficacy. |
-| `\lambda_i=s_i sum_j A_{ij}\iota_j I_j` | `node_siprs_transition_rates(...)[\"infection\"]` | Heterogeneous infection pressure used by NumPy and Torch RHS functions. |
+| `\lambda_i=s_i sum_j A_{ij}\iota_j I_j` | `node_sips_transition_rates(...)[\"infection\"]` | Heterogeneous infection pressure used by NumPy and Torch RHS functions. |

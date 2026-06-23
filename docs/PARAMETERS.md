@@ -51,8 +51,8 @@ The advanced degree and node examples resolve these base values into heterogeneo
 | `degree_correlated_sis_params(k, p, strength=...)` | Build degree-correlated physical/economic parameters plus assortative mixing. |
 | `NodeSISParams(...).resolve(nodes)` | Broadcast scalar or array node-SIS parameters. |
 | `degree_correlated_node_sis_params(A, strength=...)` | Build node-SIS risk/cost/bound arrays correlated with graph degree. |
-| `NodeSIPRSParams(...).resolve(nodes)` | Broadcast scalar or array node-SIPRS rates, criticality, bounds, costs, and efficacy. |
-| `community_correlated_node_siprs_params(communities, strength=...)` | Build SIPRS parameters correlated with known community labels. |
+| `NodeSIPSParams(...).resolve(nodes)` | Broadcast scalar or array node-SIPS rates, criticality, bounds, costs, and efficacy. |
+| `community_correlated_node_sips_params(communities, strength=...)` | Build SIPS parameters correlated with known community labels. |
 | `seeded_lognormal_*_params(...)` | Build reproducible positive heterogeneity for sensitivity tests. |
 
 ## Solver And Baseline Parameters

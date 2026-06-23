@@ -37,34 +37,32 @@ def controlled_sir_rhs(x: Array, u_patch: float, u_clean: float, p: MalwareParam
 
 @dataclass
 class HybridParams:
-    """Parameters for SIR malware dynamics with deception/awareness state."""
+    """Parameters for sampled SIR malware dynamics with interval deception."""
 
     beta0: float = 0.65
     gamma: float = 0.05
     omega: float = 0.01
     chi: float = 0.70
-    xi: float = 0.04
-    zeta: float = 0.08
 
 
 def hybrid_rhs(x: Array, dpar: Dict[str, float], apar: Dict[str, float], p: HybridParams) -> Array:
-    """Continuous flow for a sampled-data hybrid malware/deception model.
+    """Continuous flow for a sampled-data SIR malware model.
 
     The discrete action has already been decoded into rates.  Instantaneous
     jumps, such as isolation, should be applied before calling this RHS.
+    Deception is an action effect over the current interval:
+    ``beta_eff = beta_attack * max(0, 1 - chi * deceive)``.
     """
 
-    S, I, R, z = x
+    S, I, R = x[:3]
     beta = apar.get("beta", p.beta0)
     clean = dpar.get("clean", 0.0) * apar.get("stealth_factor", 1.0)
     patch = dpar.get("patch", 0.0)
-    deceive = dpar.get("deceive", 0.0)
-    effective_beta = beta * max(0.0, 1.0 - p.chi * z)
+    effective_beta = beta * max(0.0, 1.0 - p.chi * dpar.get("deceive", 0.0))
     dS = -effective_beta * S * I - patch * S + p.omega * R
     dI = effective_beta * S * I - (p.gamma + clean) * I
     dR = patch * S + (p.gamma + clean) * I - p.omega * R
-    dz = deceive * (1.0 - z) - p.xi * z - apar.get("deception_learning", 0.0) * z
-    return np.array([dS, dI, dR, dz], dtype=np.float64)
+    return np.array([dS, dI, dR], dtype=np.float64)
 
 
 def isolation_jump(x: Array, isolation_rate: float) -> Array:

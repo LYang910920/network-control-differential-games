@@ -13,7 +13,7 @@ This tutorial was created from my research experience in optimal control, differ
 | Order | Repository | Role |
 |---:|---|---|
 | 0 | `network-control-differential-games` | Foundation notation, shared `cybercontrol` package, heterogeneous degree/node equations, continuous/impulse/hybrid examples, scalability, and reference smoke runs. |
-| 1 | [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | FBSM baselines, sampled-data MDP conversion, DDQN defense, compact CTDE, cooperative node-SIPRS MAPPO, and larger node-SIPRS attacker-defender benchmarks. |
+| 1 | [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | FBSM baselines, sampled-data MDP conversion, DDQN defense, compact CTDE, cooperative node-SIPS MAPPO, and larger node-SIPS attacker-defender benchmarks. |
 | 2 | [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | PINN/PIDL inverse learning, neural control, PMP-informed losses, and graph-state residual examples. |
 
 ## 5-Minute Quick Start

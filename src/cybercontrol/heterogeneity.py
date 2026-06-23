@@ -401,15 +401,14 @@ def degree_correlated_node_sis_params(adjacency, *, strength: float = 0.35) -> R
 
 
 @dataclass(frozen=True)
-class ResolvedNodeSIPRSParams:
-    """Validated per-node arrays for heterogeneous SIPRS dynamics."""
+class ResolvedNodeSIPSParams:
+    """Validated per-node arrays for heterogeneous SIPS dynamics."""
 
     beta: Array
     susceptibility: Array
     infectivity: Array
     gamma: Array
-    omega_p: Array
-    omega_r: Array
+    omega: Array
     criticality: Array
     patch_cost: Array
     clean_cost: Array
@@ -426,8 +425,7 @@ class ResolvedNodeSIPRSParams:
                 "susceptibility",
                 "infectivity",
                 "gamma",
-                "omega_p",
-                "omega_r",
+                "omega",
                 "criticality",
                 "patch_cost",
                 "clean_cost",
@@ -452,8 +450,7 @@ class ResolvedNodeSIPRSParams:
             susceptibility=np.full_like(self.susceptibility, float(np.mean(self.susceptibility))),
             infectivity=np.full_like(self.infectivity, float(np.mean(self.infectivity))),
             gamma=np.full_like(self.gamma, float(np.mean(self.gamma))),
-            omega_p=np.full_like(self.omega_p, float(np.mean(self.omega_p))),
-            omega_r=np.full_like(self.omega_r, float(np.mean(self.omega_r))),
+            omega=np.full_like(self.omega, float(np.mean(self.omega))),
             criticality=np.full_like(self.criticality, float(np.mean(self.criticality))),
             patch_cost=np.full_like(self.patch_cost, float(np.mean(self.patch_cost))),
             clean_cost=np.full_like(self.clean_cost, float(np.mean(self.clean_cost))),
@@ -464,7 +461,7 @@ class ResolvedNodeSIPRSParams:
         )
 
 
-def node_heterogeneity_summary(params: ResolvedNodeSIPRSParams, mask: Array | None = None) -> Array:
+def node_heterogeneity_summary(params: ResolvedNodeSIPSParams, mask: Array | None = None) -> Array:
     """Observation-ready summary: risk, susceptibility, infectivity, recovery."""
 
     index = slice(None) if mask is None else np.asarray(mask, dtype=bool)
@@ -536,8 +533,7 @@ def node_params_from_csv(path: str | Path, nodes: int) -> Mapping[str, Array]:
         "susceptibility",
         "infectivity",
         "gamma",
-        "omega_p",
-        "omega_r",
+        "omega",
         "criticality",
         "patch_cost",
         "clean_cost",
