@@ -16,6 +16,12 @@ The three reference repositories correspond to the author's co-authored cyber/ne
 
 For a more explicit classification, see [`MODEL_TAXONOMY.md`](MODEL_TAXONOMY.md).
 
+Some upstream paper titles and repository text use "Hybrid Control" as their
+official wording. In this tutorial family, owned explanations use
+"continuous-impulsive hybrid control" for the specific case of flow controls
+combined with impulse/reset actions. The upstream wording is kept unchanged in
+citations, READMEs, licenses, and source snapshots.
+
 Upstream links and licenses:
 
 | Repository | Upstream | License |

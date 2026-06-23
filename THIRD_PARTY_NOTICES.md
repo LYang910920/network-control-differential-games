@@ -4,6 +4,13 @@ This repository references three external research-code repositories. They corre
 
 The source snapshots remain the work of their original authors and retain their original licenses.
 
+Some upstream titles and repository text use the phrase "Hybrid Control"
+because that is the official publication or repository wording. The owned
+tutorial prose in this repository uses "continuous-impulsive hybrid control"
+when a model combines flow controls with impulse/reset actions. Third-party
+titles, citations, READMEs, and source snapshots are preserved verbatim for
+attribution and reproducibility.
+
 ## OpinionMalware_TIFS_2025_Code
 
 - Local snapshot: [`examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code`](examples/reference/reference_repositories/OpinionMalware_TIFS_2025_Code/)
