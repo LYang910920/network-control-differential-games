@@ -95,7 +95,7 @@ Only node-level control/game:
 python code/network_control_examples.py --examples node --output-dir ../../artifacts/foundation_runs/node_only
 ```
 
-Only hybrid impulse simulation:
+Only continuous-impulse simulation:
 
 ```bash
 python code/network_control_examples.py --examples continuous-impulse --output-dir ../../artifacts/foundation_runs/continuous_impulse_only
@@ -122,7 +122,7 @@ Fresh runs write detailed figures and CSVs under `artifacts/foundation_runs/`. T
 | Folder pattern | Purpose |
 | --- | --- |
 | `simple_*` | Minimal degree-k continuous optimal-control smoke runs. |
-| `companion_*` | Main foundation outputs for degree-level, node-level, game, and hybrid examples on the same input graph. |
+| `companion_*` | Main foundation outputs for degree-level, node-level, game, and continuous-impulse examples on the same input graph. |
 | `scalability_degree_node_sf` | Paired degree-level versus sparse node-level FBS runtime on the same epidemic-control problem and graph seeds. |
 
 Control comparisons include 75 random smooth-control baselines. Game comparisons use two unilateral panels: fixed computed attack with varied defense, and fixed computed defense with varied attack.
@@ -137,5 +137,5 @@ Each fresh run also writes a generated `README.md` into its output directory.
 2. How degree-level arrays differ from node-level arrays.
 3. How a forward-backward sweep solves the PMP state/adjoint/control update loop.
 4. How attacker-defender differential games extend the same workflow.
-5. How hybrid impulse simulations combine continuous ODE segments with jump updates.
+5. How continuous-impulse simulations combine continuous ODE segments with jump updates.
 6. How degree-level aggregation and node-indexed state dimension change the FBS runtime profile as synthetic networks grow.

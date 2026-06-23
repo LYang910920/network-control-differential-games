@@ -15,7 +15,7 @@ Use this track first. The scripts are small, self-contained, and written to show
 | File | Purpose | Best use |
 | --- | --- | --- |
 | `code/simple_degree_k_control.py` | Minimal degree-k SIS optimal-control example | First PMP/control run |
-| `code/network_control_examples.py` | Degree games, node-level models, hybrid impulse simulation | Compare model variants |
+| `code/network_control_examples.py` | Degree games, node-level models, continuous-impulse simulation | Compare model variants |
 | `code/scalability_analysis.py` | Paired degree/node runtime experiment | Compare degree-level and node-level FBS on the same SIS control problem |
 | `code/run_foundation_examples.py` | Runs all foundation examples and saves figures | Reproduce the included plots |
 

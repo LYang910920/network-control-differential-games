@@ -9,7 +9,7 @@ models.
 | Decision | What to write down |
 | --- | --- |
 | State | Node-level, degree-level, or aggregate compartments; define every unit. |
-| Control type | Continuous control, impulse control, discrete sampled decisions, or hybrid control. |
+| Control type | Continuous-time control, sampled-data decisions, impulse control, or continuous-impulsive hybrid control. |
 | Players | Single controller, attacker-defender game, or multi-agent game. |
 | Dynamics | ODE flow `x' = f(x,u,v)`, jump map `x(tau+) = G(x(tau-),a)`, and network coupling. |
 | Constraints | Positivity, simplex conservation, control bounds, budgets, event times, and terminal conditions. |
@@ -25,7 +25,7 @@ Keep `docs/NOTATION_TO_CODE.md` open while translating equations into Python.
 | Differential game | Fixed attacker vs varied defenders, fixed defender vs varied attackers, random unilateral deviations, Nash-gap proxy. |
 | Sampled-data policy method | Rule policy, random policy, no-defense policy, fixed-action policies, multiple random seeds. |
 | Data-assisted model check | Interpolation, wrong-parameter dynamics, known-mechanism-only run, held-out trajectory, noisy-data run. |
-| Impulse/hybrid | No impulse, fixed impulse schedule, randomized impulse times, continuous-only version, impulse-only version. |
+| Impulse/continuous-impulsive | No impulse, fixed impulse schedule, randomized impulse times, continuous-only version, impulse-only version. |
 
 Use "PMP/FBS candidate" unless unilateral-deviation or Nash-gap evidence
 supports a stronger equilibrium statement.
@@ -52,7 +52,7 @@ conservation/positivity, and regularization terms. Keep known mechanisms
 explicit when adding learned correction terms. Report parameter error, state
 error, residual error, and sensitivity to data density.
 
-### Hybrid And Impulse Games
+### Continuous-Impulsive And Impulse Games
 
 Write continuous flow and jump maps separately. Keep impulse costs separate from
 running costs. For games, create payoff plots with one strategy fixed and the
@@ -72,7 +72,7 @@ other side varied.
 1. Motivation and threat/control scenario.
 2. Related work and gap.
 3. Model formulation and assumptions.
-4. Method: PMP conditions, game conditions, sampled-data policy formulation, data-assisted residual, or hybrid/impulse formulation.
+4. Method: PMP conditions, game conditions, sampled-data policy formulation, data-assisted residual, or continuous-impulse formulation.
 5. Algorithm and implementation details.
 6. Experimental setup, parameters, datasets, and baselines.
 7. Results: convergence, state/control behavior, baseline comparison, ablation, sensitivity, and limitations.

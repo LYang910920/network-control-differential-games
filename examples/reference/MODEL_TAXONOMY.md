@@ -7,7 +7,7 @@ This document classifies the three reference repositories by modeling level, con
 | Repository | Short label |
 | --- | --- |
 | [`OpinionMalware_TIFS_2025_Code`](reference_repositories/OpinionMalware_TIFS_2025_Code/) | Node-level malware-opinion optimal impulse control |
-| [`PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/) | Degree-level hybrid/impulsive differential game |
+| [`PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/) | Degree-level continuous-impulsive differential game |
 | [`Propaganda_TCSS_2025_Code`](reference_repositories/Propaganda_TCSS_2025_Code/) | Node-level awareness-aware optimal impulse control |
 
 ## Main Distinction
@@ -20,7 +20,7 @@ The most important split is the modeling level:
 The second split is the decision structure:
 
 - **Optimal impulse control** computes intervention magnitudes or schedules for one decision maker.
-- **Differential games** compute interacting strategies for multiple players. `PropagandaWar_TIFS_2024_Code` is the main hybrid/impulsive differential-game reference.
+- **Differential games** compute interacting strategies for multiple players. `PropagandaWar_TIFS_2024_Code` is the main continuous-impulsive differential-game reference.
 
 ## Repository Notes
 
@@ -31,18 +31,18 @@ The second split is the decision structure:
 - **Network representation:** multiplex/social network adjacency matrices.
 - **State variables:** malware and opinion states, summarized as mean malware `c(t)` and opinion `o(t)`.
 - **Core code path:** `network.py` builds and normalizes networks; `opinionMalware.py` runs forward states, backward adjoints, impulse strategy search, and payoff evaluation.
-- **Closest tutorial example:** node-level control + hybrid impulse examples.
+- **Closest tutorial example:** node-level control + continuous-impulse examples.
 
 ### PropagandaWar_TIFS_2024_Code
 
 - **Modeling level:** degree-level.
-- **Decision structure:** hybrid/impulsive differential game.
+- **Decision structure:** continuous-impulsive differential game.
 - **Network representation:** empirical degree distributions for red and blue networks.
 - **State variables:** red and blue population states indexed by degree classes, such as `kr`, `pkr`, `kb`, and `pkb`.
 - **Core code path:** `demo_network.py` computes degree distributions; `propWar.py` runs the red/blue forward-backward game; `comparison.py` supports unilateral-deviation checks.
 - **Closest tutorial example:** degree-level game example.
 
-This is the reference repository to read first if the goal is to understand how a degree-level network model becomes an impulsive or hybrid differential game.
+This is the reference repository to read first if the goal is to understand how a degree-level network model becomes an impulsive or continuous-impulsive differential game.
 
 ### Propaganda_TCSS_2025_Code
 
@@ -58,7 +58,7 @@ This is the reference repository to read first if the goal is to understand how 
 | Goal | Start with |
 | --- | --- |
 | Understand degree-level PMP/Nash workflows | `examples/foundations/code/simple_degree_k_control.py`, then `PropagandaWar_TIFS_2024_Code/propWar.py` |
-| Understand hybrid/impulsive differential games | `examples/foundations/code/network_control_examples.py --examples degree`, then `PropagandaWar_TIFS_2024_Code` |
+| Understand continuous-impulsive differential games | `examples/foundations/code/network_control_examples.py --examples degree`, then `PropagandaWar_TIFS_2024_Code` |
 | Understand node-level optimal control | `examples/foundations/code/network_control_examples.py --examples node`, then `Propaganda_TCSS_2025_Code` |
 | Understand malware-opinion coupled dynamics | `OpinionMalware_TIFS_2025_Code/network.py`, then `OpinionMalware_TIFS_2025_Code/opinionMalware.py` |
 | Understand awareness-aware impulse control | `Propaganda_TCSS_2025_Code/prop_network.py`, then `Propaganda_TCSS_2025_Code/prop_propaganda.py` |

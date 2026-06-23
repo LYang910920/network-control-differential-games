@@ -53,14 +53,14 @@ editing a model, cost, payoff, or figure label.
 | Continuous control | A curve `u(t)` on the ODE grid. | Label as `continuous control u(t)` and use a line plot. |
 | Impulse control | A jump map `x(tau_j+) = G(x(tau_j-), a_j)`. | Label as `impulse at tau_j` and use vertical markers or stems. |
 | Discrete sampled action | An action chosen at `t_k` for an MDP or Markov game. | Label as `action epoch k` or `sampled decision t_k`. |
-| Hybrid control | Continuous flow plus discrete/impulse modes. | Show flow with lines and jumps/actions with markers or step plots. |
+| Continuous-impulsive hybrid control | Continuous flow plus explicit impulse resets. | Show flow with lines and jumps/actions with markers or step plots. |
 
 ## Shared Package
 
 | Module | Use it for |
 | --- | --- |
 | `cybercontrol.numerics` | RK4 integration, simplex projection, trapezoidal integration. |
-| `cybercontrol.models` | Malware SIR RHS, hybrid flow, isolation jump maps, Torch RHS helpers. |
+| `cybercontrol.models` | Malware SIR RHS, sampled SIR flow, isolation jump maps, Torch RHS helpers. |
 | `cybercontrol.heterogeneity` | Scalar-or-array degree/node parameters, profile factories, SIS RHS/Jacobians, and finite-difference checks. |
 | `cybercontrol.network_models` | Node-level SIPS graph pressure, NumPy/Torch RHS functions, stochastic SIPS transition helper. |
 | `cybercontrol.torch_utils` | Optional PyTorch helpers: MLPs, simplex state networks, bounded control networks, positive transforms, and autograd time derivatives. |

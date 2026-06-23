@@ -1,18 +1,18 @@
 # Network Control and Differential Games
 
-Foundation tutorial materials, shared Python package, runnable examples, and reference-code smoke tests for network optimal control, differential games, and hybrid or impulsive interventions. The repository introduces the notation, canonical `cybercontrol` package, and small reproducible checks used by the two companion repositories.
+Foundation tutorial materials, shared Python package, runnable examples, and reference-code smoke tests for network optimal control, differential games, impulse interventions, and continuous-impulsive interventions. The repository introduces the notation, canonical `cybercontrol` package, and small reproducible checks used by the two companion repositories.
 
 This public repository does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See `LICENSE`, `COPYRIGHT_AND_LICENSE.md`, and `THIRD_PARTY_NOTICES.md`.
 
 ## Author Note
 
-This tutorial was created from my research experience in optimal control, differential games, hybrid/impulsive control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
+This tutorial was created from my research experience in optimal control, differential games, impulse control, continuous-impulsive hybrid control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
 
 ## Repository Family
 
 | Order | Repository | Role |
 |---:|---|---|
-| 0 | `network-control-differential-games` | Foundation notation, shared `cybercontrol` package, heterogeneous degree/node equations, continuous/impulse/hybrid examples, scalability, and reference smoke runs. |
+| 0 | `network-control-differential-games` | Foundation notation, shared `cybercontrol` package, heterogeneous degree/node equations, continuous-time, impulse, and continuous-impulsive examples, scalability, and reference smoke runs. |
 | 1 | [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | FBSM baselines, sampled-data MDP conversion, DDQN defense, compact CTDE, cooperative node-SIPS MAPPO, and larger node-SIPS attacker-defender benchmarks. |
 | 2 | [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | PINN/PIDL inverse learning, neural control, PMP-informed losses, and graph-state residual examples. |
 
@@ -54,7 +54,7 @@ python run_all.py --skip-reference --skip-scalability
 | Heterogeneous degree/node parameters | `src/cybercontrol/heterogeneity.py`, `src/cybercontrol/network_models.py` |
 | Foundation example runner | `examples/foundations/code/run_foundation_examples.py` |
 | Minimal degree-level control example | `examples/foundations/code/simple_degree_k_control.py` (homogeneous scalar profile) |
-| Main continuous/game/hybrid examples | `examples/foundations/code/network_control_examples.py` (canonical heterogeneous runs) |
+| Main continuous/game/continuous-impulse examples | `examples/foundations/code/network_control_examples.py` (canonical heterogeneous runs) |
 | Degree-vs-node scalability | `examples/foundations/code/scalability_analysis.py` |
 | Reference repository smoke runs | `examples/reference/run_reference_smoke.py` |
 | Reference model taxonomy | `examples/reference/MODEL_TAXONOMY.md`, `examples/reference/reference_repository_guide.md` |
@@ -72,7 +72,7 @@ The simple degree-k file remains a short homogeneous example. The advanced found
 
 ## Representative Experiments
 
-The foundation examples compare heterogeneous degree-level control/game models, heterogeneous node-level variants, matched-mean homogeneous baselines, convergence diagnostics, and hybrid impulse behavior.
+The foundation examples compare heterogeneous degree-level control/game models, heterogeneous node-level variants, matched-mean homogeneous baselines, convergence diagnostics, and continuous-impulse behavior.
 
 ![Foundation examples contact sheet](docs/assets/foundation_examples_contact_sheet.png)
 

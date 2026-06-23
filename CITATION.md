@@ -10,7 +10,7 @@ Tutorial Materials, Tutorial Examples, and Reference-Code Smoke Runs.
 GitHub repository: https://github.com/LYang910920/network-control-differential-games
 ```
 
-This tutorial was created from the author's research experience in optimal control, differential games, hybrid/impulsive control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
+This tutorial was created from the author's research experience in optimal control, differential games, impulse control, continuous-impulsive hybrid control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
 
 If you use or discuss the reference repositories, cite the original papers and upstream repositories listed in:
 

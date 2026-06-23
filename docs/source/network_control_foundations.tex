@@ -51,10 +51,10 @@
   linkcolor=TutorialBlue,
   citecolor=TutorialBlue,
   urlcolor=TutorialBlue,
-  pdftitle={Optimal Control, Differential Games, Hybrid Control, and Games on Networks},
+  pdftitle={Optimal Control, Differential Games, Continuous-Impulsive Control, and Games on Networks},
   pdfauthor={Lu-Xing Yang},
   pdfsubject={Self-contained guide},
-  pdfkeywords={optimal control, differential games, hybrid control, impulse control, networks, Python}
+  pdfkeywords={optimal control, differential games, continuous-impulsive control, impulse control, networks, Python}
 }
 
 % -----------------------------------------------------------------------------
@@ -69,7 +69,7 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\small\sffamily Optimal Control, Games, and Hybrid Control}
+\lhead{\small\sffamily Optimal Control, Games, and Continuous-Impulsive Control}
 \rhead{\small\sffamily \thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0pt}
@@ -142,20 +142,20 @@
 \begin{titlepage}
 \centering
 \vspace*{1.5cm}
-{\sffamily\bfseries\Huge\color{TutorialBlue} Optimal Control, Differential Games, Hybrid Control, and Games on Networks\par}
+{\sffamily\bfseries\Huge\color{TutorialBlue} Optimal Control, Differential Games, Continuous-Impulsive Control, and Games on Networks\par}
 \vspace{0.5cm}
 {\sffamily\Large A Self-Contained English Tutorial Note with Degree-Level and Node-Level Examples\par}
 \vspace{0.8cm}
 {\large Lu-Xing Yang\par}
 \vspace{0.8cm}
-{\large Created from my research experience in optimal control, differential games, hybrid/impulsive control, and cyber/network-security applications\par}
+{\large Created from my research experience in optimal control, differential games, impulse and continuous--impulsive hybrid control, and cyber/network-security applications\par}
 \vspace{0.35cm}
 {\large Informed by publications in IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals\par}
 \vspace{0.35cm}
 {\large Tutorial Python files: \texttt{simple\_degree\_k\_control.py} and \texttt{network\_control\_examples.py}\par}
 \vfill
 \begin{tcolorbox}[width=0.86\textwidth,colback=SoftBlue,colframe=TutorialBlue]
-\textbf{Purpose.} This note starts from controlled dynamical systems and develops optimal control, differential games, and hybrid/impulsive control in one coherent framework. It is written for propagation, defense, and intervention problems on networks. The mathematical sections introduce the state equation, payoff, Hamiltonian, PMP, HJB/HJI viewpoint, Nash equilibrium conditions, impulse jumps, and hybrid strategies. The computational sections give a simple degree-$k$ example first and then a main tutorial script for degree-level games, node-level adjacency-matrix models, and hybrid/impulsive simulations. The degree-level workflow always computes $N_k$, $P(k)$, and $\langle k\rangle$ from the input network before solving models indexed by degree class $k$.
+\textbf{Purpose.} This note starts from controlled dynamical systems and develops optimal control, differential games, and impulse and continuous--impulsive hybrid control in one coherent framework. It is written for propagation, defense, and intervention problems on networks. The mathematical sections introduce the state equation, payoff, Hamiltonian, PMP, HJB/HJI viewpoint, Nash equilibrium conditions, impulse jumps, and continuous-plus-impulse strategies. The computational sections give a simple degree-$k$ example first and then a main tutorial script for degree-level games, node-level adjacency-matrix models, and continuous-impulse simulations. The degree-level workflow always computes $N_k$, $P(k)$, and $\langle k\rangle$ from the input network before solving models indexed by degree class $k$.
 \end{tcolorbox}
 \vfill
 {\large \today\par}
@@ -168,14 +168,14 @@
 \section{How to Read This Handout}
 % -----------------------------------------------------------------------------
 
-This handout follows a layered structure. First, it defines a controlled dynamical system. Second, it formulates an optimal control problem for one decision maker. Third, it extends the same logic to two or more strategic decision makers, producing a differential game. Fourth, it adds discrete state jumps and event decisions, producing impulse and hybrid control/game models. Finally, it connects the mathematics to degree-level and node-level propagation models on networks and to runnable Python implementation.
+This handout follows a layered structure. First, it defines a controlled dynamical system. Second, it formulates an optimal control problem for one decision maker. Third, it extends the same logic to two or more strategic decision makers, producing a differential game. Fourth, it adds discrete state jumps and event decisions, producing impulse and continuous--impulsive hybrid control/game models. Finally, it connects the mathematics to degree-level and node-level propagation models on networks and to runnable Python implementation.
 
 \begin{definitionbox}{Core questions}
 \begin{itemize}
   \item \textbf{Optimal control}: what should one controller do over time to maximize benefit or minimize cost?
   \item \textbf{Differential game}: what should each player do when the system state is jointly affected by all players and their objectives may conflict?
   \item \textbf{Impulse control/game}: when and how should a player apply instantaneous actions that cause state jumps?
-  \item \textbf{Hybrid control/game}: how should continuous-time controls and discrete impulses/switching decisions be combined?
+  \item \textbf{Continuous--impulsive hybrid control/game}: how should continuous-time controls and discrete impulse decisions be combined?
   \item \textbf{Degree-level versus node-level networks}: should we group nodes by type/degree, or track every node and use the full adjacency matrix?
 \end{itemize}
 \end{definitionbox}
@@ -191,7 +191,7 @@ Continuous dynamics & $\dot{x}=f(x,u,t)$ & How does the state evolve under conti
 Optimal control & $\max_u J(u)$ subject to dynamics & What is the best control for one decision maker? & Defender allocates patching to reduce malware \\
 Differential game & $\max_{u_i} J_i(u_i,u_{-i})$ for each player & What is a Nash or Stackelberg equilibrium? & Attacker increases spread; defender suppresses spread \\
 Impulse control & $x(t_l^+) = x(t_l^-) + g(x(t_l^-),v_l)$ & When should discrete interventions be applied? & Emergency cleanup, forced password reset, public correction campaign \\
-Hybrid control/game & Continuous dynamics plus impulses/switches & How should continuous and discrete decisions be combined? & Routine monitoring plus occasional large-scale response \\
+Continuous--impulsive hybrid control/game & Continuous dynamics plus impulse resets & How should continuous flow controls and impulse decisions be combined? & Routine monitoring plus occasional large-scale response \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -472,7 +472,7 @@ Payoff relation & Zero-sum; nonzero-sum & Zero-sum is pure conflict; nonzero-sum
 State evolution & Deterministic; stochastic & Deterministic models are easier; stochastic models handle random disturbances and uncertainty. \\
 Decision order & Nash; Stackelberg & Nash players move simultaneously; Stackelberg has leader-follower structure. \\
 Information structure & Open-loop; feedback; sampled-data & Open-loop uses time plans; feedback observes state; sampled-data updates at discrete observation times. \\
-Action type & Continuous; impulse; hybrid & Continuous changes derivatives; impulse causes jumps; hybrid combines both. \\
+Action type & Continuous-time; impulse; continuous--impulsive hybrid & Continuous-time control changes derivatives; impulse control causes jumps; continuous--impulsive hybrid control contains both. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -502,14 +502,14 @@ The structure is almost identical to optimal control, except that each player ha
 \end{itemize}
 
 % -----------------------------------------------------------------------------
-\section{Continuous, Impulse, and Hybrid Control/Game Models}
+\section{Flow, Impulse, and Continuous--Impulsive Models}
 % -----------------------------------------------------------------------------
 
-The key distinction is how an action affects the state. A continuous control changes the derivative $\dot{x}$ over an interval of time. An impulse action causes an instantaneous state jump at selected time points. A hybrid policy uses both.
+The key distinction is how an action affects the state. A continuous-time control changes the derivative $\dot{x}$ over an interval of time. An impulse action causes an instantaneous state jump at selected time points. A continuous--impulsive hybrid policy uses both.
 
-\subsection{Continuous Control}
+\subsection{Continuous-Time Control}
 
-A continuous control $u(t)$ is applied over time and changes the vector field $f$. Examples include continuous patching intensity, monitoring rate, misinformation refutation effort, or resource allocation to recovery.
+A continuous-time control $u(t)$ is applied over time and changes the vector field $f$. Examples include continuous patching intensity, monitoring rate, misinformation refutation effort, or resource allocation to recovery.
 \begin{equation}
   \dot{x}(t)=f(x(t),u(t),t),\qquad 0\leq t\leq T.
 \end{equation}
@@ -532,14 +532,14 @@ In minimization form, $G$ can be an intervention cost. In maximization form, $G$
 A continuous-time control signal is a function over a time interval and modifies the rate of change. An impulse action is an event action and modifies the state itself. In network security, continuous defense may be monitoring or patching; an impulse may be forced password reset, emergency cleanup, public warning, or manual shutdown of compromised accounts.
 \end{definitionbox}
 
-\subsection{Hybrid Control}
+\subsection{Continuous--Impulsive Hybrid Control}
 
-A hybrid control combines continuous controls $u(t)$ and impulse decisions $(N,t_l,v_l)$. In compact form,
+A continuous--impulsive hybrid control combines continuous-time flow controls $u(t)$ and impulse decisions $(N,t_l,v_l)$. In compact form,
 \begin{align}
-  \dot{x}(t)&=f(x(t),u(t),t),\qquad t\notin\{t_1,\dots,t_N\},\label{eq:hybrid-flow}\\
-  x(t_l^+)&=x(t_l^-)+g(x(t_l^-),v_l,t_l),\qquad l=1,\dots,N.\label{eq:hybrid-jump}
+  \dot{x}(t)&=f(x(t),u(t),t),\qquad t\notin\{t_1,\dots,t_N\},\label{eq:contimp-flow}\\
+  x(t_l^+)&=x(t_l^-)+g(x(t_l^-),v_l,t_l),\qquad l=1,\dots,N.\label{eq:contimp-jump}
 \end{align}
-The hybrid optimization problem is hard because it mixes continuous function optimization and discrete event optimization:
+The continuous--impulsive optimization problem is hard because it mixes continuous function optimization and discrete event optimization:
 \begin{itemize}
   \item choose the number of impulses $N$;
   \item choose the impulse times $t_1<\cdots<t_N$;
@@ -548,9 +548,9 @@ The hybrid optimization problem is hard because it mixes continuous function opt
 \end{itemize}
 This naturally leads to nested optimization. The inner layer solves continuous control for fixed impulse schedule. The middle layer optimizes impulse times. The outer layer optimizes the number of impulses. In network propagation models, the exact full solution is often computationally prohibitive. Practical studies may fix impulse times, use heuristics, restrict the number of impulses, or compare several candidate schedules rather than solving the full impulse PMP exactly.
 
-\subsection{Hybrid Differential Games}
+\subsection{Continuous--Impulsive Hybrid Differential Games}
 
-A hybrid differential game appears when at least one player uses continuous controls and at least one player can trigger impulses. For example, the defender may continuously patch nodes and occasionally perform emergency cleanup, while the attacker continuously injects effort or occasionally launches bursts. The Nash conditions remain best-response conditions, but the impulse player now has to optimize event count, event timing, targets, and magnitudes.
+A continuous--impulsive hybrid differential game appears when at least one player uses continuous-time controls and at least one player can trigger impulses. For example, the defender may continuously patch nodes and occasionally perform emergency cleanup, while the attacker continuously injects effort or occasionally launches bursts. The Nash conditions remain best-response conditions, but the impulse player now has to optimize event count, event timing, targets, and magnitudes.
 
 \begin{table}[h!]
 \centering
@@ -561,7 +561,7 @@ A hybrid differential game appears when at least one player uses continuous cont
 \midrule
 Continuous & Changes $\dot{x}$ over time & $u(t)$ & PMP + forward-backward sweep; direct collocation; approximate dynamic programming \\
 Impulse & Instantaneous jump $x(t^+)\neq x(t^-)$ & $N$, $t_l$, $v_l$ & Impulse PMP; direct search; dynamic programming for small problems \\
-Hybrid & Both derivative changes and jumps & $u(t)$, $N$, $t_l$, $v_l$ & Nested optimization; heuristics; mixed-integer/control methods \\
+Continuous--impulsive hybrid & Both derivative changes and jumps & $u(t)$, $N$, $t_l$, $v_l$ & Nested optimization; heuristics; mixed-integer/control methods \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -572,7 +572,7 @@ Hybrid & Both derivative changes and jumps & $u(t)$, $N$, $t_l$, $v_l$ & Nested 
 % -----------------------------------------------------------------------------
 
 This section adds a more theoretical layer behind the models used in the examples. The main message is that PMP, impulse PMP, and HJB are not competing ideas. They answer different versions of the same question.
-PMP is usually the most convenient route to \emph{open-loop} controls and open-loop Nash equilibria. HJB is the dynamic-programming route to \emph{feedback} controls. Impulse and hybrid models add jump conditions and event-time conditions to the continuous PMP system.
+PMP is usually the most convenient route to \emph{open-loop} controls and open-loop Nash equilibria. HJB is the dynamic-programming route to \emph{feedback} controls. Impulse and continuous--impulsive hybrid models add jump conditions and event-time conditions to the continuous PMP system.
 
 \subsection{Necessary Conditions versus Sufficient Conditions}
 
@@ -587,7 +587,7 @@ An optimality condition is \textbf{necessary} if every true optimum must satisfy
 \midrule
 Continuous optimal control & State equation, adjoint equation, Hamiltonian stationarity/maximization, transversality & Concavity for maximization or convexity for minimization; or an HJB verification theorem. \\
 Open-loop Nash differential game & One PMP system per player, with player-specific adjoints and pointwise best responses & Each player's Hamiltonian/objective is concave in its own state-control variables, plus the Nash inequalities hold; for zero-sum games, saddle-point/Isaacs conditions. \\
-Impulse or hybrid control & Continuous PMP plus state-jump equation, adjoint-jump equation, impulse-magnitude condition, and sometimes impulse-time condition & Verification inequalities using quasi-variational inequalities (QVIs), or restricted sufficiency for fixed impulse schedules and convex/concave structures. \\
+Impulse or continuous--impulsive hybrid control & Continuous PMP plus state-jump equation, adjoint-jump equation, impulse-magnitude condition, and sometimes impulse-time condition & Verification inequalities using quasi-variational inequalities (QVIs), or restricted sufficiency for fixed impulse schedules and convex/concave structures. \\
 Numerical forward-backward sweep & Small residual in state, adjoint, and stationarity equations & Not sufficient by itself; should be supported by baseline comparison, sensitivity tests, and unilateral-deviation tests for games. \\
 \bottomrule
 \end{tabularx}
@@ -690,11 +690,11 @@ where $K$ is the impulse cost and $x+g(x,v,t)$ is the post-impulse state. The va
   \right\}=0.
   \label{eq:qvi}
 \end{equation}
-The first term is the continuation condition: do not impulse, continue with continuous control. The second term compares the value of waiting with the value after immediate intervention. The impulse region is where $V(x,t)=(\mathcal{M}V)(x,t)$; the continuation region is where the HJB part holds. Hybrid feedback games lead to HJI-QVI systems with one or more value functions. These equations provide strong verification principles, but they are rarely solved directly for high-dimensional node-level networks.
+The first term is the continuation condition: do not impulse, continue with continuous control. The second term compares the value of waiting with the value after immediate intervention. The impulse region is where $V(x,t)=(\mathcal{M}V)(x,t)$; the continuation region is where the HJB part holds. Continuous--impulsive feedback games lead to HJI-QVI systems with one or more value functions. These equations provide strong verification principles, but they are rarely solved directly for high-dimensional node-level networks.
 
 \subsection{PMP with Impulsive State Jumps}
 
-Now consider an impulse or hybrid model with fixed impulse times $t_1,\dots,t_N$:
+Now consider an impulse or continuous--impulsive hybrid model with fixed impulse times $t_1,\dots,t_N$:
 \begin{align}
   \dot{x}(t)&=f(x(t),u(t),t),\qquad t\notin\{t_1,\dots,t_N\},\\
   x(t_l^+)&=x(t_l^-)+g(x(t_l^-),v_l,t_l),\qquad l=1,\dots,N.
@@ -740,23 +740,23 @@ If the impulse times are also decision variables and the model is autonomous or 
 \end{equation}
 With explicit time-dependence, additional terms involving $\partial H^I/\partial t_l$ may appear. In practice, solving simultaneously for impulse magnitudes, impulse times, and the number of impulses is much harder than solving a continuous PMP system.
 
-\subsection{Hybrid PMP and Nested Optimization}
+\subsection{Continuous--Impulsive Hybrid PMP and Nested Optimization}
 
-Hybrid control combines two types of first-order conditions:
+Continuous--impulsive hybrid control combines two types of first-order conditions:
 \begin{enumerate}
   \item \textbf{Flow conditions}: state equation, adjoint equation, and continuous-control stationarity between impulses.
   \item \textbf{Jump conditions}: state jump, adjoint jump, impulse-magnitude stationarity, and possibly impulse-time stationarity.
   \item \textbf{Discrete-event conditions}: selection of impulse number $N$ and target set, which is usually not handled by classical smooth PMP alone.
 \end{enumerate}
-For a fixed $N$ and fixed impulse schedule, the hybrid PMP is close to a continuous PMP system with extra jump equations. When $N$, impulse times, and target nodes are also optimized, the problem becomes a nested continuous-discrete optimization problem:
+For a fixed $N$ and fixed impulse schedule, the continuous--impulsive PMP is close to a continuous PMP system with extra jump equations. When $N$, impulse times, and target nodes are also optimized, the problem becomes a nested continuous-discrete optimization problem:
 \begin{equation}
   \max_N\ \max_{0<t_1<\cdots<t_N<T}\ \max_{u(\cdot),v_1,\dots,v_N}\ J(u,v_1,\dots,v_N,t_1,\dots,t_N,N).
 \end{equation}
 This explains why many network propagation studies use restricted impulse schedules, candidate-time search, greedy target selection, or learning-based parameterized action spaces. These approaches do not replace the PMP; they make the PMP-inspired problem computationally tractable.
 
-\subsection{Impulse and Hybrid Differential Games}
+\subsection{Impulse and Continuous--Impulsive Hybrid Differential Games}
 
-In a hybrid differential game, each player has its own continuous Hamiltonian and, if that player can trigger jumps, its own impulse Hamiltonian. For a two-player nonzero-sum game, player $i$ has
+In a continuous--impulsive hybrid differential game, each player has its own continuous Hamiltonian and, if that player can trigger jumps, its own impulse Hamiltonian. For a two-player nonzero-sum game, player $i$ has
 \begin{align}
   H_i(x,u_1,u_2,\lambda_i,t)&=F_i(x,u_1,u_2,t)+\lambda_i^{\T}f(x,u_1,u_2,t),\\
   H_i^I(x,v_i,\lambda_i^+,t_l)&=G_i(x,v_i,t_l)+(\lambda_i^+)^{\T}g_i(x,v_i,t_l).
@@ -777,10 +777,10 @@ A continuous control such as patching modifies the derivative: it slowly changes
 When presenting an optimal control or differential game model, the theoretical part is clearer if it includes the following items:
 \begin{enumerate}
   \item State clearly whether the problem is maximization or minimization, and keep the Hamiltonian sign convention consistent.
-  \item Specify whether controls are open-loop, feedback, sampled-data, impulse, or hybrid.
+  \item Specify whether controls are open-loop, feedback, sampled-data, impulse, or continuous--impulsive hybrid.
   \item Write the Hamiltonian(s). For games, write one Hamiltonian per player.
   \item Derive state, adjoint, terminal/transversality, and stationarity conditions.
-  \item For impulse/hybrid models, include state jump, adjoint jump, impulse Hamiltonian, and event-time condition if times are optimized.
+  \item For impulse or continuous--impulsive hybrid models, include state jump, adjoint jump, impulse Hamiltonian, and event-time condition if times are optimized.
   \item State whether the conditions are necessary only, or whether extra convexity/concavity/HJB verification arguments make them sufficient.
   \item In numerical work, report baselines, sensitivity, and convergence or residual checks.
 \end{enumerate}
@@ -860,7 +860,7 @@ The payoffs are
 \end{align}
 This model is a direct node-level extension of the degree-level attacker-defender game. It is suitable for small to medium networks or for simulation experiments. For large networks, dimension reduction, graph neural networks, mean-field approximations, or learning-based policies may be needed.
 
-\subsection{Hybrid Node-Level Control: Continuous Patching plus Emergency Cleanup}
+\subsection{Continuous--Impulsive Node-Level Control: Continuous Patching plus Emergency Cleanup}
 
 Between impulses, use node-level controlled dynamics. At selected impulse times, clean selected nodes instantaneously:
 \begin{align}
@@ -872,7 +872,7 @@ A practical objective is
   \min\ \int_0^T\left[q\sum_i x_i(t)+\frac{1}{2}r\sum_i u_i(t)^2\right]\dd t
   +\sum_l\left(c_0+\frac{1}{2}c_z\|z_l\|^2\right).
 \end{equation}
-This model captures routine defense plus occasional high-cost intervention. The tutorial code uses a transparent simulation with fixed impulse times applied to high-degree nodes. This is not a full impulse PMP solver; it illustrates how continuous ODE segments and jump maps are combined in a hybrid-control computation.
+This model captures routine defense plus occasional high-cost intervention. The tutorial code uses a transparent simulation with fixed impulse times applied to high-degree nodes. This is not a full impulse PMP solver; it illustrates how continuous ODE segments and jump maps are combined in a continuous--impulsive computation.
 
 % -----------------------------------------------------------------------------
 \section{Numerical Solution Methods and Practical Cautions}
@@ -904,7 +904,7 @@ until convergence or maximum iterations
 
 \subsection{Direct Optimization and Collocation}
 
-Instead of deriving adjoint equations, one can discretize the state and control and solve a nonlinear programming problem. This is often easier to implement for complex models, bounds, and hybrid constraints. However, it may scale poorly and can still converge to local optima. For impulse times, direct search or mixed-integer formulations may be used for small problems.
+Instead of deriving adjoint equations, one can discretize the state and control and solve a nonlinear programming problem. This is often easier to implement for complex models, bounds, and continuous--impulsive constraints. However, it may scale poorly and can still converge to local optima. For impulse times, direct search or mixed-integer formulations may be used for small problems.
 
 \subsection{Why HJB is Difficult in Network Models}
 
@@ -916,7 +916,7 @@ Feedback optimal control and feedback differential games are theoretically attra
   \item Always compare a computed control/game strategy against no control, constant control, random control, greedy control, and simple degree/centrality-based allocation.
   \item Check sensitivity to $\beta$, $\delta$, cost weights, horizon $T$, and initial infection.
   \item For games, test unilateral deviations to see whether the computed pair behaves like a Nash equilibrium numerically.
-  \item For hybrid policies, separate the value of continuous effort from the value of impulses by running ablation experiments.
+  \item For continuous--impulsive policies, separate the value of continuous effort from the value of impulses by running ablation experiments.
   \item Report convergence curves or final residuals for forward-backward sweep when possible.
 \end{itemize}
 
@@ -945,7 +945,7 @@ In this public repository, the commands in this section assume that you first mo
 \textbf{File} & \textbf{Purpose} \\
 \midrule
 \path{code/simple_degree_k_control.py} & Minimal degree-$k$ optimal-control script. It loads a graph, computes $N_k$, $P(k)$, and $\langle k\rangle$, solves one degree-$k$ PMP problem, and saves diagnostic figures. \\
-\path{code/network_control_examples.py} & Main tutorial script containing degree-$k$ optimal control, degree-$k$ attacker-defender game, node-level optimal control, node-level game, hybrid/impulse simulation, graph loading, adjacency conversion, and plotting. \\
+\path{code/network_control_examples.py} & Main tutorial script containing degree-$k$ optimal control, degree-$k$ attacker-defender game, node-level optimal control, node-level game, continuous-impulse simulation, graph loading, adjacency conversion, and plotting. \\
 \path{reference_repository_guide.md} & Explains how the three reference research-code repositories map to the mathematical workflow in this note: graph preprocessing, state dynamics, adjoints, Hamiltonian updates, impulse policies, payoffs, and baselines. \\
 \path{../reference/download_reference_repositories.sh} & Optional helper script that downloads the three reference GitHub repositories into \path{../reference/reference_repositories_upstream/}. \\
 \bottomrule
@@ -990,7 +990,7 @@ U = damping * clip(candidate_U, 0.0, u_max) + (1.0 - damping) * U_old
 
 \subsection{Run the Main Examples}
 
-The main tutorial script extends the same workflow to games, node-level models, and hybrid/impulse simulations.  The command-line interface makes it possible to run all examples or only one group.
+The main tutorial script extends the same workflow to games, node-level models, and continuous-impulse simulations.  The command-line interface makes it possible to run all examples or only one group.
 
 \begin{lstlisting}[language=bash,caption={Run the main tutorial examples.},numbers=none]
 python code/network_control_examples.py
@@ -1027,8 +1027,8 @@ The three reference repositories correspond to the author's co-authored cyber/ne
 \toprule
 \textbf{Repository} & \textbf{Representative files/functions} & \textbf{Interpretation in this note} \\
 \midrule
-OpinionMalware (IEEE TIFS 2025) & Repository \path{OpinionMalware_TIFS_2025_Code}; \path{network.py}, \path{opinionMalware.py}; network construction, normalization, coupled forward malware/opinion dynamics, backward adjoints, impulse strategy search, payoff. & Node-level coupled dynamics with impulses. The hybrid simulation in the tutorial code is a minimal bridge before reading the full malware-opinion model. \\
-PropagandaWar (IEEE TIFS 2024) & Repository \path{PropagandaWar_TIFS_2024_Code}; \path{demo_network.py}, \path{propWar.py}, \path{comparison.py}; graph loading, degree distribution, forward/backward Nash sweep, hybrid strategy update, random-strategy comparison. & Closest to the degree-$k$ differential-game example. The same blocks appear: $P(k)$ preprocessing, state equations, adjoints, bounded strategy updates, and payoff comparison. \\
+OpinionMalware (IEEE TIFS 2025) & Repository \path{OpinionMalware_TIFS_2025_Code}; \path{network.py}, \path{opinionMalware.py}; network construction, normalization, coupled forward malware/opinion dynamics, backward adjoints, impulse strategy search, payoff. & Node-level coupled dynamics with impulses. The continuous-impulse simulation in the tutorial code is a minimal bridge before reading the full malware-opinion model. \\
+PropagandaWar (IEEE TIFS 2024) & Repository \path{PropagandaWar_TIFS_2024_Code}; \path{demo_network.py}, \path{propWar.py}, \path{comparison.py}; graph loading, degree distribution, forward/backward Nash sweep, continuous-plus-impulse strategy update, random-strategy comparison. & Closest to the degree-$k$ differential-game example. The same blocks appear: $P(k)$ preprocessing, state equations, adjoints, bounded strategy updates, and payoff comparison. \\
 Propaganda (IEEE TCSS 2025) & Repository \path{Propaganda_TCSS_2025_Code}; \path{prop_network.py}, \path{prop_propaganda.py}, \path{prop_cntrlComparison.py}, \path{prop_noAwareness.py}; network loading, impulse policy search, profit/payoff, random and no-awareness baselines. & Impulse-control workflow and ablation studies. The tutorial function \path{simulate_continuous_impulse} gives the basic state-jump structure before the full paper-specific implementation. \\
 \bottomrule
 \end{tabularx}
@@ -1040,7 +1040,7 @@ The reference code can be downloaded with:
 bash ../reference/download_reference_repositories.sh
 \end{lstlisting}
 
-The file \path{reference_repository_guide.md} gives a reading map from the reference repositories to the mathematical ingredients of PMP and impulse/hybrid control.
+The file \path{reference_repository_guide.md} gives a reading map from the reference repositories to the mathematical ingredients of PMP, impulse control, and continuous--impulsive hybrid control.
 
 \subsection{Representative Outputs}
 
@@ -1049,7 +1049,7 @@ The figures below are curated repository assets generated from the tutorial scri
 \begin{figure}[p]
 \centering
 \includegraphics[width=0.92\textwidth]{../assets/foundation_examples_contact_sheet.png}
-\caption{Visual index of the foundation examples, including degree-level control/game, node-level variants, convergence diagnostics, and hybrid impulse behavior.}
+\caption{Visual index of the foundation examples, including degree-level control/game, node-level variants, convergence diagnostics, and continuous-impulse behavior.}
 \label{fig:foundation-contact-sheet}
 \end{figure}
 
@@ -1087,7 +1087,7 @@ HJB & Hamilton-Jacobi-Bellman equation; dynamic programming equation for feedbac
 Nash equilibrium & Strategy profile where no player benefits from unilateral deviation. \\
 Stackelberg equilibrium & Leader-follower equilibrium with sequential decision structure. \\
 Impulse control & Discrete intervention causing instantaneous state jumps. \\
-Hybrid control & Combination of continuous controls and impulses/switches. \\
+Continuous--impulsive hybrid control & Flow controls plus explicit impulse resets. \\
 Degree-level model & Model that groups nodes by degree/type rather than tracking each node. \\
 Node-level model & Model that tracks each node and uses the adjacency matrix. \\
 \bottomrule
@@ -1112,7 +1112,7 @@ Node-level model & Model that tracks each node and uses the adjacency matrix. \\
 \end{enumerate}
 
 \begin{sourcebox}{Source note}
-This English tutorial note was consolidated from two uploaded source tutorial notes: a differential-game tutorial note and an optimal-hybrid-control tutorial note. The source materials cover the origins and classification of differential games, open-loop Nash differential games, Pontryagin-type optimality systems, forward-backward sweep, single-impulse games, hybrid control with state jumps, impulse Hamiltonians, and the nested optimization structure for impulse number, impulse times, and impulse magnitudes. The additional implementation sections translate these models into degree-level and node-level network workflows, including edge-list-to-adjacency conversion for realistic datasets, NetworkX/igraph graph support, ODE helper functions, and degree-distribution preprocessing for degree-$k$ models.
+This English tutorial note was consolidated from two uploaded source tutorial notes: a differential-game tutorial note and an optimal-hybrid-control tutorial note. The source materials cover the origins and classification of differential games, open-loop Nash differential games, Pontryagin-type optimality systems, forward-backward sweep, single-impulse games, continuous--impulsive hybrid control with state jumps, impulse Hamiltonians, and the nested optimization structure for impulse number, impulse times, and impulse magnitudes. The additional implementation sections translate these models into degree-level and node-level network workflows, including edge-list-to-adjacency conversion for realistic datasets, NetworkX/igraph graph support, ODE helper functions, and degree-distribution preprocessing for degree-$k$ models.
 \end{sourcebox}
 
 
@@ -1124,7 +1124,7 @@ The package contains the following runnable code and guide files:
 
 \begin{itemize}
   \item \path{code/simple_degree_k_control.py}: minimal degree-$k$ optimal-control example.
-  \item \path{code/network_control_examples.py}: main tutorial script for degree-level games, node-level models, and hybrid/impulse simulation.
+  \item \path{code/network_control_examples.py}: main tutorial script for degree-level games, node-level models, and continuous-impulse simulation.
   \item \path{README.md}: installation, commands, and usage notes.
   \item \path{reference_repository_guide.md}: mapping between the reference GitHub repositories and the mathematical workflow in this guide.
   \item \path{../reference/download_reference_repositories.sh}: optional script to download the reference repositories.
@@ -1145,6 +1145,6 @@ python code/network_control_examples.py --adjacency-csv sample_data/sample_adjac
 bash ../reference/download_reference_repositories.sh
 \end{lstlisting}
 
-This two-file code structure keeps the tutorial readable: the first script shows the degree-$k$ PMP logic, and the main tutorial script shows how the same logic extends to games, node-level adjacency models, and hybrid/impulsive interventions.
+This two-file code structure keeps the tutorial readable: the first script shows the degree-$k$ PMP logic, and the main tutorial script shows how the same logic extends to games, node-level adjacency models, and continuous-impulsive interventions.
 
 \end{document}

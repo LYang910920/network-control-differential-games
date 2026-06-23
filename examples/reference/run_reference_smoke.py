@@ -534,11 +534,11 @@ def run_propaganda_war() -> dict[str, float]:
         ("impulse", "pulse_intervals_red_blue", f"{pw.pulse_interval_r}/{pw.pulse_interval_b}", "Discrete impulse intervals for red and blue strategies."),
         ("impulse", "red_pulse_indices", ",".join(str(int(i)) for i in red_pulses), "Discrete red impulse event indices."),
         ("impulse", "blue_pulse_indices", ",".join(str(int(i)) for i in blue_pulses), "Discrete blue impulse event indices."),
-        ("baseline", "random_hybrid_strategies", RANDOM_BASELINE_COUNT, "Random unilateral hybrid strategies per player in baseline panels."),
+        ("baseline", "random_continuous_impulse_strategies", RANDOM_BASELINE_COUNT, "Random unilateral continuous-plus-impulse strategies per player in baseline panels."),
     ]:
         record_parameter(repo_name, scope, parameter, value, meaning)
 
-    def evaluate_hybrid_strategies(
+    def evaluate_continuous_impulse_strategies(
         ur: np.ndarray,
         vr: np.ndarray,
         ub: np.ndarray,
@@ -554,8 +554,8 @@ def run_propaganda_war() -> dict[str, float]:
         pw.pb, pw.cb = pw.forwardBlue()
         return float(pw.payoffRed()), float(pw.payoffBlue())
 
-    _, zero_blue_payoff = evaluate_hybrid_strategies(opt_ur, opt_vr, np.zeros(pw.t_interval), np.zeros(pw.t_interval))
-    zero_red_payoff, _ = evaluate_hybrid_strategies(np.zeros(pw.t_interval), np.zeros(pw.t_interval), opt_ub, opt_vb)
+    _, zero_blue_payoff = evaluate_continuous_impulse_strategies(opt_ur, opt_vr, np.zeros(pw.t_interval), np.zeros(pw.t_interval))
+    zero_red_payoff, _ = evaluate_continuous_impulse_strategies(np.zeros(pw.t_interval), np.zeros(pw.t_interval), opt_ub, opt_vb)
     record_baseline_value(
         "PropagandaWar_TIFS_2024_Code",
         "computed blue strategy",
@@ -597,7 +597,7 @@ def run_propaganda_war() -> dict[str, float]:
     for idx in range(RANDOM_BASELINE_COUNT):
         random_ub = smooth_random_controls((pw.t_interval, 1), lower=pw.ub_low, upper=pw.ub_upp, rng=rng).ravel()
         random_vb = random_impulse_series(pw.t_interval, blue_pulses, lower=pw.vb_low, upper=pw.vb_upp, rng=rng)
-        _, random_blue_payoff = evaluate_hybrid_strategies(opt_ur, opt_vr, random_ub, random_vb)
+        _, random_blue_payoff = evaluate_continuous_impulse_strategies(opt_ur, opt_vr, random_ub, random_vb)
         record_baseline_value(
             "PropagandaWar_TIFS_2024_Code",
             "random blue strategy",
@@ -610,7 +610,7 @@ def run_propaganda_war() -> dict[str, float]:
 
         random_ur = smooth_random_controls((pw.t_interval, 1), lower=pw.ur_low, upper=pw.ur_upp, rng=rng).ravel()
         random_vr = random_impulse_series(pw.t_interval, red_pulses, lower=pw.vr_low, upper=pw.vr_upp, rng=rng)
-        random_red_payoff, _ = evaluate_hybrid_strategies(random_ur, random_vr, opt_ub, opt_vb)
+        random_red_payoff, _ = evaluate_continuous_impulse_strategies(random_ur, random_vr, opt_ub, opt_vb)
         record_baseline_value(
             "PropagandaWar_TIFS_2024_Code",
             "random red strategy",
@@ -656,7 +656,7 @@ def run_propaganda_war() -> dict[str, float]:
     fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
     axes[0].plot(np.arange(pw.maxiter + 1), jr, marker="o", linewidth=LINE_WIDTH, label="J red")
     axes[0].plot(np.arange(pw.maxiter + 1), jb, marker="o", linewidth=LINE_WIDTH, label="J blue")
-    apply_clean_axes(axes[0], xlabel="iteration", title="PropagandaWar hybrid differential-game payoff")
+    apply_clean_axes(axes[0], xlabel="iteration", title="PropagandaWar continuous-impulsive game payoff")
     axes[0].legend(frameon=False, fontsize=8)
 
     plot_time_series(axes[1], t, pw.pr @ pw.pkr, "state: red P (degree-weighted mean)", linestyle="-")
@@ -673,7 +673,7 @@ def run_propaganda_war() -> dict[str, float]:
     plot_impulse_events(axes[2], t, pw.vr, "impulse vr(tau)", color="tab:orange", event_indices=red_pulses)
     plot_impulse_events(axes[2], t, pw.vb, "impulse vb(tau)", color="tab:cyan", event_indices=blue_pulses, linestyle="--")
     axes[2].set_ylim(0.0, max(1.15, float(max(np.max(pw.ur), np.max(pw.ub), np.max(pw.vr), np.max(pw.vb))) + 0.12))
-    apply_clean_axes(axes[2], xlabel="time", ylabel="strategy value", title="hybrid control: continuous + impulse strategies")
+    apply_clean_axes(axes[2], xlabel="time", ylabel="strategy value", title="continuous-impulsive: flow + impulse strategies")
     axes[2].legend(frameon=False, ncol=2, fontsize=8)
     fig.tight_layout()
     save_publication_figure(
@@ -682,7 +682,7 @@ def run_propaganda_war() -> dict[str, float]:
         metadata={
             "source": "reference_smoke",
             "model": "PropagandaWar",
-            "control_type": "hybrid continuous plus impulse",
+            "control_type": "continuous-impulsive: continuous plus impulse",
             "state_summary": "degree-weighted means",
         },
     )
@@ -964,7 +964,7 @@ def write_reference_diagnostics() -> None:
             save_game_baseline_plot(
                 war_rows,
                 OUT_DIR / "propaganda_war_baseline_comparison.png",
-                title="PropagandaWar hybrid differential game: unilateral baselines",
+                title="PropagandaWar continuous-impulsive game: unilateral baselines",
                 ylabel="payoff (higher is better)",
             )
 
@@ -1020,16 +1020,16 @@ Each reference figure has three panels:
 | --- | --- | --- |
 | Payoff/profit panel | iteration | Shows the numerical optimization or game-strategy iteration. This is a smoke-level convergence diagnostic: the curve should be finite and should not break or explode. |
 | State panel | time | Shows system state evolution under the computed control/game strategy. Labels state whether trajectories are node means over all nodes or degree-weighted means over degree classes. |
-| Control/strategy panel | time | Continuous controls/strategies are time-indexed sampled curves. Impulse controls/strategies are vertical event lines. Hybrid examples show both. |
+| Control/strategy panel | time | Continuous controls/strategies are time-indexed sampled curves. Impulse controls/strategies are vertical event lines. Continuous-impulsive examples show both. |
 
-Continuous control is a time-indexed strategy sampled on the simulation grid; projected strategies can include flat segments at bounds, but they still enter the ODE between event times. Impulse control acts only at discrete event times and may make the state jump or change direction. Hybrid control combines the two. In the state panels, vertical markers show impulse or pulse times. The PropagandaWar smoke-run parameters are chosen so the continuous strategies `ur(t)` and `ub(t)` vary visibly; the TCSS smoke-run parameters are chosen to make impulse-induced state changes visible in a small local graph.
+Continuous control is a time-indexed strategy sampled on the simulation grid; projected strategies can include flat segments at bounds, but they still enter the ODE between event times. Impulse control acts only at discrete event times and may make the state jump or change direction. Continuous-impulsive hybrid control combines flow controls and explicit impulse events. In the state panels, vertical markers show impulse or pulse times. The PropagandaWar smoke-run parameters are chosen so the continuous strategies `ur(t)` and `ub(t)` vary visibly; the TCSS smoke-run parameters are chosen to make impulse-induced state changes visible in a small local graph.
 
 ## Model classification
 
 | Repository | Modeling level | Control/game type | Main idea |
 | --- | --- | --- | --- |
 | `OpinionMalware_TIFS_2025_Code` | Node-level coupled malware-opinion model | Optimal impulse control | Track malware and opinion states on coupled network layers. |
-| `PropagandaWar_TIFS_2024_Code` | Degree-level red/blue population model | Hybrid/impulsive differential game | Aggregate graph structure into degree distributions, then compute interacting red/blue strategies. |
+| `PropagandaWar_TIFS_2024_Code` | Degree-level red/blue population model | Continuous-impulsive differential game | Aggregate graph structure into degree distributions, then compute interacting red/blue strategies. |
 | `Propaganda_TCSS_2025_Code` | Node-level awareness-aware propagation model | Optimal impulse control | Track awareness-aware propagation states and compute impulse interventions. |
 
 ## Smoke-run parameter guide
@@ -1043,12 +1043,12 @@ The exact values are also exported to `parameter_summary.csv`.
 | File | Model class | Interpretation |
 | --- | --- | --- |
 | `opinion_malware.png` | Node-level optimal impulse control | Left: payoff over forward-backward iterations. Middle: node-mean malware state `c(t)` and opinion state `o(t)` over all nodes; vertical markers show `u1`/`u2` impulse times. Right: `u1` and `u2` are plotted only as discrete impulse magnitudes. |
-| `propaganda_war.png` | Degree-level hybrid/impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-weighted red/blue propaganda state means with pulse markers. Right: `ur`/`ub` are continuous strategies; `vr`/`vb` are discrete impulse strategies. |
+| `propaganda_war.png` | Degree-level continuous-impulsive differential game | Left: red and blue player payoffs over game iterations. Middle: degree-weighted red/blue propaganda state means with pulse markers. Right: `ur`/`ub` are continuous strategies; `vr`/`vb` are discrete impulse strategies. |
 | `propaganda_tcss.png` | Node-level optimal impulse control with awareness | Left: profit over impulse-policy iterations. Middle: node-mean awareness/unawareness/removed states over all nodes with pulse markers; the tuned smoke-run parameters make the pulse effects visually clear. Right: `ca` and `cu` are plotted only as discrete impulse magnitudes. |
 | `reference_repo_contact_sheet.png` | Mixed overview | Compact visual index for the three reference smoke runs and their model-specific baseline comparisons. |
 | `reference_convergence.png` | Iteration diagnostics | Absolute payoff/profit or strategy changes across smoke-run iterations. |
 | `opinion_malware_baseline_comparison.png` | Node-level impulse-control baseline comparison | Computed impulse policy compared with no-impulse and random impulse policies for the same model. |
-| `propaganda_war_baseline_comparison.png` | Degree-level hybrid-game baseline comparison | Two unilateral panels: one fixes the computed red strategy and varies blue; the other fixes the computed blue strategy and varies red. |
+| `propaganda_war_baseline_comparison.png` | Degree-level continuous-impulsive game baseline comparison | Two unilateral panels: one fixes the computed red strategy and varies blue; the other fixes the computed blue strategy and varies red. |
 | `propaganda_tcss_baseline_comparison.png` | Node-level impulse-control baseline comparison | Computed impulse policy compared with no-impulse and random impulse policies for the same model. |
 
 ## CSV outputs

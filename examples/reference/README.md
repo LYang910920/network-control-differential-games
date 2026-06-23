@@ -11,7 +11,7 @@ The three reference repositories correspond to the author's co-authored cyber/ne
 | Repository | Venue | Model class |
 | --- | --- | --- |
 | [`OpinionMalware_TIFS_2025_Code`](reference_repositories/OpinionMalware_TIFS_2025_Code/) | IEEE TIFS 2025 | Node-level malware-opinion optimal impulse control |
-| [`PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/) | IEEE TIFS 2024 | Degree-level hybrid/impulsive differential game |
+| [`PropagandaWar_TIFS_2024_Code`](reference_repositories/PropagandaWar_TIFS_2024_Code/) | IEEE TIFS 2024 | Degree-level continuous-impulsive differential game |
 | [`Propaganda_TCSS_2025_Code`](reference_repositories/Propaganda_TCSS_2025_Code/) | IEEE TCSS 2025 | Node-level awareness-aware optimal impulse control |
 
 For a more explicit classification, see [`MODEL_TAXONOMY.md`](MODEL_TAXONOMY.md).
@@ -94,7 +94,7 @@ python run_reference_smoke.py \
 
 Fresh runs write `smoke_run_report.md`, `smoke_run_summary.csv`, per-model time-series CSVs, and baseline-comparison figures into the selected output directory. The README uses only the curated contact sheet in `docs/assets/`.
 
-Plot convention: continuous controls and game strategies are time-indexed curves sampled on the simulation grid; projected continuous strategies may have flat bound segments but still enter the ODE between event times. Impulse controls act only at discrete event times and are drawn as vertical lines; hybrid control combines both. State labels indicate whether each trajectory is a node mean over all nodes or a degree-weighted mean over degree classes. For concrete values such as `T`, `h`, rate parameters, impulse intervals, event indices, and bounds, start with the generated `parameter_summary.csv`.
+Plot convention: continuous controls and game strategies are time-indexed curves sampled on the simulation grid; projected continuous strategies may have flat bound segments but still enter the ODE between event times. Impulse controls act only at discrete event times and are drawn as vertical lines; continuous-impulsive hybrid control combines both. State labels indicate whether each trajectory is a node mean over all nodes or a degree-weighted mean over degree classes. For concrete values such as `T`, `h`, rate parameters, impulse intervals, event indices, and bounds, start with the generated `parameter_summary.csv`.
 
 ## What each smoke run does
 
@@ -114,7 +114,7 @@ patches/opinion_malware_numpy_networkx_compat.patch
 
 ### PropagandaWar_TIFS_2024_Code
 
-- Classification: degree-level red/blue population model with a hybrid/impulsive differential game.
+- Classification: degree-level red/blue population model with a continuous-impulsive differential game.
 - The paper datasets are not redistributed in the upstream repository.
 - The smoke run generates small synthetic graphs, converts them into empirical degree distributions, and runs the degree-level red/blue propaganda-war game.
 - This verifies the forward equations, backward adjoint equations, strategy updates, and payoff reporting.

@@ -96,11 +96,11 @@
 \maketitle
 
 \begin{abstract}
-This document explains how to run and modify two Python teaching scripts for network optimal control, differential games, and hybrid or impulsive interventions. It covers how to read realistic network data, compute an empirical degree distribution, convert a network into the adjacency matrix required by node-level models, implement degree-class and node-level dynamics, and modify the state equation, Jacobian, objective functional, Hamiltonian update rule, and impulse jump structure for other models. The numerical solvers are based on Pontryagin's maximum principle (PMP) and the forward-backward sweep method. In the game examples, the computed controls should be interpreted as open-loop Nash candidates satisfying necessary optimality conditions, not as automatically guaranteed global optima. For research use, they should be checked against no-control, constant-control, random-control, and unilateral-deviation baselines.
+This document explains how to run and modify two Python teaching scripts for network optimal control, differential games, impulse interventions, and continuous-impulsive interventions. It covers how to read realistic network data, compute an empirical degree distribution, convert a network into the adjacency matrix required by node-level models, implement degree-class and node-level dynamics, and modify the state equation, Jacobian, objective functional, Hamiltonian update rule, and impulse jump structure for other models. The numerical solvers are based on Pontryagin's maximum principle (PMP) and the forward-backward sweep method. In the game examples, the computed controls should be interpreted as open-loop Nash candidates satisfying necessary optimality conditions, not as automatically guaranteed global optima. For research use, they should be checked against no-control, constant-control, random-control, and unilateral-deviation baselines.
 \end{abstract}
 
 \paragraph{Author note.}
-This guide was created from my research experience in optimal control, differential games, hybrid/impulsive control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
+This guide was created from my research experience in optimal control, differential games, impulse and continuous--impulsive hybrid control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
 
 \tableofcontents
 \newpage
@@ -117,7 +117,7 @@ code/network_control_examples.py
 
 \code{simple_degree_k_control.py} is the recommended starting point. It implements one complete degree-class optimal-control example. It loads a network, computes the empirical degree distribution, builds a degree-\(k\) SIS-type control model, solves the PMP system by a forward-backward sweep, and writes figures and CSV summaries.
 
-\code{network_control_examples.py} is a compact extension script. It keeps the code in one readable file, but adds a degree-level attacker-defender differential game, node-level adjacency-matrix control and game models, a hybrid/impulsive simulation template, and additional input formats for realistic network data.
+\code{network_control_examples.py} is a compact extension script. It keeps the code in one readable file, but adds a degree-level attacker-defender differential game, node-level adjacency-matrix control and game models, a continuous-impulse simulation template, and additional input formats for realistic network data.
 
 The intended reading order is:
 
@@ -507,7 +507,7 @@ Degree-level optimal control
 Degree-level differential game
 Node-level optimal control
 Node-level differential game
-Hybrid / impulse simulation
+Continuous-impulse simulation
 Plotting
 Command-line workflow
 \end{lstlisting}
@@ -683,9 +683,9 @@ A typical node-level game equation is
 \]
 It is the node-level analogue of the degree game. The state variable is indexed by node \(i\), while the degree-level game is indexed by degree class \(k\).
 
-\subsection{Hybrid and impulse simulation}
+\subsection{Continuous-Impulse and impulse simulation}
 
-The hybrid example is a simulation template rather than a full optimal impulse solver. It illustrates the structure:
+The continuous-impulse example is a simulation template rather than a full optimal impulse solver. It illustrates the structure:
 
 \begin{lstlisting}[style=text]
 continuous segment: solve dx/dt = f(x,u)
@@ -698,7 +698,7 @@ For example, the script uses a simple impulse rule on a set of controlled nodes:
   x_i(\tau^+)=(1-\rho)x_i(\tau^-),
   \qquad i\in\mathcal{C}.
 \]
-This corresponds to the hybrid jump form
+This corresponds to the continuous-impulse jump form
 \[
   x(t^+)=x(t)+g(x(t),v(t)).
 \]
@@ -718,7 +718,7 @@ Level & When to use it \\
 \midrule
 Degree-level & Large networks, heterogeneous degree distributions, mean-field approximations \\
 Node-level & Small or medium networks where exact adjacency structure and node identity matter \\
-Hybrid/impulse & Models combining continuous dynamics with instantaneous interventions \\
+Continuous-impulse/impulse & Models combining continuous dynamics with instantaneous interventions \\
 \bottomrule
 \end{tabularx}
 \end{center}
@@ -913,7 +913,7 @@ The adjoint vector must have the same dimension as the full state vector, and th
 
 \subsection{Impulse intensity as a decision variable}
 
-The hybrid example currently simulates impulses at fixed times. To make impulse intensity optimal, add a search over admissible intensities. A minimal template is:
+The continuous-impulse example currently simulates impulses at fixed times. To make impulse intensity optimal, add a search over admissible intensities. A minimal template is:
 
 \begin{lstlisting}[style=py]
 def apply_impulse(x, controlled, z):
@@ -1095,7 +1095,7 @@ Repository & Main idea and file structure \\
 \midrule
 {\small\path{OpinionMalware_TIFS_2025_Code}} & IEEE TIFS 2025. Coupled malware-opinion dynamics with optimal impulse control. The repository contains \code{network.py} for multiplex-network construction and normalization, and \code{opinionMalware.py} for forward dynamics, backward adjoint equations, impulse-intensity search, and payoff computation. \\
 \addlinespace
-{\small\path{PropagandaWar_TIFS_2024_Code}} & IEEE TIFS 2024. Degree-based hybrid-control differential game between two propaganda campaigns. The repository contains \code{demo_network.py} for graph loading and degree distribution, \code{propWar.py} for forward-backward Nash strategy computation, and \code{comparison.py} for random-strategy Nash checks. \\
+{\small\path{PropagandaWar_TIFS_2024_Code}} & IEEE TIFS 2024. Degree-based continuous-impulsive differential game between two propaganda campaigns. The repository contains \code{demo_network.py} for graph loading and degree distribution, \code{propWar.py} for forward-backward Nash strategy computation, and \code{comparison.py} for random-strategy Nash checks. \\
 \addlinespace
 {\small\path{Propaganda_TCSS_2025_Code}} & IEEE TCSS 2025. Optimal impulse control for suppressing cyber propaganda with awareness. The repository contains \code{prop_network.py} for network loading, \code{prop_propaganda.py} for forward/backward/policy iteration, \code{prop_cntrlComparison.py} for random impulse comparisons, and \code{prop_noAwareness.py} for an ablation baseline. \\
 \bottomrule
@@ -1124,7 +1124,7 @@ A robust workflow is:
   \item Add the objective or payoff calculation.
   \item Run the forward-backward sweep with a short time horizon.
   \item Add no-control and random-control baselines.
-  \item Only after the degree-level version works, move to node-level or hybrid/impulse extensions.
+  \item Only after the degree-level version works, move to node-level, impulse, or continuous-impulse extensions.
 \end{enumerate}
 
 This order reduces debugging difficulty. It separates network-data issues, ODE issues, PMP issues, and game-theoretic validation issues.
@@ -1207,7 +1207,7 @@ bash ../reference/download_reference_repositories.sh
 Differential games tutorial note provided by the user. The note introduces deterministic nonzero-sum open-loop Nash differential games, Hamiltonian functions, PMP necessary conditions, forward-backward sweep, and impulse differential games.
 
 \bibitem{hybridguide}
-Optimal hybrid control tutorial note provided by the user. The note introduces optimal control, hybrid/impulsive control, jump dynamics, impulse Hamiltonians, and the three-layer structure of impulse-time and impulse-intensity optimization.
+Optimal hybrid control tutorial note provided by the user. The note introduces optimal control, impulse and continuous--impulsive hybrid control, jump dynamics, impulse Hamiltonians, and the three-layer structure of impulse-time and impulse-intensity optimization.
 
 \bibitem{opinionmalware}
 X. Cheng et al. \emph{OpinionMalware\_TIFS\_2025\_Code}. GitHub repository.\newline

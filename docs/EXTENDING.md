@@ -21,8 +21,8 @@ Then open `examples/foundations/code/model_profiles.py`. It collects the time ho
 | Type | Meaning | First code hook | Figure/readout to check |
 |---|---|---|---|
 | Continuous control | control can vary along the time grid and changes ODE rates | `simple_degree_k_control.py`, `network_control_examples.py` | continuous control curves over time |
-| Impulse control | action occurs only at selected event times and creates a state jump | `ContinuousImpulseProfile.impulse_times`, hybrid simulation block | vertical impulse markers and pre/post state change |
-| Hybrid control | continuous flow control plus discrete impulse interventions | `CONTINUOUS_IMPULSE_PROFILE`, hybrid plotting block | separated continuous curve and impulse markers |
+| Impulse control | action occurs only at selected event times and creates a state jump | `ContinuousImpulseProfile.impulse_times`, continuous-impulse simulation block | vertical impulse markers and pre/post state change |
+| Continuous-impulsive hybrid control | continuous flow control plus discrete impulse interventions | `CONTINUOUS_IMPULSE_PROFILE`, continuous-impulse plotting block | separated continuous curve and impulse markers |
 | Continuous differential game | attacker and defender strategies evolve on the time grid | degree/node game functions | two strategy curves plus unilateral baseline comparisons |
 
 ## Model-Level Choices
@@ -42,7 +42,7 @@ Then open `examples/foundations/code/model_profiles.py`. It collects the time ho
 | New state variables | `TimeSeries`, degree/node state arrays | labels showing degree class, node, or aggregate average |
 | New propagation model | RHS functions inside `network_control_examples.py` | nonnegative states and visible parameter summary |
 | New payoff/objective | cost and reward terms near the FBS/game update | separate state cost, control cost, attack reward, and terminal terms |
-| New impulses | `ContinuousImpulseProfile` and hybrid simulation block | event times, jump magnitudes, and pre/post-jump diagnostics |
+| New impulses | `ContinuousImpulseProfile` and continuous-impulse simulation block | event times, jump magnitudes, and pre/post-jump diagnostics |
 | Larger random baselines | `src/cybercontrol/baseline_diagnostics.py` | same model compared only with its own baselines |
 | Paper-level repository | `examples/reference/MODEL_TAXONOMY.md` | upstream citation, license, and model classification |
 
@@ -52,9 +52,9 @@ Use the three reference repositories as paper-level examples, not as hidden blac
 
 | Reference code | Tutorial bridge | Adaptation question |
 |---|---|---|
-| `PropagandaWar_TIFS_2024_Code` | degree-level continuous game plus hybrid/impulse examples | How does degree-level control/game logic change when the model has impulsive interventions? |
+| `PropagandaWar_TIFS_2024_Code` | degree-level continuous game plus continuous-impulsive examples | How does degree-level control/game logic change when the model has impulsive interventions? |
 | `OpinionMalware_TIFS_2025_Code` | network loading, node/degree aggregation, smoke-run diagnostics | How do opinion/malware states and graph pressure map onto the tutorial state convention? |
-| `Propaganda_TCSS_2025_Code` | node-level control and hybrid impulse examples | Which state is node-specific, which output is averaged, and where do impulses enter? |
+| `Propaganda_TCSS_2025_Code` | node-level control and impulse examples | Which state is node-specific, which output is averaged, and where do impulses enter? |
 
 ## Research-Grade Checklist
 
