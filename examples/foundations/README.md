@@ -98,7 +98,7 @@ python code/network_control_examples.py --examples node --output-dir ../../artif
 Only hybrid impulse simulation:
 
 ```bash
-python code/network_control_examples.py --examples hybrid --output-dir ../../artifacts/foundation_runs/hybrid_only
+python code/network_control_examples.py --examples continuous-impulse --output-dir ../../artifacts/foundation_runs/continuous_impulse_only
 ```
 
 ## Run paired degree/node scalability analysis

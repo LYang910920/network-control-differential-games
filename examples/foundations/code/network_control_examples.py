@@ -7,7 +7,7 @@ Single-file extension examples for network optimal control and differential game
 This main tutorial script can be read after the simple degree-k example.
 It keeps the research-code-style examples in ONE Python file rather than many
 modules: graph loading, degree distribution, ODE helpers, degree-k models,
-node-level models, hybrid/impulse simulation, plotting, and CLI options.
+node-level models, continuous-impulse simulation, plotting, and CLI options.
 
 It uses standard packages and the shared package for the heavy lifting:
     networkx / pandas   realistic network datasets and adjacency conversion
@@ -94,8 +94,8 @@ try:
     from .model_profiles import (
         DEGREE_CONTROL_PROFILE,
         DEGREE_GAME_PROFILE,
-        HYBRID_PROFILE,
-        HybridImpulseProfile,
+        CONTINUOUS_IMPULSE_PROFILE,
+        ContinuousImpulseProfile,
         NODE_CONTROL_PROFILE,
         NODE_GAME_PROFILE,
     )
@@ -103,8 +103,8 @@ except ImportError:
     from model_profiles import (
         DEGREE_CONTROL_PROFILE,
         DEGREE_GAME_PROFILE,
-        HYBRID_PROFILE,
-        HybridImpulseProfile,
+        CONTINUOUS_IMPULSE_PROFILE,
+        ContinuousImpulseProfile,
         NODE_CONTROL_PROFILE,
         NODE_GAME_PROFILE,
     )
@@ -763,15 +763,15 @@ def solve_node_game(
 
 
 # ---------------------------------------------------------------------------
-# Hybrid / impulsive simulation on the network
+# Continuous-impulse simulation on the network
 # ---------------------------------------------------------------------------
 
 
-def simulate_hybrid_impulse(A: np.ndarray, profile: HybridImpulseProfile = HYBRID_PROFILE) -> TimeSeries:
+def simulate_continuous_impulse(A: np.ndarray, profile: ContinuousImpulseProfile = CONTINUOUS_IMPULSE_PROFILE) -> TimeSeries:
     """Time-varying continuous node control plus state jumps on high-degree nodes.
 
-    This is a transparent simulation template for hybrid dynamics.  It does not
-    solve the full hybrid PMP; it shows how to combine solve_ivp segments with
+    This is a transparent simulation template for continuous-impulse dynamics.
+    It does not solve the full impulse PMP; it shows how to combine solve_ivp segments with
     impulse maps x(tau+) = G(x(tau-), z_tau).
     """
     T = profile.horizon
@@ -1191,7 +1191,7 @@ def plot_node_game(result: TimeSeries, out_dir: Path) -> None:
     savefig(out_dir / "node_game_trajectory")
 
 
-def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
+def plot_continuous_impulse(result: TimeSeries, out_dir: Path) -> None:
     impulse_times = result.controls["impulse_times"]
     impulse_heights = result.controls["impulse_heights"]
     continuous_control = result.controls["continuous_control"]
@@ -1208,7 +1208,7 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
     apply_clean_axes(
         ax_state,
         ylabel="state",
-        title=f"Hybrid control: continuous + impulse on {controlled_count} high-degree nodes",
+        title=f"Continuous-impulse control on {controlled_count} high-degree nodes",
     )
     ax_state.legend(frameon=False, ncol=2, fontsize=8)
 
@@ -1232,14 +1232,14 @@ def plot_hybrid(result: TimeSeries, out_dir: Path) -> None:
     fig.tight_layout()
     save_publication_figure(
         fig,
-        out_dir / "hybrid_impulse_trajectory.png",
+        out_dir / "continuous_impulse_trajectory.png",
         metadata={
-            "model": "hybrid impulse example",
+            "model": "continuous-impulse example",
             "control_type": "continuous plus impulse control",
         },
     )
     plt.close(fig)
-    print(f"saved {out_dir / 'hybrid_impulse_trajectory.png'}")
+    print(f"saved {out_dir / 'continuous_impulse_trajectory.png'}")
 
 
 # ---------------------------------------------------------------------------
@@ -1319,12 +1319,12 @@ def write_parameter_summary(out_dir: Path, args: argparse.Namespace, D: DegreeDa
     for name in ("susceptibility", "infectivity", "recovery", "attack_reward", "defense_loss", "attack_cost", "defense_cost", "attack_bound", "defense_bound"):
         add_array(NODE_GAME_PROFILE.label, f"resolved_{name}_by_node", getattr(node_game_params, name), "Node-specific heterogeneous array used by the node-level game solve and baseline comparison.")
 
-    add("hybrid continuous + impulse simulation", "horizon", HYBRID_PROFILE.horizon, "Total simulated time.")
-    add("hybrid continuous + impulse simulation", "beta", HYBRID_PROFILE.beta, "Node-level infection/contact rate between impulse events.")
-    add("hybrid continuous + impulse simulation", "delta", HYBRID_PROFILE.delta, "Natural recovery/removal rate between impulse events.")
-    add("hybrid continuous + impulse simulation", "continuous_control_range", f"{HYBRID_PROFILE.continuous_lower}-{HYBRID_PROFILE.continuous_upper}", "Bounds for the time-varying continuous control level.")
-    add("hybrid continuous + impulse simulation", "impulse_times", ", ".join(str(tau) for tau in HYBRID_PROFILE.impulse_times), "Discrete event times where the state is jumped.")
-    add("hybrid continuous + impulse simulation", "impulse_fraction", HYBRID_PROFILE.impulse_fraction, "Fraction by which controlled high-degree node states are reduced at each impulse.")
+    add("continuous-impulse simulation", "horizon", CONTINUOUS_IMPULSE_PROFILE.horizon, "Total simulated time.")
+    add("continuous-impulse simulation", "beta", CONTINUOUS_IMPULSE_PROFILE.beta, "Node-level infection/contact rate between impulse events.")
+    add("continuous-impulse simulation", "delta", CONTINUOUS_IMPULSE_PROFILE.delta, "Natural recovery/removal rate between impulse events.")
+    add("continuous-impulse simulation", "continuous_control_range", f"{CONTINUOUS_IMPULSE_PROFILE.continuous_lower}-{CONTINUOUS_IMPULSE_PROFILE.continuous_upper}", "Bounds for the time-varying continuous control level.")
+    add("continuous-impulse simulation", "impulse_times", ", ".join(str(tau) for tau in CONTINUOUS_IMPULSE_PROFILE.impulse_times), "Discrete event times where the state is jumped.")
+    add("continuous-impulse simulation", "impulse_fraction", CONTINUOUS_IMPULSE_PROFILE.impulse_fraction, "Fraction by which controlled high-degree node states are reduced at each impulse.")
     add("baselines", "random_smooth_controls", RANDOM_BASELINE_COUNT, "Random continuous controls/strategies used in each baseline comparison.")
 
     pd.DataFrame(rows).to_csv(out_dir / "parameter_summary.csv", index=False)
@@ -1343,7 +1343,7 @@ def run(args: argparse.Namespace) -> None:
         "degree_game.png",
         "node_control.png",
         "node_game.png",
-        "hybrid_impulse.png",
+        "continuous_impulse.png",
         "baseline_comparison.png",
     ):
         legacy_path = out_dir / legacy_name
@@ -1374,8 +1374,8 @@ def run(args: argparse.Namespace) -> None:
         plot_node_control(results["node_control"], out_dir)
         plot_node_game(results["node_game"], out_dir)
 
-    if args.examples in {"all", "hybrid"}:
-        plot_hybrid(simulate_hybrid_impulse(net.A), out_dir)
+    if args.examples in {"all", "continuous-impulse"}:
+        plot_continuous_impulse(simulate_continuous_impulse(net.A), out_dir)
 
     save_fbs_convergence(results, out_dir)
     save_baseline_comparison(results, D, net.A, out_dir)
@@ -1399,7 +1399,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-nodes", type=int, default=8, help="Keep top weighted-degree nodes; use 0 to keep all.")
     p.add_argument("--normalize", choices=["none", "max-degree", "row", "spectral"], default="max-degree")
     p.add_argument("--degree-mode", choices=["in", "out", "total", "undirected"], default="undirected")
-    p.add_argument("--examples", choices=["all", "degree", "node", "hybrid"], default="all")
+    p.add_argument("--examples", choices=["all", "degree", "node", "continuous-impulse"], default="all")
     p.add_argument("--steps", type=int, default=45, help="Time grid size for degree-level examples.")
     p.add_argument("--demo-nodes", type=int, default=14)
     p.add_argument("--demo-m", type=int, default=2)

@@ -1,4 +1,4 @@
-"""Shared malware, propagation, and hybrid-control model components."""
+"""Shared malware, propagation, sampled-flow, and impulse model components."""
 
 from __future__ import annotations
 
@@ -36,8 +36,14 @@ def controlled_sir_rhs(x: Array, u_patch: float, u_clean: float, p: MalwareParam
 
 
 @dataclass
-class HybridParams:
-    """Parameters for sampled SIR malware dynamics with interval deception."""
+class SampledSIRParams:
+    """Parameters for sampled-data SIR flow with interval action effects.
+
+    The state is ``x=[S,I,R]``.  Actions are decoded outside this function and
+    held constant over one decision interval.  Deception is an action-dependent
+    reduction of the effective infection rate during that interval; it is not a
+    fourth state variable.
+    """
 
     beta0: float = 0.65
     gamma: float = 0.05
@@ -45,11 +51,12 @@ class HybridParams:
     chi: float = 0.70
 
 
-def hybrid_rhs(x: Array, dpar: Dict[str, float], apar: Dict[str, float], p: HybridParams) -> Array:
-    """Continuous flow for a sampled-data SIR malware model.
+def sampled_sir_flow_rhs(x: Array, dpar: Dict[str, float], apar: Dict[str, float], p: SampledSIRParams) -> Array:
+    """Continuous flow for a sampled-data SIR malware model under ZOH.
 
     The discrete action has already been decoded into rates.  Instantaneous
-    jumps, such as isolation, should be applied before calling this RHS.
+    jumps, such as isolation, are applied before calling this RHS and are not
+    hidden inside the flow.
     Deception is an action effect over the current interval:
     ``beta_eff = beta_attack * max(0, 1 - chi * deceive)``.
     """

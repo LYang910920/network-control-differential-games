@@ -61,8 +61,8 @@ class ContinuousGameProfile:
 
 
 @dataclass(frozen=True)
-class HybridImpulseProfile:
-    """Main knobs for the transparent hybrid continuous-plus-impulse example."""
+class ContinuousImpulseProfile:
+    """Main knobs for the transparent continuous-impulse example."""
 
     horizon: float = 12.0
     beta: float = 0.95
@@ -121,7 +121,7 @@ NODE_GAME_PROFILE = ContinuousGameProfile(
     defense_max=1.2,
     label="node-level continuous differential game",
 )
-HYBRID_PROFILE = HybridImpulseProfile()
+CONTINUOUS_IMPULSE_PROFILE = ContinuousImpulseProfile()
 
 
 def describe_profiles() -> list[dict[str, str]]:
@@ -168,12 +168,12 @@ def describe_profiles() -> list[dict[str, str]]:
             "notes": f"attack cost={NODE_GAME_PROFILE.cost_attack}, defense cost={NODE_GAME_PROFILE.cost_defense}",
         },
         {
-            "name": "hybrid-impulse",
-            "type": "hybrid: continuous plus impulse control",
-            "horizon": str(HYBRID_PROFILE.horizon),
-            "rates": f"beta={HYBRID_PROFILE.beta}, delta={HYBRID_PROFILE.delta}",
-            "bounds": f"continuous in [{HYBRID_PROFILE.continuous_lower}, {HYBRID_PROFILE.continuous_upper}]",
-            "notes": f"impulses at {HYBRID_PROFILE.impulse_times}, fraction={HYBRID_PROFILE.impulse_fraction}",
+            "name": "continuous-impulse",
+            "type": "continuous-impulsive: flow control plus impulse reset",
+            "horizon": str(CONTINUOUS_IMPULSE_PROFILE.horizon),
+            "rates": f"beta={CONTINUOUS_IMPULSE_PROFILE.beta}, delta={CONTINUOUS_IMPULSE_PROFILE.delta}",
+            "bounds": f"continuous in [{CONTINUOUS_IMPULSE_PROFILE.continuous_lower}, {CONTINUOUS_IMPULSE_PROFILE.continuous_upper}]",
+            "notes": f"impulses at {CONTINUOUS_IMPULSE_PROFILE.impulse_times}, fraction={CONTINUOUS_IMPULSE_PROFILE.impulse_fraction}",
         },
     ]
 

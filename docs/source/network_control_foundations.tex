@@ -529,7 +529,7 @@ A typical impulse objective is
 In minimization form, $G$ can be an intervention cost. In maximization form, $G$ can be the immediate benefit minus impulse cost.
 
 \begin{definitionbox}{Continuous versus impulse action}
-A continuous action is a function over a time interval and modifies the rate of change. An impulse action is an event action and modifies the state itself. In network security, continuous defense may be monitoring or patching; an impulse may be forced password reset, emergency cleanup, public warning, or manual shutdown of compromised accounts.
+A continuous-time control signal is a function over a time interval and modifies the rate of change. An impulse action is an event action and modifies the state itself. In network security, continuous defense may be monitoring or patching; an impulse may be forced password reset, emergency cleanup, public warning, or manual shutdown of compromised accounts.
 \end{definitionbox}
 
 \subsection{Hybrid Control}
@@ -554,7 +554,7 @@ A hybrid differential game appears when at least one player uses continuous cont
 
 \begin{table}[h!]
 \centering
-\caption{Continuous, impulse, and hybrid action types.}
+\caption{Continuous-time flow control, impulse/reset control, and continuous--impulsive combinations.}
 \begin{tabularx}{\textwidth}{L{2.6cm}Y L{3.2cm}Y}
 \toprule
 \textbf{Action type} & \textbf{Effect on state} & \textbf{Decision variables} & \textbf{Typical method} \\
@@ -752,7 +752,7 @@ For a fixed $N$ and fixed impulse schedule, the hybrid PMP is close to a continu
 \begin{equation}
   \max_N\ \max_{0<t_1<\cdots<t_N<T}\ \max_{u(\cdot),v_1,\dots,v_N}\ J(u,v_1,\dots,v_N,t_1,\dots,t_N,N).
 \end{equation}
-This explains why many network propagation studies use restricted impulse schedules, candidate-time search, greedy target selection, or learning-based hybrid action spaces. These approaches do not replace the PMP; they make the PMP-inspired problem computationally tractable.
+This explains why many network propagation studies use restricted impulse schedules, candidate-time search, greedy target selection, or learning-based parameterized action spaces. These approaches do not replace the PMP; they make the PMP-inspired problem computationally tractable.
 
 \subsection{Impulse and Hybrid Differential Games}
 
@@ -996,7 +996,7 @@ The main tutorial script extends the same workflow to games, node-level models, 
 python code/network_control_examples.py
 python code/network_control_examples.py --examples degree
 python code/network_control_examples.py --examples node
-python code/network_control_examples.py --examples hybrid
+python code/network_control_examples.py --examples continuous-impulse
 \end{lstlisting}
 
 For realistic network data, the script accepts edge lists, adjacency matrices, and common graph formats:
@@ -1029,7 +1029,7 @@ The three reference repositories correspond to the author's co-authored cyber/ne
 \midrule
 OpinionMalware (IEEE TIFS 2025) & Repository \path{OpinionMalware_TIFS_2025_Code}; \path{network.py}, \path{opinionMalware.py}; network construction, normalization, coupled forward malware/opinion dynamics, backward adjoints, impulse strategy search, payoff. & Node-level coupled dynamics with impulses. The hybrid simulation in the tutorial code is a minimal bridge before reading the full malware-opinion model. \\
 PropagandaWar (IEEE TIFS 2024) & Repository \path{PropagandaWar_TIFS_2024_Code}; \path{demo_network.py}, \path{propWar.py}, \path{comparison.py}; graph loading, degree distribution, forward/backward Nash sweep, hybrid strategy update, random-strategy comparison. & Closest to the degree-$k$ differential-game example. The same blocks appear: $P(k)$ preprocessing, state equations, adjoints, bounded strategy updates, and payoff comparison. \\
-Propaganda (IEEE TCSS 2025) & Repository \path{Propaganda_TCSS_2025_Code}; \path{prop_network.py}, \path{prop_propaganda.py}, \path{prop_cntrlComparison.py}, \path{prop_noAwareness.py}; network loading, impulse policy search, profit/payoff, random and no-awareness baselines. & Impulse-control workflow and ablation studies. The tutorial function \path{simulate_hybrid_impulse} gives the basic state-jump structure before the full paper-specific implementation. \\
+Propaganda (IEEE TCSS 2025) & Repository \path{Propaganda_TCSS_2025_Code}; \path{prop_network.py}, \path{prop_propaganda.py}, \path{prop_cntrlComparison.py}, \path{prop_noAwareness.py}; network loading, impulse policy search, profit/payoff, random and no-awareness baselines. & Impulse-control workflow and ablation studies. The tutorial function \path{simulate_continuous_impulse} gives the basic state-jump structure before the full paper-specific implementation. \\
 \bottomrule
 \end{tabularx}
 \end{table}

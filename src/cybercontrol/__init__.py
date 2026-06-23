@@ -4,7 +4,7 @@ The package keeps reusable mechanics in one place while each repository keeps
 its own tutorial scripts and narrative.  Public modules stay small:
 
 - :mod:`cybercontrol.numerics` for projections and ODE integration.
-- :mod:`cybercontrol.models` for malware/hybrid dynamics and jump maps.
+- :mod:`cybercontrol.models` for malware, sampled-flow dynamics, and jump maps.
 - :mod:`cybercontrol.heterogeneity` for scalar-or-array parameter profiles.
 - :mod:`cybercontrol.network_models` for node-level SIPS graph models.
 - :mod:`cybercontrol.torch_utils` for optional PyTorch helper blocks.
@@ -26,11 +26,11 @@ from .numerics import (
     trapezoid_integral,
 )
 from .models import (
-    HybridParams,
     MalwareParams,
+    SampledSIRParams,
     controlled_sir_rhs,
-    hybrid_rhs,
     isolation_jump,
+    sampled_sir_flow_rhs,
 )
 from .network_models import (
     NodeSIPSParams,
@@ -104,11 +104,11 @@ from .diagnostics import (
 )
 
 __all__ = [
-    "HybridParams",
     "MalwareParams",
+    "SampledSIRParams",
     "controlled_sir_rhs",
-    "hybrid_rhs",
     "isolation_jump",
+    "sampled_sir_flow_rhs",
     "NodeSIPSParams",
     "contiguous_community_index",
     "DegreeSISParams",
