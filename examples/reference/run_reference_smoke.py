@@ -896,15 +896,15 @@ def make_contact_sheet() -> None:
         ("TCSS baseline", OUT_DIR / "propaganda_tcss_baseline_comparison.png"),
     ]
     require_outputs([path for _, path in images])
-    fig, axes = plt.subplots(3, 2, figsize=(14.0, 10.8))
+    fig, axes = plt.subplots(3, 2, figsize=(14.2, 11.4))
     flat_axes = axes.ravel()
     for ax, (title, path) in zip(flat_axes, images):
         ax.imshow(plt.imread(path))
-        panel_label(ax, title, x=0.0, y=1.01)
+        ax.set_title(title, loc="left", fontsize=10, fontweight="bold", pad=8)
         ax.axis("off")
     for ax in flat_axes[len(images):]:
         ax.axis("off")
-    fig.tight_layout()
+    fig.tight_layout(pad=1.0, h_pad=1.4, w_pad=0.8)
     save_guide_figure(
         fig,
         OUT_DIR / "reference_repo_contact_sheet",

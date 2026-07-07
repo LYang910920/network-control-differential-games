@@ -25,7 +25,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from cybercontrol.io import require_outputs
-from cybercontrol.plotting import panel_label, save_guide_figure
+from cybercontrol.plotting import save_guide_figure
 
 
 def run(cmd: list[str], env: dict[str, str]) -> None:
@@ -36,18 +36,18 @@ def run(cmd: list[str], env: dict[str, str]) -> None:
 def make_contact_sheet(items: list[tuple[str, Path]], out_path: Path, cols: int = 3) -> None:
     require_outputs([path for _, path in items])
     rows = (len(items) + cols - 1) // cols
-    fig, axes = plt.subplots(rows, cols, figsize=(4.8 * cols, 3.5 * rows))
+    fig, axes = plt.subplots(rows, cols, figsize=(5.1 * cols, 3.8 * rows))
     flat_axes = axes.ravel() if hasattr(axes, "ravel") else [axes]
 
     for ax, (title, path) in zip(flat_axes, items):
         ax.imshow(plt.imread(path))
-        panel_label(ax, title, x=0.0, y=0.98)
+        ax.set_title(title, loc="left", fontsize=10, fontweight="bold", pad=8)
         ax.axis("off")
 
     for ax in flat_axes[len(items):]:
         ax.axis("off")
 
-    fig.tight_layout()
+    fig.tight_layout(pad=1.0, h_pad=1.4, w_pad=0.8)
     save_guide_figure(
         fig,
         out_path,
