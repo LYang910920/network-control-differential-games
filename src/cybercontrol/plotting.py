@@ -12,6 +12,8 @@ IEEE_SINGLE_COLUMN_IN = 3.5
 IEEE_DOUBLE_COLUMN_IN = 7.16
 PUBLICATION_DPI = 600
 GUIDE_DPI = 220
+PUBLICATION_PAD_INCHES = 0.03
+GUIDE_PAD_INCHES = 0.22
 
 PUBLICATION_COLORS = (
     "#0072B2",
@@ -203,9 +205,9 @@ def save_publication_figure(
     for fmt in clean_formats:
         out = stem_path.with_suffix(f".{fmt}")
         if fmt == "png":
-            fig.savefig(out, dpi=dpi)
+            fig.savefig(out, dpi=dpi, bbox_inches="tight", pad_inches=PUBLICATION_PAD_INCHES)
         else:
-            fig.savefig(out)
+            fig.savefig(out, bbox_inches="tight", pad_inches=PUBLICATION_PAD_INCHES)
         written.append(out)
     written.append(
         _write_manifest(
@@ -239,9 +241,9 @@ def save_guide_figure(
     for fmt in clean_formats:
         out = stem_path.with_suffix(f".{fmt}")
         if fmt == "png":
-            fig.savefig(out, dpi=dpi)
+            fig.savefig(out, dpi=dpi, bbox_inches="tight", pad_inches=GUIDE_PAD_INCHES)
         else:
-            fig.savefig(out)
+            fig.savefig(out, bbox_inches="tight", pad_inches=GUIDE_PAD_INCHES)
         written.append(out)
     written.append(
         _write_manifest(

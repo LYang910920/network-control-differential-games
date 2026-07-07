@@ -7,6 +7,7 @@ import argparse
 import os
 import subprocess
 import sys
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
@@ -157,7 +158,22 @@ The purpose of these runs is not full paper-scale reproduction. They are small, 
     (out / "README.md").write_text(text)
 
 
-def main() -> None:
+@dataclass(frozen=True)
+class RunPaths:
+    out: Path
+    simple_builtin: Path
+    simple_edges: Path
+    simple_adjacency: Path
+    companion_builtin: Path
+    companion_edges: Path
+    companion_adjacency: Path
+    scalability_dir: Path
+    node_scalability_dir: Path
+    scalability_plot: str
+    node_scalability_plot: str
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run all foundation optimal-control/differential-game examples.")
     parser.add_argument(
         "--output-root",
@@ -188,41 +204,47 @@ def main() -> None:
     parser.add_argument("--node-scalability-repeats", type=int, default=1)
     parser.add_argument("--node-scalability-steps", type=int, default=25)
     parser.add_argument("--node-scalability-iterations", type=int, default=50)
-    args = parser.parse_args()
+    return parser
 
-    out = args.output_root.resolve()
-    out.mkdir(parents=True, exist_ok=True)
 
+def prepare_environment() -> dict[str, str]:
     env = os.environ.copy()
     env.setdefault("MPLCONFIGDIR", str((HERE / ".mplconfig").resolve()))
     env.setdefault("XDG_CACHE_HOME", str((HERE / ".cache").resolve()))
     Path(env["MPLCONFIGDIR"]).mkdir(parents=True, exist_ok=True)
     Path(env["XDG_CACHE_HOME"]).mkdir(parents=True, exist_ok=True)
+    return env
 
-    py = sys.executable
-    simple = HERE / "code" / "simple_degree_k_control.py"
-    examples = HERE / "code" / "network_control_examples.py"
-    scalability = HERE / "code" / "scalability_analysis.py"
 
-    simple_builtin = out / "simple_builtin_sf"
-    simple_edges = out / "simple_sample_edges"
-    simple_adjacency = out / "simple_sample_adjacency"
-    companion_builtin = out / "companion_builtin_sf"
-    companion_edges = out / "companion_sample_edges"
-    companion_adjacency = out / "companion_sample_adjacency"
-    scalability_dir = out / "scalability_degree_node_sf"
-    node_scalability_dir = out / "scalability_node_sf"
+def build_run_paths(args: argparse.Namespace) -> RunPaths:
+    out = args.output_root.resolve()
+    out.mkdir(parents=True, exist_ok=True)
     scalability_sizes = parse_size_values(args.scalability_sizes)
-    scalability_plot = scalability_plot_name("compare", scalability_sizes)
     node_scalability_sizes = parse_size_values(args.node_scalability_sizes)
-    node_scalability_plot = scalability_plot_name("node", node_scalability_sizes)
+    return RunPaths(
+        out=out,
+        simple_builtin=out / "simple_builtin_sf",
+        simple_edges=out / "simple_sample_edges",
+        simple_adjacency=out / "simple_sample_adjacency",
+        companion_builtin=out / "companion_builtin_sf",
+        companion_edges=out / "companion_sample_edges",
+        companion_adjacency=out / "companion_sample_adjacency",
+        scalability_dir=out / "scalability_degree_node_sf",
+        node_scalability_dir=out / "scalability_node_sf",
+        scalability_plot=scalability_plot_name("compare", scalability_sizes),
+        node_scalability_plot=scalability_plot_name("node", node_scalability_sizes),
+    )
 
+
+def clear_legacy_outputs(out: Path) -> None:
     for legacy_name in ("examples_contact_sheet.png", "experiment_index.md", "figure_explanations.md"):
         legacy_path = out / legacy_name
         if legacy_path.exists():
             legacy_path.unlink()
 
-    run([py, str(simple), "--output-dir", str(simple_builtin)], env)
+
+def run_simple_examples(py: str, simple: Path, paths: RunPaths, env: dict[str, str]) -> None:
+    run([py, str(simple), "--output-dir", str(paths.simple_builtin)], env)
     run([
         py, str(simple),
         "--edge-list", str(HERE / "sample_data" / "sample_edges.csv"),
@@ -230,15 +252,23 @@ def main() -> None:
         "--has-header",
         "--source-col", "source",
         "--target-col", "target",
-        "--output-dir", str(simple_edges),
+        "--output-dir", str(paths.simple_edges),
     ], env)
     run([
         py, str(simple),
         "--adjacency-csv", str(HERE / "sample_data" / "sample_adjacency.csv"),
-        "--output-dir", str(simple_adjacency),
+        "--output-dir", str(paths.simple_adjacency),
     ], env)
 
-    run([py, str(examples), "--steps", str(args.steps), "--output-dir", str(companion_builtin)], env)
+
+def run_companion_examples(
+    py: str,
+    examples: Path,
+    paths: RunPaths,
+    args: argparse.Namespace,
+    env: dict[str, str],
+) -> None:
+    run([py, str(examples), "--steps", str(args.steps), "--output-dir", str(paths.companion_builtin)], env)
     run([
         py, str(examples),
         "--edge-list", str(HERE / "sample_data" / "sample_edges.csv"),
@@ -247,15 +277,23 @@ def main() -> None:
         "--source-col", "source",
         "--target-col", "target",
         "--steps", str(args.steps),
-        "--output-dir", str(companion_edges),
+        "--output-dir", str(paths.companion_edges),
     ], env)
     run([
         py, str(examples),
         "--adjacency-csv", str(HERE / "sample_data" / "sample_adjacency.csv"),
         "--steps", str(args.steps),
-        "--output-dir", str(companion_adjacency),
+        "--output-dir", str(paths.companion_adjacency),
     ], env)
 
+
+def run_scalability_examples(
+    py: str,
+    scalability: Path,
+    paths: RunPaths,
+    args: argparse.Namespace,
+    env: dict[str, str],
+) -> None:
     if not args.skip_scalability:
         run([
             py,
@@ -271,7 +309,7 @@ def main() -> None:
             "--iterations",
             str(args.scalability_iterations),
             "--output-dir",
-            str(scalability_dir),
+            str(paths.scalability_dir),
         ], env)
     if args.include_node_scalability:
         run([
@@ -290,123 +328,151 @@ def main() -> None:
             "--iterations",
             str(args.node_scalability_iterations),
             "--output-dir",
-            str(node_scalability_dir),
+            str(paths.node_scalability_dir),
         ], env)
 
-    simple_items = [
-        ("simple | built-in SF | degree", simple_builtin / "degree_distribution.png"),
-        ("simple | built-in SF | trajectory", simple_builtin / "degree_control_trajectory.png"),
-        ("simple | built-in SF | FBS", simple_builtin / "fbs_convergence.png"),
-        ("simple | built-in SF | baseline", simple_builtin / "degree_control_baseline_comparison.png"),
-        ("simple | edge list | degree", simple_edges / "degree_distribution.png"),
-        ("simple | edge list | trajectory", simple_edges / "degree_control_trajectory.png"),
-        ("simple | edge list | FBS", simple_edges / "fbs_convergence.png"),
-        ("simple | edge list | baseline", simple_edges / "degree_control_baseline_comparison.png"),
-        ("simple | adjacency | degree", simple_adjacency / "degree_distribution.png"),
-        ("simple | adjacency | trajectory", simple_adjacency / "degree_control_trajectory.png"),
-        ("simple | adjacency | FBS", simple_adjacency / "fbs_convergence.png"),
-        ("simple | adjacency | baseline", simple_adjacency / "degree_control_baseline_comparison.png"),
-    ]
-    companion_items = [
-        ("main | built-in SF | degree", companion_builtin / "degree_distribution.png"),
-        ("main | built-in SF | degree control", companion_builtin / "degree_control_trajectory.png"),
-        ("main | built-in SF | degree game", companion_builtin / "degree_game_trajectory.png"),
-        ("main | built-in SF | node control", companion_builtin / "node_control_trajectory.png"),
-        ("main | built-in SF | node game", companion_builtin / "node_game_trajectory.png"),
-        ("main | built-in SF | continuous-impulse", companion_builtin / "continuous_impulse_trajectory.png"),
-        ("main | built-in SF | FBS", companion_builtin / "fbs_convergence.png"),
-        ("main | built-in SF | degree ctl baseline", companion_builtin / "degree_control_baseline_comparison.png"),
-        ("main | built-in SF | degree game baseline", companion_builtin / "degree_game_baseline_comparison.png"),
-        ("main | built-in SF | node ctl baseline", companion_builtin / "node_control_baseline_comparison.png"),
-        ("main | built-in SF | node game baseline", companion_builtin / "node_game_baseline_comparison.png"),
-        ("main | edge list | degree", companion_edges / "degree_distribution.png"),
-        ("main | edge list | degree control", companion_edges / "degree_control_trajectory.png"),
-        ("main | edge list | degree game", companion_edges / "degree_game_trajectory.png"),
-        ("main | edge list | node control", companion_edges / "node_control_trajectory.png"),
-        ("main | edge list | node game", companion_edges / "node_game_trajectory.png"),
-        ("main | edge list | FBS", companion_edges / "fbs_convergence.png"),
-        ("main | edge list | degree ctl baseline", companion_edges / "degree_control_baseline_comparison.png"),
-        ("main | edge list | degree game baseline", companion_edges / "degree_game_baseline_comparison.png"),
-        ("main | edge list | node ctl baseline", companion_edges / "node_control_baseline_comparison.png"),
-        ("main | edge list | node game baseline", companion_edges / "node_game_baseline_comparison.png"),
-        ("main | adjacency | degree", companion_adjacency / "degree_distribution.png"),
-        ("main | adjacency | degree control", companion_adjacency / "degree_control_trajectory.png"),
-        ("main | adjacency | degree game", companion_adjacency / "degree_game_trajectory.png"),
-        ("main | adjacency | node control", companion_adjacency / "node_control_trajectory.png"),
-        ("main | adjacency | node game", companion_adjacency / "node_game_trajectory.png"),
-        ("main | adjacency | FBS", companion_adjacency / "fbs_convergence.png"),
-        ("main | adjacency | degree ctl baseline", companion_adjacency / "degree_control_baseline_comparison.png"),
-        ("main | adjacency | degree game baseline", companion_adjacency / "degree_game_baseline_comparison.png"),
-        ("main | adjacency | node ctl baseline", companion_adjacency / "node_control_baseline_comparison.png"),
-        ("main | adjacency | node game baseline", companion_adjacency / "node_game_baseline_comparison.png"),
-    ]
-    companion_preview_items = [
-        ("built-in SF | degree distribution", companion_builtin / "degree_distribution.png"),
-        ("built-in SF | degree control", companion_builtin / "degree_control_trajectory.png"),
-        ("built-in SF | degree game", companion_builtin / "degree_game_trajectory.png"),
-        ("built-in SF | node control", companion_builtin / "node_control_trajectory.png"),
-        ("built-in SF | node game", companion_builtin / "node_game_trajectory.png"),
-        ("built-in SF | continuous-impulse control", companion_builtin / "continuous_impulse_trajectory.png"),
-        ("built-in SF | FBS convergence", companion_builtin / "fbs_convergence.png"),
-        ("built-in SF | game baseline", companion_builtin / "degree_game_baseline_comparison.png"),
+
+def simple_contact_items(paths: RunPaths) -> list[tuple[str, Path]]:
+    return [
+        ("simple | built-in SF | degree", paths.simple_builtin / "degree_distribution.png"),
+        ("simple | built-in SF | trajectory", paths.simple_builtin / "degree_control_trajectory.png"),
+        ("simple | built-in SF | FBS", paths.simple_builtin / "fbs_convergence.png"),
+        ("simple | built-in SF | baseline", paths.simple_builtin / "degree_control_baseline_comparison.png"),
+        ("simple | edge list | degree", paths.simple_edges / "degree_distribution.png"),
+        ("simple | edge list | trajectory", paths.simple_edges / "degree_control_trajectory.png"),
+        ("simple | edge list | FBS", paths.simple_edges / "fbs_convergence.png"),
+        ("simple | edge list | baseline", paths.simple_edges / "degree_control_baseline_comparison.png"),
+        ("simple | adjacency | degree", paths.simple_adjacency / "degree_distribution.png"),
+        ("simple | adjacency | trajectory", paths.simple_adjacency / "degree_control_trajectory.png"),
+        ("simple | adjacency | FBS", paths.simple_adjacency / "fbs_convergence.png"),
+        ("simple | adjacency | baseline", paths.simple_adjacency / "degree_control_baseline_comparison.png"),
     ]
 
-    csv_outputs = [
-        out / name / "degree_distribution.csv"
-        for name in (
-            "simple_builtin_sf",
-            "simple_sample_edges",
-            "simple_sample_adjacency",
-            "companion_builtin_sf",
-            "companion_sample_edges",
-            "companion_sample_adjacency",
-        )
+
+def companion_contact_items(paths: RunPaths) -> list[tuple[str, Path]]:
+    return [
+        ("main | built-in SF | degree", paths.companion_builtin / "degree_distribution.png"),
+        ("main | built-in SF | degree control", paths.companion_builtin / "degree_control_trajectory.png"),
+        ("main | built-in SF | degree game", paths.companion_builtin / "degree_game_trajectory.png"),
+        ("main | built-in SF | node control", paths.companion_builtin / "node_control_trajectory.png"),
+        ("main | built-in SF | node game", paths.companion_builtin / "node_game_trajectory.png"),
+        ("main | built-in SF | continuous-impulse", paths.companion_builtin / "continuous_impulse_trajectory.png"),
+        ("main | built-in SF | FBS", paths.companion_builtin / "fbs_convergence.png"),
+        ("main | built-in SF | degree ctl baseline", paths.companion_builtin / "degree_control_baseline_comparison.png"),
+        ("main | built-in SF | degree game baseline", paths.companion_builtin / "degree_game_baseline_comparison.png"),
+        ("main | built-in SF | node ctl baseline", paths.companion_builtin / "node_control_baseline_comparison.png"),
+        ("main | built-in SF | node game baseline", paths.companion_builtin / "node_game_baseline_comparison.png"),
+        ("main | edge list | degree", paths.companion_edges / "degree_distribution.png"),
+        ("main | edge list | degree control", paths.companion_edges / "degree_control_trajectory.png"),
+        ("main | edge list | degree game", paths.companion_edges / "degree_game_trajectory.png"),
+        ("main | edge list | node control", paths.companion_edges / "node_control_trajectory.png"),
+        ("main | edge list | node game", paths.companion_edges / "node_game_trajectory.png"),
+        ("main | edge list | FBS", paths.companion_edges / "fbs_convergence.png"),
+        ("main | edge list | degree ctl baseline", paths.companion_edges / "degree_control_baseline_comparison.png"),
+        ("main | edge list | degree game baseline", paths.companion_edges / "degree_game_baseline_comparison.png"),
+        ("main | edge list | node ctl baseline", paths.companion_edges / "node_control_baseline_comparison.png"),
+        ("main | edge list | node game baseline", paths.companion_edges / "node_game_baseline_comparison.png"),
+        ("main | adjacency | degree", paths.companion_adjacency / "degree_distribution.png"),
+        ("main | adjacency | degree control", paths.companion_adjacency / "degree_control_trajectory.png"),
+        ("main | adjacency | degree game", paths.companion_adjacency / "degree_game_trajectory.png"),
+        ("main | adjacency | node control", paths.companion_adjacency / "node_control_trajectory.png"),
+        ("main | adjacency | node game", paths.companion_adjacency / "node_game_trajectory.png"),
+        ("main | adjacency | FBS", paths.companion_adjacency / "fbs_convergence.png"),
+        ("main | adjacency | degree ctl baseline", paths.companion_adjacency / "degree_control_baseline_comparison.png"),
+        ("main | adjacency | degree game baseline", paths.companion_adjacency / "degree_game_baseline_comparison.png"),
+        ("main | adjacency | node ctl baseline", paths.companion_adjacency / "node_control_baseline_comparison.png"),
+        ("main | adjacency | node game baseline", paths.companion_adjacency / "node_game_baseline_comparison.png"),
     ]
-    csv_outputs.extend(
+
+
+def companion_preview_items(paths: RunPaths) -> list[tuple[str, Path]]:
+    return [
+        ("built-in SF | degree distribution", paths.companion_builtin / "degree_distribution.png"),
+        ("built-in SF | degree control", paths.companion_builtin / "degree_control_trajectory.png"),
+        ("built-in SF | degree game", paths.companion_builtin / "degree_game_trajectory.png"),
+        ("built-in SF | node control", paths.companion_builtin / "node_control_trajectory.png"),
+        ("built-in SF | node game", paths.companion_builtin / "node_game_trajectory.png"),
+        ("built-in SF | continuous-impulse control", paths.companion_builtin / "continuous_impulse_trajectory.png"),
+        ("built-in SF | FBS convergence", paths.companion_builtin / "fbs_convergence.png"),
+        ("built-in SF | game baseline", paths.companion_builtin / "degree_game_baseline_comparison.png"),
+    ]
+
+
+def csv_outputs(out: Path) -> list[Path]:
+    run_dirs = (
+        "simple_builtin_sf",
+        "simple_sample_edges",
+        "simple_sample_adjacency",
+        "companion_builtin_sf",
+        "companion_sample_edges",
+        "companion_sample_adjacency",
+    )
+    outputs = [out / name / "degree_distribution.csv" for name in run_dirs]
+    outputs.extend(
         out / name / file_name
-        for name in (
-            "simple_builtin_sf",
-            "simple_sample_edges",
-            "simple_sample_adjacency",
-            "companion_builtin_sf",
-            "companion_sample_edges",
-            "companion_sample_adjacency",
-        )
+        for name in run_dirs
         for file_name in ("fbs_convergence.csv", "baseline_summary.csv", "parameter_summary.csv")
     )
-    scalability_outputs = []
-    if not args.skip_scalability:
-        scalability_outputs = [
-            scalability_dir / "paired_fbs_comparison.csv",
-            scalability_dir / "paired_fbs_comparison_summary.csv",
-            scalability_dir / scalability_plot,
-            scalability_dir / "scalability_summary.md",
-        ]
-    if args.include_node_scalability:
-        scalability_outputs.extend([
-            node_scalability_dir / "node_control_scalability.csv",
-            node_scalability_dir / "node_control_scalability_summary.csv",
-            node_scalability_dir / node_scalability_plot,
-            node_scalability_dir / "scalability_summary.md",
-        ])
-    require_outputs([path for _, path in simple_items + companion_items] + csv_outputs + scalability_outputs)
+    return outputs
 
-    make_contact_sheet(simple_items, out / "simple_contact_sheet.png")
-    make_contact_sheet(companion_preview_items, out / "companion_contact_sheet.png", cols=4)
+
+def scalability_outputs(paths: RunPaths, args: argparse.Namespace) -> list[Path]:
+    outputs = []
+    if not args.skip_scalability:
+        outputs.extend([
+            paths.scalability_dir / "paired_fbs_comparison.csv",
+            paths.scalability_dir / "paired_fbs_comparison_summary.csv",
+            paths.scalability_dir / paths.scalability_plot,
+            paths.scalability_dir / "scalability_summary.md",
+        ])
+    if args.include_node_scalability:
+        outputs.extend([
+            paths.node_scalability_dir / "node_control_scalability.csv",
+            paths.node_scalability_dir / "node_control_scalability_summary.csv",
+            paths.node_scalability_dir / paths.node_scalability_plot,
+            paths.node_scalability_dir / "scalability_summary.md",
+        ])
+    return outputs
+
+
+def main() -> None:
+    args = build_parser().parse_args()
+    env = prepare_environment()
+    paths = build_run_paths(args)
+    py = sys.executable
+    simple = HERE / "code" / "simple_degree_k_control.py"
+    examples = HERE / "code" / "network_control_examples.py"
+    scalability = HERE / "code" / "scalability_analysis.py"
+
+    clear_legacy_outputs(paths.out)
+    run_simple_examples(py, simple, paths, env)
+    run_companion_examples(py, examples, paths, args, env)
+    run_scalability_examples(py, scalability, paths, args, env)
+
+    simple_items = simple_contact_items(paths)
+    companion_items = companion_contact_items(paths)
+    required_outputs = [
+        path
+        for _, path in simple_items + companion_items
+    ] + csv_outputs(paths.out) + scalability_outputs(paths, args)
+    require_outputs(required_outputs)
+
+    make_contact_sheet(simple_items, paths.out / "simple_contact_sheet.png")
+    make_contact_sheet(companion_preview_items(paths), paths.out / "companion_contact_sheet.png", cols=4)
     write_results_readme(
-        out,
+        paths.out,
         include_scalability=not args.skip_scalability,
-        scalability_plot=scalability_plot if not args.skip_scalability else None,
+        scalability_plot=paths.scalability_plot if not args.skip_scalability else None,
         include_node_scalability=args.include_node_scalability,
-        node_scalability_plot=node_scalability_plot if args.include_node_scalability else None,
+        node_scalability_plot=paths.node_scalability_plot if args.include_node_scalability else None,
     )
     require_outputs([
-        out / "simple_contact_sheet.png",
-        out / "companion_contact_sheet.png",
-        out / "README.md",
+        paths.out / "simple_contact_sheet.png",
+        paths.out / "companion_contact_sheet.png",
+        paths.out / "README.md",
     ])
 
-    print(f"\nDone. Outputs written to: {out}")
+    print(f"\nDone. Outputs written to: {paths.out}")
 
 
 if __name__ == "__main__":
