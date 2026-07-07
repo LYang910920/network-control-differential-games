@@ -1117,8 +1117,12 @@ def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> Non
     )
     for j in sorted(set([0, len(D.k) // 2, len(D.k) - 1])):
         plot_time_series(ax, result.t, result.x[:, j], f"state: degree k={int(D.k[j])}", linestyle="--", linewidth=1.5)
-    apply_clean_axes(ax, xlabel="time", ylabel="state / control",
-                     title=f"Degree-k continuous optimal control, cost={result.value['cost']:.2f}")
+    apply_clean_axes(
+        ax,
+        xlabel="time",
+        ylabel="infection share / control intensity",
+        title=f"Degree-k continuous optimal control (population-weighted means), cost={result.value['cost']:.2f}",
+    )
     ax.legend(frameon=False, fontsize=8)
     savefig(out_dir / "degree_control_trajectory")
 
@@ -1143,8 +1147,12 @@ def plot_degree_game(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
     )
     high = int(np.argmax(D.k))
     plot_time_series(ax, result.t, result.x[:, high], f"state: high degree k={int(D.k[high])}", linestyle=":", linewidth=1.8)
-    apply_clean_axes(ax, xlabel="time", ylabel="state / control",
-                     title=f"Degree-k continuous differential game, JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
+    apply_clean_axes(
+        ax,
+        xlabel="time",
+        ylabel="infection share / strategy intensity",
+        title=f"Degree-k continuous game (population-weighted means), JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}",
+    )
     ax.legend(frameon=False, fontsize=8)
     savefig(out_dir / "degree_game_trajectory")
 
@@ -1161,8 +1169,12 @@ def plot_node_control(result: TimeSeries, out_dir: Path) -> None:
         "continuous control: node mean",
         linestyle="-.",
     )
-    apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
-                     title=f"Node-level continuous optimal control, cost={result.value['cost']:.2f}")
+    apply_clean_axes(
+        ax,
+        xlabel="time",
+        ylabel="infection share / control intensity",
+        title=f"Node-level continuous optimal control (node aggregates), cost={result.value['cost']:.2f}",
+    )
     ax.legend(frameon=False, fontsize=8)
     savefig(out_dir / "node_control_trajectory")
 
@@ -1185,8 +1197,12 @@ def plot_node_game(result: TimeSeries, out_dir: Path) -> None:
         "continuous defense strategy: node mean",
         linestyle="-.",
     )
-    apply_clean_axes(ax, xlabel="time", ylabel="aggregate value",
-                     title=f"Node-level continuous differential game, JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}")
+    apply_clean_axes(
+        ax,
+        xlabel="time",
+        ylabel="infection share / strategy intensity",
+        title=f"Node-level continuous game (node aggregates), JA={result.value['JA']:.2f}, JD={result.value['JD']:.2f}",
+    )
     ax.legend(frameon=False, fontsize=8)
     savefig(out_dir / "node_game_trajectory")
 
@@ -1207,7 +1223,7 @@ def plot_continuous_impulse(result: TimeSeries, out_dir: Path) -> None:
     mark_event_times(ax_state, impulse_times, label="impulse time")
     apply_clean_axes(
         ax_state,
-        ylabel="state",
+        ylabel="infection share",
         title=f"Continuous-impulse control on {controlled_count} high-degree nodes",
     )
     ax_state.legend(frameon=False, ncol=2, fontsize=8)
@@ -1225,7 +1241,7 @@ def plot_continuous_impulse(result: TimeSeries, out_dir: Path) -> None:
     apply_clean_axes(
         ax_control,
         xlabel="time",
-        ylabel="control",
+        ylabel="control intensity / impulse fraction",
         title=f"continuous range={continuous_min:.2f}-{continuous_max:.2f}; impulse fraction={impulse_fraction:.2f}",
     )
     ax_control.legend(frameon=False, ncol=2, fontsize=8)

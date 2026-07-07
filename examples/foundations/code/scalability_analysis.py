@@ -844,7 +844,7 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
         )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_ylabel("FBS seconds")
+    ax.set_ylabel("FBS solve time (seconds)")
     panel_label(ax, "(a) runtime")
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
@@ -1066,7 +1066,7 @@ This run compares two FBS discretizations of the same normalized SIS epidemic-co
 
 At {largest_node} nodes:
 
-| Model level | Solver label | FBS state dimension | FBS iterations | Median FBS seconds | All runs converged |
+| Model level | Solver label | FBS state dimension | FBS iterations | Median FBS solve time (seconds) | All runs converged |
 | --- | --- | ---: | ---: | ---: | --- |
 {rows}
 

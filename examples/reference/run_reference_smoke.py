@@ -394,13 +394,23 @@ def run_opinion_malware() -> dict[str, float]:
 
     fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
     axes[0].plot(np.arange(maxiter + 1), J, marker="o", linewidth=LINE_WIDTH)
-    apply_clean_axes(axes[0], xlabel="iteration", ylabel="J", title="OpinionMalware impulse-control payoff")
+    apply_clean_axes(
+        axes[0],
+        xlabel="iteration",
+        ylabel="objective value J",
+        title="OpinionMalware impulse-control objective",
+    )
 
     plot_time_series(axes[1], t, om.c.mean(axis=1), "state: mean malware c (all nodes)", linestyle="-")
     plot_time_series(axes[1], t, om.o.mean(axis=1), "state: mean opinion o (all nodes)", linestyle="--")
     mark_event_times(axes[1], t, imp_a, color="tab:red", label="u1 impulse time")
     mark_event_times(axes[1], t, imp_b, color="tab:green", label="u2 impulse time")
-    apply_clean_axes(axes[1], xlabel="time", title="node-level mean states (all nodes)")
+    apply_clean_axes(
+        axes[1],
+        xlabel="time",
+        ylabel="mean state share",
+        title="node-level mean states (all nodes)",
+    )
     axes[1].legend(frameon=False, fontsize=8)
 
     plot_impulse_events(axes[2], t, om.u1, "impulse control u1 (discrete)", color="tab:red", event_indices=imp_a)
@@ -656,7 +666,12 @@ def run_propaganda_war() -> dict[str, float]:
     fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
     axes[0].plot(np.arange(pw.maxiter + 1), jr, marker="o", linewidth=LINE_WIDTH, label="J red")
     axes[0].plot(np.arange(pw.maxiter + 1), jb, marker="o", linewidth=LINE_WIDTH, label="J blue")
-    apply_clean_axes(axes[0], xlabel="iteration", title="PropagandaWar continuous-impulsive game payoff")
+    apply_clean_axes(
+        axes[0],
+        xlabel="iteration",
+        ylabel="payoff value J",
+        title="PropagandaWar continuous-impulsive game payoff",
+    )
     axes[0].legend(frameon=False, fontsize=8)
 
     plot_time_series(axes[1], t, pw.pr @ pw.pkr, "state: red P (degree-weighted mean)", linestyle="-")
@@ -665,7 +680,12 @@ def run_propaganda_war() -> dict[str, float]:
     plot_time_series(axes[1], t, pw.cb @ pw.pkb, "state: blue C (degree-weighted mean)", linestyle=":")
     mark_event_times(axes[1], t, red_pulses, color="tab:red", label="red pulse")
     mark_event_times(axes[1], t, blue_pulses, color="tab:blue", label="blue pulse")
-    apply_clean_axes(axes[1], xlabel="time", title="degree-level states (degree-weighted means)")
+    apply_clean_axes(
+        axes[1],
+        xlabel="time",
+        ylabel="degree-weighted state share",
+        title="degree-level states (degree-weighted means)",
+    )
     axes[1].legend(frameon=False, ncol=1, fontsize=7, loc="center left")
 
     plot_time_series(axes[2], t, pw.ur, "continuous strategy ur(t)", color="tab:red", linestyle="-")
@@ -673,7 +693,12 @@ def run_propaganda_war() -> dict[str, float]:
     plot_impulse_events(axes[2], t, pw.vr, "impulse vr(tau)", color="tab:orange", event_indices=red_pulses)
     plot_impulse_events(axes[2], t, pw.vb, "impulse vb(tau)", color="tab:cyan", event_indices=blue_pulses, linestyle="--")
     axes[2].set_ylim(0.0, max(1.15, float(max(np.max(pw.ur), np.max(pw.ub), np.max(pw.vr), np.max(pw.vb))) + 0.12))
-    apply_clean_axes(axes[2], xlabel="time", ylabel="strategy value", title="continuous-impulsive: flow + impulse strategies")
+    apply_clean_axes(
+        axes[2],
+        xlabel="time",
+        ylabel="flow / impulse strategy value",
+        title="continuous-impulsive: flow + impulse strategies",
+    )
     axes[2].legend(frameon=False, ncol=2, fontsize=8)
     fig.tight_layout()
     save_publication_figure(
@@ -838,13 +863,23 @@ def run_propaganda_tcss() -> dict[str, float]:
 
     fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_REFERENCE)
     axes[0].plot(np.arange(maxiter + 1), J, marker="o", linewidth=LINE_WIDTH)
-    apply_clean_axes(axes[0], xlabel="iteration", ylabel="J", title="TCSS optimal impulse-control profit")
+    apply_clean_axes(
+        axes[0],
+        xlabel="iteration",
+        ylabel="profit value J",
+        title="TCSS optimal impulse-control profit",
+    )
 
     plot_time_series(axes[1], t, sa.mean(axis=1), "state: mean Sa over all nodes", linestyle="-")
     plot_time_series(axes[1], t, su.mean(axis=1), "state: mean Su over all nodes", linestyle="--")
     plot_time_series(axes[1], t, r.mean(axis=1), "state: mean R over all nodes", linestyle="-.")
     mark_event_times(axes[1], t, pulse_events, color="0.35", label="pulse time")
-    apply_clean_axes(axes[1], xlabel="time", title="node-level mean states (all nodes)")
+    apply_clean_axes(
+        axes[1],
+        xlabel="time",
+        ylabel="mean state share",
+        title="node-level mean states (all nodes)",
+    )
     axes[1].legend(frameon=False, fontsize=8)
 
     plot_impulse_events(
