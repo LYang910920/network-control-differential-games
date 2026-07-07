@@ -17,15 +17,19 @@
 \usepackage{caption}
 \usepackage{float}
 \usepackage{tikz}
+\usepackage[most]{tcolorbox}
 \usetikzlibrary{positioning}
 \usepackage{fancyhdr}
 \usepackage{microtype}
 
+\definecolor{TutorialBlue}{HTML}{1F4E79}
+\definecolor{SoftBlue}{HTML}{EAF3F8}
+
 \hypersetup{
   colorlinks=true,
-  linkcolor=blue!55!black,
-  urlcolor=blue!55!black,
-  citecolor=blue!55!black,
+  linkcolor=TutorialBlue,
+  urlcolor=TutorialBlue,
+  citecolor=TutorialBlue,
   pdftitle={Network Optimal Control and Differential Games: Code Walkthrough and Model Adaptation Guide},
   pdfauthor={Lu-Xing Yang}
 }
@@ -41,9 +45,9 @@
 \setlist[enumerate]{topsep=3pt,itemsep=2pt,parsep=0pt,leftmargin=1.9em}
 \renewcommand{\arraystretch}{1.22}
 
-\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codebg}{HTML}{F7F7F9}
 \definecolor{codeframe}{RGB}{220,220,220}
-\definecolor{keywordblue}{RGB}{20,80,150}
+\definecolor{keywordblue}{HTML}{1F4E79}
 \definecolor{commentgreen}{RGB}{35,120,60}
 \definecolor{stringred}{RGB}{150,40,40}
 
@@ -87,13 +91,39 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Proj}{\operatorname{Proj}}
 
-\title{\bfseries Network Optimal Control and Differential Games\\[2mm]
+\title{\bfseries Network Control Tutorial Family: Foundation\\[1mm]
+\large Network Optimal Control and Differential Games\\[2mm]
 \large Code Walkthrough and Model Adaptation Guide}
 \author{Lu-Xing Yang}
 \date{\today}
 
 \begin{document}
-\maketitle
+
+\begin{titlepage}
+\centering
+\vspace*{1.25cm}
+{\sffamily\bfseries\Large\color{TutorialBlue} Network Control Tutorial Family: Foundation\par}
+\vspace{0.35cm}
+{\sffamily\bfseries\Huge\color{TutorialBlue} Foundation Code Walkthrough\par}
+\vspace{0.35cm}
+{\sffamily\Large Network Optimal Control and Differential Games\par}
+\vspace{0.6cm}
+{\large Lu-Xing Yang\par}
+\vspace{0.55cm}
+{\large Created from my research experience in optimal control, differential games, impulse and continuous--impulsive hybrid control, and cyber/network-security applications\par}
+\vspace{0.25cm}
+{\large Informed by publications in IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals\par}
+\vspace{0.25cm}
+{\large Part 0 of the Network Control Tutorial Family\par}
+\vfill
+\begin{tcolorbox}[width=0.86\textwidth,colback=SoftBlue,colframe=TutorialBlue]
+\textbf{Purpose.} This guide explains how to run and adapt the foundation Python examples: network loading, degree distributions, node-level adjacency models, PMP/FBSM updates, game diagnostics, and impulse or continuous-impulsive extensions.
+\end{tcolorbox}
+\vfill
+{\large Code Walkthrough and Model Adaptation Guide\par}
+\vspace{0.45cm}
+{\large \today\par}
+\end{titlepage}
 
 \begin{abstract}
 This document explains how to run and modify two Python teaching scripts for network optimal control, differential games, impulse interventions, and continuous-impulsive interventions. It covers how to read realistic network data, compute an empirical degree distribution, convert a network into the adjacency matrix required by node-level models, implement degree-class and node-level dynamics, and modify the state equation, Jacobian, objective functional, Hamiltonian update rule, and impulse jump structure for other models. The numerical solvers are based on Pontryagin's maximum principle (PMP) and the forward-backward sweep method. In the game examples, the computed controls should be interpreted as open-loop Nash candidates satisfying necessary optimality conditions, not as automatically guaranteed global optima. For research use, they should be checked against no-control, constant-control, random-control, and unilateral-deviation baselines.

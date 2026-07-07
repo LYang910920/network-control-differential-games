@@ -1,6 +1,8 @@
-# Network Control and Differential Games
+# Network Control Tutorial Family: Foundation
 
-Foundation tutorial materials, shared Python package, runnable examples, and reference-code smoke tests for network optimal control, differential games, impulse interventions, and continuous-impulsive interventions. The repository introduces the notation, canonical `cybercontrol` package, and small reproducible checks used by the two companion repositories.
+**Network Control and Differential Games**
+
+Foundation tutorial materials, shared Python package, runnable examples, and reference-code smoke tests for network optimal control, differential games, impulse interventions, and continuous-impulsive interventions. This is the first repository in the Network Control Tutorial Family. It introduces the notation, canonical `cybercontrol` package, and small reproducible checks used by the two companion repositories.
 
 This public repository does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See `LICENSE`, `COPYRIGHT_AND_LICENSE.md`, and `THIRD_PARTY_NOTICES.md`.
 
@@ -10,11 +12,13 @@ This tutorial was created from my research experience in optimal control, differ
 
 ## Repository Family
 
-| Order | Repository | Role |
-|---:|---|---|
-| 0 | `network-control-differential-games` | Foundation notation, shared `cybercontrol` package, heterogeneous degree/node equations, continuous-time, impulse, and continuous-impulsive examples, scalability, and reference smoke runs. |
-| 1 | [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | FBSM baselines, sampled-data MDP conversion, DDQN defense, compact CTDE, cooperative node-SIPS MAPPO, and larger node-SIPS attacker-defender benchmarks. |
-| 2 | [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | PINN/PIDL inverse learning, neural control, PMP-informed losses, and graph-state residual examples. |
+| Order | Family name | Current repository | Role |
+|---:|---|---|---|
+| 0 | Foundation: Network Control and Differential Games | `network-control-differential-games` | Shared notation, `cybercontrol`, heterogeneous degree/node equations, continuous-time, impulse, continuous-impulsive examples, scalability, and reference smoke runs. |
+| 1 | Note 1: Cyber Control and Game Learning | [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | FBSM baselines, sampled-data MDP conversion, DDQN defense, compact CTDE, cooperative node-SIPS MAPPO, and larger node-SIPS attacker-defender benchmarks. |
+| 2 | Note 2: Physics-Informed Cyber Control | [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | PINN/PIDL inverse learning, neural control, PMP-informed losses, and graph-state residual examples. |
+
+The GitHub repository slugs are kept stable for existing links. The family names above are the display names used in the PDFs and documentation.
 
 ## 5-Minute Quick Start
 
