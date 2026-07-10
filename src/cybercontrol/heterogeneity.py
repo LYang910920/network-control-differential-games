@@ -142,11 +142,29 @@ class ResolvedDegreeSISParams:
         )
         return [summarize_vector(getattr(self, field), field) for field in fields]
 
-    def matched_mean(self) -> "ResolvedDegreeSISParams":
-        """Return a homogeneous profile with the same arithmetic mean arrays."""
+    def matched_mean(self, weights: Array | None = None) -> "ResolvedDegreeSISParams":
+        """Return constant parameter arrays with matched class-weighted means.
+
+        Pass the empirical class probabilities for a population-matched degree
+        baseline. Omitting ``weights`` retains the arithmetic-mean behavior used
+        by older callers.
+        """
+
+        if weights is None:
+            probability = np.full(self.susceptibility.size, 1.0 / self.susceptibility.size)
+        else:
+            probability = np.asarray(weights, dtype=np.float64).reshape(-1)
+            if probability.shape != self.susceptibility.shape:
+                raise ValueError("weights must match the degree-parameter arrays")
+            if not np.all(np.isfinite(probability)) or np.any(probability < 0.0):
+                raise ValueError("weights must be finite and nonnegative")
+            total = float(probability.sum())
+            if total <= 0.0:
+                raise ValueError("weights must have positive mass")
+            probability = probability / total
 
         data = {
-            field: np.full_like(self.susceptibility, float(np.mean(getattr(self, field))))
+            field: np.full_like(self.susceptibility, float(probability @ getattr(self, field)))
             for field in (
                 "susceptibility",
                 "infectivity",
@@ -207,22 +225,25 @@ def degree_correlated_sis_params(
     z = (degree - degree.mean()) / (degree.std() + 1e-12)
     factor = np.exp(strength * z)
     base = DegreeSISParams() if base is None else base
+
+    def scaled(field: str, power: float) -> Array:
+        values = resolve_vector(getattr(base, field), len(degree), field)
+        return float(np.mean(values)) * np.power(factor, power)
+
     spec = replace(
         base,
-        susceptibility=float(
-            np.mean(resolve_vector(base.susceptibility, len(degree), "susceptibility"))
-        )
-        * factor,
-        infectivity=float(np.mean(resolve_vector(base.infectivity, len(degree), "infectivity")))
-        * np.exp(0.5 * strength * z),
-        recovery=float(np.mean(resolve_vector(base.recovery, len(degree), "recovery")))
-        / np.exp(0.25 * strength * z),
-        state_weight=float(np.mean(resolve_vector(base.state_weight, len(degree), "state_weight")))
-        * factor,
-        control_bound=float(
-            np.mean(resolve_vector(base.control_bound, len(degree), "control_bound"))
-        )
-        / np.sqrt(factor),
+        susceptibility=scaled("susceptibility", 1.0),
+        infectivity=scaled("infectivity", 0.50),
+        recovery=scaled("recovery", -0.25),
+        state_weight=scaled("state_weight", 0.75),
+        control_weight=scaled("control_weight", 0.20),
+        control_bound=scaled("control_bound", -0.15),
+        attack_reward=scaled("attack_reward", 0.70),
+        defense_loss=scaled("defense_loss", 0.70),
+        attack_cost=scaled("attack_cost", 0.20),
+        defense_cost=scaled("defense_cost", 0.20),
+        attack_bound=scaled("attack_bound", 0.15),
+        defense_bound=scaled("defense_bound", 0.15),
         mixing=assortative_degree_mixing(degree, p, strength=min(0.75, abs(strength))),
     )
     return spec.resolve(degree, p)
@@ -452,8 +473,16 @@ def degree_correlated_node_sis_params(
 
     spec = NodeSISParams(
         beta=scalar(base.beta, "beta"),
-        susceptibility=degree_correlated_node_values(adjacency, base=1.0, strength=strength),
-        infectivity=degree_correlated_node_values(adjacency, base=1.0, strength=0.60 * strength),
+        susceptibility=degree_correlated_node_values(
+            adjacency,
+            base=scalar(base.susceptibility, "susceptibility"),
+            strength=strength,
+        ),
+        infectivity=degree_correlated_node_values(
+            adjacency,
+            base=scalar(base.infectivity, "infectivity"),
+            strength=0.60 * strength,
+        ),
         recovery=degree_correlated_node_values(
             adjacency,
             base=scalar(base.recovery, "recovery"),
@@ -463,7 +492,11 @@ def degree_correlated_node_sis_params(
         state_weight=degree_correlated_node_values(
             adjacency, base=scalar(base.state_weight, "state_weight"), strength=0.70 * strength
         ),
-        control_weight=scalar(base.control_weight, "control_weight"),
+        control_weight=degree_correlated_node_values(
+            adjacency,
+            base=scalar(base.control_weight, "control_weight"),
+            strength=0.20 * strength,
+        ),
         control_bound=degree_correlated_node_values(
             adjacency,
             base=scalar(base.control_bound, "control_bound"),
@@ -476,10 +509,18 @@ def degree_correlated_node_sis_params(
         defense_loss=degree_correlated_node_values(
             adjacency, base=scalar(base.defense_loss, "defense_loss"), strength=0.65 * strength
         ),
-        attack_cost=scalar(base.attack_cost, "attack_cost"),
-        defense_cost=scalar(base.defense_cost, "defense_cost"),
-        attack_bound=scalar(base.attack_bound, "attack_bound"),
-        defense_bound=scalar(base.defense_bound, "defense_bound"),
+        attack_cost=degree_correlated_node_values(
+            adjacency, base=scalar(base.attack_cost, "attack_cost"), strength=0.20 * strength
+        ),
+        defense_cost=degree_correlated_node_values(
+            adjacency, base=scalar(base.defense_cost, "defense_cost"), strength=0.20 * strength
+        ),
+        attack_bound=degree_correlated_node_values(
+            adjacency, base=scalar(base.attack_bound, "attack_bound"), strength=0.15 * strength
+        ),
+        defense_bound=degree_correlated_node_values(
+            adjacency, base=scalar(base.defense_bound, "defense_bound"), strength=0.15 * strength
+        ),
     )
     return spec.resolve(nodes)
 
@@ -589,12 +630,18 @@ def community_correlated_node_values(
 def degree_correlated_node_values(
     adjacency, *, base: float, strength: float, inverse: bool = False
 ) -> Array:
-    """Create node values correlated with row degree/weighted degree."""
+    """Create values correlated with topological degree.
 
-    if hasattr(adjacency, "sum"):
-        degree = np.asarray(adjacency.sum(axis=1)).reshape(-1)
+    Counting nonzero neighbours keeps the profile invariant to row, spectral,
+    or max-degree normalization of the same graph.
+    """
+
+    if hasattr(adjacency, "getnnz"):
+        degree = np.asarray(adjacency.getnnz(axis=1), dtype=np.float64).reshape(-1)
     else:
-        degree = np.asarray(adjacency, dtype=np.float64).sum(axis=1)
+        degree = np.count_nonzero(np.asarray(adjacency, dtype=np.float64), axis=1).astype(
+            np.float64
+        )
     z = (degree - degree.mean()) / (degree.std() + 1e-12)
     sign = -1.0 if inverse else 1.0
     return float(base) * np.exp(sign * strength * z)

@@ -40,6 +40,8 @@ docs/source/*.pdf
 simple_outputs/
 example_outputs/
 docs/assets/*.pdf
+!docs/assets/foundation_*.pdf
+!docs/assets/diagrams/*.pdf
 docs/assets/*.figure.json
 
 # Do not commit local full-paper datasets unless their redistribution rights

@@ -41,6 +41,7 @@ class ContinuousControlProfile:
     state_weight: float
     control_weight: float
     control_max: float
+    heterogeneity_strength: float
     label: str
 
 
@@ -57,6 +58,7 @@ class ContinuousGameProfile:
     cost_defense: float
     attack_max: float
     defense_max: float
+    heterogeneity_strength: float
     label: str
 
 
@@ -86,6 +88,7 @@ DEGREE_CONTROL_PROFILE = ContinuousControlProfile(
     state_weight=3.0,
     control_weight=2.5,
     control_max=1.2,
+    heterogeneity_strength=0.28,
     label="degree-k continuous optimal control",
 )
 NODE_CONTROL_PROFILE = ContinuousControlProfile(
@@ -95,6 +98,7 @@ NODE_CONTROL_PROFILE = ContinuousControlProfile(
     state_weight=3.0,
     control_weight=2.2,
     control_max=1.2,
+    heterogeneity_strength=0.28,
     label="node-level continuous optimal control",
 )
 DEGREE_GAME_PROFILE = ContinuousGameProfile(
@@ -107,6 +111,7 @@ DEGREE_GAME_PROFILE = ContinuousGameProfile(
     cost_defense=4.0,
     attack_max=1.2,
     defense_max=1.2,
+    heterogeneity_strength=0.22,
     label="degree-k continuous differential game",
 )
 NODE_GAME_PROFILE = ContinuousGameProfile(
@@ -119,6 +124,7 @@ NODE_GAME_PROFILE = ContinuousGameProfile(
     cost_defense=4.5,
     attack_max=1.2,
     defense_max=1.2,
+    heterogeneity_strength=0.22,
     label="node-level continuous differential game",
 )
 CONTINUOUS_IMPULSE_PROFILE = ContinuousImpulseProfile()

@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FixedLocator, FuncFormatter
@@ -12,6 +13,7 @@ import pandas as pd
 
 from cybercontrol.plotting import panel_label, publication_style, save_publication_figure
 from cybercontrol.scalability import COMPARISON_DEFAULTS
+
 
 def plot_filename(model_level: str, summary: pd.DataFrame) -> str:
     node_min = int(summary["nodes"].min())
@@ -55,7 +57,9 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
     for model_level, group in summary.groupby("model_level", sort=False):
         style = styles[str(model_level)]
         raw_group = raw[raw["model_level"] == model_level]
-        ax.scatter(raw_group["nodes"], raw_group["fbs_seconds"], color=style["color"], alpha=0.25, s=28)
+        ax.scatter(
+            raw_group["nodes"], raw_group["fbs_seconds"], color=style["color"], alpha=0.25, s=28
+        )
         ax.plot(
             group["nodes"],
             group["fbs_seconds_median"],
@@ -154,7 +158,9 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
     return path
 
 
-def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str) -> Path:
+def plot_scalability(
+    summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str
+) -> Path:
     if model_level == "compare":
         return plot_paired_comparison(summary, raw, out_dir)
 
@@ -240,7 +246,9 @@ def plot_scalability(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, mo
     return path
 
 
-def write_report(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str, plot_path: Path) -> None:
+def write_report(
+    summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_level: str, plot_path: Path
+) -> None:
     if model_level == "compare":
         largest_node = int(summary["nodes"].max())
         largest = summary[summary["nodes"] == largest_node].sort_values("model_level")
@@ -268,7 +276,7 @@ def write_report(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path, model_
         params = COMPARISON_DEFAULTS
         text = f"""# Paired Degree-Level vs Node-Level FBS Comparison
 
-This run compares two FBS discretizations of the same normalized SIS epidemic-control problem on the same synthetic Barabasi-Albert scale-free graphs. For each network size and repeat, the degree-level row and node-level row use the exact same graph seed.
+This run compares a heterogeneous-mean-field (HMF) degree approximation with an explicit-adjacency node model on the same synthetic Barabasi-Albert graphs. Both rows use the same scalar rates, objective weights, initial degree rule, time grid and graph seed. They are related resolutions, not algebraically identical propagation equations. The CSV reports `initial_rhs_aggregation_rmse` to quantify their derivative gap at the common initial condition.
 
 ## What Was Measured
 
@@ -306,7 +314,7 @@ At {largest_node} nodes:
 | ---: | ---: | ---: | ---: | ---: |
 {graph_rows}
 
-This is the comparison plot to use when asking whether node-level FBS is more expensive than degree-level FBS. The degree-level row keeps one state/control/costate per observed degree class. The node-level row keeps one state/control/costate per graph node on the same epidemic model and the same graph seed. Sparse matrix products keep the million-node run practical, but the node-indexed FBS state is still much larger.
+This plot compares computational scaling of the degree-HMF approximation and the explicit-adjacency node formulation. The degree row keeps one state/control/costate per observed degree class; the node row keeps one per graph node. Sparse matrix products keep the million-node run practical, but the node-indexed FBS state is still much larger. Runtime differences must be interpreted together with the reported approximation gap.
 """
         (out_dir / "scalability_summary.md").write_text(text)
         return
@@ -341,6 +349,6 @@ This run measures `{model_level}`-level forward-backward sweep (FBS) optimal con
 
 At {int(largest["nodes"])} nodes, the median FBS solve time was {largest["fbs_seconds_median"]:.3f} seconds over {int(largest["repeats"])} repeat(s). All runs at that size converged: {bool(largest["all_runs_converged"])}.
 
-Read runtime columns with the solver type. The default paired comparison uses `--model-level compare` and runs degree-level and sparse node-level FBS on the same SIS epidemic-control problem. Standalone `--model-level degree` and `--model-level node` runs are useful smoke/scaling diagnostics, but their wall-clock times are not the paired degree-vs-node comparison unless the solver, grid, graph seed, and model equations are matched explicitly.
+Read runtime columns with the solver type. The default `--model-level compare` run contrasts degree-HMF and sparse explicit-adjacency FBS with matched rates, objective weights, grid and graph seed. Standalone `degree` and `node` runs are scaling diagnostics and should not be treated as an exact-equation benchmark.
 """
     (out_dir / "scalability_summary.md").write_text(text)

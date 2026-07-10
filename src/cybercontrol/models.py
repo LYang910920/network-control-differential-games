@@ -99,10 +99,18 @@ def controlled_sir_rhs_torch(x, u_patch, beta, gamma, u_clean=0.0, omega=0.0):
     import torch
 
     S, I, R = x[..., 0:1], x[..., 1:2], x[..., 2:3]
-    if not torch.is_tensor(u_clean):
-        u_clean = torch.as_tensor(u_clean, dtype=x.dtype, device=x.device)
-    if not torch.is_tensor(omega):
-        omega = torch.as_tensor(omega, dtype=x.dtype, device=x.device)
+
+    def state_factor(value):
+        factor = torch.as_tensor(value, dtype=x.dtype, device=x.device)
+        if factor.ndim == x.ndim - 1 and factor.shape == x.shape[:-1]:
+            factor = factor.unsqueeze(-1)
+        return factor
+
+    u_patch = state_factor(u_patch)
+    u_clean = state_factor(u_clean)
+    beta = state_factor(beta)
+    gamma = state_factor(gamma)
+    omega = state_factor(omega)
     return torch.cat(
         [
             -beta * S * I - u_patch * S + omega * R,

@@ -74,7 +74,7 @@ def comparison_degree_jacobian(x: np.ndarray, u: np.ndarray, D: DegreeData) -> n
 def comparison_node_rhs(
     x: np.ndarray, u: np.ndarray, A: sp.csr_matrix, degree_scale: float
 ) -> np.ndarray:
-    """Normalized node-level SIS dynamics matched to comparison_degree_rhs."""
+    """Explicit-adjacency SIS dynamics using the degree model's scalar rates."""
     params = COMPARISON_DEFAULTS
     pressure = (A @ x) / max(degree_scale, 1e-12)
     return params["beta"] * (1.0 - x) * pressure - (params["delta"] + u) * x
@@ -200,14 +200,13 @@ def update_comparison_node_control(
     pressure: np.ndarray,
     u: np.ndarray,
 ) -> tuple[np.ndarray, float]:
-    """Backward sweep that updates node controls without storing all costates."""
+    """Return projected node-control candidates and their fixed-point residual."""
     params = COMPARISON_DEFAULTS
-    new_u = np.empty_like(u)
+    candidate_u = np.empty_like(u)
     mu_next = np.zeros(A.shape[0], dtype=np.float64)
 
-    terminal_candidate = np.zeros(A.shape[0], dtype=np.float64)
-    new_u[-1] = params["damping"] * terminal_candidate + (1.0 - params["damping"]) * u[-1]
-    max_delta = float(np.max(np.abs(new_u[-1] - u[-1])))
+    candidate_u[-1] = 0.0
+    max_residual = float(np.max(np.abs(candidate_u[-1] - u[-1])))
 
     for idx in range(len(t) - 2, -1, -1):
         h = -float(t[idx + 1] - t[idx])
@@ -220,33 +219,34 @@ def update_comparison_node_control(
         k3 = comparison_node_adjoint_rhs(mu_next + 0.5 * h * k2, xmid, umid, pmid, A, degree_scale)
         k4 = comparison_node_adjoint_rhs(mu_next + h * k3, x0, u0, p0, A, degree_scale)
         mu_now = mu_next + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
-        candidate = np.clip(mu_now * x0 / params["control_weight"], 0.0, params["control_max"])
-        new_u[idx] = params["damping"] * candidate + (1.0 - params["damping"]) * u0
-        max_delta = max(max_delta, float(np.max(np.abs(new_u[idx] - u0))))
+        candidate_u[idx] = np.clip(
+            mu_now * x0 / params["control_weight"], 0.0, params["control_max"]
+        )
+        max_residual = max(max_residual, float(np.max(np.abs(candidate_u[idx] - u0))))
         mu_next = mu_now
-    return new_u, max_delta
+    return candidate_u, max_residual
 
 
 def run_comparison_degree_fbs(
     D: DegreeData, *, steps: int, iterations: int, tol: float
 ) -> dict[str, float]:
-    """Fixed-grid degree-level FBS for the paired epidemic comparison."""
+    """Fixed-grid degree-HMF FBS for the paired resolution comparison."""
     params = COMPARISON_DEFAULTS
     t = np.linspace(0.0, params["horizon"], steps + 1)
     u = np.zeros((len(t), len(D.k)), dtype=np.float64)
     x0 = comparison_degree_initial_state(D)
     delta_history: list[float] = []
-    for _ in range(iterations):
+    for iteration in range(iterations):
         old_u = u.copy()
         x = integrate_comparison_degree_state(D, t, x0, u)
         lam = integrate_comparison_degree_adjoint(D, t, x, u)
         denom = params["control_weight"] * np.maximum(D.pk, 1e-12)
         candidate = np.clip(lam * x / denom, 0.0, params["control_max"])
-        u = params["damping"] * candidate + (1.0 - params["damping"]) * old_u
-        delta_u = float(np.max(np.abs(u - old_u)))
-        delta_history.append(delta_u)
-        if delta_u < tol:
+        residual = float(np.max(np.abs(candidate - old_u)))
+        delta_history.append(residual)
+        if residual < tol or iteration == iterations - 1:
             break
+        u = params["damping"] * candidate + (1.0 - params["damping"]) * old_u
     x = integrate_comparison_degree_state(D, t, x0, u)
     running = params["state_weight"] * (x @ D.pk) + 0.5 * params["control_weight"] * (
         (u * u) @ D.pk
@@ -272,19 +272,21 @@ def run_comparison_degree_fbs(
 def run_comparison_node_fbs(
     A: sp.csr_matrix, degree: np.ndarray, *, steps: int, iterations: int, tol: float
 ) -> dict[str, float]:
-    """Sparse node-level FBS for the paired epidemic comparison."""
+    """Sparse explicit-adjacency FBS for the paired resolution comparison."""
     params = COMPARISON_DEFAULTS
     degree_scale = max(float(degree.max(initial=1.0)), 1.0)
     t = np.linspace(0.0, params["horizon"], steps + 1)
     u = np.zeros((len(t), A.shape[0]), dtype=np.float64)
     x0 = comparison_node_initial_state(degree)
     delta_history: list[float] = []
-    for _ in range(iterations):
+    for iteration in range(iterations):
+        old_u = u.copy()
         x, pressure = integrate_comparison_node_state(A, degree_scale, t, x0, u)
-        u, delta_u = update_comparison_node_control(A, degree_scale, t, x, pressure, u)
-        delta_history.append(delta_u)
-        if delta_u < tol:
+        candidate, residual = update_comparison_node_control(A, degree_scale, t, x, pressure, old_u)
+        delta_history.append(residual)
+        if residual < tol or iteration == iterations - 1:
             break
+        u = params["damping"] * candidate + (1.0 - params["damping"]) * old_u
     x, _ = integrate_comparison_node_state(A, degree_scale, t, x0, u)
     running = params["state_weight"] * x.mean(axis=1) + 0.5 * params["control_weight"] * np.mean(
         u * u, axis=1
@@ -445,7 +447,7 @@ def run_sparse_node_fbs(
     x0 = sparse_node_initial_state(A)
     delta_history: list[float] = []
 
-    for _ in range(iterations):
+    for iteration in range(iterations):
         old_u = u.copy()
         x, pressure = integrate_sparse_state(
             A, t, x0, u, beta=params["beta"], delta=params["delta"]
@@ -461,11 +463,11 @@ def run_sparse_node_fbs(
             state_weight=params["state_weight"],
         )
         candidate = np.clip(lam * x / params["control_weight"], 0.0, params["control_max"])
-        u = params["damping"] * candidate + (1.0 - params["damping"]) * old_u
-        delta_u = float(np.max(np.abs(u - old_u)))
-        delta_history.append(delta_u)
-        if delta_u < tol:
+        residual = float(np.max(np.abs(candidate - old_u)))
+        delta_history.append(residual)
+        if residual < tol or iteration == iterations - 1:
             break
+        u = params["damping"] * candidate + (1.0 - params["damping"]) * old_u
 
     x, _ = integrate_sparse_state(A, t, x0, u, beta=params["beta"], delta=params["delta"])
     running = params["state_weight"] * x.mean(axis=1) + 0.5 * params["control_weight"] * np.mean(

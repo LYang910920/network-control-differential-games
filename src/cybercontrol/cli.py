@@ -10,7 +10,7 @@ import time
 
 import numpy as np
 
-from .experiments import git_sha, hardware_summary
+from .experiments import run_provenance
 from .fbs import (
     solve_degree_control,
     solve_degree_game,
@@ -42,11 +42,17 @@ def _run(relative_path: str, *arguments: str) -> None:
     subprocess.run([sys.executable, relative_path, *arguments], cwd=root, check=True)
 
 
-def _run_foundation_examples(*, output_dir: Path, steps: int) -> None:
+def _run_foundation_examples(
+    *, output_dir: Path, steps: int, iterations: int, tolerance: float
+) -> None:
     _run(
         "examples/foundations/code/network_control_examples.py",
         "--steps",
         str(steps),
+        "--iterations",
+        str(iterations),
+        "--tolerance",
+        str(tolerance),
         "--output-dir",
         str(output_dir),
     )
@@ -72,10 +78,10 @@ def _package_smoke() -> dict[str, float | int | bool]:
         adjacency[node, (node + 1) % nodes] = 0.5
 
     solvers = {
-        "degree_control": solve_degree_control(degree_data, steps=12, iterations=24, tol=1e-4),
-        "degree_game": solve_degree_game(degree_data, steps=12, iterations=24, tol=1e-4),
-        "node_control": solve_node_control(adjacency, steps=12, iterations=24, tol=1e-4),
-        "node_game": solve_node_game(adjacency, steps=12, iterations=24, tol=1e-4),
+        "degree_control": solve_degree_control(degree_data, steps=12, iterations=32, tol=1e-4),
+        "degree_game": solve_degree_game(degree_data, steps=12, iterations=32, tol=1e-4),
+        "node_control": solve_node_control(adjacency, steps=12, iterations=32, tol=1e-4),
+        "node_game": solve_node_game(adjacency, steps=12, iterations=32, tol=1e-4),
     }
     for name, result in solvers.items():
         if not np.all(np.isfinite(result.x)) or np.min(result.x) < 0.0 or np.max(result.x) > 1.0:
@@ -122,9 +128,8 @@ def _run_package_smoke(output_dir: Path) -> Path:
         output_dir / "run_manifest.json",
         {
             "command": "smoke",
-            "commit_sha": git_sha(ROOT),
             "duration_seconds": time.perf_counter() - started,
-            "hardware": hardware_summary(),
+            **run_provenance(ROOT),
             "metrics": metrics,
         },
     )
@@ -182,6 +187,7 @@ def build_parser() -> argparse.ArgumentParser:
     medium.add_argument("--sizes", default="100,1000,10000")
     medium.add_argument("--steps", type=int, default=32)
     medium.add_argument("--iterations", type=int, default=35)
+    medium.add_argument("--tolerance", type=float, default=1e-4)
     sub.add_parser("figures", help="Regenerate the shared vector guide diagrams.")
     sub.add_parser("docs", help="Build the current foundation tutorial PDF.")
     sub.add_parser("all", help="Run smoke, figures, and docs.")
@@ -196,7 +202,12 @@ def main(argv: list[str] | None = None) -> None:
         _run_package_smoke(args.output_dir)
     elif args.command == "medium":
         started = time.perf_counter()
-        _run_foundation_examples(output_dir=args.output_dir / "models", steps=max(24, args.steps))
+        _run_foundation_examples(
+            output_dir=args.output_dir / "models",
+            steps=max(24, args.steps),
+            iterations=args.iterations,
+            tolerance=args.tolerance,
+        )
         _run_scalability(
             output_dir=args.output_dir / "scalability",
             sizes=args.sizes,
@@ -207,12 +218,20 @@ def main(argv: list[str] | None = None) -> None:
             args.output_dir / "run_manifest.json",
             {
                 "command": "medium",
-                "commit_sha": git_sha(ROOT),
                 "duration_seconds": time.perf_counter() - started,
-                "hardware": hardware_summary(),
+                **run_provenance(ROOT),
                 "sizes": args.sizes,
                 "steps": args.steps,
                 "max_iterations": args.iterations,
+                "stationarity_tolerance": args.tolerance,
+                "model_graph": {
+                    "source": "seeded Barabasi-Albert demonstration graph",
+                    "seed": 7,
+                    "nodes": 14,
+                    "attachment_m": 2,
+                    "node_solver_limit": 8,
+                    "normalization": "max-degree",
+                },
             },
         )
     elif args.command == "figures":

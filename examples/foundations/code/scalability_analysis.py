@@ -22,8 +22,10 @@ from cybercontrol.scalability import (  # noqa: F401 - compatibility exports
     DEFAULT_NODE_SIZES,
     NODE_SCALABILITY_DEFAULTS,
     comparison_degree_jacobian,
+    comparison_degree_initial_state,
     comparison_degree_rhs,
     comparison_node_adjoint_rhs,
+    comparison_node_initial_state,
     comparison_node_rhs,
     integrate_comparison_degree_adjoint,
     integrate_comparison_degree_state,
@@ -57,11 +59,15 @@ except ImportError:
 def parse_sizes(raw: str) -> list[int]:
     sizes = [int(item.strip()) for item in raw.split(",") if item.strip()]
     if not sizes or any(size <= 0 for size in sizes):
-        raise argparse.ArgumentTypeError("sizes must be a comma-separated list of positive integers")
+        raise argparse.ArgumentTypeError(
+            "sizes must be a comma-separated list of positive integers"
+        )
     return sizes
 
 
-def run_degree_trial(graph: ig.Graph, *, steps: int, iterations: int, tol: float) -> dict[str, float]:
+def run_degree_trial(
+    graph: ig.Graph, *, steps: int, iterations: int, tol: float
+) -> dict[str, float]:
     prep_start = time.perf_counter()
     degree_data = degree_distribution_from_igraph(graph)
     prep_seconds = time.perf_counter() - prep_start
@@ -97,10 +103,14 @@ def run_degree_trial(graph: ig.Graph, *, steps: int, iterations: int, tol: float
     }
 
 
-def run_node_trial(graph: ig.Graph, *, steps: int, iterations: int, tol: float, solver: str) -> dict[str, float]:
+def run_node_trial(
+    graph: ig.Graph, *, steps: int, iterations: int, tol: float, solver: str
+) -> dict[str, float]:
     prep_start = time.perf_counter()
     if solver == "dense":
-        A, _ = graph_to_model_matrix(igraph_to_networkx(graph), directed=False, normalize="max-degree")
+        A, _ = graph_to_model_matrix(
+            igraph_to_networkx(graph), directed=False, normalize="max-degree"
+        )
     else:
         A = igraph_to_sparse_model_matrix(graph)
     prep_seconds = time.perf_counter() - prep_start
@@ -154,10 +164,24 @@ def run_paired_comparison_trials(
     iterations: int,
     tol: float,
 ) -> list[dict[str, float | str]]:
-    """Run degree-level and sparse node-level FBS on the same epidemic-control instance."""
+    """Compare a degree-HMF approximation with explicit adjacency on one graph."""
     degree_float = degree.astype(float, copy=False)
     degree_data = degree_distribution_from_degree(degree.astype(int, copy=False))
     A = igraph_to_sparse_adjacency(graph)
+    node_initial = comparison_node_initial_state(degree_float)
+    node_derivative = comparison_node_rhs(
+        node_initial, np.zeros_like(node_initial), A, max(float(degree_float.max(initial=1.0)), 1.0)
+    )
+    degree_initial = comparison_degree_initial_state(degree_data)
+    degree_derivative = comparison_degree_rhs(
+        degree_initial, np.zeros_like(degree_initial), degree_data
+    )
+    aggregated_node_derivative = np.array(
+        [node_derivative[degree_float == degree_class].mean() for degree_class in degree_data.k]
+    )
+    initial_rhs_aggregation_rmse = float(
+        np.sqrt(degree_data.pk @ ((aggregated_node_derivative - degree_derivative) ** 2))
+    )
     shared = {
         "horizon": float(COMPARISON_DEFAULTS["horizon"]),
         "beta": float(COMPARISON_DEFAULTS["beta"]),
@@ -168,12 +192,23 @@ def run_paired_comparison_trials(
         "damping": float(COMPARISON_DEFAULTS["damping"]),
         "mean_degree": float(degree_float.mean()) if len(degree_float) else float("nan"),
         "max_degree": float(degree_float.max(initial=0.0)),
+        "initial_rhs_aggregation_rmse": initial_rhs_aggregation_rmse,
     }
 
     rows: list[dict[str, float | str]] = []
     for model_level, runner in (
-        ("degree", lambda: run_comparison_degree_fbs(degree_data, steps=steps, iterations=iterations, tol=tol)),
-        ("node", lambda: run_comparison_node_fbs(A, degree_float, steps=steps, iterations=iterations, tol=tol)),
+        (
+            "degree",
+            lambda: run_comparison_degree_fbs(
+                degree_data, steps=steps, iterations=iterations, tol=tol
+            ),
+        ),
+        (
+            "node",
+            lambda: run_comparison_node_fbs(
+                A, degree_float, steps=steps, iterations=iterations, tol=tol
+            ),
+        ),
     ):
         solve_start = time.perf_counter()
         stats = runner()
@@ -181,7 +216,7 @@ def run_paired_comparison_trials(
         rows.append(
             {
                 "model_level": model_level,
-                "comparison_type": "paired_degree_node_epidemic",
+                "comparison_type": "degree_hmf_vs_explicit_adjacency",
                 "prep_seconds": 0.0,
                 "fbs_seconds": solve_seconds,
                 "total_seconds": solve_seconds,
@@ -212,7 +247,9 @@ def run_scalability_experiment(args: argparse.Namespace) -> pd.DataFrame:
                     tol=args.tolerance,
                 )
             elif args.model_level == "degree":
-                stats = run_degree_trial(graph, steps=args.steps, iterations=args.iterations, tol=args.tolerance)
+                stats = run_degree_trial(
+                    graph, steps=args.steps, iterations=args.iterations, tol=args.tolerance
+                )
                 trial_rows = [stats]
             else:
                 stats = run_node_trial(
@@ -281,7 +318,9 @@ def build_parser() -> argparse.ArgumentParser:
         default="compare",
         help="Use compare for paired degree/node FBS; standalone modes are diagnostics.",
     )
-    parser.add_argument("--sizes", type=parse_sizes, default=None, help="Comma-separated node counts.")
+    parser.add_argument(
+        "--sizes", type=parse_sizes, default=None, help="Comma-separated node counts."
+    )
     parser.add_argument("--node-solver", choices=["sparse", "dense"], default="sparse")
     parser.add_argument("--repeats", type=int, default=1)
     parser.add_argument("--attachment-m", type=int, default=3)
@@ -304,14 +343,20 @@ def main() -> None:
             args.sizes = list(DEFAULT_DEGREE_SIZES)
     if args.output_dir is None:
         default_folder = (
-            "scalability_degree_node_sf" if args.model_level == "compare" else f"scalability_{args.model_level}_sf"
+            "scalability_degree_node_sf"
+            if args.model_level == "compare"
+            else f"scalability_{args.model_level}_sf"
         )
         args.output_dir = Path("results") / default_folder
     args.output_dir.mkdir(parents=True, exist_ok=True)
     df = run_scalability_experiment(args)
     summary = summarize(df)
 
-    prefix = "paired_fbs_comparison" if args.model_level == "compare" else f"{args.model_level}_control_scalability"
+    prefix = (
+        "paired_fbs_comparison"
+        if args.model_level == "compare"
+        else f"{args.model_level}_control_scalability"
+    )
     raw_path = args.output_dir / f"{prefix}.csv"
     summary_path = args.output_dir / f"{prefix}_summary.csv"
     df.to_csv(raw_path, index=False)

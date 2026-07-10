@@ -80,8 +80,9 @@ python -m cybercontrol all
 
 ## Representative Experiments
 
-The degree and node solvers use the same propagation problem but different state
-resolution. Heterogeneous runs are compared with matched-mean homogeneous
+The degree solver is a heterogeneous mean-field approximation; the node solver
+uses explicit adjacency. They share the SIS mechanism and objective structure,
+but they are not algebraically identical equations. Heterogeneous runs are compared with matched-mean homogeneous
 profiles and save resolved arrays.
 
 ![Degree-level and node-level models](docs/assets/diagrams/degree_vs_node.png)
@@ -89,9 +90,12 @@ profiles and save resolved arrays.
 The foundation suite runs heterogeneous degree/node control and games,
 continuous-impulsive state jumps, baseline comparisons and FBSM diagnostics.
 
-![Foundation experiment index](docs/assets/foundation_examples_contact_sheet.png)
+![Heterogeneous degree-class infection states and continuous controls](docs/assets/foundation_degree_control_trajectory.png)
 
-The scalability experiment uses matched synthetic scale-free graphs and reports
+![Node-level game payoff comparison with one optimized player held fixed in each panel](docs/assets/foundation_node_game_baseline.png)
+
+The scalability experiment uses the same synthetic scale-free graph for a
+degree-HMF approximation and an explicit-adjacency node solve, and reports
 state dimension, degree classes, convergence, runtime and max degree on log
 scales. Large profiles are opt-in.
 

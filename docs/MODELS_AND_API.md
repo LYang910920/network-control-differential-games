@@ -11,7 +11,7 @@ neural blocks and plotting. The two companion repositories import these APIs.
 |---|---|---|---|
 | Aggregate SIR/SIPS | one population vector | `beta * S * I` | inspect equations and debug a method |
 | Degree level | one state per degree class `k` | `lambda_k = s_k k sum_l M_kl i_l x_l` | retain degree heterogeneity with a small state |
-| Node level | one state per node `i` | `lambda_i = s_i sum_j A_ij i_j I_j` | targeted controls and explicit contacts |
+| Node level | one state per node `i` | `lambda_i = beta_i s_i sum_j A_ij iota_j I_j` | targeted controls and explicit contacts |
 
 For SIPS, the state order is `[S, I, P]`. Patching transfers `S -> P`,
 cleaning/recovery transfers `I -> P`, and waning transfers `P -> S`. The flow
@@ -89,6 +89,11 @@ of example defaults.
 | degree game | 14 | `beta=0.60`, `delta=0.15` | attack/defense bounds 1.2; costs 3.0/4.0 |
 | node game | 12 | `beta=0.95`, `delta=0.15` | attack/defense bounds 1.2; costs 4.0/4.5 |
 | continuous-impulsive | 12 | `beta=0.95`, `delta=0.15` | flow in `[0.10,0.52]`; 55% jumps at 3, 6 and 9 |
+
+The degree- and node-correlated profiles resolve physical coefficients,
+state/payoff weights, action costs, and action bounds as class- or node-indexed
+arrays. Node profiles use nonzero-neighbour degree, so the same topology yields
+the same heterogeneity after row, spectral, or max-degree normalization.
 
 FBSM diagnostics record iteration count, residual, convergence flag, objective
 and relaxation. A parameter change is accepted only after the state invariant,

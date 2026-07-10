@@ -220,16 +220,25 @@ def node_sips_transition_rates(
     *,
     patch: float | Array = 0.0,
     clean: float | Array = 0.0,
-    beta_boost: float | Array = 0.0,
+    receiver_transmission_boost: float | Array = 0.0,
 ) -> dict[str, Array]:
-    """Return node-wise SIPS transition rates for ``x=[S,I,P]``."""
+    """Return node-wise SIPS transition rates for ``x=[S,I,P]``.
+
+    ``receiver_transmission_boost[i]`` multiplies the force received by node
+    ``i`` during the current interval. It does not change source-node
+    infectivity.
+    """
 
     state = np.asarray(x, dtype=np.float64)
     if state.ndim != 2 or state.shape[1] != 3:
         raise ValueError(f"SIPS state must have shape (nodes, 3), got {state.shape}")
     nodes = state.shape[0]
     resolved = _resolve_params(params, nodes)
-    boost = _node_vector(beta_boost, nodes, "beta_boost")
+    boost = _node_vector(
+        receiver_transmission_boost,
+        nodes,
+        "receiver_transmission_boost",
+    )
     patch_rate = np.minimum(
         _node_vector(patch, nodes, "patch") * resolved.patch_efficacy, resolved.patch_bound
     )
@@ -253,7 +262,7 @@ def node_sips_rhs_numpy(
     *,
     patch: float | Array = 0.0,
     clean: float | Array = 0.0,
-    beta_boost: float | Array = 0.0,
+    receiver_transmission_boost: float | Array = 0.0,
 ) -> Array:
     """Node-level SIPS ODE for ``x=[S,I,P]``.
 
@@ -277,7 +286,7 @@ def node_sips_rhs_numpy(
         params,
         patch=patch,
         clean=clean,
-        beta_boost=beta_boost,
+        receiver_transmission_boost=receiver_transmission_boost,
     )
     infection = rates["infection"]
     patch_rate = rates["patch"]
@@ -320,7 +329,7 @@ def node_sips_rhs_torch(
     *,
     patch=0.0,
     clean=0.0,
-    beta_boost=0.0,
+    receiver_transmission_boost=0.0,
 ):
     """Torch version of :func:`node_sips_rhs_numpy` for ``x=[S,I,P]``."""
 
@@ -334,7 +343,12 @@ def node_sips_rhs_torch(
     S, I, P = state[:, 0], state[:, 1], state[:, 2]
     patch_raw = _torch_node_vector(patch, nodes, state, "patch")
     clean_raw = _torch_node_vector(clean, nodes, state, "clean")
-    boost = _torch_node_vector(beta_boost, nodes, state, "beta_boost")
+    boost = _torch_node_vector(
+        receiver_transmission_boost,
+        nodes,
+        state,
+        "receiver_transmission_boost",
+    )
     beta = _torch_node_vector(params.beta, nodes, state, "beta")
     susceptibility = _torch_node_vector(params.susceptibility, nodes, state, "susceptibility")
     infectivity = _torch_node_vector(params.infectivity, nodes, state, "infectivity")
@@ -365,7 +379,7 @@ def sample_node_sips_step(
     dt: float,
     patch: float | Array = 0.0,
     clean: float | Array = 0.0,
-    beta_boost: float | Array = 0.0,
+    receiver_transmission_boost: float | Array = 0.0,
     rng: np.random.Generator | None = None,
 ) -> Array:
     """Sample one categorical SIPS step.
@@ -386,7 +400,7 @@ def sample_node_sips_step(
         params,
         patch=patch,
         clean=clean,
-        beta_boost=beta_boost,
+        receiver_transmission_boost=receiver_transmission_boost,
     )
     out = current.copy()
     draw = rng.random(len(current))

@@ -32,16 +32,6 @@ from .numerics import (
 )
 
 
-@dataclass(frozen=True)
-class FBSOptions:
-    """Explicit solver-grid and convergence choices for reproducible runs."""
-
-    steps: int = 45
-    max_iterations: int = 40
-    tolerance: float = 1e-4
-    damping: float = 0.35
-
-
 @dataclass
 class TimeSeries:
     """Generic container for trajectories."""
@@ -50,6 +40,7 @@ class TimeSeries:
     x: np.ndarray
     controls: dict[str, np.ndarray]
     value: dict[str, float]
+    model: object | None = None
 
 
 def relax(new: np.ndarray, old: np.ndarray, weight: float = 0.35) -> np.ndarray:
@@ -57,14 +48,25 @@ def relax(new: np.ndarray, old: np.ndarray, weight: float = 0.35) -> np.ndarray:
     return weight * new + (1.0 - weight) * old
 
 
-def convergence_values(delta_history: list[float], tol: float) -> dict[str, float]:
-    """Small numeric summary for forward-backward sweep diagnostics."""
-    final_delta = float(delta_history[-1]) if delta_history else float("nan")
+def convergence_values(
+    stationarity_history: list[float],
+    step_history: list[float],
+    tol: float,
+    max_iterations: int,
+) -> dict[str, float]:
+    """Summarize the projected fixed-point residual and damped update size."""
+
+    final_residual = float(stationarity_history[-1]) if stationarity_history else float("nan")
+    final_step = float(step_history[-1]) if step_history else float("nan")
     return {
-        "iterations": float(len(delta_history)),
-        "final_delta": final_delta,
-        "converged": float(final_delta < tol),
+        "iterations": float(len(stationarity_history)),
+        # ``final_delta`` is retained for the pre-0.2 result schema.
+        "final_delta": final_residual,
+        "final_stationarity_residual": final_residual,
+        "final_relaxed_step": final_step,
+        "converged": float(final_residual < tol),
         "tolerance": float(tol),
+        "max_iterations": float(max_iterations),
     }
 
 
@@ -95,7 +97,7 @@ def degree_control_model(D: DegreeData):
     return degree_correlated_sis_params(
         D.k,
         D.pk,
-        strength=0.28,
+        strength=params.heterogeneity_strength,
         base=DegreeSISParams(
             susceptibility=params.beta,
             recovery=params.delta,
@@ -112,7 +114,7 @@ def degree_game_model(D: DegreeData):
     return degree_correlated_sis_params(
         D.k,
         D.pk,
-        strength=0.22,
+        strength=params.heterogeneity_strength,
         base=DegreeSISParams(
             susceptibility=params.beta,
             recovery=params.delta,
@@ -139,9 +141,10 @@ def solve_degree_control(
     t = np.linspace(0, params.horizon, steps + 1)
     u = np.zeros((len(t), len(D.k)))
     x0 = degree_initial_state(D)
-    delta_history: list[float] = []
+    stationarity_history: list[float] = []
+    step_history: list[float] = []
 
-    for _ in range(iterations):
+    for iteration in range(iterations):
         old_u = u.copy()
         u_fun = as_function(t, u)
         x = clip(solve_grid(lambda tau, y: degree_sis_rhs(y, u_fun(tau), D.k, model), x0, t))
@@ -154,16 +157,18 @@ def solve_degree_control(
             )
 
         lam = solve_grid(adjoint, np.zeros(len(D.k)), t, backward=True)
-        u = relax(
-            clip(
-                lam * x / (model.control_weight * np.maximum(D.pk, 1e-12)), 0, model.control_bound
-            ),
-            old_u,
+        candidate = clip(
+            lam * x / (model.control_weight * np.maximum(D.pk, 1e-12)),
+            0,
+            model.control_bound,
         )
-        delta_u = float(np.max(abs(u - old_u)))
-        delta_history.append(delta_u)
-        if delta_u < tol:
+        residual = float(np.max(abs(candidate - old_u)))
+        stationarity_history.append(residual)
+        if residual < tol or iteration == iterations - 1:
+            step_history.append(0.0)
             break
+        u = relax(candidate, old_u)
+        step_history.append(float(np.max(abs(u - old_u))))
 
     u_fun = as_function(t, u)
     x = clip(solve_grid(lambda tau, y: degree_sis_rhs(y, u_fun(tau), D.k, model), x0, t))
@@ -173,8 +178,16 @@ def solve_degree_control(
     return TimeSeries(
         t=t,
         x=x,
-        controls={"control": u, "fbs_delta": np.asarray(delta_history, dtype=float)},
-        value={"cost": cost, **convergence_values(delta_history, tol)},
+        controls={
+            "control": u,
+            "fbs_delta": np.asarray(stationarity_history, dtype=float),
+            "fbs_relaxed_step": np.asarray(step_history, dtype=float),
+        },
+        value={
+            "cost": cost,
+            **convergence_values(stationarity_history, step_history, tol, iterations),
+        },
+        model=model,
     )
 
 
@@ -227,9 +240,10 @@ def solve_degree_game(
     attack = np.zeros((len(t), len(D.k)))
     defend = np.zeros_like(attack)
     x0 = degree_initial_state(D)
-    delta_history: list[float] = []
+    stationarity_history: list[float] = []
+    step_history: list[float] = []
 
-    for _ in range(iterations):
+    for iteration in range(iterations):
         old_a, old_d = attack.copy(), defend.copy()
         a_fun, d_fun = as_function(t, attack), as_function(t, defend)
         x = clip(
@@ -255,24 +269,29 @@ def solve_degree_game(
         lam_D = solve_grid(adjoint_defender, np.zeros(len(D.k)), t, backward=True)
         pressure = np.vstack([model.mixing @ (model.infectivity * row) for row in x])
         marginal_attack = model.susceptibility[None, :] * D.k[None, :] * (1.0 - x) * pressure
-        attack = relax(
-            clip(
-                lam_A * marginal_attack / (model.attack_cost * np.maximum(D.pk, 1e-12)),
-                0,
-                model.attack_bound,
-            ),
-            old_a,
+        candidate_attack = clip(
+            lam_A * marginal_attack / (model.attack_cost * np.maximum(D.pk, 1e-12)),
+            0,
+            model.attack_bound,
         )
-        defend = relax(
-            clip(
-                -lam_D * x / (model.defense_cost * np.maximum(D.pk, 1e-12)), 0, model.defense_bound
-            ),
-            old_d,
+        candidate_defense = clip(
+            -lam_D * x / (model.defense_cost * np.maximum(D.pk, 1e-12)),
+            0,
+            model.defense_bound,
         )
-        delta_controls = float(max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d))))
-        delta_history.append(delta_controls)
-        if delta_controls < tol:
+        residual = float(
+            max(
+                np.max(abs(candidate_attack - old_a)),
+                np.max(abs(candidate_defense - old_d)),
+            )
+        )
+        stationarity_history.append(residual)
+        if residual < tol or iteration == iterations - 1:
+            step_history.append(0.0)
             break
+        attack = relax(candidate_attack, old_a)
+        defend = relax(candidate_defense, old_d)
+        step_history.append(float(max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d)))))
 
     a_fun, d_fun = as_function(t, attack), as_function(t, defend)
     x = clip(
@@ -292,9 +311,15 @@ def solve_degree_game(
         controls={
             "attack": attack,
             "defense": defend,
-            "fbs_delta": np.asarray(delta_history, dtype=float),
+            "fbs_delta": np.asarray(stationarity_history, dtype=float),
+            "fbs_relaxed_step": np.asarray(step_history, dtype=float),
         },
-        value={"JA": JA, "JD": JD, **convergence_values(delta_history, tol)},
+        value={
+            "JA": JA,
+            "JD": JD,
+            **convergence_values(stationarity_history, step_history, tol, iterations),
+        },
+        model=model,
     )
 
 
@@ -322,7 +347,11 @@ def node_control_model(A: np.ndarray):
         control_weight=profile.control_weight,
         control_bound=profile.control_max,
     )
-    return degree_correlated_node_sis_params(A, strength=0.28, base=base)
+    return degree_correlated_node_sis_params(
+        A,
+        strength=profile.heterogeneity_strength,
+        base=base,
+    )
 
 
 def node_game_model(A: np.ndarray):
@@ -338,7 +367,11 @@ def node_game_model(A: np.ndarray):
         attack_bound=profile.attack_max,
         defense_bound=profile.defense_max,
     )
-    return degree_correlated_node_sis_params(A, strength=0.22, base=base)
+    return degree_correlated_node_sis_params(
+        A,
+        strength=profile.heterogeneity_strength,
+        base=base,
+    )
 
 
 def solve_node_control(
@@ -354,9 +387,10 @@ def solve_node_control(
     t, n = np.linspace(0, params.horizon, steps + 1), A.shape[0]
     u = np.zeros((len(t), n))
     x0 = node_initial_state(A)
-    delta_history: list[float] = []
+    stationarity_history: list[float] = []
+    step_history: list[float] = []
 
-    for _ in range(iterations):
+    for iteration in range(iterations):
         old_u = u.copy()
         u_fun = as_function(t, u)
         x = clip(solve_grid(lambda tau, y: node_sis_rhs(y, u_fun(tau), A, model), x0, t))
@@ -367,11 +401,14 @@ def solve_node_control(
             return -model.state_weight - node_sis_jacobian(x_now, u_now, A, model).T @ lam
 
         lam = solve_grid(adjoint, np.zeros(n), t, backward=True)
-        u = relax(clip(lam * x / model.control_weight, 0, model.control_bound), old_u)
-        delta_u = float(np.max(abs(u - old_u)))
-        delta_history.append(delta_u)
-        if delta_u < tol:
+        candidate = clip(lam * x / model.control_weight, 0, model.control_bound)
+        residual = float(np.max(abs(candidate - old_u)))
+        stationarity_history.append(residual)
+        if residual < tol or iteration == iterations - 1:
+            step_history.append(0.0)
             break
+        u = relax(candidate, old_u)
+        step_history.append(float(np.max(abs(u - old_u))))
 
     u_fun = as_function(t, u)
     x = clip(solve_grid(lambda tau, y: node_sis_rhs(y, u_fun(tau), A, model), x0, t))
@@ -381,8 +418,16 @@ def solve_node_control(
     return TimeSeries(
         t=t,
         x=x,
-        controls={"control": u, "fbs_delta": np.asarray(delta_history, dtype=float)},
-        value={"cost": cost, **convergence_values(delta_history, tol)},
+        controls={
+            "control": u,
+            "fbs_delta": np.asarray(stationarity_history, dtype=float),
+            "fbs_relaxed_step": np.asarray(step_history, dtype=float),
+        },
+        value={
+            "cost": cost,
+            **convergence_values(stationarity_history, step_history, tol, iterations),
+        },
+        model=model,
     )
 
 
@@ -425,17 +470,15 @@ def solve_node_game(
     attack = np.zeros((len(t), n))
     defend = np.zeros_like(attack)
     x0 = node_initial_state(A)
-    delta_history: list[float] = []
+    stationarity_history: list[float] = []
+    step_history: list[float] = []
 
-    for _ in range(iterations):
+    for iteration in range(iterations):
         old_a, old_d = attack.copy(), defend.copy()
         a_fun, d_fun = as_function(t, attack), as_function(t, defend)
         x = clip(
             solve_grid(
-                lambda tau, y: (
-                    (1.0 - y) * (1.0 + a_fun(tau)) * node_sis_force(y, A, model)
-                    - (model.recovery + d_fun(tau)) * y
-                ),
+                lambda tau, y: node_game_rhs(y, a_fun(tau), d_fun(tau), A, 0.0, 0.0, model),
                 x0,
                 t,
             )
@@ -456,22 +499,26 @@ def solve_node_game(
         lam_D = solve_grid(adjoint_D, np.zeros(n), t, backward=True)
         pressure = np.vstack([A @ (model.infectivity * row) for row in x])
         marginal_attack = model.beta[None, :] * model.susceptibility[None, :] * (1.0 - x) * pressure
-        attack = relax(
-            clip(lam_A * marginal_attack / model.attack_cost, 0, model.attack_bound), old_a
+        candidate_attack = clip(lam_A * marginal_attack / model.attack_cost, 0, model.attack_bound)
+        candidate_defense = clip(-lam_D * x / model.defense_cost, 0, model.defense_bound)
+        residual = float(
+            max(
+                np.max(abs(candidate_attack - old_a)),
+                np.max(abs(candidate_defense - old_d)),
+            )
         )
-        defend = relax(clip(-lam_D * x / model.defense_cost, 0, model.defense_bound), old_d)
-        delta_controls = float(max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d))))
-        delta_history.append(delta_controls)
-        if delta_controls < tol:
+        stationarity_history.append(residual)
+        if residual < tol or iteration == iterations - 1:
+            step_history.append(0.0)
             break
+        attack = relax(candidate_attack, old_a)
+        defend = relax(candidate_defense, old_d)
+        step_history.append(float(max(np.max(abs(attack - old_a)), np.max(abs(defend - old_d)))))
 
     a_fun, d_fun = as_function(t, attack), as_function(t, defend)
     x = clip(
         solve_grid(
-            lambda tau, y: (
-                (1.0 - y) * (1.0 + a_fun(tau)) * node_sis_force(y, A, model)
-                - (model.recovery + d_fun(tau)) * y
-            ),
+            lambda tau, y: node_game_rhs(y, a_fun(tau), d_fun(tau), A, 0.0, 0.0, model),
             x0,
             t,
         )
@@ -492,7 +539,13 @@ def solve_node_game(
         controls={
             "attack": attack,
             "defense": defend,
-            "fbs_delta": np.asarray(delta_history, dtype=float),
+            "fbs_delta": np.asarray(stationarity_history, dtype=float),
+            "fbs_relaxed_step": np.asarray(step_history, dtype=float),
         },
-        value={"JA": JA, "JD": JD, **convergence_values(delta_history, tol)},
+        value={
+            "JA": JA,
+            "JD": JD,
+            **convergence_values(stationarity_history, step_history, tol, iterations),
+        },
+        model=model,
     )

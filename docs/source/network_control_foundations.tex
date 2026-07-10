@@ -254,7 +254,7 @@ three-compartment state is $x_i=[S_i,I_i,P_i]$. With node susceptibility $s_i$,
 infectivity $\iota_i$, recovery $\gamma_i$, protection waning $\omega_i$, and
 patch/clean controls $u_i^p,u_i^c$, define
 \begin{align}
-  \lambda_i &= s_i\sum_j a_{ij}\iota_j I_j,\\
+  \lambda_i &= \beta_i s_i\sum_j a_{ij}\iota_j I_j,\\
   \dot S_i &= -S_i\lambda_i-u_i^pS_i+\omega_iP_i,\\
   \dot I_i &= S_i\lambda_i-(\gamma_i+u_i^c)I_i,\\
   \dot P_i &= u_i^pS_i+(\gamma_i+u_i^c)I_i-\omega_iP_i.
@@ -328,7 +328,7 @@ A node-level model tracks each node. Let $A=[a_{ij}]$ be the adjacency matrix. L
 Here $\beta$ is the propagation rate, $\delta$ is the natural recovery/removal rate, and $u_i(t)$ is node-specific defense effort. This model explicitly uses network connectivity and supports targeted control. The cost is computational: the state dimension grows with $n$, and the adjoint or HJB equation becomes harder as the network grows.
 
 The heterogeneous node implementation replaces the scalar pressure by
-$\lambda_i=s_i\sum_j a_{ij}\iota_jx_j$ and resolves per-node recovery,
+$\lambda_i=\beta_i s_i\sum_j a_{ij}\iota_jx_j$ and resolves per-node recovery,
 criticality, control cost, efficacy and bounds. Scalar values broadcast to all
 nodes, which provides the homogeneous compatibility case.
 
@@ -1012,9 +1012,9 @@ game and scalability examples therefore use one implementation of each model.
 \path{src/cybercontrol/fbs.py} & Heterogeneous degree/node continuous optimal-control and open-loop game sweeps, including state, adjoint, stationarity and convergence diagnostics. \\
 \path{src/cybercontrol/graph_data.py} & Graph loading, adjacency convention, normalization, reduction and degree-class aggregation. \\
 \path{src/cybercontrol/heterogeneity.py} & Scalar broadcast, validated arrays and deterministic homogeneous, degree-, community- and lognormal profiles. \\
-\path{examples/foundations/code/simple_degree_k_control.py} & Minimal homogeneous degree-$k$ example using the canonical solver. \\
+\path{examples/foundations/code/simple_degree_k_control.py} & Minimal heterogeneous degree-$k$ example using the canonical solver and resolved degree-correlated parameters. \\
 \path{examples/foundations/code/network_control_examples.py} & Thin orchestrator for heterogeneous degree/node control, games and continuous-impulsive simulation. \\
-\path{examples/foundations/code/scalability_analysis.py} & Paired degree/node FBSM on matched synthetic scale-free networks. \\
+\path{examples/foundations/code/scalability_analysis.py} & Degree-HMF versus explicit-adjacency FBSM on the same synthetic scale-free graph and scalar rates, with an initial derivative-aggregation gap. \\
 \path{reference_repository_guide.md} & Explains how the three reference research-code repositories map to the mathematical workflow in this note: graph preprocessing, state dynamics, adjoints, Hamiltonian updates, impulse policies, payoffs, and baselines. \\
 \path{../reference/download_reference_repositories.sh} & Optional helper script that downloads the three reference GitHub repositories into \path{../reference/reference_repositories_upstream/}. \\
 \bottomrule
@@ -1122,15 +1122,36 @@ The figures below are curated repository assets generated from the tutorial scri
 
 \begin{figure}[p]
 \centering
-\includegraphics[width=0.92\textwidth]{../assets/foundation_examples_contact_sheet.png}
-\caption{Visual index of the foundation examples, including degree-level control/game, node-level variants, convergence diagnostics, and continuous-impulse behavior.}
-\label{fig:foundation-contact-sheet}
+\includegraphics[width=0.84\textwidth]{../assets/foundation_degree_control_trajectory.pdf}
+\caption{Degree-class infection states and time-varying continuous controls from the heterogeneous optimal-control example. Each curve identifies a degree class rather than an unnamed network average.}
+\label{fig:foundation-degree-control}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.84\textwidth]{../assets/foundation_degree_game_baseline.pdf}
+\caption{Degree-level attacker--defender payoff comparison. Each panel fixes one optimized player strategy and varies the opponent, so the figure is diagnostic evidence rather than a proof of Nash equilibrium.}
+\label{fig:foundation-degree-game-baseline}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.84\textwidth]{../assets/foundation_node_control_trajectory.pdf}
+\caption{Node-level optimal-control trajectories. State curves refer to identified nodes and the mean curve is explicitly labeled; control curves are continuous-time signals on the numerical grid.}
+\label{fig:foundation-node-control}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.84\textwidth]{../assets/foundation_continuous_impulse_trajectory.pdf}
+\caption{Continuous--impulsive simulation with a time-varying flow control and explicit state resets at impulse times. Vertical state jumps arise only from the reset map.}
+\label{fig:foundation-continuous-impulse}
 \end{figure}
 
 \begin{figure}[p]
 \centering
 \includegraphics[width=0.92\textwidth]{../assets/degree_node_fbs_scalability.png}
-\caption{Degree-level versus sparse node-level FBS timing on matched synthetic scale-free networks.}
+\caption{FBS timing for a degree-HMF approximation and a sparse explicit-adjacency node model on the same synthetic scale-free graphs. The equations share scalar rates and objective weights but are different network resolutions; the CSV reports their initial derivative-aggregation error.}
 \label{fig:degree-node-scalability}
 \end{figure}
 

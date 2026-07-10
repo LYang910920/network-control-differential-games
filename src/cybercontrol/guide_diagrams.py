@@ -305,7 +305,7 @@ def state_transitions():
         0.18,
         r"Node-indexed pressure"
         "\n"
-        r"$\lambda_i=s_i\sum_j A_{ij}\,\iota_j I_j$"
+        r"$\lambda_i=\beta_i s_i\sum_j A_{ij}\,\iota_j I_j$"
         "\n"
         r"with node-specific $s_i,\iota_i,\gamma_i,\omega_i$ and control bounds",
         fill=PALE_GRAY,
@@ -340,9 +340,10 @@ def degree_vs_node():
         fontsize=12,
         weight="bold",
     )
-    for idx, (x, label) in enumerate(((0.09, "$k=1$"), (0.20, "$k=3$"), (0.31, "$k=8$"))):
+    for x, degree in ((0.09, 1), (0.20, 3), (0.31, 8)):
+        label = f"$k={degree}$"
         c.circle(x, 0.54, 0.045, label, fill=WHITE, edge=BLUE, fontsize=10)
-        c.label(x, 0.45, f"$x_{idx + 1}(t)$", ha="center", fontsize=9)
+        c.label(x, 0.45, f"$x_{degree}(t)$", ha="center", fontsize=9)
     c.box(
         0.10,
         0.27,
@@ -603,76 +604,90 @@ def ddqn():
 
 
 def mappo_ctde():
-    """Show decentralized actors and a centralized value function."""
+    """Show the repository's coordinated budgeted PPO implementation."""
 
     c = Canvas(
-        "MAPPO with centralized training and decentralized execution",
-        subtitle="Actors consume local or risk-summary observations; the critic may use the global training state.",
+        "Budgeted cooperative PPO with centralized training",
+        subtitle="Repository path: a state-conditioned coordinator chooses one joint community action; execution is not strictly decentralized.",
         height=6.8,
     )
-    for idx, y in enumerate((0.72, 0.57, 0.42)):
-        observation = "Local observation\n" + rf"$o_k^{{{idx + 1}}}\in\mathbb{{R}}^{{d_o}}$"
-        actor = rf"Actor $\pi_{{\theta_{idx + 1}}}$" + "\nlogits / mean"
-        c.box(0.05, y, 0.14, 0.10, observation, fill=PALE_BLUE, edge=BLUE, fontsize=9.2)
-        c.box(0.25, y, 0.16, 0.10, actor, fill=PALE_TEAL, edge=TEAL, fontsize=9.2)
-        c.arrow((0.19, y + 0.05), (0.25, y + 0.05), color=TEAL)
-        c.arrow((0.41, y + 0.05), (0.49, 0.58), color=TEAL)
     c.box(
-        0.49,
-        0.55,
-        0.15,
-        0.18,
-        "Joint action\n" r"$a_k=(a_k^1,\ldots,a_k^n)$" "\n+ budget map",
-        fill=PALE_ORANGE,
-        edge=ORANGE,
-        weight="bold",
-    )
-    c.box(
-        0.71,
-        0.55,
-        0.18,
-        0.18,
-        "SIPS environment\nODE transition and\nteam/game rewards",
+        0.04,
+        0.57,
+        0.19,
+        0.17,
+        "Community summaries\n" r"$O_k\in\mathbb{R}^{M\times d_o}$" "\nstate + risk + time",
         fill=PALE_BLUE,
         edge=BLUE,
         weight="bold",
     )
-    c.arrow((0.64, 0.64), (0.71, 0.64))
     c.box(
-        0.72,
-        0.14,
-        0.21,
-        0.15,
-        "Rollout buffer\n$[T,n,d_o]$ observations\n$[T,n]$ actions/rewards",
+        0.29,
+        0.57,
+        0.20,
+        0.17,
+        "Shared community encoder\nMLP or graph context\n+ joint-action logits",
+        fill=PALE_TEAL,
+        edge=TEAL,
+        weight="bold",
+    )
+    c.arrow((0.23, 0.655), (0.29, 0.655), color=TEAL)
+    c.box(
+        0.55,
+        0.57,
+        0.16,
+        0.17,
+        "One categorical action\nno action or\n(community, mode)",
+        fill=PALE_ORANGE,
+        edge=ORANGE,
+        weight="bold",
+    )
+    c.arrow((0.49, 0.655), (0.55, 0.655), color=TEAL)
+    c.box(
+        0.77,
+        0.57,
+        0.18,
+        0.17,
+        "Node-SIPS environment\nODE transition\nscalar team reward",
+        fill=PALE_BLUE,
+        edge=BLUE,
+        weight="bold",
+    )
+    c.arrow((0.71, 0.655), (0.77, 0.655))
+    c.box(
+        0.73,
+        0.20,
+        0.22,
+        0.17,
+        "Rollout buffer\nobservations $[T,M,d_o]$\nactions/rewards $[T]$",
         fill=PALE_GRAY,
         edge=MUTED,
     )
-    c.arrow((0.80, 0.54), (0.82, 0.30), label="collect", color=MUTED)
+    c.arrow((0.86, 0.57), (0.85, 0.38), label="collect", color=MUTED)
     c.box(
-        0.39,
-        0.12,
-        0.21,
+        0.42,
         0.18,
+        0.23,
+        0.19,
         "GAE + PPO update\nclipped ratios, entropy,\nmini-batches and epochs",
         fill="#FBE9E9",
         edge=RED,
         weight="bold",
     )
-    c.arrow((0.72, 0.215), (0.60, 0.215), color=MUTED)
+    c.arrow((0.73, 0.285), (0.65, 0.285), color=MUTED)
     c.box(
-        0.04,
-        0.11,
+        0.08,
+        0.18,
         0.25,
-        0.20,
-        r"Centralized critic $V_\phi(s_k)$"
-        "\ntraining-only global state\n"
-        r"$[S_1,I_1,P_1,\ldots]$",
+        0.19,
+        r"Centralized value critic $V_\phi(O_k)$"
+        "\npooled community summaries\ntraining and coordinated execution",
         fill=WHITE,
         edge=BLUE,
         weight="bold",
     )
-    c.arrow((0.39, 0.21), (0.29, 0.21), label="advantages", color=BLUE)
-    c.arrow((0.45, 0.31), (0.35, 0.42), label="update actors", color=TEAL, bend=0.12)
+    c.arrow((0.42, 0.275), (0.33, 0.275), label="value targets", color=BLUE)
+    c.arrow((0.50, 0.38), (0.39, 0.57), label="update coordinator", color=TEAL, bend=0.12)
     return c.finish()
 
 
@@ -871,7 +886,7 @@ def node_time_encoder_decoder():
             0.24,
             0.57,
             0.15,
-            "Graph encoder\n" r"$d_f\to64\to64$" "\n" r"$H_x\in\mathbb{R}^{N\times64}$",
+            "Node/graph encoder\n" r"$d_f\to d\to d$" "\n" r"$H_x\in\mathbb{R}^{N\times d}$",
             PALE_TEAL,
             TEAL,
         ),
@@ -880,7 +895,7 @@ def node_time_encoder_decoder():
             0.24,
             0.28,
             0.15,
-            "Fourier/MLP branch\n" r"$1\to64\to64$" "\n" r"$H_t\in\mathbb{R}^{B\times64}$",
+            "Optional Fourier + MLP\n" r"$1\to d\to d$" "\n" r"$H_t\in\mathbb{R}^{B\times d}$",
             PALE_ORANGE,
             ORANGE,
         ),
@@ -893,9 +908,9 @@ def node_time_encoder_decoder():
         0.18,
         0.22,
         "Broadcast fusion\n"
-        r"$[H_t,H_x,H_t\odot H_x]$"
+        r"$[H_t,H_x]$"
         "\n"
-        r"$\in\mathbb{R}^{B\times N\times192}$",
+        r"$\in\mathbb{R}^{B\times N\times2d}$",
         fill=PALE_GRAY,
         edge=MUTED,
         fontsize=9.8,
@@ -908,7 +923,7 @@ def node_time_encoder_decoder():
         0.46,
         0.13,
         0.16,
-        "Shared decoder\n" r"$192\to64\to3$",
+        "Shared decoder\n" r"$2d\to d\to3$",
         fill=PALE_TEAL,
         edge=TEAL,
         weight="bold",
@@ -931,7 +946,7 @@ def node_time_encoder_decoder():
         0.10,
         0.48,
         0.10,
-        "Positive rate maps use softplus; a gauge constraint fixes the susceptibility–infectivity scale ambiguity.",
+        "A separate positive rate head uses softplus; a gauge fixes the susceptibility–infectivity scale ambiguity.",
         fill=WHITE,
         edge=MUTED,
         fontsize=9.7,
@@ -974,7 +989,7 @@ def pmp_informed_pinn():
     residuals = [
         (0.75, 0.70, r"State: $\dot{x}-H_\lambda=0$"),
         (0.75, 0.53, r"Adjoint: $\dot{\lambda}+H_x=0$"),
-        (0.75, 0.36, r"Stationarity: $\Pi_U(u-\eta H_u)-u=0$"),
+        (0.75, 0.36, r"Interior stationarity: $H_u=0$"),
         (0.75, 0.19, r"Boundary: $x(0)=x_0$, $\lambda(T)=\Phi_x$"),
     ]
     for x, y, text_value in residuals:
@@ -983,7 +998,7 @@ def pmp_informed_pinn():
     c.label(
         0.48,
         0.11,
-        "Independent ODE/FBSM rollout remains the acceptance test for the learned control.",
+        "Bound-active controls require a projected/KKT residual; independent rollout remains the acceptance test.",
         ha="center",
         color=MUTED,
     )
@@ -1082,7 +1097,7 @@ DIAGRAMS = (
     DiagramDefinition(
         "mappo_ctde",
         mappo_ctde,
-        "MAPPO centralized-training decentralized-execution architecture with actors, critic, rollout buffer and GAE.",
+        "Budgeted cooperative PPO path with a joint community-action coordinator, centralized value critic, rollout buffer and GAE.",
         "Note 1 README and method guide",
     ),
     DiagramDefinition(

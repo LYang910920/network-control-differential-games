@@ -44,10 +44,13 @@ def configure_torch(
     dtype: str = "float32",
     threads: int | None = 1,
 ):
-    """Compatibility adapter returning ``(torch, device, dtype)``."""
+    """Compatibility adapter returning ``(torch, device, dtype)``.
+
+    Passing ``seed=None`` leaves Python, NumPy, and Torch RNG states unchanged.
+    """
 
     runtime = RuntimeConfig(
-        seed=0 if seed is None else int(seed),
+        seed=None if seed is None else int(seed),
         device="auto" if device is None else str(device),
         dtype=dtype,
         threads=threads,

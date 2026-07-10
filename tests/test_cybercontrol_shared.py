@@ -23,6 +23,8 @@ from cybercontrol.network_models import (
 )
 from cybercontrol.heterogeneity import (
     DegreeSISParams,
+    NodeSISParams,
+    degree_correlated_node_sis_params,
     degree_correlated_sis_params,
     degree_sis_jacobian,
     degree_sis_rhs,
@@ -232,6 +234,45 @@ def test_controlled_sir_numpy_torch_parity():
     assert np.allclose(actual.detach().numpy(), expected)
 
 
+def test_controlled_sir_torch_accepts_batch_vector_parameters():
+    torch = pytest.importorskip("torch")
+    x = torch.tensor([[0.8, 0.15, 0.05], [0.6, 0.30, 0.10]], dtype=torch.float64)
+    actual = controlled_sir_rhs_torch(
+        x,
+        u_patch=torch.tensor([0.08, 0.02], dtype=torch.float64),
+        beta=torch.tensor([0.7, 0.6], dtype=torch.float64),
+        gamma=torch.tensor([0.11, 0.14], dtype=torch.float64),
+        u_clean=torch.tensor([0.03, 0.05], dtype=torch.float64),
+        omega=torch.tensor([0.02, 0.01], dtype=torch.float64),
+    )
+
+    assert actual.shape == (2, 3)
+    assert torch.allclose(actual.sum(dim=1), torch.zeros(2, dtype=torch.float64))
+
+
+def test_configure_torch_without_seed_does_not_mutate_rng_state():
+    import random
+
+    torch = pytest.importorskip("torch")
+    from cybercontrol.torch_utils import configure_torch
+
+    random.seed(41)
+    np.random.seed(42)
+    torch.manual_seed(43)
+    python_state = random.getstate()
+    numpy_state = np.random.get_state()
+    torch_state = torch.random.get_rng_state().clone()
+
+    configure_torch(seed=None, device="cpu", threads=None)
+
+    assert random.getstate() == python_state
+    current_numpy = np.random.get_state()
+    assert current_numpy[0] == numpy_state[0]
+    assert np.array_equal(current_numpy[1], numpy_state[1])
+    assert current_numpy[2:] == numpy_state[2:]
+    assert torch.equal(torch.random.get_rng_state(), torch_state)
+
+
 def test_node_sips_mass_and_sparse_pressure_parity():
     sp = pytest.importorskip("scipy.sparse")
     A_dense = normalize_adjacency(
@@ -285,6 +326,26 @@ def test_degree_sis_heterogeneity_preserves_scalar_compatibility_and_jacobian():
     numeric = finite_difference_jacobian(lambda y: degree_sis_rhs(y, u, k, heterogeneous), x)
     assert np.allclose(analytic, numeric, rtol=1e-5, atol=1e-7)
     assert heterogeneous.summaries()[0]["name"] == "susceptibility"
+    for field in (
+        "susceptibility",
+        "infectivity",
+        "recovery",
+        "state_weight",
+        "control_weight",
+        "control_bound",
+        "attack_reward",
+        "defense_loss",
+        "attack_cost",
+        "defense_cost",
+        "attack_bound",
+        "defense_bound",
+    ):
+        assert np.ptp(getattr(heterogeneous, field)) > 0.0
+
+    matched = heterogeneous.matched_mean(p)
+    for field in ("susceptibility", "control_weight", "attack_cost", "defense_bound"):
+        expected_mean = float(p @ getattr(heterogeneous, field))
+        assert np.allclose(getattr(matched, field), expected_mean)
 
 
 def test_node_sips_heterogeneous_arrays_dense_sparse_and_summaries():
@@ -326,6 +387,16 @@ def test_node_sips_heterogeneous_arrays_dense_sparse_and_summaries():
     summary = node_heterogeneity_summary(resolved)
     assert summary.shape == (4,)
     assert resolved.risk_score()[2] > resolved.risk_score()[0]
+
+
+def test_degree_correlated_node_profile_respects_explicit_scalar_bases():
+    adjacency = np.array([[0.0, 1.0], [1.0, 0.0]])
+    base = NodeSISParams(susceptibility=0.4, infectivity=1.6)
+
+    resolved = degree_correlated_node_sis_params(adjacency, strength=0.0, base=base)
+
+    assert np.allclose(resolved.susceptibility, 0.4)
+    assert np.allclose(resolved.infectivity, 1.6)
 
 
 def test_node_sips_torch_parity_and_stochastic_step():
@@ -456,10 +527,11 @@ def test_shared_replay_gae_and_architecture_contracts():
         lambda: build_architecture(config),
     )
     registered = registry.build("test")
-    record = registry.describe("test", registered)
+    record = registry.describe("test", registered, configuration={"width": 8, "depth": 1})
     assert registry.names == ("test",)
     assert record["parameters"] == summary["parameters"]
     assert record["input_shape"] == "[batch,4]"
+    assert record["configuration"] == {"width": 8, "depth": 1}
 
     factorized = FactorizedNodeTimeNet(5, width=8, depth=1, fourier_features=3)
     state = factorized(torch.zeros(4, 1), torch.zeros(6, 5))
@@ -485,8 +557,26 @@ def test_named_node_profiles_are_the_models_used_by_solvers():
     assert np.isclose(control.recovery.mean(), ex.NODE_CONTROL_PROFILE.delta, rtol=0.03)
     assert np.allclose(game.beta, ex.NODE_GAME_PROFILE.beta)
     assert np.isclose(game.recovery.mean(), ex.NODE_GAME_PROFILE.delta, rtol=0.03)
-    assert np.allclose(game.attack_cost, ex.NODE_GAME_PROFILE.cost_attack)
-    assert np.allclose(game.defense_cost, ex.NODE_GAME_PROFILE.cost_defense)
+    assert np.isclose(game.attack_cost.mean(), ex.NODE_GAME_PROFILE.cost_attack, rtol=0.03)
+    assert np.isclose(game.defense_cost.mean(), ex.NODE_GAME_PROFILE.cost_defense, rtol=0.03)
+    for field in (
+        "susceptibility",
+        "infectivity",
+        "recovery",
+        "state_weight",
+        "control_weight",
+        "control_bound",
+    ):
+        assert np.ptp(getattr(control, field)) > 0.0
+    for field in (
+        "attack_reward",
+        "defense_loss",
+        "attack_cost",
+        "defense_cost",
+        "attack_bound",
+        "defense_bound",
+    ):
+        assert np.ptp(getattr(game, field)) > 0.0
 
 
 def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
@@ -537,3 +627,67 @@ def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
 
     assert np.isclose(ja, expected_ja)
     assert np.isclose(jd, expected_jd)
+
+
+def test_custom_degree_model_is_preserved_by_solver_and_evaluator(tmp_path):
+    from cybercontrol.fbs import solve_degree_control
+    from cybercontrol.foundation_evaluation import (
+        evaluate_degree_control_policy,
+        save_matched_mean_comparison,
+    )
+    from cybercontrol.graph_data import DegreeData
+
+    k = np.array([1.0, 3.0, 6.0])
+    pk = np.array([0.5, 0.3, 0.2])
+    D = DegreeData(
+        k=k,
+        Nk=np.array([5, 3, 2]),
+        pk=pk,
+        kbar=float(k @ pk),
+        node_degree=np.array([1] * 5 + [3] * 3 + [6] * 2),
+    )
+    model = DegreeSISParams(
+        susceptibility=np.array([0.2, 0.3, 0.4]),
+        recovery=np.array([0.4, 0.5, 0.6]),
+        state_weight=np.array([0.8, 1.1, 1.4]),
+        control_weight=np.array([1.5, 1.7, 2.0]),
+        control_bound=0.5,
+    ).resolve(k, pk)
+    result = solve_degree_control(D, steps=8, iterations=35, tol=2e-4, model=model)
+    replay_x, replay_cost = evaluate_degree_control_policy(
+        D, result.t, result.controls["control"], model=model
+    )
+
+    assert result.model is model
+    assert np.allclose(replay_x, result.x)
+    assert np.isclose(replay_cost, result.value["cost"])
+
+    save_matched_mean_comparison({"degree_control": result}, D, np.eye(2), tmp_path)
+    comparison = __import__("pandas").read_csv(tmp_path / "heterogeneous_vs_matched_mean.csv")
+    assert set(comparison["profile"]) == {
+        "heterogeneous",
+        "matched_mean_homogeneous",
+    }
+
+
+def test_fbs_convergence_uses_projected_residual_before_damping():
+    from cybercontrol.fbs import solve_degree_control
+    from cybercontrol.graph_data import DegreeData
+
+    k = np.array([1.0, 2.0, 4.0])
+    pk = np.array([0.5, 0.3, 0.2])
+    D = DegreeData(
+        k=k,
+        Nk=np.array([5, 3, 2]),
+        pk=pk,
+        kbar=float(k @ pk),
+        node_degree=np.array([1] * 5 + [2] * 3 + [4] * 2),
+    )
+    result = solve_degree_control(D, steps=6, iterations=3, tol=0.0)
+    residuals = result.controls["fbs_delta"]
+    steps = result.controls["fbs_relaxed_step"]
+
+    assert np.isclose(steps[0], 0.35 * residuals[0])
+    assert np.isclose(result.value["final_delta"], residuals[-1])
+    assert result.value["final_relaxed_step"] == 0.0
+    assert not bool(result.value["converged"])

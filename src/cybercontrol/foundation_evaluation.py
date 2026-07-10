@@ -34,10 +34,10 @@ LOGGER = logging.getLogger(__name__)
 
 
 def evaluate_degree_control_policy(
-    D: DegreeData, t: np.ndarray, u: np.ndarray
+    D: DegreeData, t: np.ndarray, u: np.ndarray, *, model=None
 ) -> tuple[np.ndarray, float]:
     """Evaluate the degree-k control objective for a fixed admissible control."""
-    model = degree_control_model(D)
+    model = degree_control_model(D) if model is None else model
     control = clip(u, 0, model.control_bound)
     x0 = degree_initial_state(D)
     u_fun = as_function(t, control)
@@ -92,47 +92,61 @@ def save_matched_mean_comparison(
 
     rows: list[dict[str, object]] = []
     if "degree_control" in results:
+        heterogeneous = results["degree_control"]
+        heterogeneous_model = heterogeneous.model or degree_control_model(D)
         matched = solve_degree_control(
             D,
-            steps=len(results["degree_control"].t) - 1,
-            model=degree_control_model(D).matched_mean(),
+            steps=len(heterogeneous.t) - 1,
+            iterations=int(heterogeneous.value.get("max_iterations", 40)),
+            tol=float(heterogeneous.value.get("tolerance", 1e-4)),
+            model=heterogeneous_model.matched_mean(D.pk),
         )
         rows.extend(
             _matched_mean_rows(
-                "degree_control", "degree", "optimal_control", results["degree_control"], matched
+                "degree_control", "degree", "optimal_control", heterogeneous, matched
             )
         )
     if "degree_game" in results:
+        heterogeneous = results["degree_game"]
+        heterogeneous_model = heterogeneous.model or degree_game_model(D)
         matched = solve_degree_game(
             D,
-            steps=len(results["degree_game"].t) - 1,
-            model=degree_game_model(D).matched_mean(),
+            steps=len(heterogeneous.t) - 1,
+            iterations=int(heterogeneous.value.get("max_iterations", 45)),
+            tol=float(heterogeneous.value.get("tolerance", 1e-4)),
+            model=heterogeneous_model.matched_mean(D.pk),
         )
         rows.extend(
             _matched_mean_rows(
-                "degree_game", "degree", "attacker_defender_game", results["degree_game"], matched
+                "degree_game", "degree", "attacker_defender_game", heterogeneous, matched
             )
         )
     if "node_control" in results:
+        heterogeneous = results["node_control"]
+        heterogeneous_model = heterogeneous.model or node_control_model(A)
         matched = solve_node_control(
             A,
-            steps=len(results["node_control"].t) - 1,
-            model=node_control_model(A).matched_mean(),
+            steps=len(heterogeneous.t) - 1,
+            iterations=int(heterogeneous.value.get("max_iterations", 35)),
+            tol=float(heterogeneous.value.get("tolerance", 1e-4)),
+            model=heterogeneous_model.matched_mean(),
         )
         rows.extend(
-            _matched_mean_rows(
-                "node_control", "node", "optimal_control", results["node_control"], matched
-            )
+            _matched_mean_rows("node_control", "node", "optimal_control", heterogeneous, matched)
         )
     if "node_game" in results:
+        heterogeneous = results["node_game"]
+        heterogeneous_model = heterogeneous.model or node_game_model(A)
         matched = solve_node_game(
             A,
-            steps=len(results["node_game"].t) - 1,
-            model=node_game_model(A).matched_mean(),
+            steps=len(heterogeneous.t) - 1,
+            iterations=int(heterogeneous.value.get("max_iterations", 40)),
+            tol=float(heterogeneous.value.get("tolerance", 1e-4)),
+            model=heterogeneous_model.matched_mean(),
         )
         rows.extend(
             _matched_mean_rows(
-                "node_game", "node", "attacker_defender_game", results["node_game"], matched
+                "node_game", "node", "attacker_defender_game", heterogeneous, matched
             )
         )
     if rows:
@@ -142,10 +156,10 @@ def save_matched_mean_comparison(
 
 
 def evaluate_node_control_policy(
-    A: np.ndarray, t: np.ndarray, u: np.ndarray
+    A: np.ndarray, t: np.ndarray, u: np.ndarray, *, model=None
 ) -> tuple[np.ndarray, float]:
     """Evaluate the node-level control objective for a fixed admissible control."""
-    model = node_control_model(A)
+    model = node_control_model(A) if model is None else model
     control = clip(u, 0, model.control_bound)
     x0 = node_initial_state(A)
     u_fun = as_function(t, control)
@@ -163,9 +177,11 @@ def evaluate_degree_game_strategy(
     t: np.ndarray,
     attack: np.ndarray,
     defend: np.ndarray,
+    *,
+    model=None,
 ) -> tuple[np.ndarray, float, float]:
     """Evaluate degree-level game payoffs for fixed open-loop strategies."""
-    model = degree_game_model(D)
+    model = degree_game_model(D) if model is None else model
     attack = clip(attack, 0, model.attack_bound)
     defend = clip(defend, 0, model.defense_bound)
     x0 = degree_initial_state(D)
@@ -189,9 +205,11 @@ def evaluate_node_game_strategy(
     t: np.ndarray,
     attack: np.ndarray,
     defend: np.ndarray,
+    *,
+    model=None,
 ) -> tuple[np.ndarray, float, float]:
     """Evaluate node-level game payoffs for fixed open-loop strategies."""
-    model = node_game_model(A)
+    model = node_game_model(A) if model is None else model
     attack = clip(attack, 0, model.attack_bound)
     defend = clip(defend, 0, model.defense_bound)
     x0 = node_initial_state(A)

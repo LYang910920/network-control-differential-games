@@ -96,8 +96,10 @@ class ArchitectureRegistry:
         self,
         name: str,
         components: nn.Module | Mapping[str, nn.Module],
+        *,
+        configuration: Mapping[str, object] | None = None,
     ) -> dict[str, object]:
-        """Return descriptor fields and per-component trainable parameter counts."""
+        """Return descriptor, resolved configuration, and parameter counts."""
 
         if isinstance(components, nn.Module):
             component_counts = {"model": parameter_count(components)}
@@ -108,6 +110,7 @@ class ArchitectureRegistry:
             }
         return {
             **asdict(self.descriptor(name)),
+            "configuration": dict(configuration or {}),
             "component_parameters": component_counts,
             "parameters": sum(component_counts.values()),
         }
