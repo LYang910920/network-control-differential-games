@@ -166,7 +166,9 @@ def solve_ode_grid(
     time_grid = np.asarray(t, dtype=np.float64)
     span = (time_grid[-1], time_grid[0]) if backward else (time_grid[0], time_grid[-1])
     eval_grid = time_grid[::-1] if backward else time_grid
-    sol = solve_ivp(rhs, span, np.asarray(y_boundary, dtype=np.float64), t_eval=eval_grid, rtol=rtol, atol=atol)
+    sol = solve_ivp(
+        rhs, span, np.asarray(y_boundary, dtype=np.float64), t_eval=eval_grid, rtol=rtol, atol=atol
+    )
     if not sol.success:
         raise RuntimeError(sol.message)
     out = sol.y.T

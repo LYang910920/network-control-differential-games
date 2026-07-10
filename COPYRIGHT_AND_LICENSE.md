@@ -20,9 +20,7 @@ The files under `docs/` are included as user-supplied educational materials:
 
 ```text
 docs/network_control_foundations.pdf
-docs/network_control_foundations.tex
-docs/code_walkthrough_and_model_adaptation_guide.pdf
-docs/code_walkthrough_and_model_adaptation_guide.tex
+docs/source/network_control_foundations.tex
 ```
 
 Because this repository is public, keep these PDF and LaTeX files here only if you have the right to redistribute them. If in doubt, remove the PDF/LaTeX documents from the public repository or move the repository back to private.

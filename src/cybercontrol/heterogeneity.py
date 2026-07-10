@@ -71,7 +71,9 @@ def neutral_degree_mixing(k: Array, p: Array) -> Array:
     return np.repeat(row[None, :], len(degree), axis=0)
 
 
-def assortative_degree_mixing(k: Array, p: Array, strength: float = 0.45, width: float = 0.75) -> Array:
+def assortative_degree_mixing(
+    k: Array, p: Array, strength: float = 0.45, width: float = 0.75
+) -> Array:
     """Blend neutral mixing with a same-degree preference kernel."""
 
     degree = np.asarray(k, dtype=np.float64)
@@ -163,12 +165,18 @@ class ResolvedDegreeSISParams:
         return replace(self, **data)
 
 
-def resolve_degree_sis_params(k: Array, p: Array, params: DegreeSISParams | None = None) -> ResolvedDegreeSISParams:
+def resolve_degree_sis_params(
+    k: Array, p: Array, params: DegreeSISParams | None = None
+) -> ResolvedDegreeSISParams:
     """Resolve scalar/array degree SIS parameters for the observed degree classes."""
 
     params = DegreeSISParams() if params is None else params
     m = len(np.asarray(k))
-    mixing = neutral_degree_mixing(k, p) if params.mixing is None else _row_normalize(params.mixing, "degree mixing")
+    mixing = (
+        neutral_degree_mixing(k, p)
+        if params.mixing is None
+        else _row_normalize(params.mixing, "degree mixing")
+    )
     if mixing.shape != (m, m):
         raise ValueError(f"degree mixing must have shape ({m}, {m}), got {mixing.shape}")
     return ResolvedDegreeSISParams(
@@ -176,7 +184,9 @@ def resolve_degree_sis_params(k: Array, p: Array, params: DegreeSISParams | None
         infectivity=resolve_vector(params.infectivity, m, "degree infectivity"),
         recovery=resolve_vector(params.recovery, m, "degree recovery"),
         state_weight=resolve_vector(params.state_weight, m, "degree state_weight"),
-        control_weight=resolve_vector(params.control_weight, m, "degree control_weight", min_value=1e-12),
+        control_weight=resolve_vector(
+            params.control_weight, m, "degree control_weight", min_value=1e-12
+        ),
         control_bound=resolve_vector(params.control_bound, m, "degree control_bound"),
         attack_reward=resolve_vector(params.attack_reward, m, "degree attack_reward"),
         defense_loss=resolve_vector(params.defense_loss, m, "degree defense_loss"),
@@ -188,7 +198,9 @@ def resolve_degree_sis_params(k: Array, p: Array, params: DegreeSISParams | None
     )
 
 
-def degree_correlated_sis_params(k: Array, p: Array, *, strength: float = 0.35, base: DegreeSISParams | None = None) -> ResolvedDegreeSISParams:
+def degree_correlated_sis_params(
+    k: Array, p: Array, *, strength: float = 0.35, base: DegreeSISParams | None = None
+) -> ResolvedDegreeSISParams:
     """Factory with higher-degree classes carrying higher physical/economic risk."""
 
     degree = np.asarray(k, dtype=np.float64)
@@ -197,17 +209,28 @@ def degree_correlated_sis_params(k: Array, p: Array, *, strength: float = 0.35, 
     base = DegreeSISParams() if base is None else base
     spec = replace(
         base,
-        susceptibility=float(np.mean(resolve_vector(base.susceptibility, len(degree), "susceptibility"))) * factor,
-        infectivity=float(np.mean(resolve_vector(base.infectivity, len(degree), "infectivity"))) * np.exp(0.5 * strength * z),
-        recovery=float(np.mean(resolve_vector(base.recovery, len(degree), "recovery"))) / np.exp(0.25 * strength * z),
-        state_weight=float(np.mean(resolve_vector(base.state_weight, len(degree), "state_weight"))) * factor,
-        control_bound=float(np.mean(resolve_vector(base.control_bound, len(degree), "control_bound"))) / np.sqrt(factor),
+        susceptibility=float(
+            np.mean(resolve_vector(base.susceptibility, len(degree), "susceptibility"))
+        )
+        * factor,
+        infectivity=float(np.mean(resolve_vector(base.infectivity, len(degree), "infectivity")))
+        * np.exp(0.5 * strength * z),
+        recovery=float(np.mean(resolve_vector(base.recovery, len(degree), "recovery")))
+        / np.exp(0.25 * strength * z),
+        state_weight=float(np.mean(resolve_vector(base.state_weight, len(degree), "state_weight")))
+        * factor,
+        control_bound=float(
+            np.mean(resolve_vector(base.control_bound, len(degree), "control_bound"))
+        )
+        / np.sqrt(factor),
         mixing=assortative_degree_mixing(degree, p, strength=min(0.75, abs(strength))),
     )
     return spec.resolve(degree, p)
 
 
-def seeded_lognormal_degree_params(k: Array, p: Array, *, seed: int = 0, cv: float = 0.25, base: DegreeSISParams | None = None) -> ResolvedDegreeSISParams:
+def seeded_lognormal_degree_params(
+    k: Array, p: Array, *, seed: int = 0, cv: float = 0.25, base: DegreeSISParams | None = None
+) -> ResolvedDegreeSISParams:
     """Factory for seeded lognormal degree-class heterogeneity with controlled spread."""
 
     base = DegreeSISParams() if base is None else base
@@ -250,7 +273,12 @@ def degree_sis_jacobian(x: Array, u: Array, k: Array, params: ResolvedDegreeSISP
 
     state = np.asarray(x, dtype=np.float64)
     force = degree_sis_force(state, k, params)
-    B = params.susceptibility[:, None] * np.asarray(k, dtype=np.float64)[:, None] * params.mixing * params.infectivity[None, :]
+    B = (
+        params.susceptibility[:, None]
+        * np.asarray(k, dtype=np.float64)[:, None]
+        * params.mixing
+        * params.infectivity[None, :]
+    )
     J = (1.0 - state)[:, None] * B
     J[np.diag_indices_from(J)] -= force + params.recovery + np.asarray(u, dtype=np.float64)
     return J
@@ -331,11 +359,16 @@ class ResolvedNodeSISParams:
     def matched_mean(self) -> "ResolvedNodeSISParams":
         return replace(
             self,
-            **{field: np.full_like(self.beta, float(np.mean(getattr(self, field)))) for field in self.__dataclass_fields__},
+            **{
+                field: np.full_like(self.beta, float(np.mean(getattr(self, field))))
+                for field in self.__dataclass_fields__
+            },
         )
 
 
-def resolve_node_sis_params(nodes: int, params: NodeSISParams | None = None) -> ResolvedNodeSISParams:
+def resolve_node_sis_params(
+    nodes: int, params: NodeSISParams | None = None
+) -> ResolvedNodeSISParams:
     """Resolve scalar/array node SIS parameters to arrays."""
 
     params = NodeSISParams() if params is None else params
@@ -345,12 +378,16 @@ def resolve_node_sis_params(nodes: int, params: NodeSISParams | None = None) -> 
         infectivity=resolve_vector(params.infectivity, nodes, "node infectivity"),
         recovery=resolve_vector(params.recovery, nodes, "node recovery"),
         state_weight=resolve_vector(params.state_weight, nodes, "node state_weight"),
-        control_weight=resolve_vector(params.control_weight, nodes, "node control_weight", min_value=1e-12),
+        control_weight=resolve_vector(
+            params.control_weight, nodes, "node control_weight", min_value=1e-12
+        ),
         control_bound=resolve_vector(params.control_bound, nodes, "node control_bound"),
         attack_reward=resolve_vector(params.attack_reward, nodes, "node attack_reward"),
         defense_loss=resolve_vector(params.defense_loss, nodes, "node defense_loss"),
         attack_cost=resolve_vector(params.attack_cost, nodes, "node attack_cost", min_value=1e-12),
-        defense_cost=resolve_vector(params.defense_cost, nodes, "node defense_cost", min_value=1e-12),
+        defense_cost=resolve_vector(
+            params.defense_cost, nodes, "node defense_cost", min_value=1e-12
+        ),
         attack_bound=resolve_vector(params.attack_bound, nodes, "node attack_bound"),
         defense_bound=resolve_vector(params.defense_bound, nodes, "node defense_bound"),
     )
@@ -359,7 +396,9 @@ def resolve_node_sis_params(nodes: int, params: NodeSISParams | None = None) -> 
 def node_sis_force(x: Array, adjacency, params: ResolvedNodeSISParams) -> Array:
     """Return heterogeneous node force of infection lambda_i."""
 
-    infected_pressure = np.asarray(adjacency @ (params.infectivity * np.asarray(x, dtype=np.float64))).reshape(-1)
+    infected_pressure = np.asarray(
+        adjacency @ (params.infectivity * np.asarray(x, dtype=np.float64))
+    ).reshape(-1)
     return params.beta * params.susceptibility * infected_pressure
 
 
@@ -375,7 +414,9 @@ def node_sis_jacobian(x: Array, u: Array, adjacency, params: ResolvedNodeSISPara
     """Analytic Jacobian of :func:`node_sis_rhs` with respect to ``x``."""
 
     state = np.asarray(x, dtype=np.float64)
-    A = np.asarray(adjacency.toarray() if hasattr(adjacency, "toarray") else adjacency, dtype=np.float64)
+    A = np.asarray(
+        adjacency.toarray() if hasattr(adjacency, "toarray") else adjacency, dtype=np.float64
+    )
     force = node_sis_force(state, A, params)
     B = params.beta[:, None] * params.susceptibility[:, None] * A * params.infectivity[None, :]
     J = (1.0 - state)[:, None] * B
@@ -383,19 +424,62 @@ def node_sis_jacobian(x: Array, u: Array, adjacency, params: ResolvedNodeSISPara
     return J
 
 
-def degree_correlated_node_sis_params(adjacency, *, strength: float = 0.35) -> ResolvedNodeSISParams:
-    """Factory with node SIS rates/costs correlated with graph degree."""
+def degree_correlated_node_sis_params(
+    adjacency,
+    *,
+    strength: float = 0.35,
+    base: NodeSISParams | None = None,
+) -> ResolvedNodeSISParams:
+    """Resolve a degree-correlated profile around explicit base parameters.
 
-    nodes = np.asarray(adjacency.sum(axis=1)).reshape(-1).size if hasattr(adjacency, "sum") else np.asarray(adjacency).shape[0]
+    ``base`` keeps the named experiment profile and the arrays used by the
+    solver synchronized. Scalar values are broadcast before the degree
+    correlation is applied.
+    """
+
+    nodes = (
+        np.asarray(adjacency.sum(axis=1)).reshape(-1).size
+        if hasattr(adjacency, "sum")
+        else np.asarray(adjacency).shape[0]
+    )
+    base = NodeSISParams() if base is None else base
+
+    def scalar(value, name: str) -> float:
+        array = np.asarray(value, dtype=np.float64)
+        if array.ndim != 0:
+            raise ValueError(f"degree-correlated factory requires scalar base {name}")
+        return float(array)
+
     spec = NodeSISParams(
-        beta=0.85,
+        beta=scalar(base.beta, "beta"),
         susceptibility=degree_correlated_node_values(adjacency, base=1.0, strength=strength),
         infectivity=degree_correlated_node_values(adjacency, base=1.0, strength=0.60 * strength),
-        recovery=degree_correlated_node_values(adjacency, base=0.16, strength=0.20 * strength, inverse=True),
-        state_weight=degree_correlated_node_values(adjacency, base=3.0, strength=0.70 * strength),
-        control_bound=degree_correlated_node_values(adjacency, base=1.2, strength=0.15 * strength, inverse=True),
-        attack_reward=degree_correlated_node_values(adjacency, base=4.0, strength=0.65 * strength),
-        defense_loss=degree_correlated_node_values(adjacency, base=5.0, strength=0.65 * strength),
+        recovery=degree_correlated_node_values(
+            adjacency,
+            base=scalar(base.recovery, "recovery"),
+            strength=0.20 * strength,
+            inverse=True,
+        ),
+        state_weight=degree_correlated_node_values(
+            adjacency, base=scalar(base.state_weight, "state_weight"), strength=0.70 * strength
+        ),
+        control_weight=scalar(base.control_weight, "control_weight"),
+        control_bound=degree_correlated_node_values(
+            adjacency,
+            base=scalar(base.control_bound, "control_bound"),
+            strength=0.15 * strength,
+            inverse=True,
+        ),
+        attack_reward=degree_correlated_node_values(
+            adjacency, base=scalar(base.attack_reward, "attack_reward"), strength=0.65 * strength
+        ),
+        defense_loss=degree_correlated_node_values(
+            adjacency, base=scalar(base.defense_loss, "defense_loss"), strength=0.65 * strength
+        ),
+        attack_cost=scalar(base.attack_cost, "attack_cost"),
+        defense_cost=scalar(base.defense_cost, "defense_cost"),
+        attack_bound=scalar(base.attack_bound, "attack_bound"),
+        defense_bound=scalar(base.defense_bound, "defense_bound"),
     )
     return spec.resolve(nodes)
 
@@ -439,7 +523,13 @@ class ResolvedNodeSIPSParams:
     def risk_score(self) -> Array:
         """Node-level risk proxy for observations and baseline policies."""
 
-        return self.criticality * self.beta * self.susceptibility * self.infectivity / np.maximum(self.gamma, 1e-12)
+        return (
+            self.criticality
+            * self.beta
+            * self.susceptibility
+            * self.infectivity
+            / np.maximum(self.gamma, 1e-12)
+        )
 
     def matched_mean(self):
         """Return a homogeneous parameter object with matched means."""
@@ -496,7 +586,9 @@ def community_correlated_node_values(
     return values
 
 
-def degree_correlated_node_values(adjacency, *, base: float, strength: float, inverse: bool = False) -> Array:
+def degree_correlated_node_values(
+    adjacency, *, base: float, strength: float, inverse: bool = False
+) -> Array:
     """Create node values correlated with row degree/weighted degree."""
 
     if hasattr(adjacency, "sum"):
@@ -542,4 +634,6 @@ def node_params_from_csv(path: str | Path, nodes: int) -> Mapping[str, Array]:
         "patch_efficacy",
         "clean_efficacy",
     }
-    return {name: table[name].to_numpy(dtype=np.float64) for name in allowed if name in table.columns}
+    return {
+        name: table[name].to_numpy(dtype=np.float64) for name in allowed if name in table.columns
+    }

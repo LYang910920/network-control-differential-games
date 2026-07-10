@@ -51,7 +51,9 @@ class SampledSIRParams:
     chi: float = 0.70
 
 
-def sampled_sir_flow_rhs(x: Array, dpar: Dict[str, float], apar: Dict[str, float], p: SampledSIRParams) -> Array:
+def sampled_sir_flow_rhs(
+    x: Array, dpar: Dict[str, float], apar: Dict[str, float], p: SampledSIRParams
+) -> Array:
     """Continuous flow for a sampled-data SIR malware model under ZOH.
 
     The discrete action has already been decoded into rates.  Instantaneous

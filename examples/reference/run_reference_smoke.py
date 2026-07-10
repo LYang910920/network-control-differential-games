@@ -79,7 +79,6 @@ from cybercontrol.baseline_diagnostics import (
 from cybercontrol.io import require_outputs
 from cybercontrol.plotting import (
     apply_clean_axes,
-    panel_label,
     plot_time_series,
     save_guide_figure,
     save_publication_figure,

@@ -142,11 +142,11 @@
 \begin{titlepage}
 \centering
 \vspace*{1.25cm}
-{\sffamily\bfseries\Large\color{TutorialBlue} Network Control Tutorial Family: Foundation\par}
+{\sffamily\bfseries\Large\color{TutorialBlue} Network Control and Differential Games Series: Foundation\par}
 \vspace{0.35cm}
-{\sffamily\bfseries\Huge\color{TutorialBlue} Optimal Control, Differential Games, Continuous-Impulsive Control, and Games on Networks\par}
+{\sffamily\bfseries\Huge\color{TutorialBlue} Network Control and Differential Games\par}
 \vspace{0.5cm}
-{\sffamily\Large A Self-Contained English Tutorial Note with Degree-Level and Node-Level Examples\par}
+{\sffamily\Large Optimal Control, Games, Impulses, and Degree/Node Network Models\par}
 \vspace{0.8cm}
 {\large Lu-Xing Yang\par}
 \vspace{0.8cm}
@@ -154,9 +154,7 @@
 \vspace{0.35cm}
 {\large Informed by publications in IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals\par}
 \vspace{0.35cm}
-{\large Part 0 of the Network Control Tutorial Family\par}
-\vspace{0.35cm}
-{\large Tutorial Python files: \texttt{simple\_degree\_k\_control.py} and \texttt{network\_control\_examples.py}\par}
+{\large Foundation volume of the Network Control and Differential Games series\par}
 \vfill
 \begin{tcolorbox}[width=0.86\textwidth,colback=SoftBlue,colframe=TutorialBlue]
 \textbf{Purpose.} This note starts from controlled dynamical systems and develops optimal control, differential games, and impulse and continuous--impulsive hybrid control in one coherent framework. It is written for propagation, defense, and intervention problems on networks. The mathematical sections introduce the state equation, payoff, Hamiltonian, PMP, HJB/HJI viewpoint, Nash equilibrium conditions, impulse jumps, and continuous-plus-impulse strategies. The computational sections give a simple degree-$k$ example first and then a main tutorial script for degree-level games, node-level adjacency-matrix models, and continuous-impulse simulations. The degree-level workflow always computes $N_k$, $P(k)$, and $\langle k\rangle$ from the input network before solving models indexed by degree class $k$.
@@ -167,6 +165,13 @@
 
 \tableofcontents
 \newpage
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.94\textwidth]{../assets/diagrams/repository_family.pdf}
+\caption{The foundation owns shared equations, numerics, graph operations, FBSM, neural blocks, metrics, run records, and plotting. Note 1 and Note 2 add method-specific learning layers.}
+\label{fig:repository-family}
+\end{figure}
 
 % -----------------------------------------------------------------------------
 \section{How to Read This Handout}
@@ -242,6 +247,29 @@ The controller usually optimizes a cumulative payoff or cost. A maximization for
 \end{equation}
 Here $F$ is the running payoff and $\Phi$ is the terminal payoff. In a minimization formulation, $F$ is often a running cost such as infection loss plus control cost.
 
+\subsection{Canonical SIPS Flow}
+
+For learning and inverse examples in the companion notes, the common
+three-compartment state is $x_i=[S_i,I_i,P_i]$. With node susceptibility $s_i$,
+infectivity $\iota_i$, recovery $\gamma_i$, protection waning $\omega_i$, and
+patch/clean controls $u_i^p,u_i^c$, define
+\begin{align}
+  \lambda_i &= s_i\sum_j a_{ij}\iota_j I_j,\\
+  \dot S_i &= -S_i\lambda_i-u_i^pS_i+\omega_iP_i,\\
+  \dot I_i &= S_i\lambda_i-(\gamma_i+u_i^c)I_i,\\
+  \dot P_i &= u_i^pS_i+(\gamma_i+u_i^c)I_i-\omega_iP_i.
+\end{align}
+Each term transfers mass between compartments, hence
+$S_i(t)+I_i(t)+P_i(t)=1$ when the initial state lies on the simplex. This
+invariant is checked in NumPy, Torch, dense and sparse implementations.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.94\textwidth]{../assets/diagrams/state_transitions.pdf}
+\caption{Canonical SIPS mass transfer and the aggregate, degree-level, and node-level infection-pressure conventions used across the repository family.}
+\label{fig:sips-transitions}
+\end{figure}
+
 
 \subsection{Degree-Level Models}
 
@@ -299,6 +327,11 @@ A node-level model tracks each node. Let $A=[a_{ij}]$ be the adjacency matrix. L
 \end{equation}
 Here $\beta$ is the propagation rate, $\delta$ is the natural recovery/removal rate, and $u_i(t)$ is node-specific defense effort. This model explicitly uses network connectivity and supports targeted control. The cost is computational: the state dimension grows with $n$, and the adjoint or HJB equation becomes harder as the network grows.
 
+The heterogeneous node implementation replaces the scalar pressure by
+$\lambda_i=s_i\sum_j a_{ij}\iota_jx_j$ and resolves per-node recovery,
+criticality, control cost, efficacy and bounds. Scalar values broadcast to all
+nodes, which provides the homogeneous compatibility case.
+
 \subsection{From a Real Network Dataset to the Adjacency Matrix}
 \label{subsec:real-network-to-adj}
 
@@ -319,7 +352,14 @@ To use such a dataset in this tutorial, the code first parses the full input net
 \end{enumerate}
 \end{examplebox}
 
-The tutorial code implements this workflow in the single-file functions \texttt{load\_network}, \texttt{graph\_to\_model\_matrix}, and \texttt{degree\_distribution\_from\_graph}. The convention used by the dynamics is
+The installable package implements this workflow in
+\texttt{cybercontrol.graph\_data}:
+\begin{itemize}
+  \item \texttt{load\_network};
+  \item \texttt{graph\_to\_model\_matrix};
+  \item \texttt{degree\_distribution\_from\_graph}.
+\end{itemize}
+The dynamics use the convention
 \begin{equation}
   \text{infection pressure on node } i=(Ax)_i=\sum_{j=1}^n a_{ij}x_j.
 \end{equation}
@@ -327,10 +367,12 @@ Thus, for a directed edge ``source influences target'', the code places the edge
 
 
 \begin{lstlisting}[caption={Minimal example: load an edge-list dataset, compute the degree distribution, and run degree-level and node-level models.}]
-from network_control_examples import (
-    build_parser,
+from network_control_examples import build_parser  # example CLI only
+from cybercontrol.graph_data import (
     load_network,
     degree_distribution_from_graph,
+)
+from cybercontrol.fbs import (
     solve_degree_control,
     solve_node_control,
 )
@@ -371,6 +413,13 @@ Main weakness & Less precise for targeted interventions & High dimensionality an
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.94\textwidth]{../assets/diagrams/degree_vs_node.pdf}
+\caption{Degree-level mixing retains a state per degree class, whereas node-level dynamics retain explicit adjacency and node states. Both resolutions support physical and economic heterogeneity.}
+\label{fig:degree-vs-node}
+\end{figure}
 
 % -----------------------------------------------------------------------------
 \section{Optimal Control: Single Decision Maker}
@@ -511,6 +560,13 @@ The structure is almost identical to optimal control, except that each player ha
 
 The key distinction is how an action affects the state. A continuous-time control changes the derivative $\dot{x}$ over an interval of time. An impulse action causes an instantaneous state jump at selected time points. A continuous--impulsive hybrid policy uses both.
 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.96\textwidth]{../assets/diagrams/control_timing.pdf}
+\caption{Decision timing, action-value domain, and state effect are separate. A sampled real action under zero-order hold is piecewise constant; an impulse requires an explicit reset.}
+\label{fig:control-timing}
+\end{figure}
+
 \subsection{Continuous-Time Control}
 
 A continuous-time control $u(t)$ is applied over time and changes the vector field $f$. Examples include continuous patching intensity, monitoring rate, misinformation refutation effort, or resource allocation to recovery.
@@ -550,6 +606,7 @@ The continuous--impulsive optimization problem is hard because it mixes continuo
   \item choose impulse magnitudes or target sets $v_l$;
   \item choose continuous controls $u(t)$ between the impulses.
 \end{itemize}
+
 This naturally leads to nested optimization. The inner layer solves continuous control for fixed impulse schedule. The middle layer optimizes impulse times. The outer layer optimizes the number of impulses. In network propagation models, the exact full solution is often computationally prohibitive. Practical studies may fix impulse times, use heuristics, restrict the number of impulses, or compare several candidate schedules rather than solving the full impulse PMP exactly.
 
 \subsection{Continuous--Impulsive Hybrid Differential Games}
@@ -924,39 +981,47 @@ Feedback optimal control and feedback differential games are theoretically attra
   \item Report convergence curves or final residuals for forward-backward sweep when possible.
 \end{itemize}
 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.96\textwidth]{../assets/diagrams/model_to_paper.pdf}
+\caption{Evidence chain from a cyber mechanism to a bounded research claim. Every result should map to a configuration, run record, table or figure, and stated validation regime.}
+\label{fig:model-to-paper}
+\end{figure}
+
 
 
 % -----------------------------------------------------------------------------
 
-\section{Python Tutorial Code: Simple First, Then Research-Code-Style Examples}
+\section{Python Package and Runnable Examples}
 % -----------------------------------------------------------------------------
 
-The tutorial code is organized for teaching and reproducibility.  It avoids a large package structure, but still separates the learning path into two files:
-\[
-\text{minimal degree-}k\text{ example} \quad \Longrightarrow \quad \text{compact research-code-style tutorial script}.
-\]
-The first file is short enough to read in one sitting.  The second file keeps all examples in one place, so the reader can see how graph loading, degree distribution, ODE integration, PMP updates, game updates, impulse simulation, plotting, and command-line options fit together.
+Reusable equations, graph operations and FBSM solvers live in the installable
+\texttt{cybercontrol} package. Example scripts select a graph and parameter
+profile, call package functions, and write figures and tables. Degree, node,
+game and scalability examples therefore use one implementation of each model.
 
-\subsection{Tutorial Files}
-
-In this public repository, the commands in this section assume that you first move into \path{examples/foundations/}. From the repository root, you can also run all tutorial examples with \path{python run_all.py --skip-reference}.
+\subsection{Package and Example Map}
 
 \begin{table}[h!]
 \centering
-\caption{Code and guide files in the tutorial package.}
+\caption{Public modules and runnable foundation examples.}
 \begin{tabularx}{\textwidth}{L{4.8cm}Y}
 \toprule
 \textbf{File} & \textbf{Purpose} \\
 \midrule
-\path{code/simple_degree_k_control.py} & Minimal degree-$k$ optimal-control script. It loads a graph, computes $N_k$, $P(k)$, and $\langle k\rangle$, solves one degree-$k$ PMP problem, and saves diagnostic figures. \\
-\path{code/network_control_examples.py} & Main tutorial script containing degree-$k$ optimal control, degree-$k$ attacker-defender game, node-level optimal control, node-level game, continuous-impulse simulation, graph loading, adjacency conversion, and plotting. \\
+\path{src/cybercontrol/fbs.py} & Heterogeneous degree/node continuous optimal-control and open-loop game sweeps, including state, adjoint, stationarity and convergence diagnostics. \\
+\path{src/cybercontrol/graph_data.py} & Graph loading, adjacency convention, normalization, reduction and degree-class aggregation. \\
+\path{src/cybercontrol/heterogeneity.py} & Scalar broadcast, validated arrays and deterministic homogeneous, degree-, community- and lognormal profiles. \\
+\path{examples/foundations/code/simple_degree_k_control.py} & Minimal homogeneous degree-$k$ example using the canonical solver. \\
+\path{examples/foundations/code/network_control_examples.py} & Thin orchestrator for heterogeneous degree/node control, games and continuous-impulsive simulation. \\
+\path{examples/foundations/code/scalability_analysis.py} & Paired degree/node FBSM on matched synthetic scale-free networks. \\
 \path{reference_repository_guide.md} & Explains how the three reference research-code repositories map to the mathematical workflow in this note: graph preprocessing, state dynamics, adjoints, Hamiltonian updates, impulse policies, payoffs, and baselines. \\
 \path{../reference/download_reference_repositories.sh} & Optional helper script that downloads the three reference GitHub repositories into \path{../reference/reference_repositories_upstream/}. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Run the Simple Degree-$k$ Example}
+\subsection{Install and Run}
 
 The simple script demonstrates the central point of degree-level modeling: the state and control arrays are indexed by observed degree class, not by compartment labels.  If the observed degrees are $k_1,\dots,k_q$, then
 \[
@@ -967,18 +1032,15 @@ The infection pressure is computed from the empirical distribution:
 \Theta(t)=\frac{\sum_j k_j P(k_j)x_{k_j}(t)}{\langle k\rangle}.
 \]
 
-\begin{lstlisting}[language=bash,caption={Run the minimal degree-k optimal-control script.},numbers=none]
-pip install -r requirements.txt
+\begin{lstlisting}[language=bash,caption={Install and use the common repository runner.},numbers=none]
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[graph,dev]"
 
-python code/simple_degree_k_control.py
-
-python code/simple_degree_k_control.py \
-  --edge-list sample_data/sample_edges.csv \
-  --delimiter , --has-header \
-  --source-col source --target-col target
-
-python code/simple_degree_k_control.py \
-  --adjacency-csv sample_data/sample_adjacency.csv
+python -m cybercontrol smoke
+python -m cybercontrol medium --output-dir artifacts/medium
+python -m cybercontrol figures
+python -m cybercontrol docs
 \end{lstlisting}
 
 The core numerical loop is a forward-backward sweep.  Given a current control $u_k(t)$, it solves the state equation forward, the adjoint equation backward, and then applies a projected Hamiltonian update:
@@ -992,33 +1054,41 @@ candidate_U = L * X / (control_weight * p_safe)
 U = damping * clip(candidate_U, 0.0, u_max) + (1.0 - damping) * U_old
 \end{lstlisting}
 
-\subsection{Run the Main Examples}
+\subsection{Direct Example Commands}
 
-The main tutorial script extends the same workflow to games, node-level models, and continuous-impulse simulations.  The command-line interface makes it possible to run all examples or only one group.
+The common runner is the documented entry point. Direct scripts remain useful
+when adapting a graph loader or selecting one model family.
 
 \begin{lstlisting}[language=bash,caption={Run the main tutorial examples.},numbers=none]
-python code/network_control_examples.py
-python code/network_control_examples.py --examples degree
-python code/network_control_examples.py --examples node
-python code/network_control_examples.py --examples continuous-impulse
+python examples/foundations/code/network_control_examples.py \
+  --steps 45 --output-dir artifacts/foundation_models
+
+python examples/foundations/code/scalability_analysis.py \
+  --model-level compare --sizes 100,1000,10000 \
+  --steps 32 --iterations 35 \
+  --output-dir artifacts/scalability
 \end{lstlisting}
 
 For realistic network data, the script accepts edge lists, adjacency matrices, and common graph formats:
 
 \begin{lstlisting}[language=bash,caption={Use realistic network data.},numbers=none]
-python code/network_control_examples.py \
+python examples/foundations/code/network_control_examples.py \
   --edge-list data/edges.csv \
   --delimiter , --has-header \
   --source-col source --target-col target --weight-col weight \
   --max-nodes 50
 
-python code/network_control_examples.py --graph-file data/network.graphml
-python code/network_control_examples.py --graph-file data/network.gexf
-python code/network_control_examples.py --graph-file data/network.gml
-python code/network_control_examples.py --graph-file data/network.net
+python examples/foundations/code/network_control_examples.py \
+  --graph-file data/network.graphml --output-dir artifacts/graphml
 
-python code/network_control_examples.py --adjacency-csv data/A.csv
+python examples/foundations/code/network_control_examples.py \
+  --adjacency-csv data/A.csv --output-dir artifacts/adjacency
 \end{lstlisting}
+
+Each run saves parameter summaries, resolved heterogeneous arrays,
+matched-mean homogeneous comparisons, FBSM residuals and state/control/game
+figures. Generated runs remain under ignored \path{artifacts/}; only curated
+guide assets are tracked.
 
 \subsection{How the Reference Repositories Fit In}
 
@@ -1064,12 +1134,6 @@ The figures below are curated repository assets generated from the tutorial scri
 \label{fig:degree-node-scalability}
 \end{figure}
 
-\begin{figure}[p]
-\centering
-\includegraphics[width=0.92\textwidth]{../assets/reference_repo_contact_sheet.png}
-\caption{Reference-repository smoke-run contact sheet for the paper-level code snapshots.}
-\label{fig:reference-contact-sheet}
-\end{figure}
 \clearpage
 % -----------------------------------------------------------------------------
 \section{Glossary and References}
@@ -1120,35 +1184,32 @@ This English tutorial note was consolidated from two uploaded source tutorial no
 \end{sourcebox}
 
 
+\clearpage
 \appendix
-\section{Tutorial Code Files}
+\section{Code and Reproducibility Map}
 \label{app:code}
 
-The package contains the following runnable code and guide files:
+The repository uses one public runner and three focused supporting guides:
 
 \begin{itemize}
-  \item \path{code/simple_degree_k_control.py}: minimal degree-$k$ optimal-control example.
-  \item \path{code/network_control_examples.py}: main tutorial script for degree-level games, node-level models, and continuous-impulse simulation.
-  \item \path{README.md}: installation, commands, and usage notes.
-  \item \path{reference_repository_guide.md}: mapping between the reference GitHub repositories and the mathematical workflow in this guide.
-  \item \path{../reference/download_reference_repositories.sh}: optional script to download the reference repositories.
+  \item \path{README.md}: scope, quick start, code map and validation.
+  \item \path{docs/MODELS_AND_API.md}: notation, parameters, modules and import migration.
+  \item \path{docs/REPRODUCIBILITY.md}: commands, output records, builds and validation gates.
+  \item \path{docs/FROM_MODEL_TO_PAPER.md}: baseline, experiment and manuscript workflow.
+  \item \path{examples/reference/reference_repository_guide.md}: mapping from reference repositories to the mathematical workflow.
 \end{itemize}
 
 \begin{lstlisting}[language=bash,caption={Core commands for the tutorial code.},numbers=none]
-pip install -r requirements.txt
-
-python code/simple_degree_k_control.py
-python code/simple_degree_k_control.py \
-  --edge-list sample_data/sample_edges.csv \
-  --delimiter , --has-header --source-col source --target-col target
-
-python code/network_control_examples.py
-python code/network_control_examples.py --examples degree
-python code/network_control_examples.py --adjacency-csv sample_data/sample_adjacency.csv
-
-bash ../reference/download_reference_repositories.sh
+python -m pip install -e ".[graph,dev]"
+python -m cybercontrol smoke
+python -m cybercontrol medium --output-dir artifacts/medium
+python -m pytest -q
+python -m cybercontrol figures
+python -m cybercontrol docs
 \end{lstlisting}
 
-This two-file code structure keeps the tutorial readable: the first script shows the degree-$k$ PMP logic, and the main tutorial script shows how the same logic extends to games, node-level adjacency models, and continuous-impulsive interventions.
+The literature evidence matrix, diagram manifest and machine-readable experiment
+records provide the link from a mathematical claim to its source,
+configuration and output.
 
 \end{document}

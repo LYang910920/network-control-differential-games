@@ -32,7 +32,9 @@ def contiguous_community_index(nodes: int, communities: int) -> Array:
         raise ValueError("nodes must be positive")
     if communities <= 0:
         raise ValueError("communities must be positive")
-    return np.minimum(np.arange(nodes, dtype=int) * int(communities) // int(nodes), int(communities) - 1)
+    return np.minimum(
+        np.arange(nodes, dtype=int) * int(communities) // int(nodes), int(communities) - 1
+    )
 
 
 @dataclass(frozen=True)
@@ -138,17 +140,25 @@ def degree_correlated_node_sips_params(adjacency: Any, *, strength: float = 0.35
 
     return NodeSIPSParams(
         beta=0.8,
-        gamma=degree_correlated_node_values(adjacency, base=0.12, strength=0.20 * strength, inverse=True),
+        gamma=degree_correlated_node_values(
+            adjacency, base=0.12, strength=0.20 * strength, inverse=True
+        ),
         omega=0.03,
         susceptibility=degree_correlated_node_values(adjacency, base=1.0, strength=strength),
         infectivity=degree_correlated_node_values(adjacency, base=1.0, strength=0.60 * strength),
         criticality=degree_correlated_node_values(adjacency, base=1.0, strength=0.75 * strength),
-        patch_bound=degree_correlated_node_values(adjacency, base=0.45, strength=0.15 * strength, inverse=True),
-        clean_bound=degree_correlated_node_values(adjacency, base=0.55, strength=0.15 * strength, inverse=True),
+        patch_bound=degree_correlated_node_values(
+            adjacency, base=0.45, strength=0.15 * strength, inverse=True
+        ),
+        clean_bound=degree_correlated_node_values(
+            adjacency, base=0.55, strength=0.15 * strength, inverse=True
+        ),
     )
 
 
-def seeded_lognormal_node_sips_params(nodes: int, *, seed: int = 0, cv: float = 0.25) -> NodeSIPSParams:
+def seeded_lognormal_node_sips_params(
+    nodes: int, *, seed: int = 0, cv: float = 0.25
+) -> NodeSIPSParams:
     """Return seeded lognormal node heterogeneity for SIPS."""
 
     return NodeSIPSParams(
@@ -161,10 +171,14 @@ def seeded_lognormal_node_sips_params(nodes: int, *, seed: int = 0, cv: float = 
     )
 
 
-def _resolve_params(params: NodeSIPSParams | ResolvedNodeSIPSParams, nodes: int) -> ResolvedNodeSIPSParams:
+def _resolve_params(
+    params: NodeSIPSParams | ResolvedNodeSIPSParams, nodes: int
+) -> ResolvedNodeSIPSParams:
     if isinstance(params, ResolvedNodeSIPSParams):
         if params.beta.shape != (nodes,):
-            raise ValueError(f"resolved node params must have shape ({nodes},), got {params.beta.shape}")
+            raise ValueError(
+                f"resolved node params must have shape ({nodes},), got {params.beta.shape}"
+            )
         return params
     return params.resolve(nodes)
 
@@ -216,8 +230,12 @@ def node_sips_transition_rates(
     nodes = state.shape[0]
     resolved = _resolve_params(params, nodes)
     boost = _node_vector(beta_boost, nodes, "beta_boost")
-    patch_rate = np.minimum(_node_vector(patch, nodes, "patch") * resolved.patch_efficacy, resolved.patch_bound)
-    clean_rate = np.minimum(_node_vector(clean, nodes, "clean") * resolved.clean_efficacy, resolved.clean_bound)
+    patch_rate = np.minimum(
+        _node_vector(patch, nodes, "patch") * resolved.patch_efficacy, resolved.patch_bound
+    )
+    clean_rate = np.minimum(
+        _node_vector(clean, nodes, "clean") * resolved.clean_efficacy, resolved.clean_bound
+    )
     pressure = graph_pressure_numpy(adjacency, resolved.infectivity * state[:, 1])
     return {
         "infection": resolved.beta * resolved.susceptibility * (1.0 + boost) * pressure,
@@ -330,7 +348,9 @@ def node_sips_rhs_torch(
         clean_raw * _torch_node_vector(params.clean_efficacy, nodes, state, "clean_efficacy"),
         _torch_node_vector(params.clean_bound, nodes, state, "clean_bound"),
     )
-    infection = beta * susceptibility * (1.0 + boost) * graph_pressure_torch(adjacency, infectivity * I)
+    infection = (
+        beta * susceptibility * (1.0 + boost) * graph_pressure_torch(adjacency, infectivity * I)
+    )
     dS = -infection * S - patch_rate * S + omega * P
     dI = infection * S - (gamma + clean_rate) * I
     dP = patch_rate * S + (gamma + clean_rate) * I - omega * P

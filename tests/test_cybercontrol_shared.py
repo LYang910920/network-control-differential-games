@@ -1,9 +1,15 @@
 import numpy as np
 import pytest
 
+from cybercontrol.cli import _package_smoke
 from cybercontrol.io import require_outputs
 from cybercontrol.diagnostics import diagnostic_terms_for, rolling_mean, write_diagnostic_glossary
-from cybercontrol.models import MalwareParams, controlled_sir_rhs, controlled_sir_rhs_torch, isolation_jump
+from cybercontrol.models import (
+    MalwareParams,
+    controlled_sir_rhs,
+    controlled_sir_rhs_torch,
+    isolation_jump,
+)
 from cybercontrol.network_models import (
     NodeSIPSParams,
     community_correlated_node_sips_params,
@@ -58,6 +64,15 @@ def test_isolation_jump_is_impulsive_and_mass_preserving():
     assert x_plus[1] < x0[1]
     assert x_plus[2] > x0[2]
     assert np.isclose(x_plus.sum(), 1.0)
+
+
+def test_package_smoke_converges_and_applies_impulse_reset():
+    metrics = _package_smoke()
+
+    assert metrics["all_fbs_converged"] is True
+    assert metrics["max_fbs_final_delta"] < 1e-4
+    assert metrics["impulse_mass_error"] < 1e-12
+    assert metrics["impulse_infected_after"] < metrics["impulse_infected_before"]
 
 
 def test_grid_helpers_share_projection_quadrature_and_interpolation():
@@ -138,7 +153,9 @@ def test_publication_figure_export_writes_vector_raster_and_manifest(tmp_path):
 
 
 def test_training_diagnostic_helpers_write_reader_glossary(tmp_path):
-    assert np.allclose(rolling_mean([1.0, 3.0, float("nan"), 5.0], window=2), [1.0, 2.0, 3.0, 5.0], equal_nan=True)
+    assert np.allclose(
+        rolling_mean([1.0, 3.0, float("nan"), 5.0], window=2), [1.0, 2.0, 3.0, 5.0], equal_nan=True
+    )
 
     terms = diagnostic_terms_for(["iteration", "evaluation return", "stationarity loss"])
     assert [term.name for term in terms] == ["iteration", "evaluation return", "stationarity loss"]
@@ -183,7 +200,9 @@ def test_torch_time_derivative_and_networks_keep_gradients():
     assert any(p.grad is not None for p in state.parameters())
     assert any(p.grad is not None for p in control.parameters())
 
-    projected = project_compartments_torch(torch.tensor([[0.2, -0.1, 0.4, 0.5], [0.0, 0.0, 0.0, 0.0]]))
+    projected = project_compartments_torch(
+        torch.tensor([[0.2, -0.1, 0.4, 0.5], [0.0, 0.0, 0.0, 0.0]])
+    )
     assert torch.allclose(projected.sum(dim=1), torch.ones(2))
     assert torch.allclose(projected[1], torch.tensor([1.0, 0.0, 0.0, 0.0]))
 
@@ -233,10 +252,16 @@ def test_node_sips_mass_and_sparse_pressure_parity():
         ]
     )
     params = NodeSIPSParams(beta=0.9, gamma=0.2, omega=0.04)
-    rhs_dense = node_sips_rhs_numpy(x, A_dense, params, patch=0.05, clean=np.array([0.02, 0.03, 0.04]))
-    rhs_sparse = node_sips_rhs_numpy(x, A_sparse, params, patch=0.05, clean=np.array([0.02, 0.03, 0.04]))
+    rhs_dense = node_sips_rhs_numpy(
+        x, A_dense, params, patch=0.05, clean=np.array([0.02, 0.03, 0.04])
+    )
+    rhs_sparse = node_sips_rhs_numpy(
+        x, A_sparse, params, patch=0.05, clean=np.array([0.02, 0.03, 0.04])
+    )
 
-    assert np.allclose(graph_pressure_numpy(A_dense, x[:, 1]), graph_pressure_numpy(A_sparse, x[:, 1]))
+    assert np.allclose(
+        graph_pressure_numpy(A_dense, x[:, 1]), graph_pressure_numpy(A_sparse, x[:, 1])
+    )
     assert np.allclose(rhs_dense, rhs_sparse)
     assert np.allclose(rhs_dense.sum(axis=1), 0.0)
     rates = node_sips_transition_rates(x, A_dense, params, patch=0.05, clean=0.02)
@@ -291,7 +316,9 @@ def test_node_sips_heterogeneous_arrays_dense_sparse_and_summaries():
         clean_bound=0.06,
     )
     rhs_dense = node_sips_rhs_numpy(x, A, params, patch=0.5, clean=np.array([0.02, 0.07, 0.08]))
-    rhs_sparse = node_sips_rhs_numpy(x, sp.csr_matrix(A), params, patch=0.5, clean=np.array([0.02, 0.07, 0.08]))
+    rhs_sparse = node_sips_rhs_numpy(
+        x, sp.csr_matrix(A), params, patch=0.5, clean=np.array([0.02, 0.07, 0.08])
+    )
 
     assert np.allclose(rhs_dense, rhs_sparse)
     assert np.allclose(rhs_dense.sum(axis=1), 0.0)
@@ -369,6 +396,99 @@ def test_contiguous_community_index_is_validated_and_deterministic():
         contiguous_community_index(8, 0)
 
 
+def test_shared_replay_gae_and_architecture_contracts():
+    torch = pytest.importorskip("torch")
+    from cybercontrol.nn import (
+        ArchitectureConfig,
+        ArchitectureDescriptor,
+        ArchitectureRegistry,
+        FactorizedNodeTimeNet,
+        build_architecture,
+        model_summary,
+        shape_trace,
+    )
+    from cybercontrol.rl import ReplayBuffer, compute_gae
+
+    replay_a = ReplayBuffer(8, seed=12)
+    replay_b = ReplayBuffer(8, seed=12)
+    for index in range(6):
+        transition = (
+            np.array([index, index + 1], dtype=np.float32),
+            index % 2,
+            float(index),
+            np.array([index + 1, index + 2], dtype=np.float32),
+            index == 5,
+        )
+        replay_a.push(*transition)
+        replay_b.push(*transition)
+    for left, right in zip(replay_a.sample_numpy(3), replay_b.sample_numpy(3)):
+        assert np.array_equal(left, right)
+
+    advantage, returns = compute_gae(
+        [1.0, 0.5, -0.2],
+        [0.2, 0.1, 0.0],
+        [0.0, 0.0, 1.0],
+        0.0,
+        gamma=0.97,
+        gae_lambda=0.95,
+    )
+    assert advantage.shape == returns.shape == (3,)
+    assert np.isfinite(advantage).all()
+
+    config = ArchitectureConfig("test-mlp", 4, 2, width=8, depth=2, activation="relu")
+    model = build_architecture(config)
+    summary = model_summary(model, config)
+    trace = shape_trace(model, torch.zeros(3, 4))
+    assert summary["parameters"] > 0
+    assert trace[-1]["output"] == (3, 2)
+
+    registry = ArchitectureRegistry()
+    registry.register(
+        ArchitectureDescriptor(
+            name="test",
+            input_shape="[batch,4]",
+            output_shape="[batch,2]",
+            activation="relu",
+            normalization="none",
+            encoder="mlp",
+            decoder="linear",
+        ),
+        lambda: build_architecture(config),
+    )
+    registered = registry.build("test")
+    record = registry.describe("test", registered)
+    assert registry.names == ("test",)
+    assert record["parameters"] == summary["parameters"]
+    assert record["input_shape"] == "[batch,4]"
+
+    factorized = FactorizedNodeTimeNet(5, width=8, depth=1, fourier_features=3)
+    state = factorized(torch.zeros(4, 1), torch.zeros(6, 5))
+    assert state.shape == (4, 6, 3)
+    assert torch.allclose(state.sum(dim=-1), torch.ones(4, 6), atol=1e-6)
+
+    plain_time = FactorizedNodeTimeNet(5, width=8, depth=1, fourier_features=0)
+    plain_state = plain_time(torch.linspace(0.0, 1.0, 4).reshape(-1, 1), torch.zeros(6, 5))
+    assert plain_state.shape == (4, 6, 3)
+    assert torch.allclose(plain_state.sum(dim=-1), torch.ones(4, 6), atol=1e-6)
+
+
+def test_named_node_profiles_are_the_models_used_by_solvers():
+    from examples.foundations.code import network_control_examples as ex
+
+    adjacency = ex.normalize_adjacency(
+        np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 1.0], [0.0, 1.0, 0.0]]),
+        "row",
+    )
+    control = ex.node_control_model(adjacency)
+    game = ex.node_game_model(adjacency)
+    assert np.allclose(control.beta, ex.NODE_CONTROL_PROFILE.beta)
+    assert np.isclose(control.recovery.mean(), ex.NODE_CONTROL_PROFILE.delta, rtol=0.03)
+    assert np.allclose(game.beta, ex.NODE_GAME_PROFILE.beta)
+    assert np.isclose(game.recovery.mean(), ex.NODE_GAME_PROFILE.delta, rtol=0.03)
+    assert np.allclose(game.attack_cost, ex.NODE_GAME_PROFILE.cost_attack)
+    assert np.allclose(game.defense_cost, ex.NODE_GAME_PROFILE.cost_defense)
+
+
 def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
     from examples.foundations.code import network_control_examples as ex
 
@@ -383,7 +503,9 @@ def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
     u = np.full((len(t), len(D.k)), 0.05)
     x, cost = ex.evaluate_degree_control_policy(D, t, u)
     model = ex.degree_control_model(D)
-    expected_cost = ex.integral((x * model.state_weight) @ D.pk + 0.5 * ((u * u * model.control_weight) @ D.pk), t)
+    expected_cost = ex.integral(
+        (x * model.state_weight) @ D.pk + 0.5 * ((u * u * model.control_weight) @ D.pk), t
+    )
 
     assert np.isclose(cost, expected_cost)
     assert not np.allclose(model.state_weight, model.state_weight.mean())
@@ -402,8 +524,16 @@ def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
     defense = np.full((len(t), A.shape[0]), 0.04)
     x_game, ja, jd = ex.evaluate_node_game_strategy(A, t, attack, defense)
     game_model = ex.node_game_model(A)
-    expected_ja = ex.integral((game_model.attack_reward * x_game).sum(axis=1) - 0.5 * (attack * attack * game_model.attack_cost).sum(axis=1), t)
-    expected_jd = ex.integral(-(game_model.defense_loss * x_game).sum(axis=1) - 0.5 * (defense * defense * game_model.defense_cost).sum(axis=1), t)
+    expected_ja = ex.integral(
+        (game_model.attack_reward * x_game).sum(axis=1)
+        - 0.5 * (attack * attack * game_model.attack_cost).sum(axis=1),
+        t,
+    )
+    expected_jd = ex.integral(
+        -(game_model.defense_loss * x_game).sum(axis=1)
+        - 0.5 * (defense * defense * game_model.defense_cost).sum(axis=1),
+        t,
+    )
 
     assert np.isclose(ja, expected_ja)
     assert np.isclose(jd, expected_jd)

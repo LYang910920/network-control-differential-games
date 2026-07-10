@@ -1,123 +1,137 @@
-# Network Control Tutorial Family: Foundation
+# Network Control and Differential Games
 
-**Network Control and Differential Games**
+Research and teaching material for network propagation, heterogeneous optimal
+control, differential games, impulse intervention and continuous-impulsive
+systems. This repository is the foundation of a three-repository family and is
+the sole owner of the shared `cybercontrol` Python package.
 
-Foundation tutorial materials, shared Python package, runnable examples, and reference-code smoke tests for network optimal control, differential games, impulse interventions, and continuous-impulsive interventions. This is the first repository in the Network Control Tutorial Family. It introduces the notation, canonical `cybercontrol` package, and small reproducible checks used by the two companion repositories.
+The notes were developed from the author's research experience in network
+control and cyber applications, including publications in IEEE TIFS, TDSC,
+TSMC, TNSE and TCSS. The examples are reproducible research templates, not
+calibrated operational risk models.
 
-This public repository does **not** grant a single blanket open-source license. Tutorial materials, generated examples, and third-party source snapshots have different copyright contexts. See `LICENSE`, `COPYRIGHT_AND_LICENSE.md`, and `THIRD_PARTY_NOTICES.md`.
-
-## Author Note
-
-This tutorial was created from my research experience in optimal control, differential games, impulse control, continuous-impulsive hybrid control, and cyber/network-security applications over the past few years. The perspective is informed by publications in venues including IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals.
+This repository does not grant one blanket open-source license. Read `LICENSE`,
+`COPYRIGHT_AND_LICENSE.md` and `THIRD_PARTY_NOTICES.md` before reuse.
 
 ## Repository Family
 
-| Order | Family name | Current repository | Role |
-|---:|---|---|---|
-| 0 | Foundation: Network Control and Differential Games | `network-control-differential-games` | Shared notation, `cybercontrol`, heterogeneous degree/node equations, continuous-time, impulse, continuous-impulsive examples, scalability, and reference smoke runs. |
-| 1 | Note 1: Cyber Control and Game Learning | [note1-cyber-control-games](https://github.com/LYang910920/note1-cyber-control-games) | FBSM baselines, sampled-data MDP conversion, DDQN defense, compact CTDE, cooperative node-SIPS MAPPO, and larger node-SIPS attacker-defender benchmarks. |
-| 2 | Note 2: Physics-Informed Cyber Control | [note2-pinn-pidl-cyber-control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | PINN/PIDL inverse learning, neural control, PMP-informed losses, and graph-state residual examples. |
+![Repository family](docs/assets/diagrams/repository_family.png)
 
-The GitHub repository slugs are kept stable for existing links. The family names above are the display names used in the PDFs and documentation.
+| Order | Repository | Responsibility |
+|---:|---|---|
+| 0 | **Network Control and Differential Games** | Shared equations, heterogeneous profiles, graph/numerical/FBSM utilities, neural blocks, metrics, manifests and plotting |
+| 1 | [Cyber Control and Game Learning](https://github.com/LYang910920/note1-cyber-control-games) | Environments, DDQN/PPO, CTDE, cooperative MAPPO and attacker-defender evaluation |
+| 2 | [Physics-Informed Cyber Control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | Inverse PINN, PIDL, neural control and PMP-informed learning |
+
+The GitHub slugs remain unchanged so existing links continue to work.
 
 ## 5-Minute Quick Start
+
+Python 3.10 or newer is required.
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e ".[graph,dev]"
-python run_all.py --skip-reference --skip-scalability
+python -m cybercontrol smoke
 python -m pytest -q
 ```
 
-Run the fuller foundation examples and reference smoke tests:
+For library-only use without graph or test extras:
 
 ```bash
-python run_all.py --skip-reference
-python run_all.py --skip-foundations
+python -m pip install -e .
+python -m cybercontrol smoke
 ```
 
-`python-igraph` is optional. If it is difficult to install locally, use the non-scalability examples:
+The smoke command uses packaged kernels only. Medium experiments, figure
+generation and PDF builds require the source checkout.
+
+The bundled graph examples and full test suite use the `graph` and `dev`
+extras shown in the primary quick start.
+
+The same public runner is used across the family:
 
 ```bash
-python -m pip install -e ".[dev]"
-python run_all.py --skip-reference --skip-scalability
+python -m cybercontrol medium --output-dir artifacts/medium
+python -m cybercontrol figures
+python -m cybercontrol docs
+python -m cybercontrol all
 ```
 
 ## Code Map
 
 | Need | Start here |
 |---|---|
-| Tutorial PDF | `docs/network_control_foundations.pdf` |
-| Code walkthrough PDF | `docs/code_walkthrough_and_model_adaptation_guide.pdf` |
-| Parameters and solver settings | `docs/PARAMETERS.md` |
-| Notation mapped to Python variables | `docs/NOTATION_TO_CODE.md` |
-| Paper workflow and extensions | `docs/from_model_to_paper.md`, `docs/EXTENDING.md` |
-| Shared package | `src/cybercontrol/` |
-| Heterogeneous degree/node parameters | `src/cybercontrol/heterogeneity.py`, `src/cybercontrol/network_models.py` |
-| Foundation example runner | `examples/foundations/code/run_foundation_examples.py` |
-| Minimal degree-level control example | `examples/foundations/code/simple_degree_k_control.py` (homogeneous scalar profile) |
-| Main continuous/game/continuous-impulse examples | `examples/foundations/code/network_control_examples.py` (canonical heterogeneous runs) |
-| Degree-vs-node scalability | `examples/foundations/code/scalability_analysis.py` |
-| Reference repository smoke runs | `examples/reference/run_reference_smoke.py` |
-| Reference model taxonomy | `examples/reference/MODEL_TAXONOMY.md`, `examples/reference/reference_repository_guide.md` |
-
-## Capability Status
-
-| Capability | API / file | Command | Metrics | Validation status |
-|---|---|---|---|---|
-| Heterogeneous degree-level optimal control | `cybercontrol.heterogeneity`, `network_control_examples.py::solve_degree_control` | `python run_all.py --skip-reference --skip-scalability` | cost, FBS convergence, matched-mean cost, random-control baselines | per-class susceptibility, infectivity, recovery, weights, costs, bounds |
-| Heterogeneous degree-level attacker-defender game | `solve_degree_game` | same command | attacker/defender payoff, unilateral baseline matrix | per-class rewards, losses, costs, bounds, assortative mixing |
-| Heterogeneous node-level optimal control | `solve_node_control` | same command | cost, node-mean state/control, matched-mean cost | per-node rates, weights, costs, bounds |
-| Heterogeneous node-level attacker-defender game | `solve_node_game` | same command | attacker/defender payoff, unilateral baseline matrix | per-node rewards, losses, costs, bounds |
-
-The simple degree-k file remains a short homogeneous example. The advanced foundation script uses the shared heterogeneous equations and writes `heterogeneous_vs_matched_mean.csv`.
+| Main PDF | [`docs/network_control_foundations.pdf`](docs/network_control_foundations.pdf) |
+| Equations, parameters and API | [`docs/MODELS_AND_API.md`](docs/MODELS_AND_API.md) |
+| Commands and reproducibility | [`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md) |
+| Research workflow | [`docs/FROM_MODEL_TO_PAPER.md`](docs/FROM_MODEL_TO_PAPER.md) |
+| Shared package | [`src/cybercontrol/`](src/cybercontrol/) |
+| Degree/node control and games | [`src/cybercontrol/fbs.py`](src/cybercontrol/fbs.py) |
+| Heterogeneous profiles | [`src/cybercontrol/heterogeneity.py`](src/cybercontrol/heterogeneity.py) |
+| SIR/SIPS equations | [`src/cybercontrol/models.py`](src/cybercontrol/models.py), [`network_models.py`](src/cybercontrol/network_models.py) |
+| Neural, RL and PINN blocks | [`nn.py`](src/cybercontrol/nn.py), [`rl.py`](src/cybercontrol/rl.py), [`pinn.py`](src/cybercontrol/pinn.py) |
+| Thin foundation example | [`examples/foundations/code/network_control_examples.py`](examples/foundations/code/network_control_examples.py) |
+| Paired scalability | [`examples/foundations/code/scalability_analysis.py`](examples/foundations/code/scalability_analysis.py) |
+| Reference repository checks | [`examples/reference/`](examples/reference/) |
+| Literature evidence | [`docs/literature/literature_matrix.csv`](docs/literature/literature_matrix.csv) |
 
 ## Representative Experiments
 
-The foundation examples compare heterogeneous degree-level control/game models, heterogeneous node-level variants, matched-mean homogeneous baselines, convergence diagnostics, and continuous-impulse behavior.
+The degree and node solvers use the same propagation problem but different state
+resolution. Heterogeneous runs are compared with matched-mean homogeneous
+profiles and save resolved arrays.
 
-![Foundation examples contact sheet](docs/assets/foundation_examples_contact_sheet.png)
+![Degree-level and node-level models](docs/assets/diagrams/degree_vs_node.png)
 
-The scalability check uses the same synthetic scale-free graph seeds for degree-level and sparse node-level FBS on the same SIS epidemic-control problem.
+The foundation suite runs heterogeneous degree/node control and games,
+continuous-impulsive state jumps, baseline comparisons and FBSM diagnostics.
 
-![Degree-vs-node FBS scalability](docs/assets/degree_node_fbs_scalability.png)
+![Foundation experiment index](docs/assets/foundation_examples_contact_sheet.png)
 
-The reference smoke runs execute lightweight checks for the paper-level repositories while preserving third-party snapshots and license boundaries.
+The scalability experiment uses matched synthetic scale-free graphs and reports
+state dimension, degree classes, convergence, runtime and max degree on log
+scales. Large profiles are opt-in.
 
-![Reference smoke runs](docs/assets/reference_repo_contact_sheet.png)
+![Degree and node FBSM scalability](docs/assets/degree_node_fbs_scalability.png)
+
+Three preserved reference snapshots connect the framework to paper-level
+degree-game, node impulse and awareness-aware propaganda workflows. Their
+upstream licenses and notices remain intact.
 
 ## Extension Route
 
-1. Read `docs/PARAMETERS.md` before changing model horizons, rates, graph sizes, impulse settings, or FBS tolerances.
-2. Use `src/cybercontrol/` for shared numerics, heterogeneous parameter profiles, graph equations, Torch helpers, plotting, metrics, and output utilities.
-3. Keep new paper-specific code in examples or companion repositories unless at least two real callers need a shared helper.
-4. Store rerun CSVs, temporary figures, and medium-run diagnostics under ignored `artifacts/`.
-5. Preserve third-party reference snapshots and their license files.
+1. Define state order, adjacency convention, action timing and objective.
+2. Resolve all scalar/array parameters through `cybercontrol.heterogeneity`.
+3. Reuse integration, graph and FBSM modules instead of copying a solver.
+4. Add a shared helper only when two real callers need it.
+5. Compare with no-action, rule, random and matched homogeneous baselines.
+6. Save run manifests and generated outputs under ignored `artifacts/`.
+
+The [models/API guide](docs/MODELS_AND_API.md) contains the old-to-new import
+map and the [paper guide](docs/FROM_MODEL_TO_PAPER.md) gives an experiment and
+manuscript checklist.
 
 ## Validation
 
 ```bash
-python -m compileall -q src examples tests
+python -m compileall -q src examples tests scripts
+python -m ruff check src tests examples scripts
 python -m pytest -q
-python run_all.py --skip-reference --skip-scalability
+python -m cybercontrol smoke --output-dir artifacts/validation/smoke
+python -m cybercontrol figures
+python -m cybercontrol docs
 ```
 
-Extended local scalability check:
-
-```bash
-python examples/foundations/code/scalability_analysis.py \
-  --model-level compare \
-  --sizes 100,1000,10000,100000,1000000 \
-  --steps 12 --iterations 35 --tolerance 1e-3 --repeats 1 \
-  --output-dir artifacts/extended_validation/scalability_degree_node_100_to_1m
-```
-
-This bounded million-node run converged for every paired degree/node case. At 1,000,000 nodes, the degree-level FBS state had 305 degree classes and solved in about 0.08 seconds; the sparse node-level FBS state had 1,000,000 nodes and solved in about 17.4 seconds.
-
-LaTeX sources live in `docs/source/`; current PDFs live in `docs/`. Build PDFs from the source directory and copy only the final PDF back to `docs/`.
+Tests cover conservation/nonnegativity, scalar-vector compatibility,
+dense-sparse and NumPy-Torch parity, finite-difference Jacobians, deterministic
+profiles and reset semantics. See `docs/REPRODUCIBILITY.md` for medium and
+million-node commands.
 
 ## Citation and License
 
-Use `CITATION.md` for citation guidance. Review `LICENSE`, `COPYRIGHT_AND_LICENSE.md`, and `THIRD_PARTY_NOTICES.md` before redistribution or reuse.
+Use [`CITATION.md`](CITATION.md) for citation guidance. Review [`LICENSE`](LICENSE),
+[`COPYRIGHT_AND_LICENSE.md`](COPYRIGHT_AND_LICENSE.md) and
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) before redistribution.

@@ -1,6 +1,6 @@
 # Foundation Examples
 
-This directory contains the self-contained foundation examples from the network optimal-control and differential-games tutorial package.
+This directory contains foundation examples for network optimal control and differential games.
 
 ## Contents
 

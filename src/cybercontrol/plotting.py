@@ -279,7 +279,9 @@ def add_box(ax, xy, text, width=1.8, height=0.55, fc="#f7f7f7", ec="#333333", fo
 def add_arrow(ax, start, end, color="#333333", linewidth=1.4):
     """Draw a simple arrow between two points."""
 
-    ax.annotate("", xy=end, xytext=start, arrowprops={"arrowstyle": "->", "lw": linewidth, "color": color})
+    ax.annotate(
+        "", xy=end, xytext=start, arrowprops={"arrowstyle": "->", "lw": linewidth, "color": color}
+    )
 
 
 def clean_axes(ax, alpha: float = 0.25):
@@ -289,8 +291,14 @@ def clean_axes(ax, alpha: float = 0.25):
     return ax
 
 
-def apply_clean_axes(ax, *, xlabel: str | None = None, ylabel: str | None = None,
-                     title: str | None = None, alpha: float = 0.25) -> None:
+def apply_clean_axes(
+    ax,
+    *,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    title: str | None = None,
+    alpha: float = 0.25,
+) -> None:
     """Apply labels, title, and the shared readable grid style."""
 
     style_axis(ax, xlabel=xlabel, ylabel=ylabel, title=title, alpha=alpha)

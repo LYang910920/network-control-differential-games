@@ -1,0 +1,32 @@
+# Copyright (c) 2026 Lu-Xing Yang.
+# No project-wide open-source license is granted; see COPYRIGHT_AND_LICENSE.md.
+
+name: Quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install -e ".[dev]"
+      - name: Static and unit checks
+        run: |
+          python -m compileall -q src tests scripts
+          ruff check .
+          ruff format --check src tests scripts
+          pytest -q
+      - name: Public smoke and diagrams
+        run: |
+          python -m cybercontrol smoke
+          python scripts/generate_diagrams.py

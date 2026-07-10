@@ -10,7 +10,7 @@ Path:
 examples/foundations/
 ```
 
-Use this track first. The scripts are small, self-contained, and written to show the modeling pattern clearly.
+Use this track first. The scripts isolate the modeling pattern and call the importable package implementation.
 
 | File | Purpose | Best use |
 | --- | --- | --- |
