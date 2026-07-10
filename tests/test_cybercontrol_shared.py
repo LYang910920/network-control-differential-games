@@ -545,20 +545,22 @@ def test_shared_replay_gae_and_architecture_contracts():
 
 
 def test_named_node_profiles_are_the_models_used_by_solvers():
-    from examples.foundations.code import network_control_examples as ex
+    from cybercontrol.fbs import node_control_model, node_game_model
+    from cybercontrol.foundation_profiles import NODE_CONTROL_PROFILE, NODE_GAME_PROFILE
+    from cybercontrol.graph_data import normalize_adjacency as normalize_influence_matrix
 
-    adjacency = ex.normalize_adjacency(
+    adjacency = normalize_influence_matrix(
         np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 1.0], [0.0, 1.0, 0.0]]),
         "row",
     )
-    control = ex.node_control_model(adjacency)
-    game = ex.node_game_model(adjacency)
-    assert np.allclose(control.beta, ex.NODE_CONTROL_PROFILE.beta)
-    assert np.isclose(control.recovery.mean(), ex.NODE_CONTROL_PROFILE.delta, rtol=0.03)
-    assert np.allclose(game.beta, ex.NODE_GAME_PROFILE.beta)
-    assert np.isclose(game.recovery.mean(), ex.NODE_GAME_PROFILE.delta, rtol=0.03)
-    assert np.isclose(game.attack_cost.mean(), ex.NODE_GAME_PROFILE.cost_attack, rtol=0.03)
-    assert np.isclose(game.defense_cost.mean(), ex.NODE_GAME_PROFILE.cost_defense, rtol=0.03)
+    control = node_control_model(adjacency)
+    game = node_game_model(adjacency)
+    assert np.allclose(control.beta, NODE_CONTROL_PROFILE.beta)
+    assert np.isclose(control.recovery.mean(), NODE_CONTROL_PROFILE.delta, rtol=0.03)
+    assert np.allclose(game.beta, NODE_GAME_PROFILE.beta)
+    assert np.isclose(game.recovery.mean(), NODE_GAME_PROFILE.delta, rtol=0.03)
+    assert np.isclose(game.attack_cost.mean(), NODE_GAME_PROFILE.cost_attack, rtol=0.03)
+    assert np.isclose(game.defense_cost.mean(), NODE_GAME_PROFILE.cost_defense, rtol=0.03)
     for field in (
         "susceptibility",
         "infectivity",
@@ -580,9 +582,15 @@ def test_named_node_profiles_are_the_models_used_by_solvers():
 
 
 def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
-    from examples.foundations.code import network_control_examples as ex
+    from cybercontrol.fbs import degree_control_model, node_game_model
+    from cybercontrol.foundation_evaluation import (
+        evaluate_degree_control_policy,
+        evaluate_node_game_strategy,
+    )
+    from cybercontrol.graph_data import DegreeData
+    from cybercontrol.graph_data import normalize_adjacency as normalize_influence_matrix
 
-    D = ex.DegreeData(
+    D = DegreeData(
         k=np.array([1.0, 3.0, 6.0]),
         Nk=np.array([4, 3, 2]),
         pk=np.array([4 / 9, 3 / 9, 2 / 9], dtype=float),
@@ -591,16 +599,16 @@ def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
     )
     t = np.linspace(0.0, 1.0, 6)
     u = np.full((len(t), len(D.k)), 0.05)
-    x, cost = ex.evaluate_degree_control_policy(D, t, u)
-    model = ex.degree_control_model(D)
-    expected_cost = ex.integral(
+    x, cost = evaluate_degree_control_policy(D, t, u)
+    model = degree_control_model(D)
+    expected_cost = trapezoid_integral(
         (x * model.state_weight) @ D.pk + 0.5 * ((u * u * model.control_weight) @ D.pk), t
     )
 
     assert np.isclose(cost, expected_cost)
     assert not np.allclose(model.state_weight, model.state_weight.mean())
 
-    A = ex.normalize_adjacency(
+    A = normalize_influence_matrix(
         np.array(
             [
                 [0.0, 1.0, 0.0],
@@ -612,14 +620,14 @@ def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
     )
     attack = np.full((len(t), A.shape[0]), 0.03)
     defense = np.full((len(t), A.shape[0]), 0.04)
-    x_game, ja, jd = ex.evaluate_node_game_strategy(A, t, attack, defense)
-    game_model = ex.node_game_model(A)
-    expected_ja = ex.integral(
+    x_game, ja, jd = evaluate_node_game_strategy(A, t, attack, defense)
+    game_model = node_game_model(A)
+    expected_ja = trapezoid_integral(
         (game_model.attack_reward * x_game).sum(axis=1)
         - 0.5 * (attack * attack * game_model.attack_cost).sum(axis=1),
         t,
     )
-    expected_jd = ex.integral(
+    expected_jd = trapezoid_integral(
         -(game_model.defense_loss * x_game).sum(axis=1)
         - 0.5 * (defense * defense * game_model.defense_cost).sum(axis=1),
         t,
