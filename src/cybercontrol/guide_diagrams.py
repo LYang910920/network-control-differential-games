@@ -1024,17 +1024,17 @@ def node_time_encoder_decoder():
     )
     c.arrow((0.66, 0.52), (0.72, 0.54), color=NAVY)
     c.box(
-        0.89,
+        0.88,
         0.44,
-        0.08,
+        0.10,
         0.20,
         "SIPS state\n" r"$X_\theta$" "\n" r"$[B,N,3]$",
         fill="#FBE9E9",
         edge=RED,
-        fontsize=9.3,
+        fontsize=9.0,
         weight="bold",
     )
-    c.arrow((0.86, 0.54), (0.89, 0.54), color=RED)
+    c.arrow((0.86, 0.54), (0.88, 0.54), color=RED)
     c.box(
         0.20,
         0.10,
