@@ -24,6 +24,8 @@ PALE_TEAL = "#E7F5F3"
 PALE_ORANGE = "#FFF1DD"
 PALE_GRAY = "#F3F6F8"
 WHITE = "#FFFFFF"
+REFERENCE_WIDTH = 11.2
+GUIDE_WIDTH = 8.4
 
 
 @dataclass(frozen=True)
@@ -42,7 +44,9 @@ class Canvas:
     def __init__(self, title: str, *, subtitle: str | None = None, height: float = 6.4):
         import matplotlib.pyplot as plt
 
-        self.fig, self.ax = plt.subplots(figsize=(11.2, height))
+        scale = GUIDE_WIDTH / REFERENCE_WIDTH
+        self.fig, self.ax = plt.subplots(figsize=(GUIDE_WIDTH, height * scale))
+        self._box_text_pairs: list[tuple[object, object]] = []
         self.ax.set_xlim(0.0, 1.0)
         self.ax.set_ylim(0.0, 1.0)
         self.ax.axis("off")
@@ -89,7 +93,7 @@ class Canvas:
         )
         self.ax.add_patch(patch)
         tx = x + w / 2 if align == "center" else x + 0.018
-        self.ax.text(
+        text_artist = self.ax.text(
             tx,
             y + h / 2,
             text,
@@ -101,6 +105,7 @@ class Canvas:
             linespacing=1.25,
             zorder=3,
         )
+        self._box_text_pairs.append((patch, text_artist))
         return patch
 
     def circle(
@@ -179,8 +184,30 @@ class Canvas:
         self.ax.text(x, y, text, fontsize=fontsize, color=color, fontweight=weight, ha=ha, va=va)
 
     def finish(self):
+        self.fig._diagram_box_text_pairs = tuple(self._box_text_pairs)
         self.fig.subplots_adjust(left=0.02, right=0.98, top=0.98, bottom=0.03)
         return self.fig
+
+
+def diagram_box_overflows(figure, *, tolerance_pixels: float = 1.0) -> list[str]:
+    """Return labels that extend beyond their diagram boxes after layout."""
+
+    figure.canvas.draw()
+    renderer = figure.canvas.get_renderer()
+    findings = []
+    for patch, text_artist in getattr(figure, "_diagram_box_text_pairs", ()):
+        patch_bounds = patch.get_window_extent(renderer)
+        text_bounds = text_artist.get_window_extent(renderer)
+        overflow = max(
+            patch_bounds.x0 - text_bounds.x0,
+            text_bounds.x1 - patch_bounds.x1,
+            patch_bounds.y0 - text_bounds.y0,
+            text_bounds.y1 - patch_bounds.y1,
+            0.0,
+        )
+        if overflow > tolerance_pixels:
+            findings.append(text_artist.get_text())
+    return findings
 
 
 def repository_family():
@@ -192,66 +219,67 @@ def repository_family():
     )
     c.box(
         0.22,
-        0.61,
+        0.59,
         0.56,
-        0.19,
+        0.23,
         "Network Control and Differential Games\n"
-        "cybercontrol: equations, graphs, FBSM and numerics\n"
-        "shared metrics, experiment records and plotting",
+        "cybercontrol: equations, graphs and numerics\n"
+        "FBSM, metrics, run records and plotting",
         fill=PALE_BLUE,
         edge=BLUE,
-        fontsize=12,
+        fontsize=10.5,
         weight="bold",
     )
     c.box(
-        0.06,
+        0.04,
         0.26,
-        0.39,
-        0.20,
+        0.42,
+        0.22,
         "Cyber Control and Game Learning\n"
-        "cybergames: environments, DDQN/PPO, CTDE and MAPPO\n"
-        "policy and attacker–defender evaluation",
+        "cybergames: environments and DDQN/PPO\n"
+        "CTDE, MAPPO and game evaluation",
         fill=PALE_TEAL,
         edge=TEAL,
-        fontsize=11,
+        fontsize=9.5,
         weight="bold",
     )
     c.box(
-        0.55,
+        0.54,
         0.26,
-        0.39,
-        0.20,
+        0.42,
+        0.22,
         "Physics-Informed Cyber Control\n"
-        "cyberpinn: inverse PINN, PIDL and neural control\n"
-        "PMP-informed state, costate and stationarity residuals",
+        "cyberpinn: inverse PINN and PIDL\n"
+        "neural control and PMP-informed residuals",
         fill=PALE_ORANGE,
         edge=ORANGE,
-        fontsize=11,
+        fontsize=9.5,
         weight="bold",
     )
     c.arrow(
-        (0.39, 0.60),
+        (0.39, 0.58),
         (0.29, 0.47),
         label="imports cybercontrol",
         color=TEAL,
         label_offset=(-0.06, 0.02),
     )
     c.arrow(
-        (0.61, 0.60),
+        (0.61, 0.58),
         (0.71, 0.47),
         label="imports cybercontrol",
         color=ORANGE,
         label_offset=(0.06, 0.02),
     )
     c.box(
-        0.18,
-        0.08,
-        0.64,
         0.10,
-        "Common model vocabulary: SIR/SIPS states, heterogeneous parameters, sampled and impulse semantics",
+        0.08,
+        0.80,
+        0.11,
+        "Common model vocabulary: SIR/SIPS states and heterogeneous parameters\n"
+        "Shared semantics: sampled actions, impulses and reset maps",
         fill=PALE_GRAY,
         edge=MUTED,
-        fontsize=10,
+        fontsize=9.6,
     )
     return c.finish()
 
@@ -307,10 +335,11 @@ def state_transitions():
         "\n"
         r"$\lambda_i=\beta_i s_i\sum_j A_{ij}\,\iota_j I_j$"
         "\n"
-        r"with node-specific $s_i,\iota_i,\gamma_i,\omega_i$ and control bounds",
+        r"node-specific $s_i,\iota_i,\gamma_i,\omega_i$"
+        "\nand node-specific control bounds",
         fill=PALE_GRAY,
         edge=MUTED,
-        fontsize=10.2,
+        fontsize=9.6,
     )
     c.label(
         0.50,
@@ -386,8 +415,8 @@ def degree_vs_node():
         0.07,
         0.08,
         0.38,
-        0.08,
-        "Cost scales with number of degree classes and time points",
+        0.10,
+        "Cost scales with degree classes\nand time points",
         fill=WHITE,
         edge=BLUE,
         fontsize=9.5,
@@ -396,8 +425,8 @@ def degree_vs_node():
         0.55,
         0.08,
         0.38,
-        0.08,
-        "Cost scales with nodes, edges, controls and time points",
+        0.10,
+        "Cost scales with nodes and edges,\ncontrols and time points",
         fill=WHITE,
         edge=TEAL,
         fontsize=9.5,
@@ -415,7 +444,7 @@ def control_timing():
         subtitle="Decision timing, action-value domain and state effect are separate classification axes.",
         height=7.0,
     )
-    x0, x1 = 0.26, 0.94
+    x0, x1 = 0.32, 0.94
     t = np.linspace(0.0, 1.0, 250)
     ys = [0.76, 0.61, 0.46, 0.31, 0.16]
     labels = [
@@ -480,7 +509,7 @@ def ode_environment():
         (0.20, "Choose action\n" r"$a_k=(m_k,v_k)$", PALE_TEAL, TEAL),
         (0.37, "Optional reset\n" r"$x_k^+=G(x_k^-,v_k)$", "#FBE9E9", RED),
         (0.55, "Integrate flow\n" r"$\dot{x}=f_{m_k}(x,v_k)$", PALE_ORANGE, ORANGE),
-        (0.73, "Accumulate reward\n" r"$r_k=-\int c\,dt-C_J$", PALE_GRAY, MUTED),
+        (0.73, "Reward\nrunning + jump\n" r"$r_k=-\int c\,dt-C_J$", PALE_GRAY, MUTED),
         (0.88, "Next state\n" r"$x_{k+1}$", PALE_BLUE, BLUE),
     ]
     widths = [0.13, 0.14, 0.15, 0.15, 0.13, 0.09]
@@ -489,23 +518,24 @@ def ode_environment():
         if idx < len(items) - 1:
             c.arrow((x + width + 0.005, 0.61), (items[idx + 1][0] - 0.005, 0.61), color=NAVY)
     c.box(
-        0.19,
-        0.22,
-        0.62,
-        0.15,
-        "Ordering is part of the model: reset-before-flow and flow-before-reset generally produce different transitions.\n"
-        "Running cost and impulse cost are recorded separately before they are combined in the reward.",
+        0.12,
+        0.20,
+        0.76,
+        0.18,
+        "Ordering is part of the model: reset-before-flow and flow-before-reset\n"
+        "generally produce different transitions. Running and impulse costs are\n"
+        "recorded separately before they are combined in the reward.",
         fill=WHITE,
         edge=MUTED,
-        fontsize=10.1,
+        fontsize=8.9,
     )
     c.arrow(
         (0.925, 0.50),
-        (0.105, 0.41),
+        (0.105, 0.51),
         label="repeat at $t_{k+1}$",
         color=BLUE,
         bend=-0.20,
-        label_offset=(0.0, -0.015),
+        label_offset=(0.0, -0.025),
     )
     return c.finish()
 
@@ -542,9 +572,13 @@ def ddqn():
         0.58,
         0.15,
         0.15,
-        r"$\varepsilon$-greedy" "\n" r"$a_k=\arg\max_a Q(o_k,a)$",
+        r"$\varepsilon$-greedy"
+        "\nonline net selects"
+        "\n"
+        r"$\arg\max_a Q(o_k,a)$",
         fill=PALE_ORANGE,
         edge=ORANGE,
+        fontsize=9.0,
     )
     c.box(
         0.77,
@@ -608,7 +642,7 @@ def mappo_ctde():
 
     c = Canvas(
         "Budgeted cooperative PPO with centralized training",
-        subtitle="Repository path: a state-conditioned coordinator chooses one joint community action; execution is not strictly decentralized.",
+        subtitle="A shared actor chooses one budget-feasible joint action; the value critic is used during training only.",
         height=6.8,
     )
     c.box(
@@ -616,9 +650,10 @@ def mappo_ctde():
         0.57,
         0.19,
         0.17,
-        "Community summaries\n" r"$O_k\in\mathbb{R}^{M\times d_o}$" "\nstate + risk + time",
+        "Community state\n" r"$O_k\in\mathbb{R}^{M\times d_o}$" "\nSIPS + risk + time",
         fill=PALE_BLUE,
         edge=BLUE,
+        fontsize=9.0,
         weight="bold",
     )
     c.box(
@@ -626,42 +661,46 @@ def mappo_ctde():
         0.57,
         0.20,
         0.17,
-        "Shared community encoder\nMLP or graph context\n+ joint-action logits",
+        "Shared actor\nMLP or graph context\njoint-action logits",
         fill=PALE_TEAL,
         edge=TEAL,
+        fontsize=9.0,
         weight="bold",
     )
     c.arrow((0.23, 0.655), (0.29, 0.655), color=TEAL)
     c.box(
-        0.55,
+        0.54,
         0.57,
-        0.16,
+        0.18,
         0.17,
-        "One categorical action\nno action or\n(community, mode)",
+        "Budget-feasible action\nnone or\n(community, mode)",
         fill=PALE_ORANGE,
         edge=ORANGE,
+        fontsize=8.6,
         weight="bold",
     )
-    c.arrow((0.49, 0.655), (0.55, 0.655), color=TEAL)
+    c.arrow((0.49, 0.655), (0.54, 0.655), color=TEAL)
     c.box(
         0.77,
         0.57,
         0.18,
         0.17,
-        "Node-SIPS environment\nODE transition\nscalar team reward",
+        "Node-SIPS flow\ncommunity rewards\n" r"$r_k\in\mathbb{R}^{M}$",
         fill=PALE_BLUE,
         edge=BLUE,
+        fontsize=8.8,
         weight="bold",
     )
-    c.arrow((0.71, 0.655), (0.77, 0.655))
+    c.arrow((0.72, 0.655), (0.77, 0.655))
     c.box(
         0.73,
         0.20,
         0.22,
         0.17,
-        "Rollout buffer\nobservations $[T,M,d_o]$\nactions/rewards $[T]$",
+        "Rollout buffer\n" r"$O:[T,M,d_o]$" "\n" r"$a,\,\bar r,\,V:[T]$",
         fill=PALE_GRAY,
         edge=MUTED,
+        fontsize=9.0,
     )
     c.arrow((0.86, 0.57), (0.85, 0.38), label="collect", color=MUTED)
     c.box(
@@ -669,9 +708,10 @@ def mappo_ctde():
         0.18,
         0.23,
         0.19,
-        "GAE + PPO update\nclipped ratios, entropy,\nmini-batches and epochs",
+        "Mean reward + GAE\nclipped PPO update\nmini-batches and epochs",
         fill="#FBE9E9",
         edge=RED,
+        fontsize=8.9,
         weight="bold",
     )
     c.arrow((0.73, 0.285), (0.65, 0.285), color=MUTED)
@@ -680,96 +720,124 @@ def mappo_ctde():
         0.18,
         0.25,
         0.19,
-        r"Centralized value critic $V_\phi(O_k)$"
-        "\npooled community summaries\ntraining and coordinated execution",
+        "Centralized value critic\n"
+        r"$V_\phi(O_k)$ from pooled summaries"
+        "\ntraining only",
         fill=WHITE,
         edge=BLUE,
+        fontsize=8.9,
         weight="bold",
     )
-    c.arrow((0.42, 0.275), (0.33, 0.275), label="value targets", color=BLUE)
+    c.arrow(
+        (0.42, 0.275),
+        (0.33, 0.275),
+        label="value targets",
+        color=BLUE,
+        label_offset=(0.0, 0.04),
+    )
     c.arrow((0.50, 0.38), (0.39, 0.57), label="update coordinator", color=TEAL, bend=0.12)
     return c.finish()
 
 
 def hierarchical_game():
-    """Show a state-conditioned hierarchical attacker-defender policy."""
+    """Show the implemented attacker-defender actor-critic and cross-play path."""
 
     c = Canvas(
-        "Hierarchical attacker–defender policy",
-        subtitle="A high-level decision identifies where to act; a low-level allocator determines the bounded action intensity.",
+        "Attacker–defender actor-critic and fixed-policy cross-play",
+        subtitle="Separate actors select target communities; the environment maps those targets to fixed sampled-flow interventions.",
     )
     c.box(
-        0.05,
-        0.55,
-        0.17,
-        0.18,
-        "Global and local features\nstate, degree, community,\nasset risk and budget",
+        0.03,
+        0.54,
+        0.20,
+        0.20,
+        "Community observations\nSIPS means and pressure\ndegree, risk, time-to-go",
         fill=PALE_BLUE,
         edge=BLUE,
+        fontsize=8.8,
         weight="bold",
     )
     c.box(
-        0.29,
-        0.59,
-        0.17,
-        0.14,
-        "High-level selector\ncommunity / target",
+        0.28,
+        0.65,
+        0.18,
+        0.12,
+        "Defender actor\ncommunity scores",
         fill=PALE_TEAL,
         edge=TEAL,
+        fontsize=9.2,
         weight="bold",
     )
     c.box(
-        0.53,
-        0.59,
-        0.17,
-        0.14,
-        "Low-level allocator\nmode and intensity",
+        0.28,
+        0.48,
+        0.18,
+        0.12,
+        "Attacker actor\ncommunity scores",
         fill=PALE_ORANGE,
         edge=ORANGE,
+        fontsize=9.2,
         weight="bold",
     )
     c.box(
-        0.77,
-        0.55,
-        0.17,
-        0.18,
-        "Budget projection\nvalid joint action\nfor the simulator",
+        0.51,
+        0.54,
+        0.21,
+        0.20,
+        "Budgeted targets\nDefender: patch or clean\n"
+        r"Attacker: receiver $\beta$ boost",
         fill=PALE_BLUE,
         edge=BLUE,
+        fontsize=8.7,
         weight="bold",
     )
-    for start, end in (
-        ((0.22, 0.64), (0.29, 0.66)),
-        ((0.46, 0.66), (0.53, 0.66)),
-        ((0.70, 0.66), (0.77, 0.64)),
-    ):
-        c.arrow(start, end)
+    c.arrow((0.23, 0.65), (0.28, 0.71), color=TEAL)
+    c.arrow((0.23, 0.63), (0.28, 0.54), color=ORANGE)
+    c.arrow((0.46, 0.71), (0.51, 0.66), color=TEAL)
+    c.arrow((0.46, 0.54), (0.51, 0.60), color=ORANGE)
     c.box(
+        0.77,
+        0.54,
+        0.19,
         0.20,
-        0.23,
-        0.24,
-        0.15,
-        "Opponent pool\ncurrent, historical and\nrule-based policies",
-        fill=PALE_GRAY,
-        edge=MUTED,
-    )
-    c.box(
-        0.56,
-        0.23,
-        0.24,
-        0.15,
-        "Evaluation evidence\nresponse matrix and\nunilateral deviations",
+        "Adversarial SIPS flow\nplayer-specific payoffs\n(no impulse reset)",
         fill="#FBE9E9",
         edge=RED,
+        fontsize=9.0,
+        weight="bold",
     )
-    c.arrow((0.32, 0.39), (0.37, 0.58), label="sample opponent", color=MUTED, bend=0.08)
-    c.arrow((0.855, 0.54), (0.68, 0.39), label="deterministic evaluation", color=RED, bend=-0.08)
+    c.arrow((0.72, 0.64), (0.77, 0.64), color=NAVY)
+    c.box(
+        0.08,
+        0.22,
+        0.28,
+        0.15,
+        "Role-specific pooled critics\nreturns and policy gradients\n(training only)",
+        fill=WHITE,
+        edge=BLUE,
+        fontsize=9.0,
+    )
+    c.arrow((0.87, 0.53), (0.36, 0.30), label="payoffs and trajectories", color=BLUE, bend=-0.12)
+    c.arrow((0.22, 0.37), (0.34, 0.48), label="update actors", color=TEAL, bend=0.08)
+    c.box(
+        0.50,
+        0.21,
+        0.43,
+        0.16,
+        "Held-out fixed-policy cross-play\nlearned profile versus uniform, degree, risk,\n"
+        "oracle and budget-random policies\n(no best-response retraining)",
+        fill=PALE_GRAY,
+        edge=MUTED,
+        fontsize=8.6,
+    )
+    c.arrow((0.86, 0.53), (0.75, 0.38), label="deterministic rollout", color=RED, bend=-0.08)
     c.label(
         0.50,
-        0.10,
-        "Training reward measures optimization progress; it does not by itself establish Nash equilibrium.",
+        0.09,
+        "Cross-play is evaluation evidence, not an exploitability estimate or proof of Nash equilibrium.",
         ha="center",
         color=MUTED,
+        fontsize=9.2,
     )
     return c.finish()
 
@@ -783,60 +851,75 @@ def pinn_loss():
     )
     c.box(
         0.04,
-        0.60,
+        0.50,
         0.14,
-        0.14,
-        "Observed data\n$(t_d,y_d)$",
+        0.18,
+        "Time points\n$t_d$ and $t_f$",
         fill=PALE_BLUE,
         edge=BLUE,
         weight="bold",
     )
     c.box(
-        0.04,
-        0.34,
-        0.14,
-        0.14,
-        "Collocation points\n$t_f$",
+        0.25,
+        0.73,
+        0.18,
+        0.10,
+        "Observed targets\n$y_d$",
         fill=PALE_GRAY,
         edge=MUTED,
         weight="bold",
     )
     c.box(
         0.25,
-        0.49,
+        0.48,
         0.18,
-        0.19,
-        "State network\n" r"$x_\theta(t)$" "\n" r"softmax $\rightarrow[S,I,P]$",
+        0.20,
+        "State network\n"
+        r"$x_\theta(t)\in\mathbb{R}^{n}$"
+        "\nconstraint-aware\noutput map",
         fill=PALE_TEAL,
         edge=TEAL,
+        fontsize=9.1,
         weight="bold",
     )
-    c.arrow((0.18, 0.67), (0.25, 0.61), color=BLUE)
-    c.arrow((0.18, 0.41), (0.25, 0.54), color=MUTED)
+    c.arrow((0.18, 0.59), (0.25, 0.58), color=BLUE)
     c.box(
+        0.49,
+        0.71,
+        0.18,
+        0.12,
+        "Data residual\n" r"$h(x_\theta(t_d))-y_d$",
+        fill=PALE_BLUE,
+        edge=BLUE,
+        fontsize=9.3,
+    )
+    c.arrow((0.43, 0.78), (0.49, 0.77), color=MUTED)
+    c.arrow((0.43, 0.63), (0.49, 0.75), color=BLUE)
+    c.box(
+        0.49,
         0.50,
-        0.55,
-        0.17,
-        0.14,
-        "Automatic differentiation\n" r"$\partial_t x_\theta$",
+        0.18,
+        0.12,
+        "Autodiff\n" r"$x_\theta,\;\partial_t x_\theta$",
         fill=PALE_ORANGE,
         edge=ORANGE,
+        fontsize=9.0,
     )
-    c.arrow((0.43, 0.59), (0.50, 0.62), color=ORANGE)
+    c.arrow((0.43, 0.56), (0.49, 0.56), color=ORANGE)
     c.box(
-        0.50,
-        0.31,
-        0.17,
+        0.49,
+        0.28,
+        0.18,
         0.14,
         "Model residual\n" r"$r_f=\partial_t x_\theta-f(x_\theta,p)$",
         fill="#FBE9E9",
         edge=RED,
     )
-    c.arrow((0.585, 0.54), (0.585, 0.46), color=RED)
+    c.arrow((0.58, 0.49), (0.58, 0.43), color=RED)
     c.box(
-        0.74,
+        0.75,
         0.43,
-        0.21,
+        0.20,
         0.25,
         r"Training objective"
         "\n"
@@ -850,19 +933,28 @@ def pinn_loss():
         fontsize=10.2,
         weight="bold",
     )
-    c.arrow((0.67, 0.62), (0.74, 0.59), color=NAVY)
-    c.arrow((0.67, 0.38), (0.74, 0.50), color=NAVY)
+    c.arrow((0.67, 0.77), (0.75, 0.62), color=BLUE)
+    c.arrow((0.67, 0.35), (0.75, 0.49), color=NAVY)
     c.box(
-        0.31,
+        0.24,
         0.12,
-        0.38,
-        0.10,
-        "Independent validation: held-out times/nodes, ODE rollout, parameter error and residual maps",
+        0.52,
+        0.11,
+        "Independent validation: held-out times/nodes and ODE rollout\n"
+        "Parameter error and residual maps are reported separately",
         fill=PALE_GRAY,
         edge=MUTED,
-        fontsize=9.8,
+        fontsize=9.3,
     )
-    c.arrow((0.84, 0.42), (0.64, 0.23), label="evaluate after training", color=MUTED, bend=-0.10)
+    c.arrow((0.84, 0.42), (0.70, 0.24), color=MUTED, bend=-0.08)
+    c.label(
+        0.82,
+        0.30,
+        "validate after\ntraining",
+        fontsize=8.5,
+        color=MUTED,
+        ha="center",
+    )
     return c.finish()
 
 
@@ -875,35 +967,37 @@ def node_time_encoder_decoder():
     )
     blocks = [
         (
-            0.04,
+            0.03,
             0.57,
-            0.15,
-            "Node features\n" r"$F\in\mathbb{R}^{N\times d_f}$" "\ndegree, community, risk",
+            0.20,
+            "Node features\n"
+            r"$F\in\mathbb{R}^{N\times7}$"
+            "\ninitial $[S,I,P]$\ndegree and community\ncriticality and mask",
             PALE_BLUE,
             BLUE,
         ),
         (
-            0.24,
+            0.27,
             0.57,
-            0.15,
-            "Node/graph encoder\n" r"$d_f\to d\to d$" "\n" r"$H_x\in\mathbb{R}^{N\times d}$",
+            0.17,
+            "Graph node encoder\n" r"$d_f\to d$" "\n" r"$H_x:[N,d]$",
             PALE_TEAL,
             TEAL,
         ),
-        (0.04, 0.28, 0.15, "Time input\n" r"$t\in\mathbb{R}^{B\times1}$", PALE_BLUE, BLUE),
+        (0.03, 0.27, 0.20, "Time input\n" r"$t\in\mathbb{R}^{B\times1}$", PALE_BLUE, BLUE),
         (
-            0.24,
-            0.28,
-            0.15,
-            "Optional Fourier + MLP\n" r"$1\to d\to d$" "\n" r"$H_t\in\mathbb{R}^{B\times d}$",
+            0.27,
+            0.27,
+            0.17,
+            "Time encoder\nMLP / Fourier\n" r"$H_t:[B,d]$",
             PALE_ORANGE,
             ORANGE,
         ),
     ]
     for x, y, w, text_value, fill, edge in blocks:
-        c.box(x, y, w, 0.18, text_value, fill=fill, edge=edge, fontsize=9.3, weight="bold")
+        c.box(x, y, w, 0.20, text_value, fill=fill, edge=edge, fontsize=9.0, weight="bold")
     c.box(
-        0.46,
+        0.48,
         0.41,
         0.18,
         0.22,
@@ -916,23 +1010,23 @@ def node_time_encoder_decoder():
         fontsize=9.8,
         weight="bold",
     )
-    c.arrow((0.39, 0.66), (0.46, 0.56), color=TEAL)
-    c.arrow((0.39, 0.37), (0.46, 0.47), color=ORANGE)
+    c.arrow((0.44, 0.67), (0.48, 0.56), color=TEAL)
+    c.arrow((0.44, 0.37), (0.48, 0.47), color=ORANGE)
     c.box(
-        0.71,
+        0.72,
         0.46,
-        0.13,
+        0.14,
         0.16,
-        "Shared decoder\n" r"$2d\to d\to3$",
+        "Shared decoder\n" r"$2d\to d$" "\n" r"$\to3$",
         fill=PALE_TEAL,
         edge=TEAL,
         weight="bold",
     )
-    c.arrow((0.64, 0.52), (0.71, 0.54), color=NAVY)
+    c.arrow((0.66, 0.52), (0.72, 0.54), color=NAVY)
     c.box(
-        0.88,
+        0.89,
         0.44,
-        0.09,
+        0.08,
         0.20,
         "SIPS state\n" r"$X_\theta$" "\n" r"$[B,N,3]$",
         fill="#FBE9E9",
@@ -940,16 +1034,17 @@ def node_time_encoder_decoder():
         fontsize=9.3,
         weight="bold",
     )
-    c.arrow((0.84, 0.54), (0.88, 0.54), color=RED)
+    c.arrow((0.86, 0.54), (0.89, 0.54), color=RED)
     c.box(
-        0.29,
+        0.20,
         0.10,
-        0.48,
-        0.10,
-        "A separate positive rate head uses softplus; a gauge fixes the susceptibility–infectivity scale ambiguity.",
+        0.60,
+        0.11,
+        "A separate positive-rate head uses softplus.\n"
+        "A gauge fixes the susceptibility–infectivity scale ambiguity.",
         fill=WHITE,
         edge=MUTED,
-        fontsize=9.7,
+        fontsize=9.3,
     )
     return c.finish()
 
@@ -971,30 +1066,44 @@ def pmp_informed_pinn():
         c.box(x, y, 0.18, 0.13, text_value, fill=fill, edge=edge, weight="bold")
         c.arrow((0.16, 0.605), (x, y + 0.065), color=edge)
     c.box(
-        0.49,
+        0.48,
         0.43,
-        0.18,
+        0.20,
         0.25,
-        r"Hamiltonian"
+        "Residual assembly"
         "\n"
         r"$H=L(x,u)+\lambda^\top f(x,u)$"
-        "\nmodel parameters\nand control bounds",
+        "\nautodiff for "
+        r"$\dot{x}$, $\dot{\lambda}$,"
+        "\n"
+        r"$H_x$, $H_u$ and $H_\lambda$",
         fill=PALE_GRAY,
         edge=MUTED,
-        fontsize=9.2,
+        fontsize=8.9,
         weight="bold",
     )
     for y, color in ((0.755, TEAL), (0.545, ORANGE), (0.335, BLUE)):
-        c.arrow((0.41, y), (0.49, 0.56), color=color)
+        c.arrow((0.41, y), (0.48, 0.56), color=color)
     residuals = [
-        (0.75, 0.70, r"State: $\dot{x}-H_\lambda=0$"),
-        (0.75, 0.53, r"Adjoint: $\dot{\lambda}+H_x=0$"),
-        (0.75, 0.36, r"Interior stationarity: $H_u=0$"),
-        (0.75, 0.19, r"Boundary: $x(0)=x_0$, $\lambda(T)=\Phi_x$"),
+        (0.75, 0.69, r"State: $\dot{x}-H_\lambda=0$"),
+        (0.75, 0.52, r"Adjoint: $\dot{\lambda}+H_x=0$"),
+        (0.75, 0.35, r"Interior stationarity: $H_u=0$"),
     ]
     for x, y, text_value in residuals:
         c.box(x, y, 0.22, 0.10, text_value, fill=WHITE, edge=RED, fontsize=9.1)
-        c.arrow((0.67, 0.555), (x, y + 0.05), color=RED)
+        c.arrow((0.68, 0.555), (x, y + 0.05), color=RED)
+    c.box(
+        0.69,
+        0.17,
+        0.28,
+        0.11,
+        "Endpoint residuals\n" r"$x(0)=x_0$, $\lambda(T)=\Phi_x$",
+        fill=WHITE,
+        edge=RED,
+        fontsize=8.8,
+    )
+    c.arrow((0.36, 0.69), (0.72, 0.28), color=TEAL, bend=0.18)
+    c.arrow((0.41, 0.50), (0.77, 0.28), color=ORANGE, bend=0.10)
     c.label(
         0.48,
         0.11,
@@ -1014,13 +1123,13 @@ def model_to_paper():
         height=6.7,
     )
     stages = [
-        ("1", "Question", "Threat, decision maker,\ninformation and horizon", PALE_BLUE, BLUE),
-        ("2", "Model", "States, timing, dynamics,\nconstraints and objective", PALE_TEAL, TEAL),
-        ("3", "Baseline", "No action, rule, random,\nclassical numerical method", PALE_GRAY, MUTED),
-        ("4", "Method", "FBSM, RL/MARL, PINN/PIDL\nwith declared assumptions", PALE_ORANGE, ORANGE),
-        ("5", "Ablation", "Remove components; vary\nheterogeneity and budgets", PALE_BLUE, BLUE),
-        ("6", "Evidence", "Seeds, held-out cases,\nerrors, runtime and failures", PALE_TEAL, TEAL),
-        ("7", "Claim", "Bound conclusion to the\nvalidated regime", "#FBE9E9", RED),
+        ("1", "Question", "Threat and actors\ninformation and horizon", PALE_BLUE, BLUE),
+        ("2", "Model", "States and timing\ndynamics and objective", PALE_TEAL, TEAL),
+        ("3", "Baseline", "No action, rule, random\nclassical solver", PALE_GRAY, MUTED),
+        ("4", "Method", "FBSM, RL/MARL\nor PINN/PIDL", PALE_ORANGE, ORANGE),
+        ("5", "Ablation", "Remove components\nvary risks and budgets", PALE_BLUE, BLUE),
+        ("6", "Evidence", "Seeds and holdouts\nerrors, runtime, failures", PALE_TEAL, TEAL),
+        ("7", "Claim", "Conclusion bounded by\nthe validated regime", "#FBE9E9", RED),
     ]
     positions = [
         (0.03, 0.57),
@@ -1044,15 +1153,16 @@ def model_to_paper():
     c.arrow((0.695, 0.335), (0.625, 0.335), color=NAVY)
     c.arrow((0.415, 0.335), (0.345, 0.335), color=NAVY)
     c.box(
-        0.11,
+        0.08,
         0.07,
-        0.72,
-        0.09,
-        "Reproducibility record: resolved parameter arrays, random seeds, graph/data provenance, hardware, software versions,\n"
-        "training diagnostics, figure source and a machine-readable run manifest.",
+        0.84,
+        0.13,
+        "Reproducibility record: resolved parameter arrays, random seeds and graph/data provenance\n"
+        "Hardware, software versions and training diagnostics\n"
+        "Figure source and a machine-readable run manifest",
         fill=WHITE,
         edge=MUTED,
-        fontsize=9.8,
+        fontsize=8.8,
     )
     return c.finish()
 
@@ -1103,7 +1213,7 @@ DIAGRAMS = (
     DiagramDefinition(
         "hierarchical_game",
         hierarchical_game,
-        "Hierarchical attacker-defender policy with target selection, bounded allocation and opponent-pool evaluation.",
+        "Implemented attacker-defender actor-critic with budgeted community selection and held-out fixed-policy cross-play.",
         "Note 1 method guide and paper workflow",
     ),
     DiagramDefinition(
@@ -1121,7 +1231,7 @@ DIAGRAMS = (
     DiagramDefinition(
         "pmp_informed_pinn",
         pmp_informed_pinn,
-        "PMP-informed neural control with state, costate and control heads feeding Hamiltonian residuals.",
+        "PMP-informed neural control with state, costate and control heads, autodiff residual assembly and direct endpoint constraints.",
         "foundation PMP guide; Note 2 method guide",
     ),
     DiagramDefinition(
@@ -1177,6 +1287,10 @@ def render_diagrams(
         definition = get_diagram(diagram_id)
         with guide_style():
             fig = definition.renderer()
+        overflow = diagram_box_overflows(fig)
+        if overflow:
+            labels = "; ".join(label.replace("\n", " / ") for label in overflow)
+            raise RuntimeError(f"{diagram_id} has text outside a diagram box: {labels}")
         paths = tuple(destination / f"{diagram_id}.{suffix}" for suffix in ("pdf", "svg", "png"))
         for path in paths:
             kwargs = {"bbox_inches": "tight", "pad_inches": 0.08}

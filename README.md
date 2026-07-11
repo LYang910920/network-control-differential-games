@@ -97,7 +97,9 @@ continuous-impulsive state jumps, baseline comparisons and FBSM diagnostics.
 The scalability experiment uses the same synthetic scale-free graph for a
 degree-HMF approximation and an explicit-adjacency node solve, and reports
 state dimension, degree classes, convergence, runtime and max degree on log
-scales. Large profiles are opt-in.
+scales. The curated figure uses one deterministic graph seed at each size;
+repeat runs are required before interpreting runtime uncertainty. Large
+profiles are opt-in.
 
 ![Degree and node FBSM scalability](docs/assets/degree_node_fbs_scalability.png)
 

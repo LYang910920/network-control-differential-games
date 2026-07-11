@@ -339,8 +339,9 @@ def save_game_baseline_plot(
 
         ax.set_xticks(x_pos)
         ax.set_xticklabels(labels, rotation=16, ha="right")
-        ax.set_ylabel(ylabel)
-        panel_label(ax, panel)
+        ax.tick_params(axis="both", labelsize=8.5)
+        ax.set_ylabel(ylabel, fontsize=9)
+        panel_label(ax, panel, fontsize=9)
         ax.grid(True, axis="y", alpha=0.25)
 
     fig.tight_layout()

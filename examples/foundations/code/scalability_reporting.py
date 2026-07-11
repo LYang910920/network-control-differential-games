@@ -35,19 +35,20 @@ def compact_node_tick(value: float, _position: int | None = None) -> str:
 def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Path) -> Path:
     """Plot the paired degree-level versus node-level epidemic FBS comparison."""
     with publication_style():
-        fig, axes = plt.subplots(3, 1, figsize=(7.16, 6.4), sharex=True)
+        fig, axes = plt.subplots(3, 1, figsize=(7.16, 7.0), sharex=True)
+    repeated_graphs = bool(raw.groupby("nodes")["repeat"].nunique().max() > 1)
     styles = {
         "degree": {
             "color": "tab:blue",
             "marker": "o",
             "linestyle": "-",
-            "label": "degree-level FBS (state = degree classes)",
+            "label": "degree FBS (degree-class state)",
         },
         "node": {
             "color": "tab:orange",
             "marker": "s",
             "linestyle": "--",
-            "label": "node-level sparse FBS (state = graph nodes)",
+            "label": "node FBS (explicit sparse graph)",
         },
     }
     x_ticks = sorted(summary["nodes"].unique())
@@ -69,21 +70,23 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
             color=style["color"],
             label=style["label"],
         )
-        ax.fill_between(
-            group["nodes"].to_numpy(float),
-            group["fbs_seconds_min"].to_numpy(float),
-            group["fbs_seconds_max"].to_numpy(float),
-            color=style["color"],
-            alpha=0.10,
-        )
+        if repeated_graphs:
+            ax.fill_between(
+                group["nodes"].to_numpy(float),
+                group["fbs_seconds_min"].to_numpy(float),
+                group["fbs_seconds_max"].to_numpy(float),
+                color=style["color"],
+                alpha=0.10,
+            )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_ylabel("FBS solve time (seconds)")
-    panel_label(ax, "(a) runtime")
+    ax.set_ylabel("FBS solve time (s)", fontsize=9)
+    panel_label(ax, "(a) runtime", fontsize=9)
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
-    ax.legend(frameon=False, fontsize=7, loc="upper left")
+    ax.tick_params(axis="both", labelsize=8.5)
+    ax.legend(frameon=False, fontsize=8.2, loc="upper left")
 
     ax = axes[1]
     for model_level, group in summary.groupby("model_level", sort=False):
@@ -99,12 +102,13 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
         )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_ylabel("FBS state dimension")
-    panel_label(ax, "(b) state dimension")
+    ax.set_ylabel("FBS state dimension", fontsize=9)
+    panel_label(ax, "(b) state dimension", fontsize=9)
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
-    ax.legend(frameon=False, fontsize=7, loc="upper left")
+    ax.tick_params(axis="both", labelsize=8.5)
+    ax.legend(frameon=False, fontsize=8.2, loc="upper left")
 
     ax = axes[2]
     graph_summary = (
@@ -123,25 +127,27 @@ def plot_paired_comparison(summary: pd.DataFrame, raw: pd.DataFrame, out_dir: Pa
         linestyle="-.",
         linewidth=2.0,
         color="tab:green",
-        label="median max degree",
+        label="median maximum degree" if repeated_graphs else "maximum degree (one graph)",
     )
-    ax.fill_between(
-        graph_summary["nodes"].to_numpy(float),
-        graph_summary["max_degree_min"].to_numpy(float),
-        graph_summary["max_degree_max"].to_numpy(float),
-        color="tab:green",
-        alpha=0.12,
-        label="min-max over graph seeds",
-    )
+    if repeated_graphs:
+        ax.fill_between(
+            graph_summary["nodes"].to_numpy(float),
+            graph_summary["max_degree_min"].to_numpy(float),
+            graph_summary["max_degree_max"].to_numpy(float),
+            color="tab:green",
+            alpha=0.12,
+            label="range over graph seeds",
+        )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_ylabel("maximum degree")
-    panel_label(ax, "(c) maximum degree")
+    ax.set_ylabel("Maximum degree", fontsize=9)
+    panel_label(ax, "(c) graph growth", fontsize=9)
     ax.xaxis.set_major_locator(FixedLocator(x_ticks))
     ax.xaxis.set_major_formatter(x_formatter)
     ax.grid(True, alpha=0.25)
-    ax.legend(frameon=False, fontsize=7, loc="upper left")
-    ax.set_xlabel("nodes in the same synthetic SF graph")
+    ax.tick_params(axis="both", labelsize=8.5)
+    ax.legend(frameon=False, fontsize=8.2, loc="upper left")
+    ax.set_xlabel("Nodes in each synthetic scale-free graph", fontsize=9)
 
     fig.tight_layout(h_pad=1.2)
     path = out_dir / plot_filename("compare", summary)

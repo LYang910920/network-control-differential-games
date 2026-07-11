@@ -131,7 +131,14 @@ def style_axis(
         ax.legend(loc="best", frameon=False)
 
 
-def panel_label(ax, label: str, x: float = -0.12, y: float = 1.04) -> None:
+def panel_label(
+    ax,
+    label: str,
+    x: float = -0.12,
+    y: float = 1.04,
+    *,
+    fontsize: str | float = "medium",
+) -> None:
     """Place a small panel label such as ``(a)`` in axes coordinates."""
 
     ax.text(
@@ -141,7 +148,7 @@ def panel_label(ax, label: str, x: float = -0.12, y: float = 1.04) -> None:
         transform=ax.transAxes,
         ha="left",
         va="bottom",
-        fontsize="medium",
+        fontsize=fontsize,
         fontweight="bold",
     )
 

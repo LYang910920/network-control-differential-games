@@ -2,8 +2,20 @@ import numpy as np
 import pytest
 
 from cybercontrol.cli import _package_smoke
-from cybercontrol.io import require_outputs
 from cybercontrol.diagnostics import diagnostic_terms_for, rolling_mean, write_diagnostic_glossary
+from cybercontrol.guide_diagrams import DIAGRAMS, diagram_box_overflows
+from cybercontrol.heterogeneity import (
+    DegreeSISParams,
+    NodeSISParams,
+    degree_correlated_node_sis_params,
+    degree_correlated_sis_params,
+    degree_sis_jacobian,
+    degree_sis_rhs,
+    finite_difference_jacobian,
+    neutral_degree_mixing,
+    node_heterogeneity_summary,
+)
+from cybercontrol.io import require_outputs
 from cybercontrol.models import (
     MalwareParams,
     controlled_sir_rhs,
@@ -20,17 +32,6 @@ from cybercontrol.network_models import (
     node_sips_transition_rates,
     normalize_adjacency,
     sample_node_sips_step,
-)
-from cybercontrol.heterogeneity import (
-    DegreeSISParams,
-    NodeSISParams,
-    degree_correlated_node_sis_params,
-    degree_correlated_sis_params,
-    degree_sis_jacobian,
-    degree_sis_rhs,
-    finite_difference_jacobian,
-    neutral_degree_mixing,
-    node_heterogeneity_summary,
 )
 from cybercontrol.numerics import (
     as_time_function,
@@ -152,6 +153,18 @@ def test_publication_figure_export_writes_vector_raster_and_manifest(tmp_path):
     assert payload["width_in"] > 0
     assert payload["height_in"] > 0
     assert payload["metadata"]["source"] == "unit-test"
+
+
+def test_guide_diagram_text_stays_inside_boxes():
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    for definition in DIAGRAMS:
+        figure = definition.renderer()
+        assert diagram_box_overflows(figure) == [], definition.diagram_id
+        plt.close(figure)
 
 
 def test_training_diagnostic_helpers_write_reader_glossary(tmp_path):

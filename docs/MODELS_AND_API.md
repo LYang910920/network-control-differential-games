@@ -10,13 +10,18 @@ neural blocks and plotting. The two companion repositories import these APIs.
 | Resolution | State | Infection pressure | Use |
 |---|---|---|---|
 | Aggregate SIR/SIPS | one population vector | `beta * S * I` | inspect equations and debug a method |
-| Degree level | one state per degree class `k` | `lambda_k = s_k k sum_l M_kl i_l x_l` | retain degree heterogeneity with a small state |
+| Degree level | one state per degree class `k` | `lambda_k = s_k k sum_l M_kl i_l x_l`; `s_k` is the effective acquisition rate | retain degree heterogeneity with a small state |
 | Node level | one state per node `i` | `lambda_i = beta_i s_i sum_j A_ij iota_j I_j` | targeted controls and explicit contacts |
 
 For SIPS, the state order is `[S, I, P]`. Patching transfers `S -> P`,
 cleaning/recovery transfers `I -> P`, and waning transfers `P -> S`. The flow
 preserves `S + I + P = 1` for every node. SIS examples store the infected share
 only; the susceptible share is `1 - I`.
+
+In degree-level SIS code, `DegreeSISParams.susceptibility` stores the effective
+acquisition coefficient `s_k`, including the baseline transmission scale. The
+scalar homogeneous mapping is `s_k = beta` and `infectivity_k = 1`. Node-level
+SIPS keeps `beta_i` and the dimensionless susceptibility multiplier separate.
 
 ![Canonical SIPS transitions](assets/diagrams/state_transitions.png)
 

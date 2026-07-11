@@ -139,6 +139,7 @@
 % -----------------------------------------------------------------------------
 % Title page
 % -----------------------------------------------------------------------------
+\hypersetup{pageanchor=false}
 \begin{titlepage}
 \centering
 \vspace*{1.25cm}
@@ -162,6 +163,7 @@
 \vfill
 {\large \today\par}
 \end{titlepage}
+\hypersetup{pageanchor=true}
 
 \tableofcontents
 \newpage
@@ -266,7 +268,7 @@ invariant is checked in NumPy, Torch, dense and sparse implementations.
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.94\textwidth]{../assets/diagrams/state_transitions.pdf}
-\caption{Canonical SIPS mass transfer and the aggregate, degree-level, and node-level infection-pressure conventions used across the repository family.}
+\caption{Canonical SIPS mass transfer and the aggregate, degree-level, and node-level infection-pressure conventions used across the repository family. In the degree-level examples, $s_k$ is an effective acquisition coefficient that includes the baseline transmission scale; the homogeneous specialization is $s_k\equiv\beta$ and $\iota_k\equiv1$.}
 \label{fig:sips-transitions}
 \end{figure}
 
@@ -306,13 +308,13 @@ where $P(k)$ is the degree distribution and $\langle k\rangle=\bar{k}$ is the av
 \end{equation}
 The implementation therefore stores one state and one control trajectory per observed degree value. For example, if the input network has degree classes $\mathcal{K}=\{2,3,4,7\}$, then the model state is $(x_2,x_3,x_4,x_7)$, not $(S,I,R)$.
 
-The code also supports class-specific physical and economic parameters.  With susceptibility $s_k$, infectivity $\iota_k$, recovery $\delta_k$, and row-stochastic mixing $M_{k\ell}$, the heterogeneous pressure is
+The code also supports class-specific physical and economic parameters. With effective acquisition coefficient $s_k$, source infectivity multiplier $\iota_k$, recovery $\delta_k$, and row-stochastic mixing $M_{k\ell}$, the heterogeneous pressure is
 \[
   \lambda_k(t)=s_k k\sum_{\ell\in\mathcal{K}} M_{k\ell}\iota_\ell x_\ell(t),
   \qquad
   \dot{x}_k(t)=(1-x_k(t))\lambda_k(t)-(\delta_k+u_k(t))x_k(t).
 \]
-Scalar inputs are explicitly broadcast by \texttt{cybercontrol.heterogeneity}, so the homogeneous model remains a special case.
+Here $s_k$ has units of a transmission rate and includes the baseline scale that is denoted by $\beta$ in Equation~\eqref{eq:degree-sis}; it is not an additional dimensionless multiplier. Thus $s_k\equiv\beta$, $\iota_k\equiv1$, and neutral mixing recover the homogeneous equation. Scalar inputs are explicitly broadcast by \texttt{cybercontrol.heterogeneity}.
 
 In the tutorial code, \texttt{compute\_degree\_distribution} returns the observed degree values, counts $N_k$, probabilities $P(k)$, and average degree $\langle k\rangle$. For directed networks, one must also decide what ``degree'' means. The code exposes a \texttt{degree\_mode} option: row degree counts incoming influencers under the convention $\dot{x}=f(Ax)$, column degree counts outgoing influence, total degree adds both, and undirected degree ignores orientation.
 
@@ -747,11 +749,11 @@ where $K$ is the impulse cost and $x+g(x,v,t)$ is the post-impulse state. The va
 \begin{equation}
   \min\left\{
   -V_t(x,t)-\inf_{u\in U}\left[L(x,u,t)+\nabla_xV(x,t)^\T f(x,u,t)\right],
-  \;V(x,t)-(\mathcal{M}V)(x,t)
+  \;(\mathcal{M}V)(x,t)-V(x,t)
   \right\}=0.
   \label{eq:qvi}
 \end{equation}
-The first term is the continuation condition: do not impulse, continue with continuous control. The second term compares the value of waiting with the value after immediate intervention. The impulse region is where $V(x,t)=(\mathcal{M}V)(x,t)$; the continuation region is where the HJB part holds. Continuous--impulsive feedback games lead to HJI-QVI systems with one or more value functions. These equations provide strong verification principles, but they are rarely solved directly for high-dimensional node-level networks.
+The option to intervene immediately implies $V\leq\mathcal{M}V$. The first term is the continuation condition and the second is the intervention gap. In the continuation region, $\mathcal{M}V-V>0$ and the HJB residual is zero; in the impulse region, $V=\mathcal{M}V$ and the HJB residual is nonnegative. Continuous--impulsive feedback games lead to HJI-QVI systems with one or more value functions. These equations provide strong verification principles, but they are rarely solved directly for high-dimensional node-level networks.
 
 \subsection{PMP with Impulsive State Jumps}
 
@@ -1122,14 +1124,14 @@ The figures below are curated repository assets generated from the tutorial scri
 
 \begin{figure}[p]
 \centering
-\includegraphics[width=0.84\textwidth]{../assets/foundation_degree_control_trajectory.pdf}
+\includegraphics[width=0.94\textwidth]{../assets/foundation_degree_control_trajectory.pdf}
 \caption{Degree-class infection states and time-varying continuous controls from the heterogeneous optimal-control example. Each curve identifies a degree class rather than an unnamed network average.}
 \label{fig:foundation-degree-control}
 \end{figure}
 
 \begin{figure}[p]
 \centering
-\includegraphics[width=0.84\textwidth]{../assets/foundation_degree_game_baseline.pdf}
+\includegraphics[width=\textwidth]{../assets/foundation_degree_game_baseline.pdf}
 \caption{Degree-level attacker--defender payoff comparison. Each panel fixes one optimized player strategy and varies the opponent, so the figure is diagnostic evidence rather than a proof of Nash equilibrium.}
 \label{fig:foundation-degree-game-baseline}
 \end{figure}
@@ -1137,7 +1139,7 @@ The figures below are curated repository assets generated from the tutorial scri
 \begin{figure}[p]
 \centering
 \includegraphics[width=0.84\textwidth]{../assets/foundation_node_control_trajectory.pdf}
-\caption{Node-level optimal-control trajectories. State curves refer to identified nodes and the mean curve is explicitly labeled; control curves are continuous-time signals on the numerical grid.}
+\caption{Node-level optimal-control aggregates. The solid curve is the all-node mean infection, the dashed curve is the maximum infection over nodes at each time, and the dash-dot curve is the all-node mean continuous control on the numerical grid. No individual-node trajectory is shown.}
 \label{fig:foundation-node-control}
 \end{figure}
 
@@ -1150,8 +1152,8 @@ The figures below are curated repository assets generated from the tutorial scri
 
 \begin{figure}[p]
 \centering
-\includegraphics[width=0.92\textwidth]{../assets/degree_node_fbs_scalability.png}
-\caption{FBS timing for a degree-HMF approximation and a sparse explicit-adjacency node model on the same synthetic scale-free graphs. The equations share scalar rates and objective weights but are different network resolutions; the CSV reports their initial derivative-aggregation error.}
+\includegraphics[width=\textwidth]{../assets/degree_node_fbs_scalability.png}
+\caption{FBS timing for a degree-HMF approximation and a sparse explicit-adjacency node model on the same seeded synthetic scale-free graph at each size. The equations share scalar rates and objective weights but use different state resolutions. This curated run contains one graph seed per size, so the plotted lines are measured values rather than uncertainty bands.}
 \label{fig:degree-node-scalability}
 \end{figure}
 

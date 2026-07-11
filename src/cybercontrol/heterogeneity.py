@@ -87,7 +87,13 @@ def assortative_degree_mixing(
 
 @dataclass(frozen=True)
 class DegreeSISParams:
-    """Scalar-or-array parameters for heterogeneous degree-level SIS models."""
+    """Scalar-or-array parameters for heterogeneous degree-level SIS models.
+
+    ``susceptibility`` is the effective class acquisition coefficient ``s_k``
+    in ``lambda_k = s_k k sum_l M_kl infectivity_l x_l``. It includes the
+    baseline transmission scale; homogeneous callers therefore pass
+    ``susceptibility=beta`` and ``infectivity=1``.
+    """
 
     susceptibility: object = 0.65
     infectivity: object = 1.0

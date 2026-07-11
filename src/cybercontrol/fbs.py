@@ -78,7 +78,7 @@ def theta_degree(x: np.ndarray, D: DegreeData) -> float:
 def degree_rhs(
     x: np.ndarray, u: np.ndarray, D: DegreeData, beta: float, delta: float
 ) -> np.ndarray:
-    """Degree-k SIS dynamics with scalar inputs broadcast through shared arrays."""
+    """Degree-k SIS dynamics with ``beta`` used as effective acquisition ``s_k``."""
     model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(D.k, D.pk)
     return degree_sis_rhs(x, u, D.k, model)
 
@@ -86,7 +86,7 @@ def degree_rhs(
 def degree_jacobian(
     x: np.ndarray, u: np.ndarray, D: DegreeData, beta: float, delta: float
 ) -> np.ndarray:
-    """Jacobian of degree_rhs with respect to x."""
+    """Jacobian of ``degree_rhs`` with respect to ``x`` under the same mapping."""
     model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(D.k, D.pk)
     return degree_sis_jacobian(x, u, D.k, model)
 

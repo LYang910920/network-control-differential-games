@@ -136,7 +136,7 @@ def save_fbs_convergence(results: dict[str, TimeSeries], out_dir: Path) -> None:
         title="Forward-backward sweep convergence",
     )
     ax.axhline(1e-4, color="0.45", linestyle=":", linewidth=1.4, label="tolerance=1e-4")
-    ax.legend(frameon=False, fontsize=8)
+    ax.legend(frameon=False, fontsize=8, loc="best")
     savefig(out_dir / "fbs_convergence")
 
 
@@ -245,20 +245,22 @@ def save_baseline_comparison(
 
 
 def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
-    plt.figure(figsize=FIGSIZE_SINGLE)
-    ax = plt.gca()
+    fig = plt.figure(figsize=(7.4, 5.1), layout="constrained")
+    grid = fig.add_gridspec(2, 1, height_ratios=(5.0, 0.8))
+    ax = fig.add_subplot(grid[0])
+    legend_ax = fig.add_subplot(grid[1])
     plot_time_series(
         ax,
         result.t,
         result.x @ D.pk,
-        "state: population-weighted degree-class mean infection",
+        "weighted mean state",
         linestyle="-",
     )
     plot_time_series(
         ax,
         result.t,
         result.controls["control"] @ D.pk,
-        "continuous control: population-weighted degree-class mean",
+        "weighted mean control",
         linestyle="-.",
     )
     for j in sorted(set([0, len(D.k) // 2, len(D.k) - 1])):
@@ -266,7 +268,7 @@ def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> Non
             ax,
             result.t,
             result.x[:, j],
-            f"state: degree k={int(D.k[j])}",
+            f"state: degree $k={int(D.k[j])}$",
             linestyle="--",
             linewidth=1.5,
         )
@@ -276,8 +278,23 @@ def plot_degree_control(result: TimeSeries, D: DegreeData, out_dir: Path) -> Non
         ylabel="infection share / control intensity",
         title=f"Degree-k continuous optimal control (population-weighted means), cost={result.value['cost']:.2f}",
     )
-    ax.legend(frameon=False, fontsize=8)
-    savefig(out_dir / "degree_control_trajectory")
+    handles, labels = ax.get_legend_handles_labels()
+    legend_ax.axis("off")
+    legend_ax.legend(
+        handles,
+        labels,
+        frameon=False,
+        fontsize=8,
+        loc="center",
+        ncol=3,
+    )
+    save_publication_figure(
+        fig,
+        out_dir / "degree_control_trajectory",
+        metadata={"source": "foundation example"},
+    )
+    plt.close(fig)
+    LOGGER.info(f"saved {out_dir / 'degree_control_trajectory'}")
 
 
 def plot_degree_game(result: TimeSeries, D: DegreeData, out_dir: Path) -> None:
@@ -388,7 +405,14 @@ def plot_continuous_impulse(result: TimeSeries, out_dir: Path) -> None:
     continuous_min = result.value["continuous_control_min"]
     continuous_max = result.value["continuous_control_max"]
 
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_STACKED, sharex=True, height_ratios=[2.0, 1.0])
+    fig, axes = plt.subplots(
+        2,
+        1,
+        figsize=FIGSIZE_STACKED,
+        sharex=True,
+        height_ratios=[2.0, 1.0],
+        layout="constrained",
+    )
     ax_state, ax_control = axes
     plot_time_series(
         ax_state,
@@ -427,11 +451,10 @@ def plot_continuous_impulse(result: TimeSeries, out_dir: Path) -> None:
     apply_clean_axes(
         ax_control,
         xlabel="time",
-        ylabel="control intensity / impulse fraction",
-        title=f"continuous range={continuous_min:.2f}-{continuous_max:.2f}; impulse fraction={impulse_fraction:.2f}",
+        ylabel="action magnitude",
+        title=f"Flow {continuous_min:.2f}-{continuous_max:.2f}; jump fraction {impulse_fraction:.2f}",
     )
     ax_control.legend(frameon=False, ncol=2, fontsize=8)
-    fig.tight_layout()
     save_publication_figure(
         fig,
         out_dir / "continuous_impulse_trajectory.png",
