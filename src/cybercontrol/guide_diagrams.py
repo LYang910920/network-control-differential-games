@@ -747,14 +747,14 @@ def hierarchical_game():
         subtitle="Separate actors select target communities; the environment maps those targets to fixed sampled-flow interventions.",
     )
     c.box(
-        0.03,
-        0.54,
-        0.20,
-        0.20,
+        0.02,
+        0.53,
+        0.22,
+        0.22,
         "Community observations\nSIPS means and pressure\ndegree, risk, time-to-go",
         fill=PALE_BLUE,
         edge=BLUE,
-        fontsize=8.8,
+        fontsize=8.5,
         weight="bold",
     )
     c.box(
@@ -791,8 +791,8 @@ def hierarchical_game():
         fontsize=8.7,
         weight="bold",
     )
-    c.arrow((0.23, 0.65), (0.28, 0.71), color=TEAL)
-    c.arrow((0.23, 0.63), (0.28, 0.54), color=ORANGE)
+    c.arrow((0.24, 0.65), (0.28, 0.71), color=TEAL)
+    c.arrow((0.24, 0.63), (0.28, 0.54), color=ORANGE)
     c.arrow((0.46, 0.71), (0.51, 0.66), color=TEAL)
     c.arrow((0.46, 0.54), (0.51, 0.60), color=ORANGE)
     c.box(
@@ -1273,7 +1273,7 @@ def render_diagrams(
 
     import matplotlib.pyplot as plt
 
-    from .plotting import guide_style
+    from .plotting import deterministic_backend_metadata, guide_style
 
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)
@@ -1287,19 +1287,25 @@ def render_diagrams(
         definition = get_diagram(diagram_id)
         with guide_style():
             fig = definition.renderer()
-        overflow = diagram_box_overflows(fig)
-        if overflow:
-            labels = "; ".join(label.replace("\n", " / ") for label in overflow)
-            raise RuntimeError(f"{diagram_id} has text outside a diagram box: {labels}")
-        paths = tuple(destination / f"{diagram_id}.{suffix}" for suffix in ("pdf", "svg", "png"))
-        for path in paths:
-            kwargs = {"bbox_inches": "tight", "pad_inches": 0.08}
-            if path.suffix == ".png":
-                kwargs["dpi"] = dpi
-            fig.savefig(path, **kwargs)
-            if path.suffix == ".svg":
-                lines = path.read_text(encoding="utf-8").splitlines()
-                path.write_text("\n".join(line.rstrip() for line in lines) + "\n", encoding="utf-8")
+            overflow = diagram_box_overflows(fig)
+            if overflow:
+                labels = "; ".join(label.replace("\n", " / ") for label in overflow)
+                raise RuntimeError(f"{diagram_id} has text outside a diagram box: {labels}")
+            paths = tuple(
+                destination / f"{diagram_id}.{suffix}" for suffix in ("pdf", "svg", "png")
+            )
+            for path in paths:
+                kwargs = {"bbox_inches": "tight", "pad_inches": 0.08}
+                if path.suffix == ".png":
+                    kwargs["dpi"] = dpi
+                else:
+                    kwargs["metadata"] = deterministic_backend_metadata(path.suffix)
+                fig.savefig(path, **kwargs)
+                if path.suffix == ".svg":
+                    lines = path.read_text(encoding="utf-8").splitlines()
+                    path.write_text(
+                        "\n".join(line.rstrip() for line in lines) + "\n", encoding="utf-8"
+                    )
         plt.close(fig)
         written[diagram_id] = paths
     return written

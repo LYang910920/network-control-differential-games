@@ -42,7 +42,12 @@ from cybercontrol.numerics import (
     solve_ode_grid,
     trapezoid_integral,
 )
-from cybercontrol.plotting import figure_size, publication_style, save_publication_figure
+from cybercontrol.plotting import (
+    figure_size,
+    guide_style,
+    publication_style,
+    save_publication_figure,
+)
 
 
 def test_rk4_controlled_sir_preserves_simplex_after_projection():
@@ -162,7 +167,8 @@ def test_guide_diagram_text_stays_inside_boxes():
     import matplotlib.pyplot as plt
 
     for definition in DIAGRAMS:
-        figure = definition.renderer()
+        with guide_style():
+            figure = definition.renderer()
         assert diagram_box_overflows(figure) == [], definition.diagram_id
         plt.close(figure)
 

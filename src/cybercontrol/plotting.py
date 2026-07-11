@@ -14,6 +14,7 @@ PUBLICATION_DPI = 600
 GUIDE_DPI = 220
 PUBLICATION_PAD_INCHES = 0.03
 GUIDE_PAD_INCHES = 0.22
+SVG_HASHSALT = "cybercontrol-guide-v1"
 
 PUBLICATION_COLORS = (
     "#0072B2",
@@ -73,6 +74,7 @@ def publication_style():
             "axes.prop_cycle": mpl.cycler(color=PUBLICATION_COLORS),
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
+            "svg.hashsalt": SVG_HASHSALT,
             "savefig.bbox": "tight",
         }
     ):
@@ -101,6 +103,7 @@ def guide_style():
             "grid.linewidth": 0.7,
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
+            "svg.hashsalt": SVG_HASHSALT,
             "savefig.bbox": "tight",
         }
     ):
@@ -162,6 +165,17 @@ def _normalise_formats(formats: Iterable[str]) -> tuple[str, ...]:
     return tuple(out)
 
 
+def deterministic_backend_metadata(format_name: str) -> dict[str, object]:
+    """Suppress volatile timestamps in tracked vector figure outputs."""
+
+    suffix = format_name.lower().lstrip(".")
+    if suffix == "pdf":
+        return {"CreationDate": None, "ModDate": None}
+    if suffix == "svg":
+        return {"Date": None}
+    return {}
+
+
 def _write_manifest(
     stem: Path,
     *,
@@ -214,7 +228,12 @@ def save_publication_figure(
         if fmt == "png":
             fig.savefig(out, dpi=dpi, bbox_inches="tight", pad_inches=PUBLICATION_PAD_INCHES)
         else:
-            fig.savefig(out, bbox_inches="tight", pad_inches=PUBLICATION_PAD_INCHES)
+            fig.savefig(
+                out,
+                bbox_inches="tight",
+                pad_inches=PUBLICATION_PAD_INCHES,
+                metadata=deterministic_backend_metadata(fmt),
+            )
         written.append(out)
     written.append(
         _write_manifest(
@@ -250,7 +269,12 @@ def save_guide_figure(
         if fmt == "png":
             fig.savefig(out, dpi=dpi, bbox_inches="tight", pad_inches=GUIDE_PAD_INCHES)
         else:
-            fig.savefig(out, bbox_inches="tight", pad_inches=GUIDE_PAD_INCHES)
+            fig.savefig(
+                out,
+                bbox_inches="tight",
+                pad_inches=GUIDE_PAD_INCHES,
+                metadata=deterministic_backend_metadata(fmt),
+            )
         written.append(out)
     written.append(
         _write_manifest(
