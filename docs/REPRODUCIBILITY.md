@@ -83,9 +83,7 @@ diagram set. It writes PDF, SVG and PNG assets plus
 `docs/assets/diagram_manifest.csv`. Validate the manifest with:
 
 ```bash
-python ../_taskpacks/codex_three_repo_full_research_upgrade_pack_v9/\
-codex_three_repo_full_research_upgrade_pack_v9/scripts/diagram_manifest_audit.py \
-  docs/assets/diagram_manifest.csv --root .
+python scripts/check_diagram_manifest.py
 ```
 
 The main LaTeX source is `docs/source/network_control_foundations.tex`.
@@ -94,7 +92,7 @@ PDF to `docs/network_control_foundations.pdf`.
 
 ## Literature evidence
 
-`docs/literature/literature_matrix.csv` records DOI, official source,
-peer-review status and evidence level. A row marked `requested` cannot support
-architecture or benchmark claims until a legally obtained PDF is reviewed.
-Publisher PDFs belong in ignored `literature_pdfs/`, not in Git.
+`docs/literature/literature_decision_matrix.csv` records verified metadata,
+rubric scores and claim boundaries. A `requested` row cannot support page-level
+technical claims until a lawful PDF is reviewed and inventoried. PDFs and text
+caches stay in ignored `literature_pdfs/` and `.literature_cache/`, not in Git.

@@ -219,41 +219,47 @@ def repository_family():
     )
     c.box(
         0.22,
-        0.59,
+        0.58,
         0.56,
-        0.23,
+        0.25,
         "Network Control and Differential Games\n"
         "cybercontrol: equations, graphs and numerics\n"
-        "FBSM, metrics, run records and plotting",
+        "FBSM, metrics, run records and plotting\n"
+        "first: python -m cybercontrol smoke\n"
+        "output: artifacts/smoke/run_manifest.json",
         fill=PALE_BLUE,
         edge=BLUE,
-        fontsize=10.5,
+        fontsize=9.4,
         weight="bold",
     )
     c.box(
         0.04,
-        0.26,
+        0.23,
         0.42,
-        0.22,
+        0.27,
         "Cyber Control and Game Learning\n"
         "cybergames: environments and DDQN/PPO\n"
-        "CTDE, MAPPO and game evaluation",
+        "CTDE, MAPPO and game evaluation\n"
+        "first: python -m cybergames smoke\n"
+        "output: artifacts/smoke_summary.json",
         fill=PALE_TEAL,
         edge=TEAL,
-        fontsize=9.5,
+        fontsize=8.3,
         weight="bold",
     )
     c.box(
         0.54,
-        0.26,
+        0.23,
         0.42,
-        0.22,
+        0.27,
         "Physics-Informed Cyber Control\n"
         "cyberpinn: inverse PINN and PIDL\n"
-        "neural control and PMP-informed residuals",
+        "neural control and PMP-informed residuals\n"
+        "first: python -m cyberpinn smoke\n"
+        "output: artifacts/smoke_summary.json",
         fill=PALE_ORANGE,
         edge=ORANGE,
-        fontsize=9.5,
+        fontsize=8.3,
         weight="bold",
     )
     c.arrow(
@@ -285,11 +291,11 @@ def repository_family():
 
 
 def state_transitions():
-    """Explain SIPS mass transfer and the node-indexed infection pressure."""
+    """Contrast aggregate SIR with controlled node-SIPS mass transfer."""
 
     c = Canvas(
-        "Canonical SIPS state transitions",
-        subtitle=r"State order is $[S,I,P]$ and $S+I+P=1$; every flow transfers mass between compartments.",
+        "SIR and SIPS state transitions",
+        subtitle=r"Aggregate SIR uses $[S,I,R]$; node control uses $[S_i,I_i,P_i]$. Both conserve total mass.",
     )
     c.circle(0.17, 0.62, 0.075, "$S$\nsusceptible", fill=PALE_BLUE, edge=BLUE)
     c.circle(0.50, 0.62, 0.075, "$I$\ninfected", fill="#FBE9E9", edge=RED)
@@ -317,14 +323,14 @@ def state_transitions():
         0.22,
         0.40,
         0.18,
-        r"Aggregate pressure"
+        r"Aggregate SIR: $[S,I,R]$"
         "\n"
-        r"$\lambda(t)=\beta I(t)$"
+        r"$S\to I:\ \beta SI$; $I\to R:\ \gamma I$"
         "\n"
-        r"or degree mixing $\lambda_k=s_k k\sum_\ell M_{k\ell}\,\iota_\ell x_\ell$",
+        r"optional control moves $S$ or $I$ to $R$; $S+I+R=1$",
         fill=PALE_GRAY,
         edge=MUTED,
-        fontsize=10.2,
+        fontsize=9.6,
     )
     c.box(
         0.53,
@@ -559,12 +565,18 @@ def ddqn():
     )
     c.box(
         0.27,
-        0.58,
+        0.56,
         0.19,
-        0.15,
-        "Online Q-network\n" r"$d_o\to128\to128\to|\mathcal{A}|$",
+        0.19,
+        "Online Q-network\n"
+        r"Linear$(d_o,128)$ + ReLU"
+        "\n"
+        r"Linear$(128,128)$ + ReLU"
+        "\n"
+        r"$Q(o,\cdot)\in\mathbb{R}^{|\mathcal{A}|}$",
         fill=PALE_TEAL,
         edge=TEAL,
+        fontsize=8.2,
         weight="bold",
     )
     c.box(
@@ -658,13 +670,16 @@ def mappo_ctde():
     )
     c.box(
         0.29,
-        0.57,
+        0.56,
         0.20,
-        0.17,
-        "Shared actor\nMLP or graph context\njoint-action logits",
+        0.19,
+        "Shared actor\n"
+        r"summary encoder: $h=64$"
+        "\n"
+        r"joint logits: $1+2M$",
         fill=PALE_TEAL,
         edge=TEAL,
-        fontsize=9.0,
+        fontsize=8.4,
         weight="bold",
     )
     c.arrow((0.23, 0.655), (0.29, 0.655), color=TEAL)
@@ -673,7 +688,7 @@ def mappo_ctde():
         0.57,
         0.18,
         0.17,
-        "Budget-feasible action\nnone or\n(community, mode)",
+        "Budget-feasible action\nnone or one of $2M$\n(community, mode)",
         fill=PALE_ORANGE,
         edge=ORANGE,
         fontsize=8.6,
@@ -870,19 +885,22 @@ def pinn_loss():
         weight="bold",
     )
     c.box(
-        0.25,
-        0.48,
-        0.18,
+        0.24,
+        0.44,
         0.20,
-        "State network\n"
-        r"$x_\theta(t)\in\mathbb{R}^{n}$"
-        "\nconstraint-aware\noutput map",
+        0.28,
+        "Aggregate state network\n"
+        r"$t\to$ tanh MLP"
+        "\n"
+        r"logits $\to$ softmax"
+        "\n"
+        r"$[S,I,R]$",
         fill=PALE_TEAL,
         edge=TEAL,
-        fontsize=9.1,
+        fontsize=8.0,
         weight="bold",
     )
-    c.arrow((0.18, 0.59), (0.25, 0.58), color=BLUE)
+    c.arrow((0.18, 0.59), (0.24, 0.58), color=BLUE)
     c.box(
         0.49,
         0.71,
@@ -980,7 +998,11 @@ def node_time_encoder_decoder():
             0.27,
             0.57,
             0.17,
-            "Graph node encoder\n" r"$d_f\to d$" "\n" r"$H_x:[N,d]$",
+            "Node feature encoder\n"
+            r"current MLP: $d_f\to d$"
+            "\n"
+            "optional graph layers\n"
+            r"$H_x\in\mathbb{R}^{N\times d}$",
             PALE_TEAL,
             TEAL,
         ),
@@ -989,13 +1011,13 @@ def node_time_encoder_decoder():
             0.27,
             0.27,
             0.17,
-            "Time encoder\nMLP / Fourier\n" r"$H_t:[B,d]$",
+            "Time encoder\ncurrent: tanh MLP\nFourier features: off\n" r"$H_t:[B,d]$",
             PALE_ORANGE,
             ORANGE,
         ),
     ]
     for x, y, w, text_value, fill, edge in blocks:
-        c.box(x, y, w, 0.20, text_value, fill=fill, edge=edge, fontsize=9.0, weight="bold")
+        c.box(x, y, w, 0.22, text_value, fill=fill, edge=edge, fontsize=8.3, weight="bold")
     c.box(
         0.48,
         0.41,
@@ -1171,13 +1193,13 @@ DIAGRAMS = (
     DiagramDefinition(
         "repository_family",
         repository_family,
-        "Three-repository family showing the foundation package and method-specific Note 1 and Note 2 packages.",
+        "Three-repository learning order with package ownership, first commands and expected smoke artifacts.",
         "all READMEs; all guides",
     ),
     DiagramDefinition(
         "state_transitions",
         state_transitions,
-        "Canonical SIPS susceptible, infected and protected transitions with aggregate and node-indexed infection pressure.",
+        "Aggregate SIR and controlled node-SIPS mass transfers with state order, conservation and node infection pressure.",
         "foundation model guide; Note 1 dynamics; Note 2 residuals",
     ),
     DiagramDefinition(
@@ -1190,7 +1212,7 @@ DIAGRAMS = (
         "control_timing",
         control_timing,
         "Five timing lanes separating continuous-time, sampled ZOH, switched, impulse and continuous-impulsive control.",
-        "foundation guide; Note 1 README and guide",
+        "foundation timing guide",
     ),
     DiagramDefinition(
         "ode_environment",

@@ -7,6 +7,7 @@ its own tutorial scripts and narrative.  Public modules stay small:
 - :mod:`cybercontrol.models` for malware, sampled-flow dynamics, and jump maps.
 - :mod:`cybercontrol.heterogeneity` for scalar-or-array parameter profiles.
 - :mod:`cybercontrol.network_models` for node-level SIPS graph models.
+- :mod:`cybercontrol.continuous_impulse` for segmented flow and reset simulation.
 - :mod:`cybercontrol.torch_utils` for optional PyTorch helper blocks.
 - :mod:`cybercontrol.io` for reproducible outputs.
 - :mod:`cybercontrol.plotting` for guide and publication figure helpers.
@@ -102,6 +103,7 @@ from .diagnostics import (
     rolling_mean,
     write_diagnostic_glossary,
 )
+from .continuous_impulse import simulate_continuous_impulse
 
 __all__ = [
     "MalwareParams",
@@ -109,6 +111,7 @@ __all__ = [
     "controlled_sir_rhs",
     "isolation_jump",
     "sampled_sir_flow_rhs",
+    "simulate_continuous_impulse",
     "NodeSIPSParams",
     "contiguous_community_index",
     "DegreeSISParams",

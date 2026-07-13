@@ -1,9 +1,15 @@
+from dataclasses import replace
+import subprocess
+import sys
+
 import numpy as np
 import pytest
 
 from cybercontrol.cli import _package_smoke
+from cybercontrol.continuous_impulse import simulate_continuous_impulse
 from cybercontrol.diagnostics import diagnostic_terms_for, rolling_mean, write_diagnostic_glossary
 from cybercontrol.guide_diagrams import DIAGRAMS, diagram_box_overflows
+from cybercontrol.foundation_profiles import CONTINUOUS_IMPULSE_PROFILE
 from cybercontrol.heterogeneity import (
     DegreeSISParams,
     NodeSISParams,
@@ -81,6 +87,51 @@ def test_package_smoke_converges_and_applies_impulse_reset():
     assert metrics["max_fbs_final_delta"] < 1e-4
     assert metrics["impulse_mass_error"] < 1e-12
     assert metrics["impulse_infected_after"] < metrics["impulse_infected_before"]
+
+
+def test_continuous_impulse_simulation_separates_flow_and_reset():
+    adjacency = np.array(
+        [
+            [0.0, 1.0, 1.0, 0.0],
+            [1.0, 0.0, 1.0, 1.0],
+            [1.0, 1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+        ]
+    )
+    profile = replace(
+        CONTINUOUS_IMPULSE_PROFILE,
+        horizon=2.0,
+        impulse_times=(1.0,),
+        controlled_node_fraction=0.5,
+    )
+
+    result = simulate_continuous_impulse(adjacency, profile)
+    event_indices = np.flatnonzero(np.isclose(result.t, 1.0))
+    controlled = result.controls["controlled_nodes"]
+    continuous_control = result.controls["continuous_control"]
+
+    assert event_indices.size == 2
+    assert np.all(result.x[event_indices[1], controlled] < result.x[event_indices[0], controlled])
+    assert float(np.ptp(continuous_control)) > 0.05
+    assert np.all(np.diff(result.t) >= 0.0)
+
+
+def test_baseline_diagnostics_import_preserves_matplotlib_backend():
+    code = """
+import matplotlib
+matplotlib.use('svg', force=True)
+before = matplotlib.get_backend().lower()
+import cybercontrol.baseline_diagnostics
+after = matplotlib.get_backend().lower()
+assert before == after == 'svg', (before, after)
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stderr
 
 
 def test_grid_helpers_share_projection_quadrature_and_interpolation():

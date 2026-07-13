@@ -18,6 +18,7 @@ dist/
 .mplconfig/
 artifacts/
 literature_pdfs/
+.literature_cache/
 examples/**/.cache/
 examples/**/.mplconfig/
 

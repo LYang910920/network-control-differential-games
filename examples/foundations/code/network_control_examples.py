@@ -8,8 +8,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-import numpy as np
-
+from cybercontrol.continuous_impulse import simulate_continuous_impulse
 from cybercontrol.fbs import (  # noqa: F401 - compatibility exports
     TimeSeries,
     degree_control_model,
@@ -37,10 +36,8 @@ from cybercontrol.foundation_evaluation import (  # noqa: F401 - compatibility e
     save_matched_mean_comparison,
 )
 from cybercontrol.foundation_profiles import (  # noqa: F401 - compatibility exports
-    CONTINUOUS_IMPULSE_PROFILE,
     NODE_CONTROL_PROFILE,
     NODE_GAME_PROFILE,
-    ContinuousImpulseProfile,
 )
 from cybercontrol.graph_data import (  # noqa: F401 - compatibility exports
     DegreeData,
@@ -48,18 +45,13 @@ from cybercontrol.graph_data import (  # noqa: F401 - compatibility exports
     degree_distribution_from_graph,
     degree_initial_state,
     graph_to_model_matrix,
-    high_degree_nodes,
     load_network,
     node_initial_state,
     normalize_adjacency,
     prepare_model_matrix,
     print_degree_distribution,
 )
-from cybercontrol.numerics import (
-    project_box as clip,
-    solve_ode_grid as solve_grid,
-    trapezoid_integral as integral,  # noqa: F401 - compatibility export
-)
+from cybercontrol.numerics import trapezoid_integral as integral  # noqa: F401
 
 try:
     from .foundation_reporting import (
@@ -85,74 +77,6 @@ except ImportError:
         save_fbs_convergence,
     )
     from foundation_parameters import write_parameter_summary
-
-
-def simulate_continuous_impulse(
-    A: np.ndarray, profile: ContinuousImpulseProfile = CONTINUOUS_IMPULSE_PROFILE
-) -> TimeSeries:
-    """Time-varying continuous node control plus state jumps on high-degree nodes.
-
-    This is a transparent simulation template for continuous-impulse dynamics.
-    It does not solve the full impulse PMP; it shows how to combine solve_ivp segments with
-    impulse maps x(tau+) = G(x(tau-), z_tau).
-    """
-    T = profile.horizon
-    beta, delta, impulse_fraction = profile.beta, profile.delta, profile.impulse_fraction
-    n = A.shape[0]
-    controlled = high_degree_nodes(A, max(1, int(np.ceil(profile.controlled_node_fraction * n))))
-
-    def continuous_u_level(tau: float) -> float:
-        phase = tau / max(T, 1e-12)
-        level = profile.continuous_base + profile.continuous_ramp * phase
-        level += profile.continuous_wave * np.sin(2.0 * np.pi * phase)
-        return float(clip(level, profile.continuous_lower, profile.continuous_upper))
-
-    def rhs_with_time_varying_control(tau: float, y: np.ndarray) -> np.ndarray:
-        u = np.zeros(n)
-        u[controlled] = continuous_u_level(tau)
-        return node_rhs(y, u, A, beta, delta)
-
-    x = np.full(n, 0.03)
-    x[high_degree_nodes(A, 2)] = 0.15
-
-    impulse_times_arr = np.asarray(profile.impulse_times, dtype=float)
-    impulse_times_arr = np.unique(
-        np.sort(impulse_times_arr[(impulse_times_arr > 0.0) & (impulse_times_arr < T)])
-    )
-    segment_bounds = [0.0, *impulse_times_arr.tolist(), T]
-    all_t, all_x = [], []
-    for t0, t1 in zip(segment_bounds[:-1], segment_bounds[1:]):
-        grid = np.linspace(t0, t1, max(2, int(30 * (t1 - t0)) + 1))
-        segment = clip(solve_grid(rhs_with_time_varying_control, x, grid))
-        start = 0 if not all_t else 1
-        all_t.extend(grid[start:])
-        all_x.extend(segment[start:])
-        x = segment[-1].copy()
-        if np.any(np.isclose(t1, impulse_times_arr)):
-            # Store the post-jump state at the same time to make the jump visible.
-            x[controlled] *= 1.0 - impulse_fraction
-            all_t.append(t1)
-            all_x.append(x.copy())
-
-    t = np.asarray(all_t, dtype=float)
-    impulse_heights = np.full(len(impulse_times_arr), impulse_fraction, dtype=float)
-    continuous_control = np.array([continuous_u_level(tau) for tau in t], dtype=float)
-    return TimeSeries(
-        t=t,
-        x=np.vstack(all_x),
-        controls={
-            "controlled_nodes": controlled,
-            "continuous_control": continuous_control,
-            "impulse_times": impulse_times_arr,
-            "impulse_heights": impulse_heights,
-        },
-        value={
-            "continuous_control_min": float(np.min(continuous_control)),
-            "continuous_control_max": float(np.max(continuous_control)),
-            "impulse_fraction": impulse_fraction,
-            "controlled_count": float(len(controlled)),
-        },
-    )
 
 
 def run(args: argparse.Namespace) -> None:

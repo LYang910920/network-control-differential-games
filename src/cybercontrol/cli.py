@@ -188,7 +188,7 @@ def build_parser() -> argparse.ArgumentParser:
     medium.add_argument("--steps", type=int, default=32)
     medium.add_argument("--iterations", type=int, default=35)
     medium.add_argument("--tolerance", type=float, default=1e-4)
-    sub.add_parser("figures", help="Regenerate the shared vector guide diagrams.")
+    sub.add_parser("figures", help="Regenerate this checkout's vector guide diagrams.")
     sub.add_parser("docs", help="Build the current foundation tutorial PDF.")
     sub.add_parser("all", help="Run smoke, figures, and docs.")
     return parser
