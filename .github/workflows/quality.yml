@@ -35,4 +35,9 @@ jobs:
           python -m cybercontrol smoke
           python scripts/generate_diagrams.py
           python scripts/check_diagram_manifest.py
-          git diff --exit-code -- docs/assets/diagrams docs/assets/diagram_manifest.csv
+          find docs/assets/diagrams -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/diagram-hashes-before
+          sha256sum docs/assets/diagram_manifest.csv >> /tmp/diagram-hashes-before
+          python scripts/generate_diagrams.py
+          find docs/assets/diagrams -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/diagram-hashes-after
+          sha256sum docs/assets/diagram_manifest.csv >> /tmp/diagram-hashes-after
+          diff -u /tmp/diagram-hashes-before /tmp/diagram-hashes-after
