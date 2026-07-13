@@ -6,9 +6,6 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -121,7 +118,9 @@ def control_baseline_rows(
 
     rng = np.random.default_rng(seed)
     for idx in range(random_count):
-        random_control = smooth_random_controls(computed_control.shape, lower=random_lower, upper=random_upper, rng=rng)
+        random_control = smooth_random_controls(
+            computed_control.shape, lower=random_lower, upper=random_upper, rng=rng
+        )
         add(
             {
                 "scenario": "random smooth control",
@@ -266,7 +265,9 @@ def save_control_baseline_plot(
         )
         jitter = np.linspace(-0.08, 0.08, min(len(random_values), 30))
         sample = np.quantile(random_values, np.linspace(0.05, 0.95, len(jitter)))
-        ax.scatter(np.full(len(sample), random_x) + jitter, sample, color="tab:green", s=12, alpha=0.35)
+        ax.scatter(
+            np.full(len(sample), random_x) + jitter, sample, color="tab:green", s=12, alpha=0.35
+        )
         labels.append(random_label)
 
     ax.set_xticks(x_pos)
@@ -328,13 +329,16 @@ def save_game_baseline_plot(
             )
             jitter = np.linspace(-0.08, 0.08, min(len(random_values), 30))
             sample = np.quantile(random_values, np.linspace(0.05, 0.95, len(jitter)))
-            ax.scatter(np.full(len(sample), random_x) + jitter, sample, color="tab:green", s=12, alpha=0.35)
+            ax.scatter(
+                np.full(len(sample), random_x) + jitter, sample, color="tab:green", s=12, alpha=0.35
+            )
             labels.append("random strategies")
 
         ax.set_xticks(x_pos)
         ax.set_xticklabels(labels, rotation=16, ha="right")
-        ax.set_ylabel(ylabel)
-        panel_label(ax, panel)
+        ax.tick_params(axis="both", labelsize=8.5)
+        ax.set_ylabel(ylabel, fontsize=9)
+        panel_label(ax, panel, fontsize=9)
         ax.grid(True, axis="y", alpha=0.25)
 
     fig.tight_layout()

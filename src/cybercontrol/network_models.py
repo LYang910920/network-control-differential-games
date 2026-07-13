@@ -32,7 +32,9 @@ def contiguous_community_index(nodes: int, communities: int) -> Array:
         raise ValueError("nodes must be positive")
     if communities <= 0:
         raise ValueError("communities must be positive")
-    return np.minimum(np.arange(nodes, dtype=int) * int(communities) // int(nodes), int(communities) - 1)
+    return np.minimum(
+        np.arange(nodes, dtype=int) * int(communities) // int(nodes), int(communities) - 1
+    )
 
 
 @dataclass(frozen=True)
@@ -138,17 +140,25 @@ def degree_correlated_node_sips_params(adjacency: Any, *, strength: float = 0.35
 
     return NodeSIPSParams(
         beta=0.8,
-        gamma=degree_correlated_node_values(adjacency, base=0.12, strength=0.20 * strength, inverse=True),
+        gamma=degree_correlated_node_values(
+            adjacency, base=0.12, strength=0.20 * strength, inverse=True
+        ),
         omega=0.03,
         susceptibility=degree_correlated_node_values(adjacency, base=1.0, strength=strength),
         infectivity=degree_correlated_node_values(adjacency, base=1.0, strength=0.60 * strength),
         criticality=degree_correlated_node_values(adjacency, base=1.0, strength=0.75 * strength),
-        patch_bound=degree_correlated_node_values(adjacency, base=0.45, strength=0.15 * strength, inverse=True),
-        clean_bound=degree_correlated_node_values(adjacency, base=0.55, strength=0.15 * strength, inverse=True),
+        patch_bound=degree_correlated_node_values(
+            adjacency, base=0.45, strength=0.15 * strength, inverse=True
+        ),
+        clean_bound=degree_correlated_node_values(
+            adjacency, base=0.55, strength=0.15 * strength, inverse=True
+        ),
     )
 
 
-def seeded_lognormal_node_sips_params(nodes: int, *, seed: int = 0, cv: float = 0.25) -> NodeSIPSParams:
+def seeded_lognormal_node_sips_params(
+    nodes: int, *, seed: int = 0, cv: float = 0.25
+) -> NodeSIPSParams:
     """Return seeded lognormal node heterogeneity for SIPS."""
 
     return NodeSIPSParams(
@@ -161,10 +171,14 @@ def seeded_lognormal_node_sips_params(nodes: int, *, seed: int = 0, cv: float = 
     )
 
 
-def _resolve_params(params: NodeSIPSParams | ResolvedNodeSIPSParams, nodes: int) -> ResolvedNodeSIPSParams:
+def _resolve_params(
+    params: NodeSIPSParams | ResolvedNodeSIPSParams, nodes: int
+) -> ResolvedNodeSIPSParams:
     if isinstance(params, ResolvedNodeSIPSParams):
         if params.beta.shape != (nodes,):
-            raise ValueError(f"resolved node params must have shape ({nodes},), got {params.beta.shape}")
+            raise ValueError(
+                f"resolved node params must have shape ({nodes},), got {params.beta.shape}"
+            )
         return params
     return params.resolve(nodes)
 
@@ -206,18 +220,31 @@ def node_sips_transition_rates(
     *,
     patch: float | Array = 0.0,
     clean: float | Array = 0.0,
-    beta_boost: float | Array = 0.0,
+    receiver_transmission_boost: float | Array = 0.0,
 ) -> dict[str, Array]:
-    """Return node-wise SIPS transition rates for ``x=[S,I,P]``."""
+    """Return node-wise SIPS transition rates for ``x=[S,I,P]``.
+
+    ``receiver_transmission_boost[i]`` multiplies the force received by node
+    ``i`` during the current interval. It does not change source-node
+    infectivity.
+    """
 
     state = np.asarray(x, dtype=np.float64)
     if state.ndim != 2 or state.shape[1] != 3:
         raise ValueError(f"SIPS state must have shape (nodes, 3), got {state.shape}")
     nodes = state.shape[0]
     resolved = _resolve_params(params, nodes)
-    boost = _node_vector(beta_boost, nodes, "beta_boost")
-    patch_rate = np.minimum(_node_vector(patch, nodes, "patch") * resolved.patch_efficacy, resolved.patch_bound)
-    clean_rate = np.minimum(_node_vector(clean, nodes, "clean") * resolved.clean_efficacy, resolved.clean_bound)
+    boost = _node_vector(
+        receiver_transmission_boost,
+        nodes,
+        "receiver_transmission_boost",
+    )
+    patch_rate = np.minimum(
+        _node_vector(patch, nodes, "patch") * resolved.patch_efficacy, resolved.patch_bound
+    )
+    clean_rate = np.minimum(
+        _node_vector(clean, nodes, "clean") * resolved.clean_efficacy, resolved.clean_bound
+    )
     pressure = graph_pressure_numpy(adjacency, resolved.infectivity * state[:, 1])
     return {
         "infection": resolved.beta * resolved.susceptibility * (1.0 + boost) * pressure,
@@ -235,7 +262,7 @@ def node_sips_rhs_numpy(
     *,
     patch: float | Array = 0.0,
     clean: float | Array = 0.0,
-    beta_boost: float | Array = 0.0,
+    receiver_transmission_boost: float | Array = 0.0,
 ) -> Array:
     """Node-level SIPS ODE for ``x=[S,I,P]``.
 
@@ -259,7 +286,7 @@ def node_sips_rhs_numpy(
         params,
         patch=patch,
         clean=clean,
-        beta_boost=beta_boost,
+        receiver_transmission_boost=receiver_transmission_boost,
     )
     infection = rates["infection"]
     patch_rate = rates["patch"]
@@ -302,7 +329,7 @@ def node_sips_rhs_torch(
     *,
     patch=0.0,
     clean=0.0,
-    beta_boost=0.0,
+    receiver_transmission_boost=0.0,
 ):
     """Torch version of :func:`node_sips_rhs_numpy` for ``x=[S,I,P]``."""
 
@@ -316,7 +343,12 @@ def node_sips_rhs_torch(
     S, I, P = state[:, 0], state[:, 1], state[:, 2]
     patch_raw = _torch_node_vector(patch, nodes, state, "patch")
     clean_raw = _torch_node_vector(clean, nodes, state, "clean")
-    boost = _torch_node_vector(beta_boost, nodes, state, "beta_boost")
+    boost = _torch_node_vector(
+        receiver_transmission_boost,
+        nodes,
+        state,
+        "receiver_transmission_boost",
+    )
     beta = _torch_node_vector(params.beta, nodes, state, "beta")
     susceptibility = _torch_node_vector(params.susceptibility, nodes, state, "susceptibility")
     infectivity = _torch_node_vector(params.infectivity, nodes, state, "infectivity")
@@ -330,7 +362,9 @@ def node_sips_rhs_torch(
         clean_raw * _torch_node_vector(params.clean_efficacy, nodes, state, "clean_efficacy"),
         _torch_node_vector(params.clean_bound, nodes, state, "clean_bound"),
     )
-    infection = beta * susceptibility * (1.0 + boost) * graph_pressure_torch(adjacency, infectivity * I)
+    infection = (
+        beta * susceptibility * (1.0 + boost) * graph_pressure_torch(adjacency, infectivity * I)
+    )
     dS = -infection * S - patch_rate * S + omega * P
     dI = infection * S - (gamma + clean_rate) * I
     dP = patch_rate * S + (gamma + clean_rate) * I - omega * P
@@ -345,7 +379,7 @@ def sample_node_sips_step(
     dt: float,
     patch: float | Array = 0.0,
     clean: float | Array = 0.0,
-    beta_boost: float | Array = 0.0,
+    receiver_transmission_boost: float | Array = 0.0,
     rng: np.random.Generator | None = None,
 ) -> Array:
     """Sample one categorical SIPS step.
@@ -366,7 +400,7 @@ def sample_node_sips_step(
         params,
         patch=patch,
         clean=clean,
-        beta_boost=beta_boost,
+        receiver_transmission_boost=receiver_transmission_boost,
     )
     out = current.copy()
     draw = rng.random(len(current))

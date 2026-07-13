@@ -156,7 +156,7 @@
 \vspace{0.35cm}
 {\large Part 0 of the Network Control Tutorial Family\par}
 \vspace{0.35cm}
-{\large Tutorial Python files: \texttt{simple\_degree\_k\_control.py} and \texttt{network\_control\_examples.py}\par}
+{\large Python package: \texttt{cybercontrol}; runnable degree/node examples and reference smoke checks\par}
 \vfill
 \begin{tcolorbox}[width=0.86\textwidth,colback=SoftBlue,colframe=TutorialBlue]
 \textbf{Purpose.} This note starts from controlled dynamical systems and develops optimal control, differential games, and impulse and continuous--impulsive hybrid control in one coherent framework. It is written for propagation, defense, and intervention problems on networks. The mathematical sections introduce the state equation, payoff, Hamiltonian, PMP, HJB/HJI viewpoint, Nash equilibrium conditions, impulse jumps, and continuous-plus-impulse strategies. The computational sections give a simple degree-$k$ example first and then a main tutorial script for degree-level games, node-level adjacency-matrix models, and continuous-impulse simulations. The degree-level workflow always computes $N_k$, $P(k)$, and $\langle k\rangle$ from the input network before solving models indexed by degree class $k$.
@@ -931,15 +931,15 @@ Feedback optimal control and feedback differential games are theoretically attra
 \section{Python Tutorial Code: Simple First, Then Research-Code-Style Examples}
 % -----------------------------------------------------------------------------
 
-The tutorial code is organized for teaching and reproducibility.  It avoids a large package structure, but still separates the learning path into two files:
+The tutorial code is organized as a reusable package plus thin examples:
 \[
-\text{minimal degree-}k\text{ example} \quad \Longrightarrow \quad \text{compact research-code-style tutorial script}.
+\texttt{cybercontrol} \quad \Longrightarrow \quad \text{minimal example} \quad \Longrightarrow \quad \text{multi-model runner}.
 \]
-The first file is short enough to read in one sitting.  The second file keeps all examples in one place, so the reader can see how graph loading, degree distribution, ODE integration, PMP updates, game updates, impulse simulation, plotting, and command-line options fit together.
+The package owns equations, parameter resolution, integration, projections, FBS updates, diagnostics, and plotting. The examples define a model configuration, call those components, and write run artifacts. This separation lets a reader inspect the numerical method without searching through plotting and command-line code.
 
 \subsection{Tutorial Files}
 
-In this public repository, the commands in this section assume that you first move into \path{examples/foundations/}. From the repository root, you can also run all tutorial examples with \path{python run_all.py --skip-reference}.
+Install the repository once and run commands from its root. The public entry point is \path{python -m cybercontrol}; direct scripts are retained for focused experiments.
 
 \begin{table}[h!]
 \centering
@@ -948,10 +948,11 @@ In this public repository, the commands in this section assume that you first mo
 \toprule
 \textbf{File} & \textbf{Purpose} \\
 \midrule
-\path{code/simple_degree_k_control.py} & Minimal degree-$k$ optimal-control script. It loads a graph, computes $N_k$, $P(k)$, and $\langle k\rangle$, solves one degree-$k$ PMP problem, and saves diagnostic figures. \\
-\path{code/network_control_examples.py} & Main tutorial script containing degree-$k$ optimal control, degree-$k$ attacker-defender game, node-level optimal control, node-level game, continuous-impulse simulation, graph loading, adjacency conversion, and plotting. \\
-\path{reference_repository_guide.md} & Explains how the three reference research-code repositories map to the mathematical workflow in this note: graph preprocessing, state dynamics, adjoints, Hamiltonian updates, impulse policies, payoffs, and baselines. \\
-\path{../reference/download_reference_repositories.sh} & Optional helper script that downloads the three reference GitHub repositories into \path{../reference/reference_repositories_upstream/}. \\
+\path{examples/foundations/code/simple_degree_k_control.py} & Minimal degree-$k$ optimal-control script. It loads a graph, computes $N_k$, $P(k)$, and $\langle k\rangle$, solves one degree-$k$ PMP problem, and saves diagnostic figures. \\
+\path{examples/foundations/code/network_control_examples.py} & Thin orchestrator for degree-$k$ control/game, node-level control/game, matched homogeneous baselines, and continuous--impulsive simulation. Reusable logic is imported from \path{cybercontrol}. \\
+\path{src/cybercontrol/} & Canonical equations, heterogeneous profiles, FBS solvers, graph operations, metrics, manifests, and plotting used across the repository family. \\
+\path{examples/reference/reference_repository_guide.md} & Explains how the three reference research-code repositories map to the mathematical workflow in this note: graph preprocessing, state dynamics, adjoints, Hamiltonian updates, impulse policies, payoffs, and baselines. \\
+\path{examples/reference/download_reference_repositories.sh} & Optional helper script that downloads the three reference GitHub repositories into \path{examples/reference/reference_repositories_upstream/}. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -968,16 +969,16 @@ The infection pressure is computed from the empirical distribution:
 \]
 
 \begin{lstlisting}[language=bash,caption={Run the minimal degree-k optimal-control script.},numbers=none]
-pip install -r requirements.txt
+python -m pip install -e ".[graph,torch]"
 
-python code/simple_degree_k_control.py
+python examples/foundations/code/simple_degree_k_control.py
 
-python code/simple_degree_k_control.py \
+python examples/foundations/code/simple_degree_k_control.py \
   --edge-list sample_data/sample_edges.csv \
   --delimiter , --has-header \
   --source-col source --target-col target
 
-python code/simple_degree_k_control.py \
+python examples/foundations/code/simple_degree_k_control.py \
   --adjacency-csv sample_data/sample_adjacency.csv
 \end{lstlisting}
 
@@ -997,27 +998,27 @@ U = damping * clip(candidate_U, 0.0, u_max) + (1.0 - damping) * U_old
 The main tutorial script extends the same workflow to games, node-level models, and continuous-impulse simulations.  The command-line interface makes it possible to run all examples or only one group.
 
 \begin{lstlisting}[language=bash,caption={Run the main tutorial examples.},numbers=none]
-python code/network_control_examples.py
-python code/network_control_examples.py --examples degree
-python code/network_control_examples.py --examples node
-python code/network_control_examples.py --examples continuous-impulse
+python -m cybercontrol smoke
+python examples/foundations/code/network_control_examples.py --examples degree
+python examples/foundations/code/network_control_examples.py --examples node
+python examples/foundations/code/network_control_examples.py --examples continuous-impulse
 \end{lstlisting}
 
 For realistic network data, the script accepts edge lists, adjacency matrices, and common graph formats:
 
 \begin{lstlisting}[language=bash,caption={Use realistic network data.},numbers=none]
-python code/network_control_examples.py \
+python examples/foundations/code/network_control_examples.py \
   --edge-list data/edges.csv \
   --delimiter , --has-header \
   --source-col source --target-col target --weight-col weight \
   --max-nodes 50
 
-python code/network_control_examples.py --graph-file data/network.graphml
-python code/network_control_examples.py --graph-file data/network.gexf
-python code/network_control_examples.py --graph-file data/network.gml
-python code/network_control_examples.py --graph-file data/network.net
+python examples/foundations/code/network_control_examples.py --graph-file data/network.graphml
+python examples/foundations/code/network_control_examples.py --graph-file data/network.gexf
+python examples/foundations/code/network_control_examples.py --graph-file data/network.gml
+python examples/foundations/code/network_control_examples.py --graph-file data/network.net
 
-python code/network_control_examples.py --adjacency-csv data/A.csv
+python examples/foundations/code/network_control_examples.py --adjacency-csv data/A.csv
 \end{lstlisting}
 
 \subsection{How the Reference Repositories Fit In}
@@ -1041,36 +1042,21 @@ Propaganda (IEEE TCSS 2025) & Repository \path{Propaganda_TCSS_2025_Code}; \path
 The reference code can be downloaded with:
 
 \begin{lstlisting}[language=bash,caption={Download the reference repositories.},numbers=none]
-bash ../reference/download_reference_repositories.sh
+bash examples/reference/download_reference_repositories.sh
 \end{lstlisting}
 
-The file \path{reference_repository_guide.md} gives a reading map from the reference repositories to the mathematical ingredients of PMP, impulse control, and continuous--impulsive hybrid control.
+The file \path{examples/reference/reference_repository_guide.md} gives a reading map from the reference repositories to the mathematical ingredients of PMP, impulse control, and continuous--impulsive hybrid control.
 
 \subsection{Representative Outputs}
 
 The figures below are curated repository assets generated from the tutorial scripts.  Fresh runs write detailed CSV files and additional figures under \path{artifacts/}.
 
-\begin{figure}[p]
+\begin{figure}[htbp]
 \centering
-\includegraphics[width=0.92\textwidth]{../assets/foundation_examples_contact_sheet.png}
-\caption{Visual index of the foundation examples, including degree-level control/game, node-level variants, convergence diagnostics, and continuous-impulse behavior.}
-\label{fig:foundation-contact-sheet}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=0.92\textwidth]{../assets/degree_node_fbs_scalability.png}
-\caption{Degree-level versus sparse node-level FBS timing on matched synthetic scale-free networks.}
+\includegraphics[width=0.92\textwidth,height=0.68\textheight,keepaspectratio]{../assets/degree_node_fbs_scalability.png}
+\caption{Degree-level versus sparse node-level FBS on matched synthetic scale-free networks. The runtime panel uses a logarithmic vertical axis; the state-dimension panel distinguishes occupied degree classes from explicit node states.}
 \label{fig:degree-node-scalability}
 \end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=0.92\textwidth]{../assets/reference_repo_contact_sheet.png}
-\caption{Reference-repository smoke-run contact sheet for the paper-level code snapshots.}
-\label{fig:reference-contact-sheet}
-\end{figure}
-\clearpage
 % -----------------------------------------------------------------------------
 \section{Glossary and References}
 % -----------------------------------------------------------------------------
@@ -1124,31 +1110,35 @@ This English tutorial note was consolidated from two uploaded source tutorial no
 \section{Tutorial Code Files}
 \label{app:code}
 
-The package contains the following runnable code and guide files:
+The repository contains one installable package and three maintained foundation examples:
 
 \begin{itemize}
-  \item \path{code/simple_degree_k_control.py}: minimal degree-$k$ optimal-control example.
-  \item \path{code/network_control_examples.py}: main tutorial script for degree-level games, node-level models, and continuous-impulse simulation.
+  \item \path{src/cybercontrol/}: canonical equations, FBS solvers, graph operations, profiles, metrics, and plotting.
+  \item \path{examples/foundations/code/simple_degree_k_control.py}: minimal heterogeneous degree-$k$ optimal-control example.
+  \item \path{examples/foundations/code/network_control_examples.py}: thin runner for degree/node control, games, and continuous--impulsive simulation.
+  \item \path{examples/foundations/code/scalability_analysis.py}: paired degree-HMF and explicit-node FBS scaling.
   \item \path{README.md}: installation, commands, and usage notes.
-  \item \path{reference_repository_guide.md}: mapping between the reference GitHub repositories and the mathematical workflow in this guide.
-  \item \path{../reference/download_reference_repositories.sh}: optional script to download the reference repositories.
+  \item \path{examples/reference/reference_repository_guide.md}: mapping between the reference GitHub repositories and the mathematical workflow in this guide.
+  \item \path{examples/reference/download_reference_repositories.sh}: optional script to download the reference repositories.
 \end{itemize}
 
 \begin{lstlisting}[language=bash,caption={Core commands for the tutorial code.},numbers=none]
-pip install -r requirements.txt
+python -m pip install -e ".[graph,torch]"
+python -m cybercontrol smoke
 
-python code/simple_degree_k_control.py
-python code/simple_degree_k_control.py \
+python examples/foundations/code/simple_degree_k_control.py
+python examples/foundations/code/simple_degree_k_control.py \
   --edge-list sample_data/sample_edges.csv \
   --delimiter , --has-header --source-col source --target-col target
 
-python code/network_control_examples.py
-python code/network_control_examples.py --examples degree
-python code/network_control_examples.py --adjacency-csv sample_data/sample_adjacency.csv
+python examples/foundations/code/network_control_examples.py
+python examples/foundations/code/network_control_examples.py --examples degree
+python examples/foundations/code/network_control_examples.py \
+  --adjacency-csv sample_data/sample_adjacency.csv
 
-bash ../reference/download_reference_repositories.sh
+bash examples/reference/download_reference_repositories.sh
 \end{lstlisting}
 
-This two-file code structure keeps the tutorial readable: the first script shows the degree-$k$ PMP logic, and the main tutorial script shows how the same logic extends to games, node-level adjacency models, and continuous-impulsive interventions.
+The examples contain configuration and reporting code; the mathematical and numerical implementations remain in \texttt{cybercontrol}, where they can be imported and tested independently.
 
 \end{document}

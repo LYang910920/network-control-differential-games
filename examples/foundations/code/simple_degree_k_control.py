@@ -1,369 +1,203 @@
 # Copyright (c) 2026 Lu-Xing Yang.
 # No project-wide open-source license is granted; see repository COPYRIGHT_AND_LICENSE.md.
 
-"""
-Simple degree-k network optimal-control example.
+"""Minimal heterogeneous degree-class optimal-control example.
 
-This is the short tutorial script to read first.  It does four things:
-
-1. load a network from an edge list, an adjacency CSV, or a built-in demo graph;
-2. compute the empirical degree distribution N_k, P(k), and average degree <k>;
-3. solve a degree-k SIS optimal-control problem by forward-backward sweep;
-4. save a degree-distribution figure and a control/result figure.
-
-The state is indexed by degree class k, not by S/I/R compartments:
-    x[j, t] = infected fraction among nodes with degree k[j].
-
-Install:
-    pip install numpy scipy pandas matplotlib networkx
-
-Run:
-    python simple_degree_k_control.py
-    python simple_degree_k_control.py --edge-list sample_data/sample_edges.csv --delimiter , --has-header
-    python simple_degree_k_control.py --adjacency-csv sample_data/sample_adjacency.csv
+The script loads a graph, forms its empirical degree classes, calls the
+canonical :mod:`cybercontrol.fbs` solver, and writes trajectories and numerical
+diagnostics. It contains no alternate model or forward-backward sweep.
 """
 
 from __future__ import annotations
 
 import argparse
+import logging
 from pathlib import Path
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import networkx as nx
-import numpy as np
 import pandas as pd
 
-from cybercontrol.baseline_diagnostics import (
-    RANDOM_BASELINE_COUNT,
-    RANDOM_BASELINE_SEED,
-    control_baseline_rows,
-    save_control_baseline_plot,
-    write_baseline_table,
+from cybercontrol.baseline_diagnostics import RANDOM_BASELINE_COUNT
+from cybercontrol.fbs import degree_control_model, solve_degree_control
+from cybercontrol.foundation_profiles import DEGREE_CONTROL_PROFILE
+from cybercontrol.graph_data import (
+    DegreeData,
+    degree_distribution_from_graph,
+    load_network,
+    print_degree_distribution,
 )
-from cybercontrol.heterogeneity import DegreeSISParams, degree_sis_jacobian, degree_sis_rhs
-from cybercontrol.numerics import (
-    as_time_function,
-    project_box as clip,
-    solve_ode_grid as solve_ode_on_grid,
-    trapezoid_integral as trapz,
-)
-from cybercontrol.plotting import panel_label, save_publication_figure
+
 try:
-    from .model_profiles import DegreeControlProfile, SIMPLE_DEGREE_CONTROL
+    from .foundation_reporting import (
+        plot_degree_control,
+        save_baseline_comparison,
+        save_degree_distribution,
+        save_fbs_convergence,
+    )
 except ImportError:
-    from model_profiles import DegreeControlProfile, SIMPLE_DEGREE_CONTROL
-
-
-# -----------------------------------------------------------------------------
-# Network loading and degree distribution
-# -----------------------------------------------------------------------------
-
-
-def _resolve_column(df: pd.DataFrame, col_ref) -> str | int:
-    """Allow a column name such as 'source' or a zero-based index such as 0."""
-    if col_ref in df.columns:
-        return col_ref
-    return df.columns[int(col_ref)]
-
-
-def load_graph(args: argparse.Namespace) -> nx.Graph:
-    """Return a NetworkX graph from edge list, adjacency CSV, or demo graph."""
-    if args.edge_list:
-        sep = r"\s+" if args.delimiter is None else args.delimiter
-        header = 0 if args.has_header else None
-        df = pd.read_csv(args.edge_list, sep=sep, header=header, comment="#", engine="python")
-        src = _resolve_column(df, args.source_col)
-        dst = _resolve_column(df, args.target_col)
-        df = df[df[src] != df[dst]].copy()
-        G = nx.from_pandas_edgelist(df, src, dst, create_using=nx.Graph())
-    elif args.adjacency_csv:
-        A = pd.read_csv(args.adjacency_csv, header=None).to_numpy(float)
-        A = np.asarray(A, dtype=float)
-        A[~np.isfinite(A)] = 0.0
-        A[A < 0] = 0.0
-        np.fill_diagonal(A, 0.0)
-        G = nx.from_numpy_array((A + A.T) > 0)
-    else:
-        G = nx.barabasi_albert_graph(args.demo_nodes, args.demo_m, seed=args.seed)
-
-    G = nx.Graph(G)              # this simple example uses undirected degree classes
-    G.remove_edges_from(nx.selfloop_edges(G))
-    return G
-
-
-def degree_distribution(G: nx.Graph) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
-    """Compute observed degree classes k, counts N_k, probabilities P(k), and <k>."""
-    degrees = np.array([d for _, d in G.degree()], dtype=int)
-    k, counts = np.unique(degrees, return_counts=True)
-    p = counts / counts.sum()
-    kbar = float(k @ p)
-    return k.astype(float), counts.astype(int), p.astype(float), kbar
-
-
-def print_degree_table(k: np.ndarray, counts: np.ndarray, p: np.ndarray, kbar: float) -> None:
-    print("\nEmpirical degree distribution")
-    print(f"average degree <k> = {kbar:.4f}")
-    print("   k      N_k      P(k)")
-    for kk, nn, pp in zip(k.astype(int), counts, p):
-        print(f"{kk:4d} {nn:8d} {pp:9.4f}")
-
-
-# -----------------------------------------------------------------------------
-# Degree-k SIS optimal-control model
-# -----------------------------------------------------------------------------
-
-
-def theta(x: np.ndarray, k: np.ndarray, p: np.ndarray, kbar: float) -> float:
-    """Mean-field infection pressure: Theta = sum_k k P(k) x_k / <k>."""
-    return float((k * p) @ x / max(kbar, 1e-12))
-
-
-def state_rhs(x: np.ndarray, u: np.ndarray, k: np.ndarray, p: np.ndarray, kbar: float,
-              beta: float, delta: float) -> np.ndarray:
-    """Degree-k SIS dynamics with scalar inputs broadcast through the shared API."""
-    model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(k, p)
-    return degree_sis_rhs(x, u, k, model)
-
-
-def state_jacobian(x: np.ndarray, u: np.ndarray, k: np.ndarray, p: np.ndarray, kbar: float,
-                   beta: float, delta: float) -> np.ndarray:
-    """Jacobian of state_rhs with respect to x."""
-    model = DegreeSISParams(susceptibility=beta, recovery=delta).resolve(k, p)
-    return degree_sis_jacobian(x, u, k, model)
-
-
-def initial_degree_state(k: np.ndarray, profile: DegreeControlProfile = SIMPLE_DEGREE_CONTROL) -> np.ndarray:
-    """Use a small degree-dependent initial infection for visual contrast."""
-    return clip(
-        profile.initial_low + profile.initial_degree_scale * k / max(k.max(), 1.0),
-        0.0,
-        profile.initial_cap,
+    from foundation_reporting import (
+        plot_degree_control,
+        save_baseline_comparison,
+        save_degree_distribution,
+        save_fbs_convergence,
     )
 
 
-def solve_degree_k_control(
-    k: np.ndarray,
-    p: np.ndarray,
-    kbar: float,
+LOGGER = logging.getLogger(__name__)
+
+
+def write_resolved_parameters(
+    out_dir: Path,
+    degree_data: DegreeData,
     *,
-    horizon: float = SIMPLE_DEGREE_CONTROL.horizon,
-    steps: int = 220,
-    iterations: int = SIMPLE_DEGREE_CONTROL.max_iterations,
-    beta: float = SIMPLE_DEGREE_CONTROL.beta,
-    delta: float = SIMPLE_DEGREE_CONTROL.delta,
-    infection_weight: float = SIMPLE_DEGREE_CONTROL.infection_weight,
-    control_weight: float = SIMPLE_DEGREE_CONTROL.control_weight,
-    u_max: float = SIMPLE_DEGREE_CONTROL.u_max,
-    damping: float = SIMPLE_DEGREE_CONTROL.damping,
-    tol: float = SIMPLE_DEGREE_CONTROL.tolerance,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, np.ndarray, bool]:
-    """Forward-backward sweep for degree-k optimal control.
+    steps: int,
+    max_iterations: int,
+    tolerance: float,
+) -> None:
+    """Write the exact heterogeneous arrays and a compact run summary."""
 
-    Cost to minimize:
-        integral [ q sum_k P(k) x_k + 0.5 r sum_k P(k) u_k^2 ] dt.
-    """
-    t = np.linspace(0.0, horizon, steps + 1)
-    m = len(k)
-    U = np.zeros((len(t), m))
-    X0 = initial_degree_state(k)
-    model = DegreeSISParams(
-        susceptibility=beta,
-        recovery=delta,
-        state_weight=infection_weight,
-        control_weight=control_weight,
-        control_bound=u_max,
-    ).resolve(k, p)
-    delta_history: list[float] = []
-
-    for it in range(iterations):
-        U_old = U.copy()
-        U_of_t = as_time_function(t, U)
-
-        X = clip(solve_ode_on_grid(lambda tau, y: degree_sis_rhs(y, U_of_t(tau), k, model), X0, t))
-        X_of_t = as_time_function(t, X)
-
-        def adjoint_rhs(tau: float, lam: np.ndarray) -> np.ndarray:
-            x_now = X_of_t(tau)
-            u_now = U_of_t(tau)
-            J = degree_sis_jacobian(x_now, u_now, k, model)
-            return -model.state_weight * p - J.T @ lam
-
-        Lambda = solve_ode_on_grid(adjoint_rhs, np.zeros(m), t, backward=True)
-
-        # Stationarity of the Hamiltonian gives r P(k) u_k - lambda_k x_k = 0.
-        candidate = Lambda * X / (model.control_weight * np.maximum(p, 1e-12))
-        U = damping * clip(candidate, 0.0, model.control_bound) + (1.0 - damping) * U_old
-
-        delta_u = float(np.max(np.abs(U - U_old)))
-        delta_history.append(delta_u)
-        if delta_u < tol:
-            print(f"forward-backward sweep converged after {it + 1} iterations")
-            break
-
-    X, cost = evaluate_degree_k_control(k, p, kbar, t, U, beta, delta, infection_weight, control_weight)
-    converged = bool(delta_history and delta_history[-1] < tol)
-    if not converged:
-        print(f"forward-backward sweep warning: final control change = {delta_history[-1]:.3e}")
-    return t, X, U, cost, np.asarray(delta_history, dtype=float), converged
-
-
-def evaluate_degree_k_control(
-    k: np.ndarray,
-    p: np.ndarray,
-    kbar: float,
-    t: np.ndarray,
-    U: np.ndarray,
-    beta: float = SIMPLE_DEGREE_CONTROL.beta,
-    delta: float = SIMPLE_DEGREE_CONTROL.delta,
-    infection_weight: float = SIMPLE_DEGREE_CONTROL.infection_weight,
-    control_weight: float = SIMPLE_DEGREE_CONTROL.control_weight,
-) -> tuple[np.ndarray, float]:
-    """Evaluate the degree-k objective for a fixed control curve."""
-    X0 = initial_degree_state(k)
-    U_of_t = as_time_function(t, U)
-    model = DegreeSISParams(
-        susceptibility=beta,
-        recovery=delta,
-        state_weight=infection_weight,
-        control_weight=control_weight,
-    ).resolve(k, p)
-    X = clip(solve_ode_on_grid(lambda tau, y: degree_sis_rhs(y, U_of_t(tau), k, model), X0, t))
-    cost = trapz((X * model.state_weight) @ p + 0.5 * ((U * U * model.control_weight) @ p), t)
-    return X, cost
-
-
-# -----------------------------------------------------------------------------
-# Plotting and command line
-# -----------------------------------------------------------------------------
-
-
-def save_results(out_dir: Path, k: np.ndarray, counts: np.ndarray, p: np.ndarray, kbar: float,
-                 t: np.ndarray, X: np.ndarray, U: np.ndarray, cost: float,
-                 delta_history: np.ndarray, converged: bool, tolerance: float = 1e-4) -> None:
-    out_dir.mkdir(parents=True, exist_ok=True)
-    for legacy_name in ("degree_k_control.png", "baseline_comparison.png"):
-        legacy_path = out_dir / legacy_name
-        if legacy_path.exists():
-            legacy_path.unlink()
-
-    pd.DataFrame({"k": k.astype(int), "N_k": counts, "P(k)": p}).to_csv(out_dir / "degree_distribution.csv", index=False)
-    pd.DataFrame(
-        [
-            {"parameter": "model_level", "value": "degree-k", "meaning": "State is the infected fraction for each observed degree class."},
-            {"parameter": "horizon", "value": float(t[-1]), "meaning": "Total simulated time."},
-            {"parameter": "time_grid_steps", "value": len(t) - 1, "meaning": "Number of intervals used by the ODE/FBS time grid."},
-            {"parameter": "beta", "value": SIMPLE_DEGREE_CONTROL.beta, "meaning": "Infection/contact rate in the SIS dynamics."},
-            {"parameter": "delta", "value": SIMPLE_DEGREE_CONTROL.delta, "meaning": "Natural recovery/removal rate before control."},
-            {"parameter": "u_max", "value": SIMPLE_DEGREE_CONTROL.u_max, "meaning": "Upper bound for the continuous healing/control rate u_k(t)."},
-            {"parameter": "infection_weight", "value": SIMPLE_DEGREE_CONTROL.infection_weight, "meaning": "Objective weight on infected fraction."},
-            {"parameter": "control_weight", "value": SIMPLE_DEGREE_CONTROL.control_weight, "meaning": "Quadratic cost weight on control effort."},
-            {"parameter": "initial_infection_range", "value": f"{float(initial_degree_state(k).min()):.3f}-{float(initial_degree_state(k).max()):.3f}", "meaning": "Degree-dependent initial infected fraction range."},
-            {"parameter": "fbs_tolerance", "value": tolerance, "meaning": "Convergence threshold for max control change."},
-            {"parameter": "random_baselines", "value": RANDOM_BASELINE_COUNT, "meaning": "Number of random smooth controls used in the baseline comparison."},
-        ]
-    ).to_csv(out_dir / "parameter_summary.csv", index=False)
-
-    plt.figure(figsize=(6.8, 4.0))
-    plt.bar(k, p)
-    plt.xlabel("degree k")
-    plt.ylabel("P(k)")
-    panel_label(plt.gca(), f"Empirical degree distribution, average degree = {kbar:.2f}")
-    plt.tight_layout()
-    save_publication_figure(
-        plt.gcf(),
-        out_dir / "degree_distribution.png",
-        metadata={"model": "simple degree-k control", "figure_type": "degree distribution"},
-    )
-    plt.close()
-
-    plt.figure(figsize=(7.2, 4.2))
-    plt.plot(t, X @ p, label="state: population-weighted degree-class mean infection", linewidth=2.0, linestyle="-")
-    plt.plot(t, U @ p, label="continuous control: population-weighted degree-class mean", linewidth=2.0, linestyle="-.")
-    for j in sorted(set([0, len(k) // 2, len(k) - 1])):
-        plt.plot(t, X[:, j], "--", linewidth=1.5, label=f"state: degree k={int(k[j])}")
-    plt.xlabel("time")
-    plt.ylabel("state / control")
-    panel_label(plt.gca(), f"Degree-k continuous optimal control, cost={cost:.2f}")
-    plt.legend(frameon=False, fontsize=8)
-    plt.tight_layout()
-    save_publication_figure(
-        plt.gcf(),
-        out_dir / "degree_control_trajectory.png",
-        metadata={"model": "simple degree-k control", "control_type": "continuous"},
-    )
-    plt.close()
-
+    model = degree_control_model(degree_data)
     pd.DataFrame(
         {
-            "iteration": np.arange(1, len(delta_history) + 1),
-            "max_control_change": delta_history,
-            "tolerance": np.full(len(delta_history), tolerance),
-            "below_tolerance": delta_history < tolerance,
-            "run_converged": np.full(len(delta_history), converged),
+            "degree_k": degree_data.k,
+            "class_count": degree_data.Nk,
+            "class_probability": degree_data.pk,
+            "susceptibility": model.susceptibility,
+            "infectivity": model.infectivity,
+            "recovery": model.recovery,
+            "state_weight": model.state_weight,
+            "control_weight": model.control_weight,
+            "control_bound": model.control_bound,
         }
-    ).to_csv(out_dir / "fbs_convergence.csv", index=False)
-
-    plt.figure(figsize=(7.2, 4.0))
-    plt.semilogy(np.arange(1, len(delta_history) + 1), delta_history, marker="o", linewidth=2.0)
-    plt.axhline(tolerance, color="0.45", linestyle=":", linewidth=1.4, label=f"tolerance={tolerance:.0e}")
-    plt.xlabel("FBS iteration")
-    plt.ylabel("max control change")
-    panel_label(plt.gca(), f"Forward-backward sweep convergence, converged={converged}")
-    plt.grid(True, alpha=0.25)
-    plt.legend(frameon=False, fontsize=8)
-    plt.tight_layout()
-    save_publication_figure(
-        plt.gcf(),
-        out_dir / "fbs_convergence.png",
-        metadata={"model": "simple degree-k control", "x_axis": "FBS iteration"},
-    )
-    plt.close()
-
-    baseline_rows = control_baseline_rows(
-        U,
-        cost,
-        lambda candidate: evaluate_degree_k_control(k, p, kbar, t, candidate)[1],
-        random_upper=SIMPLE_DEGREE_CONTROL.u_max,
-        seed=RANDOM_BASELINE_SEED,
-    )
-    write_baseline_table(baseline_rows, out_dir / "baseline_summary.csv")
-    save_control_baseline_plot(
-        baseline_rows,
-        out_dir / "degree_control_baseline_comparison.png",
-        title="Degree-k continuous control vs baselines",
-        ylabel="cost (lower is better)",
-        random_label=f"{RANDOM_BASELINE_COUNT} random smooth controls",
+    ).to_csv(out_dir / "resolved_degree_parameters.csv", index=False)
+    pd.DataFrame(model.mixing, index=degree_data.k, columns=degree_data.k).to_csv(
+        out_dir / "degree_mixing_matrix.csv",
+        index_label="degree_k",
     )
 
-    print(f"saved outputs to {out_dir}")
+    rows: list[dict[str, object]] = [
+        {
+            "parameter": "model_level",
+            "value": "degree class",
+            "meaning": "Each state and control entry corresponds to one observed degree k.",
+        },
+        {
+            "parameter": "heterogeneity_profile",
+            "value": f"degree-correlated, strength={DEGREE_CONTROL_PROFILE.heterogeneity_strength}",
+            "meaning": "Physical and economic coefficients vary deterministically by degree class.",
+        },
+        {
+            "parameter": "horizon",
+            "value": DEGREE_CONTROL_PROFILE.horizon,
+            "meaning": "Total simulated time.",
+        },
+        {
+            "parameter": "time_grid_steps",
+            "value": steps,
+            "meaning": "Number of time intervals in the ODE and FBS grids.",
+        },
+        {
+            "parameter": "max_fbs_iterations",
+            "value": max_iterations,
+            "meaning": "Maximum forward-backward sweep updates.",
+        },
+        {
+            "parameter": "fbs_tolerance",
+            "value": tolerance,
+            "meaning": "Stopping threshold for the maximum control change.",
+        },
+        {
+            "parameter": "random_baselines",
+            "value": RANDOM_BASELINE_COUNT,
+            "meaning": "Number of seeded random smooth controls in the comparison.",
+        },
+    ]
+    for summary in model.summaries():
+        name = str(summary["name"])
+        rows.append(
+            {
+                "parameter": f"{name}_range",
+                "value": f"{summary['min']:.6g} to {summary['max']:.6g}",
+                "meaning": f"Resolved class-wise {name}; mean={summary['mean']:.6g}.",
+            }
+        )
+    pd.DataFrame(rows).to_csv(out_dir / "parameter_summary.csv", index=False)
+
+
+def run(args: argparse.Namespace) -> None:
+    """Execute the minimal graph-to-control workflow."""
+
+    network = load_network(args)
+    degree_data = degree_distribution_from_graph(network.full_graph, mode="undirected")
+    result = solve_degree_control(
+        degree_data,
+        steps=args.steps,
+        iterations=args.iterations,
+        tol=args.tolerance,
+    )
+
+    out_dir = Path(args.output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    LOGGER.info(
+        "Loaded %s: n=%d, m=%d",
+        network.source,
+        network.full_graph.number_of_nodes(),
+        network.full_graph.number_of_edges(),
+    )
+    print_degree_distribution(degree_data)
+    save_degree_distribution(degree_data, out_dir)
+    plot_degree_control(result, degree_data, out_dir)
+    save_fbs_convergence({"degree_control": result}, out_dir)
+    save_baseline_comparison({"degree_control": result}, degree_data, network.A, out_dir)
+    write_resolved_parameters(
+        out_dir,
+        degree_data,
+        steps=args.steps,
+        max_iterations=args.iterations,
+        tolerance=args.tolerance,
+    )
+    LOGGER.info(
+        "FBS converged=%s after %d iterations; cost=%.6f; outputs=%s",
+        bool(result.value["converged"]),
+        int(result.value["iterations"]),
+        float(result.value["cost"]),
+        out_dir,
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Minimal degree-k network optimal-control example.")
-    parser.add_argument("--edge-list", type=str, help="Edge-list file: source target, or CSV with --delimiter ,")
+    """Return the graph-input and bounded-solver command-line options."""
+
+    parser = argparse.ArgumentParser(
+        description="Minimal heterogeneous degree-class optimal-control example."
+    )
+    parser.add_argument("--edge-list", type=str, help="Source-target edge list.")
     parser.add_argument("--adjacency-csv", type=str, help="Square adjacency matrix CSV.")
-    parser.add_argument("--delimiter", type=str, default=None, help="Edge-list delimiter; default is whitespace.")
-    parser.add_argument("--has-header", action="store_true", help="Set if edge-list has a header row.")
-    parser.add_argument("--source-col", default=0, help="Source column name/index.")
-    parser.add_argument("--target-col", default=1, help="Target column name/index.")
-    parser.add_argument("--demo-nodes", type=int, default=30, help="Number of demo nodes.")
-    parser.add_argument("--demo-m", type=int, default=2, help="BA demo graph attachment parameter.")
-    parser.add_argument("--steps", type=int, default=220, help="Time grid size on horizon T=14.0.")
+    parser.add_argument("--graph-file", type=str, help="GraphML, GEXF, GML, or Pajek file.")
+    parser.add_argument("--delimiter", type=str, default=None)
+    parser.add_argument("--has-header", action="store_true")
+    parser.add_argument("--source-col", default=0)
+    parser.add_argument("--target-col", default=1)
+    parser.add_argument("--weight-col", default=None)
+    parser.add_argument("--demo-nodes", type=int, default=30)
+    parser.add_argument("--demo-m", type=int, default=2)
     parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--output-dir", type=str, default="simple_outputs")
+    parser.add_argument("--steps", type=int, default=220)
+    parser.add_argument("--iterations", type=int, default=50)
+    parser.add_argument("--tolerance", type=float, default=1e-4)
+    parser.add_argument("--output-dir", type=Path, default=Path("artifacts/simple_degree_control"))
+    parser.set_defaults(
+        adjacency_convention="graph",
+        directed=False,
+        graph_backend="networkx",
+        max_nodes=0,
+        normalize="none",
+    )
     return parser
 
 
 def main() -> None:
-    args = build_parser().parse_args()
-    graph = load_graph(args)
-    k, counts, p, kbar = degree_distribution(graph)
-    print(f"loaded graph with n={graph.number_of_nodes()}, m={graph.number_of_edges()}")
-    print_degree_table(k, counts, p, kbar)
-    t, X, U, cost, delta_history, converged = solve_degree_k_control(k, p, kbar, steps=args.steps)
-    save_results(Path(args.output_dir), k, counts, p, kbar, t, X, U, cost, delta_history, converged)
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    run(build_parser().parse_args())
 
 
 if __name__ == "__main__":

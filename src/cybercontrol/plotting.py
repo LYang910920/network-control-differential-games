@@ -14,6 +14,7 @@ PUBLICATION_DPI = 600
 GUIDE_DPI = 220
 PUBLICATION_PAD_INCHES = 0.03
 GUIDE_PAD_INCHES = 0.22
+SVG_HASHSALT = "cybercontrol-guide-v1"
 
 PUBLICATION_COLORS = (
     "#0072B2",
@@ -73,6 +74,7 @@ def publication_style():
             "axes.prop_cycle": mpl.cycler(color=PUBLICATION_COLORS),
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
+            "svg.hashsalt": SVG_HASHSALT,
             "savefig.bbox": "tight",
         }
     ):
@@ -101,6 +103,7 @@ def guide_style():
             "grid.linewidth": 0.7,
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
+            "svg.hashsalt": SVG_HASHSALT,
             "savefig.bbox": "tight",
         }
     ):
@@ -131,7 +134,14 @@ def style_axis(
         ax.legend(loc="best", frameon=False)
 
 
-def panel_label(ax, label: str, x: float = -0.12, y: float = 1.04) -> None:
+def panel_label(
+    ax,
+    label: str,
+    x: float = -0.12,
+    y: float = 1.04,
+    *,
+    fontsize: str | float = "medium",
+) -> None:
     """Place a small panel label such as ``(a)`` in axes coordinates."""
 
     ax.text(
@@ -141,7 +151,7 @@ def panel_label(ax, label: str, x: float = -0.12, y: float = 1.04) -> None:
         transform=ax.transAxes,
         ha="left",
         va="bottom",
-        fontsize="medium",
+        fontsize=fontsize,
         fontweight="bold",
     )
 
@@ -153,6 +163,17 @@ def _normalise_formats(formats: Iterable[str]) -> tuple[str, ...]:
         if clean and clean not in out:
             out.append(clean)
     return tuple(out)
+
+
+def deterministic_backend_metadata(format_name: str) -> dict[str, object]:
+    """Suppress volatile timestamps in tracked vector figure outputs."""
+
+    suffix = format_name.lower().lstrip(".")
+    if suffix == "pdf":
+        return {"CreationDate": None, "ModDate": None}
+    if suffix == "svg":
+        return {"Date": None}
+    return {}
 
 
 def _write_manifest(
@@ -207,7 +228,12 @@ def save_publication_figure(
         if fmt == "png":
             fig.savefig(out, dpi=dpi, bbox_inches="tight", pad_inches=PUBLICATION_PAD_INCHES)
         else:
-            fig.savefig(out, bbox_inches="tight", pad_inches=PUBLICATION_PAD_INCHES)
+            fig.savefig(
+                out,
+                bbox_inches="tight",
+                pad_inches=PUBLICATION_PAD_INCHES,
+                metadata=deterministic_backend_metadata(fmt),
+            )
         written.append(out)
     written.append(
         _write_manifest(
@@ -243,7 +269,12 @@ def save_guide_figure(
         if fmt == "png":
             fig.savefig(out, dpi=dpi, bbox_inches="tight", pad_inches=GUIDE_PAD_INCHES)
         else:
-            fig.savefig(out, bbox_inches="tight", pad_inches=GUIDE_PAD_INCHES)
+            fig.savefig(
+                out,
+                bbox_inches="tight",
+                pad_inches=GUIDE_PAD_INCHES,
+                metadata=deterministic_backend_metadata(fmt),
+            )
         written.append(out)
     written.append(
         _write_manifest(
@@ -258,30 +289,6 @@ def save_guide_figure(
     return written
 
 
-def add_box(ax, xy, text, width=1.8, height=0.55, fc="#f7f7f7", ec="#333333", fontsize=8.5):
-    """Draw a labeled rectangle and return the Matplotlib patch."""
-
-    import matplotlib.pyplot as plt
-
-    rect = plt.Rectangle(xy, width, height, facecolor=fc, edgecolor=ec, linewidth=1.4)
-    ax.add_patch(rect)
-    ax.text(
-        xy[0] + width / 2,
-        xy[1] + height / 2,
-        text,
-        ha="center",
-        va="center",
-        fontsize=fontsize,
-    )
-    return rect
-
-
-def add_arrow(ax, start, end, color="#333333", linewidth=1.4):
-    """Draw a simple arrow between two points."""
-
-    ax.annotate("", xy=end, xytext=start, arrowprops={"arrowstyle": "->", "lw": linewidth, "color": color})
-
-
 def clean_axes(ax, alpha: float = 0.25):
     """Apply a consistent lightweight grid used by guide figures."""
 
@@ -289,8 +296,14 @@ def clean_axes(ax, alpha: float = 0.25):
     return ax
 
 
-def apply_clean_axes(ax, *, xlabel: str | None = None, ylabel: str | None = None,
-                     title: str | None = None, alpha: float = 0.25) -> None:
+def apply_clean_axes(
+    ax,
+    *,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    title: str | None = None,
+    alpha: float = 0.25,
+) -> None:
     """Apply labels, title, and the shared readable grid style."""
 
     style_axis(ax, xlabel=xlabel, ylabel=ylabel, title=title, alpha=alpha)
