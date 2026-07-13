@@ -26,25 +26,29 @@ def set_seed(seed: int) -> None:
         pass
 
 
-def write_csv(path: Path | str, rows: list[dict]) -> None:
+def write_csv(path: Path | str, rows: list[dict]) -> Path:
     """Write a list of dictionaries as a CSV file with stable line endings."""
 
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     if not rows:
-        return
-    with path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()), lineterminator="\n")
+        path.write_text("", encoding="utf-8")
+        return path
+    fieldnames = list(dict.fromkeys(key for row in rows for key in row))
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
+    return path
 
 
-def write_json(path: Path | str, data: dict[str, Any]) -> None:
+def write_json(path: Path | str, data: dict[str, Any]) -> Path:
     """Write a small JSON artifact with deterministic formatting."""
 
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
 
 
 def require_outputs(paths: list[Path | str]) -> None:

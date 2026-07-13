@@ -8,7 +8,7 @@ from __future__ import annotations
 import numpy as np
 import scipy.sparse as sp
 
-from examples.foundations.code import scalability_analysis
+from cybercontrol.scalability import sparse_node_adjoint_rhs, sparse_node_rhs
 
 
 def test_sparse_node_adjoint_matches_finite_difference_jacobian() -> None:
@@ -30,7 +30,7 @@ def test_sparse_node_adjoint_matches_finite_difference_jacobian() -> None:
     state_weight = 1.0
 
     def rhs(x_value: np.ndarray) -> np.ndarray:
-        return scalability_analysis.sparse_node_rhs(x_value, u, A, beta=beta, delta=delta)
+        return sparse_node_rhs(x_value, u, A, beta=beta, delta=delta)
 
     eps = 1e-6
     jacobian = np.zeros((len(x), len(x)))
@@ -40,7 +40,7 @@ def test_sparse_node_adjoint_matches_finite_difference_jacobian() -> None:
         jacobian[:, col] = (rhs(x + direction) - rhs(x - direction)) / (2.0 * eps)
 
     pressure = A @ x
-    actual = scalability_analysis.sparse_node_adjoint_rhs(
+    actual = sparse_node_adjoint_rhs(
         lam,
         x,
         u,

@@ -1,9 +1,33 @@
+from dataclasses import replace
+import json
+import subprocess
+import sys
+
 import numpy as np
 import pytest
 
+from cybercontrol.cli import _package_smoke
+from cybercontrol.continuous_impulse import simulate_continuous_impulse
+from cybercontrol.experiments import write_run_manifest
+from cybercontrol.foundation_profiles import CONTINUOUS_IMPULSE_PROFILE
+from cybercontrol.heterogeneity import (
+    DegreeSISParams,
+    NodeSISParams,
+    degree_correlated_node_sis_params,
+    degree_correlated_sis_params,
+    degree_sis_jacobian,
+    degree_sis_rhs,
+    finite_difference_jacobian,
+    neutral_degree_mixing,
+    node_heterogeneity_summary,
+)
 from cybercontrol.io import require_outputs
-from cybercontrol.diagnostics import diagnostic_terms_for, rolling_mean, write_diagnostic_glossary
-from cybercontrol.models import MalwareParams, controlled_sir_rhs, controlled_sir_rhs_torch, isolation_jump
+from cybercontrol.models import (
+    MalwareParams,
+    controlled_sir_rhs,
+    controlled_sir_rhs_torch,
+    isolation_jump,
+)
 from cybercontrol.network_models import (
     NodeSIPSParams,
     community_correlated_node_sips_params,
@@ -15,15 +39,6 @@ from cybercontrol.network_models import (
     normalize_adjacency,
     sample_node_sips_step,
 )
-from cybercontrol.heterogeneity import (
-    DegreeSISParams,
-    degree_correlated_sis_params,
-    degree_sis_jacobian,
-    degree_sis_rhs,
-    finite_difference_jacobian,
-    neutral_degree_mixing,
-    node_heterogeneity_summary,
-)
 from cybercontrol.numerics import (
     as_time_function,
     project_box,
@@ -33,7 +48,11 @@ from cybercontrol.numerics import (
     solve_ode_grid,
     trapezoid_integral,
 )
-from cybercontrol.plotting import figure_size, publication_style, save_publication_figure
+from cybercontrol.plotting import (
+    figure_size,
+    publication_style,
+    save_publication_figure,
+)
 
 
 def test_rk4_controlled_sir_preserves_simplex_after_projection():
@@ -58,6 +77,76 @@ def test_isolation_jump_is_impulsive_and_mass_preserving():
     assert x_plus[1] < x0[1]
     assert x_plus[2] > x0[2]
     assert np.isclose(x_plus.sum(), 1.0)
+
+
+def test_package_smoke_converges_and_applies_impulse_reset():
+    metrics = _package_smoke()
+
+    assert metrics["all_fbs_converged"] is True
+    assert metrics["max_fbs_final_delta"] < 1e-4
+    assert metrics["impulse_mass_error"] < 1e-12
+    assert metrics["impulse_infected_after"] < metrics["impulse_infected_before"]
+
+
+def test_run_manifest_has_shared_provenance_and_metrics(tmp_path):
+    path = write_run_manifest(
+        tmp_path / "run_manifest.json",
+        command="test",
+        metrics={"mass_error": 0.0},
+        repository_root=tmp_path,
+        duration_seconds=0.25,
+    )
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["command"] == "test"
+    assert payload["metrics"] == {"mass_error": 0.0}
+    assert payload["duration_seconds"] == 0.25
+    assert set(payload) >= {"commit_sha", "git_branch", "git_dirty", "hardware"}
+
+
+def test_continuous_impulse_simulation_separates_flow_and_reset():
+    adjacency = np.array(
+        [
+            [0.0, 1.0, 1.0, 0.0],
+            [1.0, 0.0, 1.0, 1.0],
+            [1.0, 1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+        ]
+    )
+    profile = replace(
+        CONTINUOUS_IMPULSE_PROFILE,
+        horizon=2.0,
+        impulse_times=(1.0,),
+        controlled_node_fraction=0.5,
+    )
+
+    result = simulate_continuous_impulse(adjacency, profile)
+    event_indices = np.flatnonzero(np.isclose(result.t, 1.0))
+    controlled = result.controls["controlled_nodes"]
+    continuous_control = result.controls["continuous_control"]
+
+    assert event_indices.size == 2
+    assert np.all(result.x[event_indices[1], controlled] < result.x[event_indices[0], controlled])
+    assert float(np.ptp(continuous_control)) > 0.05
+    assert np.all(np.diff(result.t) >= 0.0)
+
+
+def test_baseline_diagnostics_import_preserves_matplotlib_backend():
+    code = """
+import matplotlib
+matplotlib.use('svg', force=True)
+before = matplotlib.get_backend().lower()
+import cybercontrol.baseline_diagnostics
+after = matplotlib.get_backend().lower()
+assert before == after == 'svg', (before, after)
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stderr
 
 
 def test_grid_helpers_share_projection_quadrature_and_interpolation():
@@ -137,29 +226,12 @@ def test_publication_figure_export_writes_vector_raster_and_manifest(tmp_path):
     assert payload["metadata"]["source"] == "unit-test"
 
 
-def test_training_diagnostic_helpers_write_reader_glossary(tmp_path):
-    assert np.allclose(rolling_mean([1.0, 3.0, float("nan"), 5.0], window=2), [1.0, 2.0, 3.0, 5.0], equal_nan=True)
-
-    terms = diagnostic_terms_for(["iteration", "evaluation return", "stationarity loss"])
-    assert [term.name for term in terms] == ["iteration", "evaluation return", "stationarity loss"]
-
-    out = tmp_path / "diagnostics.md"
-    write_diagnostic_glossary(out, terms, title="Test Diagnostics")
-    text = out.read_text(encoding="utf-8")
-    assert "evaluation return" in text
-    assert "PMP consistency" in text
-
-
 def test_torch_time_derivative_and_networks_keep_gradients():
     torch = pytest.importorskip("torch")
-    from cybercontrol.torch_utils import (
-        BoundedControlNet,
-        MLP,
-        SimplexStateNet,
-        configure_torch,
-        project_compartments_torch,
-        time_derivative,
-    )
+    from cybercontrol.experiments import configure_torch
+    from cybercontrol.nn import BoundedControlNet, MLP, SimplexStateNet
+    from cybercontrol.pinn import time_derivative
+    from cybercontrol.torch_numerics import project_compartments_torch
 
     _, resolved_device, resolved_dtype = configure_torch(seed=0, device="cpu", threads=1)
     assert resolved_device == "cpu"
@@ -183,7 +255,9 @@ def test_torch_time_derivative_and_networks_keep_gradients():
     assert any(p.grad is not None for p in state.parameters())
     assert any(p.grad is not None for p in control.parameters())
 
-    projected = project_compartments_torch(torch.tensor([[0.2, -0.1, 0.4, 0.5], [0.0, 0.0, 0.0, 0.0]]))
+    projected = project_compartments_torch(
+        torch.tensor([[0.2, -0.1, 0.4, 0.5], [0.0, 0.0, 0.0, 0.0]])
+    )
     assert torch.allclose(projected.sum(dim=1), torch.ones(2))
     assert torch.allclose(projected[1], torch.tensor([1.0, 0.0, 0.0, 0.0]))
 
@@ -213,6 +287,56 @@ def test_controlled_sir_numpy_torch_parity():
     assert np.allclose(actual.detach().numpy(), expected)
 
 
+def test_controlled_sir_torch_accepts_batch_vector_parameters():
+    torch = pytest.importorskip("torch")
+    x = torch.tensor([[0.8, 0.15, 0.05], [0.6, 0.30, 0.10]], dtype=torch.float64)
+    actual = controlled_sir_rhs_torch(
+        x,
+        u_patch=torch.tensor([0.08, 0.02], dtype=torch.float64),
+        beta=torch.tensor([0.7, 0.6], dtype=torch.float64),
+        gamma=torch.tensor([0.11, 0.14], dtype=torch.float64),
+        u_clean=torch.tensor([0.03, 0.05], dtype=torch.float64),
+        omega=torch.tensor([0.02, 0.01], dtype=torch.float64),
+    )
+
+    assert actual.shape == (2, 3)
+    assert torch.allclose(actual.sum(dim=1), torch.zeros(2, dtype=torch.float64))
+
+
+def test_configure_torch_without_seed_does_not_mutate_rng_state():
+    import random
+
+    torch = pytest.importorskip("torch")
+    from cybercontrol.experiments import configure_torch
+
+    random.seed(41)
+    np.random.seed(42)
+    torch.manual_seed(43)
+    python_state = random.getstate()
+    numpy_state = np.random.get_state()
+    torch_state = torch.random.get_rng_state().clone()
+
+    configure_torch(seed=None, device="cpu", threads=None)
+
+    assert random.getstate() == python_state
+    current_numpy = np.random.get_state()
+    assert current_numpy[0] == numpy_state[0]
+    assert np.array_equal(current_numpy[1], numpy_state[1])
+    assert current_numpy[2:] == numpy_state[2:]
+    assert torch.equal(torch.random.get_rng_state(), torch_state)
+
+
+def test_torch_utils_compatibility_reexports_canonical_symbols():
+    pytest.importorskip("torch")
+    from cybercontrol import experiments, nn, pinn, torch_numerics, torch_utils
+
+    assert torch_utils.configure_torch is experiments.configure_torch
+    assert torch_utils.SimplexStateNet is nn.SimplexStateNet
+    assert torch_utils.BoundedControlNet is nn.BoundedControlNet
+    assert torch_utils.time_derivative is pinn.time_derivative
+    assert torch_utils.rk4_step_torch is torch_numerics.rk4_step_torch
+
+
 def test_node_sips_mass_and_sparse_pressure_parity():
     sp = pytest.importorskip("scipy.sparse")
     A_dense = normalize_adjacency(
@@ -233,10 +357,16 @@ def test_node_sips_mass_and_sparse_pressure_parity():
         ]
     )
     params = NodeSIPSParams(beta=0.9, gamma=0.2, omega=0.04)
-    rhs_dense = node_sips_rhs_numpy(x, A_dense, params, patch=0.05, clean=np.array([0.02, 0.03, 0.04]))
-    rhs_sparse = node_sips_rhs_numpy(x, A_sparse, params, patch=0.05, clean=np.array([0.02, 0.03, 0.04]))
+    rhs_dense = node_sips_rhs_numpy(
+        x, A_dense, params, patch=0.05, clean=np.array([0.02, 0.03, 0.04])
+    )
+    rhs_sparse = node_sips_rhs_numpy(
+        x, A_sparse, params, patch=0.05, clean=np.array([0.02, 0.03, 0.04])
+    )
 
-    assert np.allclose(graph_pressure_numpy(A_dense, x[:, 1]), graph_pressure_numpy(A_sparse, x[:, 1]))
+    assert np.allclose(
+        graph_pressure_numpy(A_dense, x[:, 1]), graph_pressure_numpy(A_sparse, x[:, 1])
+    )
     assert np.allclose(rhs_dense, rhs_sparse)
     assert np.allclose(rhs_dense.sum(axis=1), 0.0)
     rates = node_sips_transition_rates(x, A_dense, params, patch=0.05, clean=0.02)
@@ -260,6 +390,26 @@ def test_degree_sis_heterogeneity_preserves_scalar_compatibility_and_jacobian():
     numeric = finite_difference_jacobian(lambda y: degree_sis_rhs(y, u, k, heterogeneous), x)
     assert np.allclose(analytic, numeric, rtol=1e-5, atol=1e-7)
     assert heterogeneous.summaries()[0]["name"] == "susceptibility"
+    for field in (
+        "susceptibility",
+        "infectivity",
+        "recovery",
+        "state_weight",
+        "control_weight",
+        "control_bound",
+        "attack_reward",
+        "defense_loss",
+        "attack_cost",
+        "defense_cost",
+        "attack_bound",
+        "defense_bound",
+    ):
+        assert np.ptp(getattr(heterogeneous, field)) > 0.0
+
+    matched = heterogeneous.matched_mean(p)
+    for field in ("susceptibility", "control_weight", "attack_cost", "defense_bound"):
+        expected_mean = float(p @ getattr(heterogeneous, field))
+        assert np.allclose(getattr(matched, field), expected_mean)
 
 
 def test_node_sips_heterogeneous_arrays_dense_sparse_and_summaries():
@@ -291,7 +441,9 @@ def test_node_sips_heterogeneous_arrays_dense_sparse_and_summaries():
         clean_bound=0.06,
     )
     rhs_dense = node_sips_rhs_numpy(x, A, params, patch=0.5, clean=np.array([0.02, 0.07, 0.08]))
-    rhs_sparse = node_sips_rhs_numpy(x, sp.csr_matrix(A), params, patch=0.5, clean=np.array([0.02, 0.07, 0.08]))
+    rhs_sparse = node_sips_rhs_numpy(
+        x, sp.csr_matrix(A), params, patch=0.5, clean=np.array([0.02, 0.07, 0.08])
+    )
 
     assert np.allclose(rhs_dense, rhs_sparse)
     assert np.allclose(rhs_dense.sum(axis=1), 0.0)
@@ -299,6 +451,16 @@ def test_node_sips_heterogeneous_arrays_dense_sparse_and_summaries():
     summary = node_heterogeneity_summary(resolved)
     assert summary.shape == (4,)
     assert resolved.risk_score()[2] > resolved.risk_score()[0]
+
+
+def test_degree_correlated_node_profile_respects_explicit_scalar_bases():
+    adjacency = np.array([[0.0, 1.0], [1.0, 0.0]])
+    base = NodeSISParams(susceptibility=0.4, infectivity=1.6)
+
+    resolved = degree_correlated_node_sis_params(adjacency, strength=0.0, base=base)
+
+    assert np.allclose(resolved.susceptibility, 0.4)
+    assert np.allclose(resolved.infectivity, 1.6)
 
 
 def test_node_sips_torch_parity_and_stochastic_step():
@@ -369,10 +531,130 @@ def test_contiguous_community_index_is_validated_and_deterministic():
         contiguous_community_index(8, 0)
 
 
-def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
-    from examples.foundations.code import network_control_examples as ex
+def test_shared_replay_gae_and_architecture_contracts():
+    torch = pytest.importorskip("torch")
+    from cybercontrol.nn import (
+        ArchitectureConfig,
+        ArchitectureDescriptor,
+        ArchitectureRegistry,
+        FactorizedNodeTimeNet,
+        build_architecture,
+        model_summary,
+        shape_trace,
+    )
+    from cybercontrol.rl import ReplayBuffer, compute_gae
 
-    D = ex.DegreeData(
+    replay_a = ReplayBuffer(8, seed=12)
+    replay_b = ReplayBuffer(8, seed=12)
+    for index in range(6):
+        transition = (
+            np.array([index, index + 1], dtype=np.float32),
+            index % 2,
+            float(index),
+            np.array([index + 1, index + 2], dtype=np.float32),
+            index == 5,
+        )
+        replay_a.push(*transition)
+        replay_b.push(*transition)
+    for left, right in zip(replay_a.sample_numpy(3), replay_b.sample_numpy(3)):
+        assert np.array_equal(left, right)
+
+    advantage, returns = compute_gae(
+        [1.0, 0.5, -0.2],
+        [0.2, 0.1, 0.0],
+        [0.0, 0.0, 1.0],
+        0.0,
+        gamma=0.97,
+        gae_lambda=0.95,
+    )
+    assert advantage.shape == returns.shape == (3,)
+    assert np.isfinite(advantage).all()
+
+    config = ArchitectureConfig("test-mlp", 4, 2, width=8, depth=2, activation="relu")
+    model = build_architecture(config)
+    summary = model_summary(model, config)
+    trace = shape_trace(model, torch.zeros(3, 4))
+    assert summary["parameters"] > 0
+    assert trace[-1]["output"] == (3, 2)
+
+    registry = ArchitectureRegistry()
+    registry.register(
+        ArchitectureDescriptor(
+            name="test",
+            input_shape="[batch,4]",
+            output_shape="[batch,2]",
+            activation="relu",
+            normalization="none",
+            encoder="mlp",
+            decoder="linear",
+        ),
+        lambda: build_architecture(config),
+    )
+    registered = registry.build("test")
+    record = registry.describe("test", registered, configuration={"width": 8, "depth": 1})
+    assert registry.names == ("test",)
+    assert record["parameters"] == summary["parameters"]
+    assert record["input_shape"] == "[batch,4]"
+    assert record["configuration"] == {"width": 8, "depth": 1}
+
+    factorized = FactorizedNodeTimeNet(5, width=8, depth=1, fourier_features=3)
+    state = factorized(torch.zeros(4, 1), torch.zeros(6, 5))
+    assert state.shape == (4, 6, 3)
+    assert torch.allclose(state.sum(dim=-1), torch.ones(4, 6), atol=1e-6)
+
+    plain_time = FactorizedNodeTimeNet(5, width=8, depth=1, fourier_features=0)
+    plain_state = plain_time(torch.linspace(0.0, 1.0, 4).reshape(-1, 1), torch.zeros(6, 5))
+    assert plain_state.shape == (4, 6, 3)
+    assert torch.allclose(plain_state.sum(dim=-1), torch.ones(4, 6), atol=1e-6)
+
+
+def test_named_node_profiles_are_the_models_used_by_solvers():
+    from cybercontrol.fbs import node_control_model, node_game_model
+    from cybercontrol.foundation_profiles import NODE_CONTROL_PROFILE, NODE_GAME_PROFILE
+    from cybercontrol.graph_data import normalize_adjacency as normalize_influence_matrix
+
+    adjacency = normalize_influence_matrix(
+        np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 1.0], [0.0, 1.0, 0.0]]),
+        "row",
+    )
+    control = node_control_model(adjacency)
+    game = node_game_model(adjacency)
+    assert np.allclose(control.beta, NODE_CONTROL_PROFILE.beta)
+    assert np.isclose(control.recovery.mean(), NODE_CONTROL_PROFILE.delta, rtol=0.03)
+    assert np.allclose(game.beta, NODE_GAME_PROFILE.beta)
+    assert np.isclose(game.recovery.mean(), NODE_GAME_PROFILE.delta, rtol=0.03)
+    assert np.isclose(game.attack_cost.mean(), NODE_GAME_PROFILE.cost_attack, rtol=0.03)
+    assert np.isclose(game.defense_cost.mean(), NODE_GAME_PROFILE.cost_defense, rtol=0.03)
+    for field in (
+        "susceptibility",
+        "infectivity",
+        "recovery",
+        "state_weight",
+        "control_weight",
+        "control_bound",
+    ):
+        assert np.ptp(getattr(control, field)) > 0.0
+    for field in (
+        "attack_reward",
+        "defense_loss",
+        "attack_cost",
+        "defense_cost",
+        "attack_bound",
+        "defense_bound",
+    ):
+        assert np.ptp(getattr(game, field)) > 0.0
+
+
+def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
+    from cybercontrol.fbs import degree_control_model, node_game_model
+    from cybercontrol.foundation_evaluation import (
+        evaluate_degree_control_policy,
+        evaluate_node_game_strategy,
+    )
+    from cybercontrol.graph_data import DegreeData
+    from cybercontrol.graph_data import normalize_adjacency as normalize_influence_matrix
+
+    D = DegreeData(
         k=np.array([1.0, 3.0, 6.0]),
         Nk=np.array([4, 3, 2]),
         pk=np.array([4 / 9, 3 / 9, 2 / 9], dtype=float),
@@ -381,14 +663,16 @@ def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
     )
     t = np.linspace(0.0, 1.0, 6)
     u = np.full((len(t), len(D.k)), 0.05)
-    x, cost = ex.evaluate_degree_control_policy(D, t, u)
-    model = ex.degree_control_model(D)
-    expected_cost = ex.integral((x * model.state_weight) @ D.pk + 0.5 * ((u * u * model.control_weight) @ D.pk), t)
+    x, cost = evaluate_degree_control_policy(D, t, u)
+    model = degree_control_model(D)
+    expected_cost = trapezoid_integral(
+        (x * model.state_weight) @ D.pk + 0.5 * ((u * u * model.control_weight) @ D.pk), t
+    )
 
     assert np.isclose(cost, expected_cost)
     assert not np.allclose(model.state_weight, model.state_weight.mean())
 
-    A = ex.normalize_adjacency(
+    A = normalize_influence_matrix(
         np.array(
             [
                 [0.0, 1.0, 0.0],
@@ -400,10 +684,82 @@ def test_foundation_baseline_evaluators_use_same_heterogeneous_problem():
     )
     attack = np.full((len(t), A.shape[0]), 0.03)
     defense = np.full((len(t), A.shape[0]), 0.04)
-    x_game, ja, jd = ex.evaluate_node_game_strategy(A, t, attack, defense)
-    game_model = ex.node_game_model(A)
-    expected_ja = ex.integral((game_model.attack_reward * x_game).sum(axis=1) - 0.5 * (attack * attack * game_model.attack_cost).sum(axis=1), t)
-    expected_jd = ex.integral(-(game_model.defense_loss * x_game).sum(axis=1) - 0.5 * (defense * defense * game_model.defense_cost).sum(axis=1), t)
+    x_game, ja, jd = evaluate_node_game_strategy(A, t, attack, defense)
+    game_model = node_game_model(A)
+    expected_ja = trapezoid_integral(
+        (game_model.attack_reward * x_game).sum(axis=1)
+        - 0.5 * (attack * attack * game_model.attack_cost).sum(axis=1),
+        t,
+    )
+    expected_jd = trapezoid_integral(
+        -(game_model.defense_loss * x_game).sum(axis=1)
+        - 0.5 * (defense * defense * game_model.defense_cost).sum(axis=1),
+        t,
+    )
 
     assert np.isclose(ja, expected_ja)
     assert np.isclose(jd, expected_jd)
+
+
+def test_custom_degree_model_is_preserved_by_solver_and_evaluator(tmp_path):
+    from cybercontrol.fbs import solve_degree_control
+    from cybercontrol.foundation_evaluation import (
+        evaluate_degree_control_policy,
+        save_matched_mean_comparison,
+    )
+    from cybercontrol.graph_data import DegreeData
+
+    k = np.array([1.0, 3.0, 6.0])
+    pk = np.array([0.5, 0.3, 0.2])
+    D = DegreeData(
+        k=k,
+        Nk=np.array([5, 3, 2]),
+        pk=pk,
+        kbar=float(k @ pk),
+        node_degree=np.array([1] * 5 + [3] * 3 + [6] * 2),
+    )
+    model = DegreeSISParams(
+        susceptibility=np.array([0.2, 0.3, 0.4]),
+        recovery=np.array([0.4, 0.5, 0.6]),
+        state_weight=np.array([0.8, 1.1, 1.4]),
+        control_weight=np.array([1.5, 1.7, 2.0]),
+        control_bound=0.5,
+    ).resolve(k, pk)
+    result = solve_degree_control(D, steps=8, iterations=35, tol=2e-4, model=model)
+    replay_x, replay_cost = evaluate_degree_control_policy(
+        D, result.t, result.controls["control"], model=model
+    )
+
+    assert result.model is model
+    assert np.allclose(replay_x, result.x)
+    assert np.isclose(replay_cost, result.value["cost"])
+
+    save_matched_mean_comparison({"degree_control": result}, D, np.eye(2), tmp_path)
+    comparison = __import__("pandas").read_csv(tmp_path / "heterogeneous_vs_matched_mean.csv")
+    assert set(comparison["profile"]) == {
+        "heterogeneous",
+        "matched_mean_homogeneous",
+    }
+
+
+def test_fbs_convergence_uses_projected_residual_before_damping():
+    from cybercontrol.fbs import solve_degree_control
+    from cybercontrol.graph_data import DegreeData
+
+    k = np.array([1.0, 2.0, 4.0])
+    pk = np.array([0.5, 0.3, 0.2])
+    D = DegreeData(
+        k=k,
+        Nk=np.array([5, 3, 2]),
+        pk=pk,
+        kbar=float(k @ pk),
+        node_degree=np.array([1] * 5 + [2] * 3 + [4] * 2),
+    )
+    result = solve_degree_control(D, steps=6, iterations=3, tol=0.0)
+    residuals = result.controls["fbs_delta"]
+    steps = result.controls["fbs_relaxed_step"]
+
+    assert np.isclose(steps[0], 0.35 * residuals[0])
+    assert np.isclose(result.value["final_delta"], residuals[-1])
+    assert result.value["final_relaxed_step"] == 0.0
+    assert not bool(result.value["converged"])

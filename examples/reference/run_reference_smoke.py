@@ -65,6 +65,7 @@ def restore_reference_modules(*module_names: str) -> None:
         else:
             sys.modules[name] = previous
 
+
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 from cybercontrol.baseline_diagnostics import (
@@ -79,7 +80,6 @@ from cybercontrol.baseline_diagnostics import (
 from cybercontrol.io import require_outputs
 from cybercontrol.plotting import (
     apply_clean_axes,
-    panel_label,
     plot_time_series,
     save_guide_figure,
     save_publication_figure,
@@ -114,8 +114,14 @@ def pulse_indices(interval: int, length: int) -> np.ndarray:
     )
 
 
-def mark_event_times(ax, t: np.ndarray, indices: np.ndarray | list[int], *,
-                     color: str = "0.35", label: str | None = None) -> None:
+def mark_event_times(
+    ax,
+    t: np.ndarray,
+    indices: np.ndarray | list[int],
+    *,
+    color: str = "0.35",
+    label: str | None = None,
+) -> None:
     for count, idx in enumerate(np.asarray(indices, dtype=int)):
         ax.axvline(
             t[idx],
@@ -144,12 +150,16 @@ def plot_impulse_events(
         return indices
     event_t = np.asarray(t, dtype=float)[indices]
     heights = np.asarray(values, dtype=float)[indices]
-    ax.vlines(event_t, 0.0, heights, color=color, linewidth=linewidth, linestyles=linestyle, label=label)
+    ax.vlines(
+        event_t, 0.0, heights, color=color, linewidth=linewidth, linestyles=linestyle, label=label
+    )
     ax.scatter(event_t, heights, color=color, s=24, zorder=3)
     return indices
 
 
-def record_payoff_convergence(repo: str, values: np.ndarray, *, label: str = "payoff_change") -> None:
+def record_payoff_convergence(
+    repo: str, values: np.ndarray, *, label: str = "payoff_change"
+) -> None:
     """Record absolute iteration-to-iteration objective changes."""
     values = np.asarray(values, dtype=float)
     for iteration in range(1, len(values)):
@@ -229,37 +239,23 @@ def empirical_degree_distribution(graph: nx.Graph) -> tuple[np.ndarray, np.ndarr
     return k.astype(float), pk.astype(float)
 
 
-def apply_opinion_malware_compat(repo: Path) -> None:
-    """Patch old matrix .A1 assumptions for current NumPy/NetworkX versions."""
+def require_opinion_malware_compat(repo: Path) -> None:
+    """Verify that the preserved snapshot includes the documented compatibility patch."""
+
     path = repo / "opinionMalware.py"
     text = path.read_text()
     if "def _flat(x):" in text:
         return
-
-    text = text.replace(
-        "from network import create_multiplex_network_with_connected_nodes_edges, normalized_matrix\n",
-        "from network import create_multiplex_network_with_connected_nodes_edges, normalized_matrix\n\n\n"
-        "def _flat(x):\n"
-        "    return np.asarray(x).ravel()\n",
+    raise RuntimeError(
+        "The OpinionMalware snapshot lacks the NumPy/NetworkX compatibility patch. "
+        "Restore the tracked snapshot or apply examples/reference/patches/"
+        "opinion_malware_numpy_networkx_compat.patch to a separate working copy."
     )
-    replacements = {
-        "((A @ c[t]).A1)": "_flat(A @ c[t])",
-        "((W - D) @ o[t]).A1": "_flat((W - D) @ o[t])",
-        "mat_lamb1.A1": "_flat(mat_lamb1)",
-        "mat_lamb2.A1": "_flat(mat_lamb2)",
-        "mat_mu3.A1": "_flat(mat_mu3)",
-        "((1 - o[t]) @ W).A1": "_flat((1 - o[t]) @ W)",
-        "(W @ (1 - rho)).A1": "_flat(W @ (1 - rho))",
-        "D = np.diag(D.A1)": "D = np.diag(_flat(D))",
-    }
-    for old, new in replacements.items():
-        text = text.replace(old, new)
-    path.write_text(text)
 
 
 def run_opinion_malware() -> dict[str, float]:
     repo = REF_DIR / "OpinionMalware_TIFS_2025_Code"
-    apply_opinion_malware_compat(repo)
+    require_opinion_malware_compat(repo)
     om = load_reference_module(repo, "opinionMalware", dependencies=("network",))
 
     file_path = PACKAGE_DIR / "sample_data" / "opinion_malware_edges.edges"
@@ -304,18 +300,63 @@ def run_opinion_malware() -> dict[str, float]:
     maxiter = 5
     repo_name = "OpinionMalware_TIFS_2025_Code"
     for scope, parameter, value, meaning in [
-        ("network", "max_nodes", 60, "Upper bound used when reading the local multiplex sample graph."),
+        (
+            "network",
+            "max_nodes",
+            60,
+            "Upper bound used when reading the local multiplex sample graph.",
+        ),
         ("time", "T", om.T, "Total simulated time."),
         ("time", "h", om.h, "Time-step used by the reference code."),
         ("time", "t_scale", om.t_scale, "Number of time samples."),
-        ("iteration", "maxiter", maxiter, "Number of impulse-strategy update iterations in the smoke run."),
-        ("dynamics", "omega/zeta", f"{om.omega}/{om.zeta}", "Coupling parameters from the malware-opinion reference model."),
-        ("dynamics", "rho", float(om.rho[0]), "Uniform resistance/susceptibility parameter used in the smoke run."),
-        ("impulse", "u1_bounds", value_range(om.u1_low, om.u1_upp), "Allowed discrete impulse magnitude range for u1."),
-        ("impulse", "u2_bounds", value_range(om.u2_low, om.u2_upp), "Allowed discrete impulse magnitude range for u2."),
-        ("impulse", "u1_event_indices", ",".join(str(int(i)) for i in imp_a), "Discrete event indices where u1 may act."),
-        ("impulse", "u2_event_indices", ",".join(str(int(i)) for i in imp_b), "Discrete event indices where u2 may act."),
-        ("baseline", "random_impulse_policies", RANDOM_BASELINE_COUNT, "Random impulse policies compared with the computed policy."),
+        (
+            "iteration",
+            "maxiter",
+            maxiter,
+            "Number of impulse-strategy update iterations in the smoke run.",
+        ),
+        (
+            "dynamics",
+            "omega/zeta",
+            f"{om.omega}/{om.zeta}",
+            "Coupling parameters from the malware-opinion reference model.",
+        ),
+        (
+            "dynamics",
+            "rho",
+            float(om.rho[0]),
+            "Uniform resistance/susceptibility parameter used in the smoke run.",
+        ),
+        (
+            "impulse",
+            "u1_bounds",
+            value_range(om.u1_low, om.u1_upp),
+            "Allowed discrete impulse magnitude range for u1.",
+        ),
+        (
+            "impulse",
+            "u2_bounds",
+            value_range(om.u2_low, om.u2_upp),
+            "Allowed discrete impulse magnitude range for u2.",
+        ),
+        (
+            "impulse",
+            "u1_event_indices",
+            ",".join(str(int(i)) for i in imp_a),
+            "Discrete event indices where u1 may act.",
+        ),
+        (
+            "impulse",
+            "u2_event_indices",
+            ",".join(str(int(i)) for i in imp_b),
+            "Discrete event indices where u2 may act.",
+        ),
+        (
+            "baseline",
+            "random_impulse_policies",
+            RANDOM_BASELINE_COUNT,
+            "Random impulse policies compared with the computed policy.",
+        ),
     ]:
         record_parameter(repo_name, scope, parameter, value, meaning)
 
@@ -401,8 +442,12 @@ def run_opinion_malware() -> dict[str, float]:
         title="OpinionMalware impulse-control objective",
     )
 
-    plot_time_series(axes[1], t, om.c.mean(axis=1), "state: mean malware c (all nodes)", linestyle="-")
-    plot_time_series(axes[1], t, om.o.mean(axis=1), "state: mean opinion o (all nodes)", linestyle="--")
+    plot_time_series(
+        axes[1], t, om.c.mean(axis=1), "state: mean malware c (all nodes)", linestyle="-"
+    )
+    plot_time_series(
+        axes[1], t, om.o.mean(axis=1), "state: mean opinion o (all nodes)", linestyle="--"
+    )
     mark_event_times(axes[1], t, imp_a, color="tab:red", label="u1 impulse time")
     mark_event_times(axes[1], t, imp_b, color="tab:green", label="u2 impulse time")
     apply_clean_axes(
@@ -413,10 +458,25 @@ def run_opinion_malware() -> dict[str, float]:
     )
     axes[1].legend(frameon=False, fontsize=8)
 
-    plot_impulse_events(axes[2], t, om.u1, "impulse control u1 (discrete)", color="tab:red", event_indices=imp_a)
-    plot_impulse_events(axes[2], t, om.u2, "impulse control u2 (discrete)", color="tab:green", event_indices=imp_b, linestyle="--")
+    plot_impulse_events(
+        axes[2], t, om.u1, "impulse control u1 (discrete)", color="tab:red", event_indices=imp_a
+    )
+    plot_impulse_events(
+        axes[2],
+        t,
+        om.u2,
+        "impulse control u2 (discrete)",
+        color="tab:green",
+        event_indices=imp_b,
+        linestyle="--",
+    )
     axes[2].set_ylim(0.0, max(0.65, float(max(np.max(om.u1), np.max(om.u2))) + 0.08))
-    apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="impulse controls: discrete event lines")
+    apply_clean_axes(
+        axes[2],
+        xlabel="time",
+        ylabel="impulse magnitude",
+        title="impulse controls: discrete event lines",
+    )
     axes[2].legend(frameon=False, fontsize=8)
     fig.tight_layout()
     save_publication_figure(
@@ -529,22 +589,82 @@ def run_propaganda_war() -> dict[str, float]:
     blue_pulses = pulse_indices(pw.pulse_interval_b, pw.t_interval)
     repo_name = "PropagandaWar_TIFS_2024_Code"
     for scope, parameter, value, meaning in [
-        ("network", "red_graph", "BA(n=36,m=2)", "Synthetic red graph used to form degree classes."),
-        ("network", "blue_graph", "WS(n=34,k=4,p=0.18)", "Synthetic blue graph used to form degree classes."),
-        ("network", "red_degree_classes", len(pw.kr), "Number of red degree classes in the degree-level game."),
-        ("network", "blue_degree_classes", len(pw.kb), "Number of blue degree classes in the degree-level game."),
+        (
+            "network",
+            "red_graph",
+            "BA(n=36,m=2)",
+            "Synthetic red graph used to form degree classes.",
+        ),
+        (
+            "network",
+            "blue_graph",
+            "WS(n=34,k=4,p=0.18)",
+            "Synthetic blue graph used to form degree classes.",
+        ),
+        (
+            "network",
+            "red_degree_classes",
+            len(pw.kr),
+            "Number of red degree classes in the degree-level game.",
+        ),
+        (
+            "network",
+            "blue_degree_classes",
+            len(pw.kb),
+            "Number of blue degree classes in the degree-level game.",
+        ),
         ("time", "T", pw.T, "Total simulated time."),
         ("time", "h", pw.h, "Time-step used by the reference code."),
         ("time", "t_interval", pw.t_interval, "Number of time samples."),
         ("iteration", "maxiter", pw.maxiter, "Maximum game-strategy update iterations."),
-        ("iteration", "strategy_damping", strategy_damping, "Damping used to keep the smoke-run game sweep stable."),
-        ("dynamics", "red beta/gamma1/gamma2/delta", f"{pw.beta_r}/{pw.gamma_r1}/{pw.gamma_r2}/{pw.delta_r}", "Red-side propagation and decay rates."),
-        ("dynamics", "blue beta/gamma1/gamma2/delta", f"{pw.beta_b}/{pw.gamma_b1}/{pw.gamma_b2}/{pw.delta_b}", "Blue-side propagation and decay rates."),
-        ("control", "continuous_bounds_ur_ub", f"{value_range(pw.ur_low, pw.ur_upp)}; {value_range(pw.ub_low, pw.ub_upp)}", "Continuous strategy ranges for red and blue."),
-        ("impulse", "pulse_intervals_red_blue", f"{pw.pulse_interval_r}/{pw.pulse_interval_b}", "Discrete impulse intervals for red and blue strategies."),
-        ("impulse", "red_pulse_indices", ",".join(str(int(i)) for i in red_pulses), "Discrete red impulse event indices."),
-        ("impulse", "blue_pulse_indices", ",".join(str(int(i)) for i in blue_pulses), "Discrete blue impulse event indices."),
-        ("baseline", "random_continuous_impulse_strategies", RANDOM_BASELINE_COUNT, "Random unilateral continuous-plus-impulse strategies per player in baseline panels."),
+        (
+            "iteration",
+            "strategy_damping",
+            strategy_damping,
+            "Damping used to keep the smoke-run game sweep stable.",
+        ),
+        (
+            "dynamics",
+            "red beta/gamma1/gamma2/delta",
+            f"{pw.beta_r}/{pw.gamma_r1}/{pw.gamma_r2}/{pw.delta_r}",
+            "Red-side propagation and decay rates.",
+        ),
+        (
+            "dynamics",
+            "blue beta/gamma1/gamma2/delta",
+            f"{pw.beta_b}/{pw.gamma_b1}/{pw.gamma_b2}/{pw.delta_b}",
+            "Blue-side propagation and decay rates.",
+        ),
+        (
+            "control",
+            "continuous_bounds_ur_ub",
+            f"{value_range(pw.ur_low, pw.ur_upp)}; {value_range(pw.ub_low, pw.ub_upp)}",
+            "Continuous strategy ranges for red and blue.",
+        ),
+        (
+            "impulse",
+            "pulse_intervals_red_blue",
+            f"{pw.pulse_interval_r}/{pw.pulse_interval_b}",
+            "Discrete impulse intervals for red and blue strategies.",
+        ),
+        (
+            "impulse",
+            "red_pulse_indices",
+            ",".join(str(int(i)) for i in red_pulses),
+            "Discrete red impulse event indices.",
+        ),
+        (
+            "impulse",
+            "blue_pulse_indices",
+            ",".join(str(int(i)) for i in blue_pulses),
+            "Discrete blue impulse event indices.",
+        ),
+        (
+            "baseline",
+            "random_continuous_impulse_strategies",
+            RANDOM_BASELINE_COUNT,
+            "Random unilateral continuous-plus-impulse strategies per player in baseline panels.",
+        ),
     ]:
         record_parameter(repo_name, scope, parameter, value, meaning)
 
@@ -564,8 +684,12 @@ def run_propaganda_war() -> dict[str, float]:
         pw.pb, pw.cb = pw.forwardBlue()
         return float(pw.payoffRed()), float(pw.payoffBlue())
 
-    _, zero_blue_payoff = evaluate_continuous_impulse_strategies(opt_ur, opt_vr, np.zeros(pw.t_interval), np.zeros(pw.t_interval))
-    zero_red_payoff, _ = evaluate_continuous_impulse_strategies(np.zeros(pw.t_interval), np.zeros(pw.t_interval), opt_ub, opt_vb)
+    _, zero_blue_payoff = evaluate_continuous_impulse_strategies(
+        opt_ur, opt_vr, np.zeros(pw.t_interval), np.zeros(pw.t_interval)
+    )
+    zero_red_payoff, _ = evaluate_continuous_impulse_strategies(
+        np.zeros(pw.t_interval), np.zeros(pw.t_interval), opt_ub, opt_vb
+    )
     record_baseline_value(
         "PropagandaWar_TIFS_2024_Code",
         "computed blue strategy",
@@ -605,9 +729,15 @@ def run_propaganda_war() -> dict[str, float]:
 
     rng = np.random.default_rng(RANDOM_BASELINE_SEED + 201)
     for idx in range(RANDOM_BASELINE_COUNT):
-        random_ub = smooth_random_controls((pw.t_interval, 1), lower=pw.ub_low, upper=pw.ub_upp, rng=rng).ravel()
-        random_vb = random_impulse_series(pw.t_interval, blue_pulses, lower=pw.vb_low, upper=pw.vb_upp, rng=rng)
-        _, random_blue_payoff = evaluate_continuous_impulse_strategies(opt_ur, opt_vr, random_ub, random_vb)
+        random_ub = smooth_random_controls(
+            (pw.t_interval, 1), lower=pw.ub_low, upper=pw.ub_upp, rng=rng
+        ).ravel()
+        random_vb = random_impulse_series(
+            pw.t_interval, blue_pulses, lower=pw.vb_low, upper=pw.vb_upp, rng=rng
+        )
+        _, random_blue_payoff = evaluate_continuous_impulse_strategies(
+            opt_ur, opt_vr, random_ub, random_vb
+        )
         record_baseline_value(
             "PropagandaWar_TIFS_2024_Code",
             "random blue strategy",
@@ -618,9 +748,15 @@ def run_propaganda_war() -> dict[str, float]:
             panel="fixed computed red strategy; vary blue",
         )
 
-        random_ur = smooth_random_controls((pw.t_interval, 1), lower=pw.ur_low, upper=pw.ur_upp, rng=rng).ravel()
-        random_vr = random_impulse_series(pw.t_interval, red_pulses, lower=pw.vr_low, upper=pw.vr_upp, rng=rng)
-        random_red_payoff, _ = evaluate_continuous_impulse_strategies(random_ur, random_vr, opt_ub, opt_vb)
+        random_ur = smooth_random_controls(
+            (pw.t_interval, 1), lower=pw.ur_low, upper=pw.ur_upp, rng=rng
+        ).ravel()
+        random_vr = random_impulse_series(
+            pw.t_interval, red_pulses, lower=pw.vr_low, upper=pw.vr_upp, rng=rng
+        )
+        random_red_payoff, _ = evaluate_continuous_impulse_strategies(
+            random_ur, random_vr, opt_ub, opt_vb
+        )
         record_baseline_value(
             "PropagandaWar_TIFS_2024_Code",
             "random red strategy",
@@ -674,10 +810,18 @@ def run_propaganda_war() -> dict[str, float]:
     )
     axes[0].legend(frameon=False, fontsize=8)
 
-    plot_time_series(axes[1], t, pw.pr @ pw.pkr, "state: red P (degree-weighted mean)", linestyle="-")
-    plot_time_series(axes[1], t, pw.cr @ pw.pkr, "state: red C (degree-weighted mean)", linestyle="--")
-    plot_time_series(axes[1], t, pw.pb @ pw.pkb, "state: blue P (degree-weighted mean)", linestyle="-.")
-    plot_time_series(axes[1], t, pw.cb @ pw.pkb, "state: blue C (degree-weighted mean)", linestyle=":")
+    plot_time_series(
+        axes[1], t, pw.pr @ pw.pkr, "state: red P (degree-weighted mean)", linestyle="-"
+    )
+    plot_time_series(
+        axes[1], t, pw.cr @ pw.pkr, "state: red C (degree-weighted mean)", linestyle="--"
+    )
+    plot_time_series(
+        axes[1], t, pw.pb @ pw.pkb, "state: blue P (degree-weighted mean)", linestyle="-."
+    )
+    plot_time_series(
+        axes[1], t, pw.cb @ pw.pkb, "state: blue C (degree-weighted mean)", linestyle=":"
+    )
     mark_event_times(axes[1], t, red_pulses, color="tab:red", label="red pulse")
     mark_event_times(axes[1], t, blue_pulses, color="tab:blue", label="blue pulse")
     apply_clean_axes(
@@ -689,10 +833,25 @@ def run_propaganda_war() -> dict[str, float]:
     axes[1].legend(frameon=False, ncol=1, fontsize=7, loc="center left")
 
     plot_time_series(axes[2], t, pw.ur, "continuous strategy ur(t)", color="tab:red", linestyle="-")
-    plot_time_series(axes[2], t, pw.ub, "continuous strategy ub(t)", color="tab:blue", linestyle="--")
-    plot_impulse_events(axes[2], t, pw.vr, "impulse vr(tau)", color="tab:orange", event_indices=red_pulses)
-    plot_impulse_events(axes[2], t, pw.vb, "impulse vb(tau)", color="tab:cyan", event_indices=blue_pulses, linestyle="--")
-    axes[2].set_ylim(0.0, max(1.15, float(max(np.max(pw.ur), np.max(pw.ub), np.max(pw.vr), np.max(pw.vb))) + 0.12))
+    plot_time_series(
+        axes[2], t, pw.ub, "continuous strategy ub(t)", color="tab:blue", linestyle="--"
+    )
+    plot_impulse_events(
+        axes[2], t, pw.vr, "impulse vr(tau)", color="tab:orange", event_indices=red_pulses
+    )
+    plot_impulse_events(
+        axes[2],
+        t,
+        pw.vb,
+        "impulse vb(tau)",
+        color="tab:cyan",
+        event_indices=blue_pulses,
+        linestyle="--",
+    )
+    axes[2].set_ylim(
+        0.0,
+        max(1.15, float(max(np.max(pw.ur), np.max(pw.ub), np.max(pw.vr), np.max(pw.vb))) + 0.12),
+    )
     apply_clean_axes(
         axes[2],
         xlabel="time",
@@ -714,14 +873,20 @@ def run_propaganda_war() -> dict[str, float]:
     plt.close(fig)
 
     restore_reference_modules("demo_network", "propWar")
-    return {"red_degree_classes": float(len(pw.kr)), "J_red_final": float(jr[-1]), "J_blue_final": float(jb[-1])}
+    return {
+        "red_degree_classes": float(len(pw.kr)),
+        "J_red_final": float(jr[-1]),
+        "J_blue_final": float(jb[-1]),
+    }
 
 
 def run_propaganda_tcss() -> dict[str, float]:
     repo = REF_DIR / "Propaganda_TCSS_2025_Code"
     pp = load_reference_module(repo, "prop_propaganda", dependencies=("prop_network",))
 
-    A = pd.read_csv(PACKAGE_DIR / "sample_data" / "sample_adjacency.csv", header=None).to_numpy(float)
+    A = pd.read_csv(PACKAGE_DIR / "sample_data" / "sample_adjacency.csv", header=None).to_numpy(
+        float
+    )
     A[A < 0] = 0
     np.fill_diagonal(A, 0)
     n = A.shape[0]
@@ -730,7 +895,15 @@ def run_propaganda_tcss() -> dict[str, float]:
     t_interval = int(T / h) + 1
     maxiter = 5
     pulse_interval = 10
-    beta1, beta2, eta, delta, gamma_a, gamma_u, omega = 0.003, 0.004, 0.0015, 0.001, 0.004, 0.003, 40.0
+    beta1, beta2, eta, delta, gamma_a, gamma_u, omega = (
+        0.003,
+        0.004,
+        0.0015,
+        0.001,
+        0.004,
+        0.003,
+        40.0,
+    )
     cg, cf = 1.5, 2.0
     a_low, a_upp, u_low, u_upp = 0.8, 2.0, 1.0, 2.4
 
@@ -745,25 +918,88 @@ def run_propaganda_tcss() -> dict[str, float]:
     J = np.zeros(maxiter + 1)
 
     sa, su, r = pp.forward(
-        sa, su, r, ca, cu, t_interval, pulse_interval, A,
-        beta1, beta2, eta, delta, gamma_a, gamma_u, h,
-        pp.g_func, pp.f_func, cg, cf,
+        sa,
+        su,
+        r,
+        ca,
+        cu,
+        t_interval,
+        pulse_interval,
+        A,
+        beta1,
+        beta2,
+        eta,
+        delta,
+        gamma_a,
+        gamma_u,
+        h,
+        pp.g_func,
+        pp.f_func,
+        cg,
+        cf,
     )
     J[0] = pp.profit_sim(r, ca, cu, t_interval, pulse_interval, h, omega)
     for idx in range(maxiter):
         lambda_a, lambda_u, mu = pp.backward(
-            lambda_a, lambda_u, mu, ca, cu, sa, su, r, t_interval,
-            pulse_interval, A, beta1, beta2, eta, delta, gamma_a,
-            gamma_u, omega, h, cg, cf,
+            lambda_a,
+            lambda_u,
+            mu,
+            ca,
+            cu,
+            sa,
+            su,
+            r,
+            t_interval,
+            pulse_interval,
+            A,
+            beta1,
+            beta2,
+            eta,
+            delta,
+            gamma_a,
+            gamma_u,
+            omega,
+            h,
+            cg,
+            cf,
         )
         ca, cu = pp.policy_sim(
-            lambda_a, lambda_u, mu, sa, su, ca, cu, t_interval,
-            pulse_interval, a_low, a_upp, u_low, u_upp, cg, cf,
+            lambda_a,
+            lambda_u,
+            mu,
+            sa,
+            su,
+            ca,
+            cu,
+            t_interval,
+            pulse_interval,
+            a_low,
+            a_upp,
+            u_low,
+            u_upp,
+            cg,
+            cf,
         )
         sa, su, r = pp.forward(
-            sa, su, r, ca, cu, t_interval, pulse_interval, A,
-            beta1, beta2, eta, delta, gamma_a, gamma_u, h,
-            pp.g_func, pp.f_func, cg, cf,
+            sa,
+            su,
+            r,
+            ca,
+            cu,
+            t_interval,
+            pulse_interval,
+            A,
+            beta1,
+            beta2,
+            eta,
+            delta,
+            gamma_a,
+            gamma_u,
+            h,
+            pp.g_func,
+            pp.f_func,
+            cg,
+            cf,
         )
         J[idx + 1] = pp.profit_sim(r, ca, cu, t_interval, pulse_interval, h, omega)
 
@@ -775,16 +1011,61 @@ def run_propaganda_tcss() -> dict[str, float]:
         ("time", "T", T, "Total simulated time."),
         ("time", "h", h, "Time-step used by the reference code."),
         ("time", "t_interval", t_interval, "Number of time samples."),
-        ("iteration", "maxiter", maxiter, "Number of impulse-policy update iterations in the smoke run."),
-        ("dynamics", "beta1/beta2/eta", f"{beta1}/{beta2}/{eta}", "Awareness-aware propagation rates in the TCSS model."),
+        (
+            "iteration",
+            "maxiter",
+            maxiter,
+            "Number of impulse-policy update iterations in the smoke run.",
+        ),
+        (
+            "dynamics",
+            "beta1/beta2/eta",
+            f"{beta1}/{beta2}/{eta}",
+            "Awareness-aware propagation rates in the TCSS model.",
+        ),
         ("dynamics", "delta", delta, "Removal/recovery rate."),
-        ("dynamics", "gamma_a/gamma_u", f"{gamma_a}/{gamma_u}", "Awareness and unawareness transition rates."),
-        ("objective", "omega", omega, "Profit weight on removed/reached state R; tuned so pulse effects are visible."),
-        ("impulse", "pulse_interval", pulse_interval, "Discrete event spacing for impulse controls."),
-        ("impulse", "pulse_event_indices", ",".join(str(int(i)) for i in pulse_events), "Discrete event indices where ca/cu may act."),
-        ("impulse", "ca_bounds", value_range(a_low, a_upp), "Allowed discrete impulse magnitude range for ca."),
-        ("impulse", "cu_bounds", value_range(u_low, u_upp), "Allowed discrete impulse magnitude range for cu."),
-        ("baseline", "random_impulse_policies", RANDOM_BASELINE_COUNT, "Random impulse policies compared with the computed policy."),
+        (
+            "dynamics",
+            "gamma_a/gamma_u",
+            f"{gamma_a}/{gamma_u}",
+            "Awareness and unawareness transition rates.",
+        ),
+        (
+            "objective",
+            "omega",
+            omega,
+            "Profit weight on removed/reached state R; tuned so pulse effects are visible.",
+        ),
+        (
+            "impulse",
+            "pulse_interval",
+            pulse_interval,
+            "Discrete event spacing for impulse controls.",
+        ),
+        (
+            "impulse",
+            "pulse_event_indices",
+            ",".join(str(int(i)) for i in pulse_events),
+            "Discrete event indices where ca/cu may act.",
+        ),
+        (
+            "impulse",
+            "ca_bounds",
+            value_range(a_low, a_upp),
+            "Allowed discrete impulse magnitude range for ca.",
+        ),
+        (
+            "impulse",
+            "cu_bounds",
+            value_range(u_low, u_upp),
+            "Allowed discrete impulse magnitude range for cu.",
+        ),
+        (
+            "baseline",
+            "random_impulse_policies",
+            RANDOM_BASELINE_COUNT,
+            "Random impulse policies compared with the computed policy.",
+        ),
     ]:
         record_parameter(repo_name, scope, parameter, value, meaning)
 
@@ -813,7 +1094,11 @@ def run_propaganda_tcss() -> dict[str, float]:
             cg,
             cf,
         )
-        return float(pp.profit_sim(candidate_r, ca_candidate, cu_candidate, t_interval, pulse_interval, h, omega))
+        return float(
+            pp.profit_sim(
+                candidate_r, ca_candidate, cu_candidate, t_interval, pulse_interval, h, omega
+            )
+        )
 
     record_baseline_value(
         "Propaganda_TCSS_2025_Code",
@@ -833,8 +1118,12 @@ def run_propaganda_tcss() -> dict[str, float]:
     )
     rng = np.random.default_rng(RANDOM_BASELINE_SEED + 301)
     for idx in range(RANDOM_BASELINE_COUNT):
-        random_ca = random_impulse_series(t_interval, pulse_events, lower=a_low, upper=a_upp, rng=rng)
-        random_cu = random_impulse_series(t_interval, pulse_events, lower=u_low, upper=u_upp, rng=rng)
+        random_ca = random_impulse_series(
+            t_interval, pulse_events, lower=a_low, upper=a_upp, rng=rng
+        )
+        random_cu = random_impulse_series(
+            t_interval, pulse_events, lower=u_low, upper=u_upp, rng=rng
+        )
         record_baseline_value(
             "Propaganda_TCSS_2025_Code",
             "random impulse control",
@@ -902,7 +1191,12 @@ def run_propaganda_tcss() -> dict[str, float]:
         linestyle="--",
     )
     axes[2].set_ylim(0.0, max(2.25, float(max(np.max(ca), np.max(cu))) + 0.12))
-    apply_clean_axes(axes[2], xlabel="time", ylabel="impulse magnitude", title="impulse controls: discrete event lines")
+    apply_clean_axes(
+        axes[2],
+        xlabel="time",
+        ylabel="impulse magnitude",
+        title="impulse controls: discrete event lines",
+    )
     axes[2].legend(frameon=False, fontsize=8)
     fig.tight_layout()
     save_publication_figure(
@@ -937,7 +1231,7 @@ def make_contact_sheet() -> None:
         ax.imshow(plt.imread(path))
         ax.set_title(title, loc="left", fontsize=10, fontweight="bold", pad=8)
         ax.axis("off")
-    for ax in flat_axes[len(images):]:
+    for ax in flat_axes[len(images) :]:
         ax.axis("off")
     fig.tight_layout(pad=1.0, h_pad=1.4, w_pad=0.8)
     save_guide_figure(
@@ -960,8 +1254,19 @@ def write_reference_diagnostics() -> None:
         fig, ax = plt.subplots(figsize=(8.4, 4.8))
         for (repo, metric), data in convergence.groupby(["repo", "metric"], sort=False):
             data = data.sort_values("iteration")
-            ax.semilogy(data["iteration"], data["value"], marker="o", linewidth=LINE_WIDTH, label=f"{repo}: {metric}")
-        apply_clean_axes(ax, xlabel="iteration", ylabel="absolute change", title="Reference smoke-run convergence diagnostics")
+            ax.semilogy(
+                data["iteration"],
+                data["value"],
+                marker="o",
+                linewidth=LINE_WIDTH,
+                label=f"{repo}: {metric}",
+            )
+        apply_clean_axes(
+            ax,
+            xlabel="iteration",
+            ylabel="absolute change",
+            title="Reference smoke-run convergence diagnostics",
+        )
         ax.legend(frameon=False, fontsize=7)
         fig.tight_layout()
         save_publication_figure(
@@ -1026,15 +1331,26 @@ def _parameter_markdown_table() -> str:
 
 
 def write_smoke_run_report(rows: list[dict[str, float]]) -> None:
-    headers = ["repo", "nodes", "J0", "J_final", "red_degree_classes", "J_red_final", "J_blue_final"]
+    headers = [
+        "repo",
+        "nodes",
+        "J0",
+        "J_final",
+        "red_degree_classes",
+        "J_red_final",
+        "J_blue_final",
+    ]
     summary_lines = [
         "| " + " | ".join(headers) + " |",
         "| " + " | ".join(["---"] * len(headers)) + " |",
     ]
     for row in rows:
-        summary_lines.append("| " + " | ".join(_format_value(row.get(header)) for header in headers) + " |")
+        summary_lines.append(
+            "| " + " | ".join(_format_value(row.get(header)) for header in headers) + " |"
+        )
 
-    text = """# Reference Smoke Run Report
+    text = (
+        """# Reference Smoke Run Report
 
 This file is generated by `run_reference_smoke.py` for the current output directory.
 
@@ -1071,7 +1387,9 @@ Continuous control is a time-indexed strategy sampled on the simulation grid; pr
 
 The exact values are also exported to `parameter_summary.csv`.
 
-""" + _parameter_markdown_table() + """
+"""
+        + _parameter_markdown_table()
+        + """
 
 ## Figure-specific notes
 
@@ -1099,14 +1417,19 @@ The exact values are also exported to `parameter_summary.csv`.
 
 ## Smoke-run summary
 
-""" + "\n".join(summary_lines) + "\n"
+"""
+        + "\n".join(summary_lines)
+        + "\n"
+    )
     (OUT_DIR / "smoke_run_report.md").write_text(text)
 
 
 def main() -> None:
     global PACKAGE_DIR, REF_DIR, OUT_DIR
 
-    parser = argparse.ArgumentParser(description="Run lightweight smoke tests for the three reference repositories.")
+    parser = argparse.ArgumentParser(
+        description="Run lightweight smoke tests for the three reference repositories."
+    )
     parser.add_argument(
         "--package-dir",
         type=Path,

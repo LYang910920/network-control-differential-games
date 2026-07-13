@@ -7,10 +7,10 @@ its own tutorial scripts and narrative.  Public modules stay small:
 - :mod:`cybercontrol.models` for malware, sampled-flow dynamics, and jump maps.
 - :mod:`cybercontrol.heterogeneity` for scalar-or-array parameter profiles.
 - :mod:`cybercontrol.network_models` for node-level SIPS graph models.
-- :mod:`cybercontrol.torch_utils` for optional PyTorch helper blocks.
+- :mod:`cybercontrol.continuous_impulse` for segmented flow and reset simulation.
+- :mod:`cybercontrol.nn` and :mod:`cybercontrol.torch_numerics` for optional PyTorch helpers.
 - :mod:`cybercontrol.io` for reproducible outputs.
 - :mod:`cybercontrol.plotting` for guide and publication figure helpers.
-- :mod:`cybercontrol.diagnostics` for training-diagnostic terms and captions.
 """
 
 from .numerics import (
@@ -81,8 +81,6 @@ from .plotting import (
     PUBLICATION_DPI,
     PUBLICATION_LINESTYLES,
     PUBLICATION_MARKERS,
-    add_arrow,
-    add_box,
     apply_clean_axes,
     clean_axes,
     figure_size,
@@ -94,14 +92,7 @@ from .plotting import (
     save_publication_figure,
     style_axis,
 )
-from .diagnostics import (
-    COMMON_DIAGNOSTIC_TERMS,
-    DiagnosticTerm,
-    add_caption,
-    diagnostic_terms_for,
-    rolling_mean,
-    write_diagnostic_glossary,
-)
+from .continuous_impulse import simulate_continuous_impulse
 
 __all__ = [
     "MalwareParams",
@@ -109,12 +100,11 @@ __all__ = [
     "controlled_sir_rhs",
     "isolation_jump",
     "sampled_sir_flow_rhs",
+    "simulate_continuous_impulse",
     "NodeSIPSParams",
     "contiguous_community_index",
     "DegreeSISParams",
     "NodeSISParams",
-    "COMMON_DIAGNOSTIC_TERMS",
-    "DiagnosticTerm",
     "GUIDE_DPI",
     "IEEE_DOUBLE_COLUMN_IN",
     "IEEE_SINGLE_COLUMN_IN",
@@ -122,13 +112,9 @@ __all__ = [
     "PUBLICATION_DPI",
     "PUBLICATION_LINESTYLES",
     "PUBLICATION_MARKERS",
-    "add_arrow",
-    "add_box",
-    "add_caption",
     "apply_clean_axes",
     "as_time_function",
     "clean_axes",
-    "diagnostic_terms_for",
     "assortative_degree_mixing",
     "community_correlated_node_sips_params",
     "degree_correlated_node_sips_params",
@@ -162,7 +148,6 @@ __all__ = [
     "require_outputs",
     "rk4_integrate",
     "rk4_step",
-    "rolling_mean",
     "publication_style",
     "set_seed",
     "save_guide_figure",
@@ -182,6 +167,5 @@ __all__ = [
     "trapezoid",
     "trapezoid_integral",
     "write_csv",
-    "write_diagnostic_glossary",
     "write_json",
 ]
