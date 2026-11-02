@@ -5,25 +5,25 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cybercontrol"
 version = "0.2.0"
-description = "Teaching utilities for network optimal control, differential games, impulse control, and cyber-control examples."
+description = "Network optimal control, differential games, and hybrid-control teaching examples."
 readme = "README.md"
 requires-python = ">=3.10"
 license-files = ["LICENSE", "COPYRIGHT_AND_LICENSE.md", "THIRD_PARTY_NOTICES.md"]
 authors = [{name = "Luxing Yang"}]
 dependencies = [
-    "numpy",
-    "scipy",
-    "pandas",
-    "matplotlib",
-    "networkx",
+    "numpy>=1.24,<3",
+    "scipy>=1.10,<2",
+    "pandas>=2,<4",
+    "matplotlib>=3.7,<4",
+    "networkx>=3,<4",
 ]
 
 [project.optional-dependencies]
-graph = ["python-igraph"]
-reference = ["python-igraph"]
-torch = ["torch"]
-dev = ["pytest", "ruff", "python-igraph"]
-all = ["python-igraph", "torch", "pytest", "ruff"]
+graph = ["python-igraph>=0.11,<2"]
+reference = ["python-igraph>=0.11,<2"]
+torch = ["torch>=2.2,<3"]
+dev = ["pytest>=8,<10", "ruff==0.17.3", "python-igraph>=0.11,<2"]
+all = ["python-igraph>=0.11,<2", "torch>=2.2,<3", "pytest>=8,<10", "ruff==0.17.3"]
 
 [project.scripts]
 cybercontrol = "cybercontrol.cli:main"
@@ -38,7 +38,6 @@ exclude = ["examples/reference/reference_repositories"]
 target-version = "py310"
 
 [tool.ruff.lint]
-extend-ignore = [
-    "E402",  # examples set cache/backend paths before importing plotting libraries
-    "E741",  # compartment notation uses I for infected state
-]
+# Keep the project's original correctness checks independent of Ruff default changes.
+select = ["E4", "E7", "E9", "F"]
+ignore = ["E402", "E741"]
