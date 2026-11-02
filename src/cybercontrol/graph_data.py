@@ -1,10 +1,10 @@
-"""Graph input, influence-matrix, and degree-distribution data structures."""
+"""Read a network once; derive degree classes or a node influence matrix as needed."""
 
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 
 import networkx as nx
@@ -18,12 +18,7 @@ LOGGER = logging.getLogger(__name__)
 
 @dataclass
 class NetworkData:
-    """Full input graph plus reduced node-level matrix A.
-
-    full_graph is used to compute the empirical degree distribution P(k).
-    graph and A may be a smaller high-degree induced subgraph, used only for
-    node-level PMP/game examples where dense matrices are expensive.
-    """
+    """Full graph for degree statistics, with an optional reduced node-level graph."""
 
     full_graph: nx.Graph
     graph: nx.Graph
@@ -34,96 +29,110 @@ class NetworkData:
 
 @dataclass
 class DegreeData:
-    """Empirical degree distribution used by the degree-k models."""
+    """Columns are observed degree classes k, including k=0 when isolates exist."""
 
-    k: np.ndarray  # observed degree classes
-    Nk: np.ndarray  # number of nodes with degree k
-    pk: np.ndarray  # P(k) = Nk / n
-    kbar: float  # average degree <k>
+    k: np.ndarray
+    Nk: np.ndarray
+    pk: np.ndarray
+    kbar: float
     node_degree: np.ndarray
 
 
 def read_edge_table(args: argparse.Namespace) -> pd.DataFrame:
-    """Read whitespace or CSV-like edge-list data with pandas."""
-    sep = r"\s+" if args.delimiter is None else args.delimiter
-    header = 0 if args.has_header else None
-    return pd.read_csv(args.edge_list, sep=sep, header=header, comment="#", engine="python")
+    """Read node identifiers as text so labels such as 001 remain intact."""
+    return pd.read_csv(
+        args.edge_list,
+        sep=r"\s+" if args.delimiter is None else args.delimiter,
+        header=0 if args.has_header else None,
+        comment="#",
+        dtype=str,
+        engine="python",
+    )
 
 
 def resolve_column(df: pd.DataFrame, ref) -> str | int:
-    """Resolve either a column name or a zero-based integer column index."""
+    """Accept a column name or a zero-based column position."""
     if ref in df.columns:
         return ref
-    index = int(ref)
-    return df.columns[index]
+    try:
+        return df.columns[int(ref)]
+    except (ValueError, IndexError, TypeError) as exc:
+        raise ValueError(f"Column {ref!r} is not in {list(df.columns)!r}") from exc
+
+
+def _edge_records(args: argparse.Namespace) -> list[tuple[str, str, float]]:
+    table = read_edge_table(args)
+    source = resolve_column(table, args.source_col)
+    target = resolve_column(table, args.target_col)
+    weights = (
+        np.ones(len(table))
+        if args.weight_col is None
+        else pd.to_numeric(table[resolve_column(table, args.weight_col)], errors="raise").to_numpy()
+    )
+    if table[[source, target]].isna().any().any():
+        raise ValueError("Every edge needs a source and a target.")
+    if not np.isfinite(weights).all() or (weights < 0).any():
+        raise ValueError("Edge weights must be finite and nonnegative.")
+    return list(zip(table[source], table[target], weights))
 
 
 def edge_list_to_graph_networkx(args: argparse.Namespace) -> nx.Graph:
-    """Build a NetworkX graph from an edge-list table."""
-    df = read_edge_table(args)
-    src = resolve_column(df, args.source_col)
-    dst = resolve_column(df, args.target_col)
-    graph_type = nx.DiGraph() if args.directed else nx.Graph()
-
-    df = df[df[src] != df[dst]].copy()
-    if args.weight_col is None:
-        df["weight"] = 1.0
-    else:
-        w = resolve_column(df, args.weight_col)
-        df["weight"] = pd.to_numeric(df[w], errors="coerce")
-        df = df.dropna(subset=["weight"])
-        df = df[df["weight"] > 0]
-
-    # Multiple rows for the same edge are common in real datasets.
-    # We aggregate them into one weighted edge.
-    df = df.groupby([src, dst], as_index=False)["weight"].sum()
-    return nx.from_pandas_edgelist(df, src, dst, edge_attr="weight", create_using=graph_type)
+    """Sum repeated edges, including reversed rows of an undirected edge."""
+    graph = nx.DiGraph() if args.directed else nx.Graph()
+    for source, target, weight in _edge_records(args):
+        graph.add_nodes_from((source, target))
+        if source != target and weight > 0:
+            previous = graph.get_edge_data(source, target, {}).get("weight", 0.0)
+            graph.add_edge(source, target, weight=previous + float(weight))
+    return graph
 
 
 def edge_list_to_graph_igraph(args: argparse.Namespace) -> nx.Graph:
-    """Optional igraph reader; returns NetworkX graph for the rest of the code."""
+    """Use the same edge semantics with igraph's built-in simplification."""
     try:
-        import igraph as ig  # type: ignore
-    except ImportError as exc:  # pragma: no cover
-        raise ImportError("Install igraph first: pip install igraph") from exc
-
-    df = read_edge_table(args)
-    src = resolve_column(df, args.source_col)
-    dst = resolve_column(df, args.target_col)
-    w = resolve_column(df, args.weight_col) if args.weight_col is not None else None
-    triples = []
-    for _, row in df.iterrows():
-        weight = float(row[w]) if w is not None else 1.0
-        if weight > 0 and row[src] != row[dst]:
-            triples.append((str(row[src]), str(row[dst]), weight))
-
-    ig_graph = ig.Graph.TupleList(triples, directed=args.directed, weights=True)
-    G = nx.DiGraph() if args.directed else nx.Graph()
-    for e in ig_graph.es:
-        u = ig_graph.vs[e.source]["name"]
-        v = ig_graph.vs[e.target]["name"]
-        G.add_edge(u, v, weight=float(e["weight"]))
-    return G
+        import igraph as ig
+    except ImportError as exc:
+        raise ImportError('Install the optional reader with: pip install ".[graph]"') from exc
+    records = _edge_records(args)
+    graph = ig.Graph.TupleList(records, directed=args.directed, weights=True)
+    graph.simplify(multiple=True, loops=True, combine_edges={"weight": "sum"})
+    result = nx.DiGraph() if args.directed else nx.Graph()
+    result.add_nodes_from(graph.vs["name"] if graph.vcount() else [])
+    for edge in graph.es:
+        if edge["weight"] > 0:
+            result.add_edge(
+                graph.vs[edge.source]["name"],
+                graph.vs[edge.target]["name"],
+                weight=float(edge["weight"]),
+            )
+    return result
 
 
 def graph_file_to_graph(path: Path, directed: bool) -> nx.Graph:
-    """Load common graph formats with NetworkX: GraphML, GEXF, GML, Pajek/NET."""
-    suffix = path.suffix.lower()
-    if suffix == ".graphml":
-        G = nx.read_graphml(path)
-    elif suffix == ".gexf":
-        G = nx.read_gexf(path)
-    elif suffix == ".gml":
-        G = nx.read_gml(path)
-    elif suffix in {".net", ".pajek"}:
-        G = nx.read_pajek(path)
-    else:
-        raise ValueError("--graph-file supports .graphml, .gexf, .gml, .net, and .pajek")
-    return nx.DiGraph(G) if directed else nx.Graph(G)
+    """Read GraphML, GEXF, GML or Pajek, summing parallel edges."""
+    readers = {
+        ".graphml": nx.read_graphml,
+        ".gexf": nx.read_gexf,
+        ".gml": nx.read_gml,
+        ".net": nx.read_pajek,
+        ".pajek": nx.read_pajek,
+    }
+    if path.suffix.lower() not in readers:
+        raise ValueError("Use .graphml, .gexf, .gml, .net or .pajek.")
+    original = readers[path.suffix.lower()](path)
+    graph = nx.DiGraph() if directed else nx.Graph()
+    graph.add_nodes_from(original.nodes())
+    for source, target, data in original.edges(data=True):
+        weight = float(data.get("weight", 1.0))
+        previous = graph.get_edge_data(source, target, {}).get("weight", 0.0)
+        graph.add_edge(source, target, weight=previous + weight)
+        if directed and not original.is_directed() and source != target:
+            graph.add_edge(target, source, weight=previous + weight)
+    return graph
 
 
 def keep_top_degree_nodes(G: nx.Graph, max_nodes: int) -> nx.Graph:
-    """Induced subgraph on highest weighted-degree nodes, for readable demos."""
+    """Choose a teaching subgraph; its dynamics differ from those of the full graph."""
     if max_nodes <= 0 or G.number_of_nodes() <= max_nodes:
         return G.copy()
     degree = dict(G.degree(weight="weight"))
@@ -132,32 +141,29 @@ def keep_top_degree_nodes(G: nx.Graph, max_nodes: int) -> nx.Graph:
 
 
 def normalize_influence_matrix(A: np.ndarray, method: str) -> np.ndarray:
-    """Scale A for numerical stability."""
+    """Apply an explicit model scaling; normalization changes transmission rates."""
     A = np.asarray(A, dtype=float).copy()
     if method == "none":
         return A
+    if method == "row":
+        totals = A.sum(axis=1, keepdims=True)
+        return np.divide(A, totals, out=np.zeros_like(A), where=totals > 0)
     if method == "max-degree":
         scale = A.sum(axis=1).max(initial=0.0)
-        return A / scale if scale > 0 else A
-    if method == "row":
-        row_sum = A.sum(axis=1)
-        B = A.copy()
-        positive = row_sum > 0
-        B[positive, :] = B[positive, :] / row_sum[positive, None]
-        return B
-    if method == "spectral":
-        radius = float(np.max(np.abs(np.linalg.eigvals(A)))) if A.size else 0.0
-        return A / radius if radius > 0 else A
-    raise ValueError("normalization must be: none, max-degree, row, spectral")
+    elif method == "spectral":
+        scale = float(np.max(np.abs(np.linalg.eigvals(A)))) if A.size else 0.0
+    else:
+        raise ValueError("normalization must be: none, max-degree, row, spectral")
+    return A / scale if scale > 0 else A
 
 
 def prepare_model_matrix(A: np.ndarray, normalize: str) -> np.ndarray:
-    """Clean and normalize a matrix already in model convention A[i,j]=j influences i."""
+    """Validate A[i,j] = influence from j to i, then remove self-influence."""
     A = np.asarray(A, dtype=float).copy()
     if A.ndim != 2 or A.shape[0] != A.shape[1]:
         raise ValueError("Adjacency matrix must be square.")
-    A[~np.isfinite(A)] = 0.0
-    A[A < 0] = 0.0
+    if not np.isfinite(A).all() or (A < 0).any():
+        raise ValueError("Adjacency entries must be finite and nonnegative.")
     np.fill_diagonal(A, 0.0)
     return normalize_influence_matrix(A, normalize)
 
@@ -165,117 +171,98 @@ def prepare_model_matrix(A: np.ndarray, normalize: str) -> np.ndarray:
 def graph_to_model_matrix(
     G: nx.Graph, directed: bool, normalize: str
 ) -> tuple[np.ndarray, list[str]]:
-    """Convert graph to A where A[i,j] means j influences i."""
-    labels = [str(v) for v in G.nodes()]
-    M = nx.to_numpy_array(G, nodelist=list(G.nodes()), weight="weight", dtype=float)
-    A = M.T if directed else np.maximum(M, M.T)
-    return prepare_model_matrix(A, normalize), labels
+    """Use a fixed node order and transpose NetworkX's source-target convention."""
+    nodes = list(G.nodes())
+    matrix = nx.to_numpy_array(G, nodelist=nodes, weight="weight", dtype=float)
+    matrix = matrix.T if directed else np.maximum(matrix, matrix.T)
+    return prepare_model_matrix(matrix, normalize), [str(node) for node in nodes]
+
+
+def load_graph(args: argparse.Namespace) -> tuple[nx.Graph, str]:
+    """Load the full graph without constructing an unnecessary dense matrix."""
+    if args.adjacency_csv:
+        matrix = pd.read_csv(args.adjacency_csv, header=None).to_numpy(float)
+        matrix = prepare_model_matrix(matrix, "none")
+        if not args.directed and not np.allclose(matrix, matrix.T):
+            raise ValueError("An undirected adjacency matrix must be symmetric; use --directed.")
+        if args.directed and args.adjacency_convention == "model":
+            matrix = matrix.T
+        graph = nx.from_numpy_array(
+            matrix, create_using=nx.DiGraph() if args.directed else nx.Graph()
+        )
+        source = args.adjacency_csv
+    elif args.edge_list:
+        reader = (
+            edge_list_to_graph_igraph
+            if args.graph_backend == "igraph"
+            else edge_list_to_graph_networkx
+        )
+        graph, source = reader(args), args.edge_list
+    elif args.graph_file:
+        graph = graph_file_to_graph(Path(args.graph_file), args.directed)
+        source = args.graph_file
+    else:
+        graph = nx.barabasi_albert_graph(args.demo_nodes, args.demo_m, seed=args.seed)
+        source = f"Barabasi-Albert graph ({args.demo_nodes} nodes, seed {args.seed})"
+    for _, _, data in graph.edges(data=True):
+        weight = float(data.get("weight", 1.0))
+        if not np.isfinite(weight) or weight < 0:
+            raise ValueError("Edge weights must be finite and nonnegative.")
+        data["weight"] = weight
+    graph.remove_edges_from(list(nx.selfloop_edges(graph)))
+    graph.remove_edges_from([(u, v) for u, v, d in graph.edges(data=True) if d["weight"] == 0])
+    if graph.number_of_nodes() == 0:
+        raise ValueError("The input graph has no nodes.")
+    return graph, str(source)
 
 
 def load_network(args: argparse.Namespace) -> NetworkData:
-    """Load a graph and produce its ODE-ready influence matrix.
-
-    The full graph is kept for degree-distribution computation.  If --max-nodes
-    is used, only the node-level matrix A is reduced. This keeps the degree-k
-    model faithful to the input dataset while keeping dense node-level examples
-    small enough for a laptop.
-    """
-    if args.adjacency_csv:
-        M = pd.read_csv(args.adjacency_csv, header=None).to_numpy(float)
-        clean = prepare_model_matrix(M, "none")
-        if args.adjacency_convention == "model":
-            full_G = nx.from_numpy_array(
-                clean.T if args.directed else clean,
-                create_using=nx.DiGraph() if args.directed else nx.Graph(),
-            )
-        else:  # ordinary graph convention: M[source, target]
-            full_G = nx.from_numpy_array(
-                clean,
-                create_using=nx.DiGraph() if args.directed else nx.Graph(),
-            )
-        source = args.adjacency_csv
-    elif args.edge_list:
-        full_G = (
-            edge_list_to_graph_igraph(args)
-            if args.graph_backend == "igraph"
-            else edge_list_to_graph_networkx(args)
-        )
-        source = args.edge_list
-    elif args.graph_file:
-        full_G = graph_file_to_graph(Path(args.graph_file), args.directed)
-        nx.set_edge_attributes(
-            full_G, {e: full_G.edges[e].get("weight", 1.0) for e in full_G.edges}, "weight"
-        )
-        source = args.graph_file
-    else:
-        full_G = nx.barabasi_albert_graph(args.demo_nodes, args.demo_m, seed=args.seed)
-        nx.set_edge_attributes(full_G, 1.0, "weight")
-        source = f"Barabasi-Albert demo graph, n={args.demo_nodes}"
-
-    # Remove self-loops in both the full graph and reduced graph.
-    full_G = full_G.copy()
-    full_G.remove_edges_from(nx.selfloop_edges(full_G))
-
-    G = keep_top_degree_nodes(full_G, args.max_nodes)
-    A, labels = graph_to_model_matrix(G, args.directed, args.normalize)
-    return NetworkData(full_graph=full_G, graph=G, A=A, labels=labels, source=source)
+    """Retain the full graph; reduce only the node-level matrix when requested."""
+    full_graph, source = load_graph(args)
+    graph = keep_top_degree_nodes(full_graph, args.max_nodes)
+    matrix, labels = graph_to_model_matrix(graph, args.directed, args.normalize)
+    return NetworkData(full_graph, graph, matrix, labels, source)
 
 
 def degree_distribution_from_graph(G: nx.Graph, mode: str = "undirected") -> DegreeData:
-    """Compute N_k, P(k), and <k> from the FULL input graph.
-
-    For undirected/contact networks, use mode="undirected".  For directed
-    influence networks, choose in, out, or total depending on the modelling role
-    of degree.
-    """
-    if (not G.is_directed()) or mode == "undirected":
-        deg = np.array([d for _, d in nx.Graph(G).degree()], dtype=int)
-    elif mode == "in":
-        deg = np.array([d for _, d in G.in_degree()], dtype=int)  # type: ignore[attr-defined]
-    elif mode == "out":
-        deg = np.array([d for _, d in G.out_degree()], dtype=int)  # type: ignore[attr-defined]
-    elif mode == "total":
-        deg = np.array([G.in_degree(v) + G.out_degree(v) for v in G.nodes()], dtype=int)  # type: ignore[attr-defined]
-    else:
+    """Compute N_k, P(k), and mean degree from distinct neighbors, not edge strength."""
+    if mode not in {"undirected", "in", "out", "total"}:
         raise ValueError("degree mode must be: in, out, total, undirected")
-
-    k, Nk = np.unique(deg, return_counts=True)
-    pk = Nk / Nk.sum()
-    return DegreeData(
-        k=k.astype(float),
-        Nk=Nk.astype(int),
-        pk=pk.astype(float),
-        kbar=float(k @ pk),
-        node_degree=deg,
-    )
+    if not G.number_of_nodes():
+        raise ValueError("A degree distribution needs at least one node.")
+    if not G.is_directed() or mode == "undirected":
+        view = nx.Graph(G).degree()
+    elif mode == "in":
+        view = G.in_degree()
+    elif mode == "out":
+        view = G.out_degree()
+    else:
+        view = G.degree()
+    degrees = np.fromiter((value for _, value in view), dtype=int)
+    k, counts = np.unique(degrees, return_counts=True)
+    probability = counts / counts.sum()
+    return DegreeData(k.astype(float), counts, probability, float(k @ probability), degrees)
 
 
 def print_degree_distribution(D: DegreeData) -> None:
-    """Print a compact degree table."""
-    LOGGER.info("\nEmpirical degree distribution used by degree-k models")
-    LOGGER.info(f"average degree <k> = {D.kbar:.4f}; number of classes = {len(D.k)}")
-    LOGGER.info("   k      N_k      P(k)")
-    for k, count, prob in zip(D.k.astype(int), D.Nk, D.pk):
-        LOGGER.info(f"{k:4d} {count:8d} {prob:9.4f}")
+    LOGGER.info("Degree classes: %d; mean degree: %.4g", len(D.k), D.kbar)
+    for k, count, probability in zip(D.k.astype(int), D.Nk, D.pk):
+        LOGGER.info("k=%d, N_k=%d, P(k)=%.4g", k, count, probability)
 
 
 def high_degree_nodes(A: np.ndarray, m: int) -> np.ndarray:
-    """Indices of the m highest undirected-degree nodes."""
     degree = np.logical_or(A > 0, A.T > 0).sum(axis=1)
     return np.argsort(-degree)[: min(m, len(degree))]
 
 
 def degree_initial_state(D: DegreeData) -> np.ndarray:
-    """Small degree-dependent infected fraction used by degree-level examples."""
     return clip(0.02 + 0.08 * D.k / max(D.k.max(), 1.0), 0, 0.18)
 
 
 def node_initial_state(A: np.ndarray) -> np.ndarray:
-    """Seed the two highest-degree nodes so node-level trajectories are visible."""
-    x0 = np.full(A.shape[0], 0.02)
-    x0[high_degree_nodes(A, 2)] = 0.12
-    return x0
+    initial = np.full(A.shape[0], 0.02)
+    initial[high_degree_nodes(A, 2)] = 0.12
+    return initial
 
 
-# Compatibility name retained for existing notebooks and scalability code.
 normalize_adjacency = normalize_influence_matrix

@@ -1,114 +1,43 @@
-# Network Control and Differential Games
+# Network control and differential games
 
-Foundation models, numerical methods, and reusable Python components for network
-optimal control, attacker-defender differential games, and impulse interventions.
-The `cybercontrol` package is the shared implementation used by the two companion
-repositories.
+Learn how a network becomes a dynamical model, how Pontryagin's principle produces a control, and how the same model extends to games and instantaneous interventions.
 
-This repository has mixed licensing. Read [LICENSE](LICENSE),
-[COPYRIGHT_AND_LICENSE.md](COPYRIGHT_AND_LICENSE.md), and
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) before reuse or redistribution.
+**Start here:** run one degree-class control example, inspect its state and control curves, then follow [the walkthrough](docs/GUIDE.md). The [lecture notes](docs/network_control_foundations.pdf) develop PMP, HJB, differential games and hybrid jump conditions.
 
-## Repository Family
+## Run the example
 
-| Repository | Purpose |
-|---|---|
-| **Network Control and Differential Games** | Shared equations, solvers, heterogeneous profiles, plots, and classical control/game examples. |
-| [Cyber Control and Game Learning](https://github.com/LYang910920/note1-cyber-control-games) | Sampled environments, DDQN, CTDE, MAPPO, and game evaluation. |
-| [Physics-Informed Cyber Control](https://github.com/LYang910920/note2-pinn-pidl-cyber-control) | Inverse PINN, PIDL, neural control, and PMP-informed learning. |
-
-## Five-Minute Start
-
-Python 3.10 or later is required.
+Use Python 3.11 or 3.12. From this repository:
 
 ```bash
 python -m venv .venv
+# macOS / Linux:
 source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -e ".[graph,torch,dev]"
-python -m cybercontrol smoke
+# Windows PowerShell instead:
+# .venv\Scripts\Activate.ps1
+
+python -m pip install -e .
+python -m cybercontrol
 ```
 
-The smoke run executes heterogeneous degree/node control and game cases and writes
-its outputs to `artifacts/smoke/`. Generated results are ignored by Git.
+The example runs on a CPU and creates `results/`: two figures, the empirical degree distribution, the degree-class trajectories and a policy comparison table. It compares a PMP candidate with no intervention and the best of nine constant intervention levels. No external dataset, GPU or LaTeX installation is needed.
 
 ```bash
-python -m cybercontrol medium --output-dir artifacts/medium
-python -m cybercontrol figures --output-dir artifacts/figures
-python -m cybercontrol docs
+python -m cybercontrol --beta 0.15 --control-cost 4 --output-dir results/another_case
+python -m cybercontrol --edge-list examples/foundations/sample_data/sample_edges.csv --delimiter , --has-header --source-col source --target-col target --weight-col weight
 ```
 
-`medium` adds matched-mean homogeneous baselines and a paired degree/node scaling
-study. `docs` requires `latexmk` and builds the current tutorial PDF.
+For whitespace-separated `source target` data, use `--edge-list data/edges.txt` without the CSV options. The degree distribution uses the **whole input graph** and does not require a dense adjacency matrix.
 
-## Code Map
+## Read and extend
 
-| Topic | Canonical implementation |
+| Purpose | Read |
 |---|---|
-| Scalar/array parameter resolution | `cybercontrol.heterogeneity` |
-| Degree- and node-level SIS equations | `cybercontrol.heterogeneity` |
-| Node-level SIPS equations | `cybercontrol.network_models` |
-| RK4, projections, and quadrature | `cybercontrol.numerics` |
-| FBS control and game solvers | `cybercontrol.fbs` |
-| Flow plus reset simulation | `cybercontrol.continuous_impulse` |
-| Graph loading and sparse operations | `cybercontrol.graph_data`, `cybercontrol.graph_utils` |
-| Neural blocks, differentiable numerics, RL, and PINN operators | `cybercontrol.nn`, `cybercontrol.torch_numerics`, `cybercontrol.rl`, `cybercontrol.pinn` |
-| Metrics, manifests, and plotting | `cybercontrol.foundation_evaluation`, `cybercontrol.experiments`, `cybercontrol.plotting` |
+| Run, interpret and adapt the example | [Walkthrough](docs/GUIDE.md) |
+| Follow the complete small experiment | [`cli.py`](src/cybercontrol/cli.py), `run_example` |
+| Trace the mathematics into the solver | [`heterogeneity.py`](src/cybercontrol/heterogeneity.py) and [`fbs.py`](src/cybercontrol/fbs.py) |
+| Explore node models, games and jumps | The extension section of the walkthrough |
+| Read the three research implementations | [Reference examples](examples/reference/README.md) |
 
-The runnable examples are thin callers of these modules:
+This is the common numerical library for [Note 1: learning control and games](https://github.com/LYang910920/note1-cyber-control-games) and [Note 2: PINN and PIDL](https://github.com/LYang910920/note2-pinn-pidl-cyber-control). Start with the classical model here; use Note 1 for learned feedback policies and Note 2 for inference from sparse observations.
 
-| Example | Purpose |
-|---|---|
-| `examples/foundations/code/simple_degree_k_control.py` | Minimal heterogeneous degree-class control problem. |
-| `examples/foundations/code/network_control_examples.py` | Degree/node control, games, matched baselines, and continuous-impulse simulation. |
-| `examples/foundations/code/scalability_analysis.py` | Degree-HMF versus explicit sparse node FBS scaling. |
-| `examples/reference/run_reference_smoke.py` | Bounded checks of preserved reference snapshots. |
-
-See [Models and API](docs/MODELS_AND_API.md) for equations and notation-to-code
-mapping.
-
-## Maintained Experiments
-
-The degree and node solvers use the same graph seed, scalar rates, objective
-weights, time grid, and stopping rule. Their states have different dimensions:
-degree-HMF tracks occupied degree classes; node FBS tracks every node.
-
-![Degree- and node-level FBS runtime and state dimension](docs/assets/degree_node_fbs_scalability.png)
-
-The model runner also compares heterogeneous parameters with matched-mean
-homogeneous parameters and smooth random controls. These outputs are regenerated
-under `artifacts/`, rather than stored as additional homepage graphics.
-
-## Extending a Model
-
-1. Write the state order, units, flow equations, reset map, and objective before editing code.
-2. Start from a typed parameter profile in `cybercontrol.foundation_profiles`.
-3. Reuse the canonical RHS, Jacobian, projection, and FBS routines.
-4. Add an example-specific component only when it does not belong in the shared package.
-5. Report convergence, invariant errors, parameter arrays, seeds, and matched baselines.
-
-Detailed instructions are in [Reproducibility](docs/REPRODUCIBILITY.md) and
-[From Model to Paper](docs/FROM_MODEL_TO_PAPER.md).
-
-## Validation
-
-```bash
-python -m compileall -q src tests scripts examples/foundations/code
-ruff check .
-ruff format --check src tests scripts examples/foundations/code
-pytest -q
-python -m cybercontrol smoke
-```
-
-The reference repositories under `examples/reference/reference_repositories/` are
-preserved snapshots. They are not part of the canonical package and retain their
-own notices and assumptions.
-
-## Tutorial and Citation
-
-- [Tutorial PDF](docs/network_control_foundations.pdf)
-- [Citation guidance](CITATION.md)
-
-The tutorial reflects the author's research experience in optimal control,
-differential games, and cyber/network security, including work published in IEEE
-TIFS, TDSC, TSMC, TNSE, and TCSS.
+For development, install `python -m pip install -e ".[dev]"` and run `pytest -q`. Numerical tests are kept in `tests/`, separate from the student experiment. Licensing and upstream attribution are described in [COPYRIGHT_AND_LICENSE.md](COPYRIGHT_AND_LICENSE.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
