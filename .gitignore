@@ -1,8 +1,6 @@
 .DS_Store
 __pycache__/
 *.py[cod]
-
-# Python environments and local dependency installs
 .venv/
 venv/
 env/
@@ -12,17 +10,14 @@ src/*.egg-info/
 .ruff_cache/
 build/
 dist/
-
-# Matplotlib and local cache folders
 .cache/
 .mplconfig/
+results/
 artifacts/
 literature_pdfs/
 .literature_cache/
 examples/**/.cache/
 examples/**/.mplconfig/
-
-# LaTeX build artifacts
 *.aux
 *.bbl
 *.bcf
@@ -35,16 +30,10 @@ examples/**/.mplconfig/
 *.synctex.gz
 *.toc
 docs/source/*.pdf
-
-# Rerun output folders stay out of version control. Curated README assets live
-# under docs/assets/.
 simple_outputs/
 example_outputs/
 docs/assets/*.pdf
 docs/assets/*.figure.json
-
-# Do not commit local full-paper datasets unless their redistribution rights
-# are clear. The repository keeps third-party source files and licenses, but
-# avoids vendoring large or externally sourced experiment data by default.
+# Keep local datasets and generated research outputs out of the teaching source.
 examples/reference/reference_repositories/**/data/
 examples/reference/reference_repositories_upstream/
