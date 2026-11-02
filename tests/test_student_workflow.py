@@ -90,9 +90,7 @@ def test_invalid_rates_are_not_silently_changed():
 
 
 def test_first_example_writes_only_learning_outputs(tmp_path):
-    args = build_parser().parse_args(
-        ["--demo-nodes", "12", "--steps", "12", "--iterations", "60"]
-    )
+    args = build_parser().parse_args(["--demo-nodes", "12", "--steps", "12", "--iterations", "60"])
     args.output_dir = tmp_path
     comparison = run_example(args)
     assert set(path.name for path in tmp_path.iterdir()) == {
