@@ -1,12 +1,11 @@
 # Copyright (c) 2026 Lu-Xing Yang.
-# No project-wide open-source license is granted; see COPYRIGHT_AND_LICENSE.md.
-
+# See COPYRIGHT_AND_LICENSE.md.
 name: Quality
-
 on:
   push:
   pull_request:
-
+permissions:
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -30,7 +29,34 @@ jobs:
           ruff check .
           ruff format --check src tests scripts examples/foundations/code
           pytest -q
-      - name: Public smoke and model figures
+      - name: Student example
         run: |
-          python -m cybercontrol smoke
-          python -m cybercontrol figures --output-dir artifacts/ci_figures
+          python -m cybercontrol check
+          python -m cybercontrol --output-dir artifacts/ci_figures
+  teaching-sources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: foundation
+          persist-credentials: false
+      - uses: actions/checkout@v6
+        with:
+          repository: LYang910920/note1-cyber-control-games
+          ref: main
+          path: note1
+          persist-credentials: false
+      - uses: actions/checkout@v6
+        with:
+          repository: LYang910920/note2-pinn-pidl-cyber-control
+          ref: main
+          path: note2
+          persist-credentials: false
+      - name: Package lecture sources and examples
+        run: |
+          tar --exclude=.git -czf teaching-sources.tar.gz foundation note1 note2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: teaching-sources
+          path: teaching-sources.tar.gz
+          retention-days: 3
