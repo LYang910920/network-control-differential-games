@@ -1,1144 +1,774 @@
-% !TeX program = xelatex
 \documentclass[11pt,a4paper]{article}
-
-% -----------------------------------------------------------------------------
-% Page layout and typography
-% -----------------------------------------------------------------------------
-\usepackage[a4paper,margin=1in,headheight=14pt]{geometry}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
-\usepackage[scaled=0.92]{helvet}
-\usepackage{setspace}
-\setstretch{1.08}
-\usepackage{parskip}
-\usepackage{titlesec}
-\usepackage{fancyhdr}
-\usepackage{needspace}
-\emergencystretch=2em
-
-% -----------------------------------------------------------------------------
-% Mathematics, tables, boxes, figures, code
-% -----------------------------------------------------------------------------
-\usepackage{amsmath,amssymb,bm,mathtools}
-\usepackage{booktabs,tabularx,longtable,array,multirow}
-\usepackage[table]{xcolor}
-\usepackage{graphicx}
-\usepackage{caption}
-\usepackage{enumitem}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext}
+\usepackage[scaled=0.88]{beramono}
+\usepackage[margin=24mm,headheight=15pt]{geometry}
+\usepackage{amsmath,amsthm,mathtools}
+\usepackage{newtxmath}
+\usepackage{microtype,bm}
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{enumitem,xcolor,listings}
 \usepackage[most]{tcolorbox}
-\usepackage{listings}
-\usepackage{hyperref}
-\usepackage[nameinlink,noabbrev]{cleveref}
-
-\graphicspath{{../assets/}{./}}
-
-% -----------------------------------------------------------------------------
-% Colors and hyperref
-% -----------------------------------------------------------------------------
-\definecolor{TutorialBlue}{HTML}{1F4E79}
-\definecolor{SoftBlue}{HTML}{EAF3F8}
-\definecolor{SoftGreen}{HTML}{ECF8F1}
-\definecolor{SoftYellow}{HTML}{FFF7E6}
-\definecolor{SoftRed}{HTML}{FDEDEC}
-\definecolor{RuleGrey}{HTML}{D9E2EC}
-\definecolor{CodeBack}{HTML}{F7F7F9}
-\definecolor{CodeFrame}{HTML}{D6D6D6}
-\definecolor{CodeKeyword}{HTML}{1F4E79}
-\definecolor{CodeComment}{HTML}{5F6F52}
-
-\hypersetup{
-  colorlinks=true,
-  linkcolor=TutorialBlue,
-  citecolor=TutorialBlue,
-  urlcolor=TutorialBlue,
-  pdftitle={Optimal Control, Differential Games, Continuous-Impulsive Control, and Games on Networks},
-  pdfauthor={Lu-Xing Yang},
-  pdfsubject={Self-contained guide},
-  pdfkeywords={optimal control, differential games, continuous-impulsive control, impulse control, networks, Python}
-}
-
-% -----------------------------------------------------------------------------
-% Heading and page styles
-% -----------------------------------------------------------------------------
-\titleformat{\section}{\Large\bfseries\sffamily\color{TutorialBlue}}{\thesection}{0.7em}{}
-\titleformat{\subsection}{\large\bfseries\sffamily\color{TutorialBlue}}{\thesubsection}{0.7em}{}
-\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{TutorialBlue}}{\thesubsubsection}{0.7em}{}
-\titlespacing*{\section}{0pt}{1.0em}{0.45em}
-\titlespacing*{\subsection}{0pt}{0.8em}{0.35em}
-\titlespacing*{\subsubsection}{0pt}{0.6em}{0.25em}
-
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{fancyhdr,titlesec}
+\usepackage[colorlinks=true,linkcolor=inkblue,citecolor=inkblue,urlcolor=inkblue,breaklinks=true]{hyperref}
+\usepackage{bookmark}
+\urlstyle{same}
+\definecolor{inkblue}{HTML}{214860}
+\definecolor{papergray}{HTML}{F5F7F8}
+\definecolor{rulegray}{HTML}{D9E0E4}
+\titleformat{\section}{\Large\bfseries\color{inkblue}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.7em}{}
+\titlespacing*{\section}{0pt}{2.2ex plus .6ex}{1.1ex}
+\titlespacing*{\subsection}{0pt}{1.8ex plus .4ex}{0.8ex}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5.5pt plus 1pt}
+\setlength{\emergencystretch}{2em}
+\setcounter{tocdepth}{2}
+\setlist{topsep=3pt,itemsep=2pt,parsep=0pt,leftmargin=1.6em}
+\renewcommand{\arraystretch}{1.15}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\E}{\mathbb E}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\proj}{Proj}
+\DeclareMathOperator{\clip}{clip}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{theorem}[proposition]{Theorem}
+\theoremstyle{definition}
+\newtheorem{example}[proposition]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[proposition]{Remark}
+\newtcolorbox{keyidea}[1]{colback=papergray,colframe=rulegray,
+  boxrule=0.5pt,arc=1mm,left=8pt,right=8pt,top=6pt,bottom=6pt,
+  breakable,title={#1},fonttitle=\bfseries,coltitle=inkblue,colbacktitle=papergray}
+\lstdefinestyle{python}{language=Python,basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{inkblue},commentstyle=\itshape\color{black!65},
+  stringstyle=\color{black!80},showstringspaces=false,columns=fullflexible,
+  keepspaces=true,breaklines=true,breakatwhitespace=false,tabsize=4,
+  backgroundcolor=\color{papergray},frame=single,rulecolor=\color{rulegray},
+  framerule=0.4pt,framesep=6pt,xleftmargin=7pt,xrightmargin=7pt,
+  aboveskip=8pt,belowskip=8pt}
+\lstset{style=python}
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\small\sffamily Optimal Control, Games, and Continuous-Impulsive Control}
-\rhead{\small\sffamily \thepage}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyfoot[C]{\small\thepage}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\small\thepage}\renewcommand{\headrulewidth}{0pt}}
 
-% -----------------------------------------------------------------------------
-% Table and list helpers
-% -----------------------------------------------------------------------------
-\renewcommand{\arraystretch}{1.22}
-\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
-\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
-\setlist[itemize]{leftmargin=1.35em,itemsep=0.20em,topsep=0.25em}
-\setlist[enumerate]{leftmargin=1.55em,itemsep=0.20em,topsep=0.25em}
-
-% -----------------------------------------------------------------------------
-% Boxes
-% -----------------------------------------------------------------------------
-\tcbset{
-  enhanced,
-  sharp corners,
-  boxrule=0.6pt,
-  left=6pt,right=6pt,top=5pt,bottom=5pt,
-  before skip=0.55em,after skip=0.75em
-}
-\newtcolorbox{definitionbox}[1]{colback=SoftBlue,colframe=TutorialBlue,title=\textbf{#1}}
-\newtcolorbox{examplebox}[1]{colback=SoftGreen,colframe=green!45!black,title=\textbf{#1}}
-\newtcolorbox{cautionbox}[1]{colback=SoftYellow,colframe=orange!80!black,title=\textbf{#1}}
-\newtcolorbox{sourcebox}[1]{colback=SoftRed,colframe=red!60!black,title=\textbf{#1}}
-
-% -----------------------------------------------------------------------------
-% Listings
-% -----------------------------------------------------------------------------
-\lstdefinestyle{pythonstyle}{
-  language=Python,
-  basicstyle=\scriptsize\ttfamily,
-  keywordstyle=\color{CodeKeyword}\bfseries,
-  commentstyle=\color{CodeComment}\itshape,
-  stringstyle=\color{purple!70!black},
-  showstringspaces=false,
-  breaklines=true,
-  breakatwhitespace=false,
-  keepspaces=true,
-  columns=fullflexible,
-  frame=single,
-  rulecolor=\color{CodeFrame},
-  backgroundcolor=\color{CodeBack},
-  numbers=left,
-  numberstyle=\tiny\color{gray},
-  xleftmargin=2.0em,
-  framexleftmargin=1.6em,
-  tabsize=4,
-  captionpos=b
-}
-\lstset{style=pythonstyle}
-
-% -----------------------------------------------------------------------------
-% Math shortcuts
-% -----------------------------------------------------------------------------
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\dd}{\,\mathrm{d}}
-\newcommand{\argmax}{\operatorname*{arg\,max}}
-\newcommand{\argmin}{\operatorname*{arg\,min}}
-\newcommand{\Proj}{\operatorname{Proj}}
-\newcommand{\T}{\mathsf{T}}
-
+\hypersetup{pdftitle={Network Optimal Control and Differential Games},pdfauthor={Lu-Xing Yang},pdfsubject={Models, necessary and sufficient conditions, hybrid decisions, and Python examples}}
+\fancyhead[L]{\small\sffamily Foundations}
+\fancyhead[R]{\small\sffamily Cyber dynamics and decision making}
 \begin{document}
-
-% -----------------------------------------------------------------------------
-% Title page
-% -----------------------------------------------------------------------------
-\begin{titlepage}
-\centering
-\vspace*{1.25cm}
-{\sffamily\bfseries\Large\color{TutorialBlue} Network Control Tutorial Family: Foundation\par}
+\thispagestyle{plain}
+{\color{inkblue}\sffamily\small CYBER DYNAMICS AND DECISION MAKING}\par
+\vspace{1.0cm}
+{\huge\bfseries Network Optimal Control and Differential Games}\par
 \vspace{0.35cm}
-{\sffamily\bfseries\Huge\color{TutorialBlue} Optimal Control, Differential Games, Continuous-Impulsive Control, and Games on Networks\par}
+{\Large Models, necessary and sufficient conditions, hybrid decisions, and Python examples}\par
+\vspace{0.45cm}
+{\large Lu-Xing Yang}\par
+\vspace{0.7cm}
+This note develops optimal control and differential games for propagation on networks. It begins with empirical degree distributions and incoming-influence matrices, derives continuous and impulsive Pontryagin conditions, connects them to HJB and feedback games, and explains how to run and adapt the accompanying code. The central examples remain small enough to follow by hand while retaining several degree classes or network nodes. Prerequisites are multivariable calculus, linear algebra, elementary ordinary differential equations, and basic Python.
 \vspace{0.5cm}
-{\sffamily\Large A Self-Contained English Tutorial Note with Degree-Level and Node-Level Examples\par}
-\vspace{0.8cm}
-{\large Lu-Xing Yang\par}
-\vspace{0.8cm}
-{\large Created from my research experience in optimal control, differential games, impulse and continuous--impulsive hybrid control, and cyber/network-security applications\par}
-\vspace{0.35cm}
-{\large Informed by publications in IEEE TIFS, TDSC, TSMC, TNSE, TCSS, and related journals\par}
-\vspace{0.35cm}
-{\large Part 0 of the Network Control Tutorial Family\par}
-\vspace{0.35cm}
-{\large Python package: \texttt{cybercontrol}; runnable degree/node examples and reference smoke checks\par}
-\vfill
-\begin{tcolorbox}[width=0.86\textwidth,colback=SoftBlue,colframe=TutorialBlue]
-\textbf{Purpose.} This note starts from controlled dynamical systems and develops optimal control, differential games, and impulse and continuous--impulsive hybrid control in one coherent framework. It is written for propagation, defense, and intervention problems on networks. The mathematical sections introduce the state equation, payoff, Hamiltonian, PMP, HJB/HJI viewpoint, Nash equilibrium conditions, impulse jumps, and continuous-plus-impulse strategies. The computational sections give a simple degree-$k$ example first and then a main tutorial script for degree-level games, node-level adjacency-matrix models, and continuous-impulse simulations. The degree-level workflow always computes $N_k$, $P(k)$, and $\langle k\rangle$ from the input network before solving models indexed by degree class $k$.
-\end{tcolorbox}
-\vfill
-{\large \today\par}
-\end{titlepage}
+\begin{keyidea}{How to use this note}
+Read the model and the mathematical derivation before changing the code. Run the first example, inspect its state and decision curves, and then use the worked extensions. The equations, assumptions and interpretation are included here; the repository supplies the executable implementations.
+\end{keyidea}
+\clearpage
+\begingroup\setlength{\parskip}{0pt}\footnotesize\tableofcontents\endgroup
+\clearpage
 
-\tableofcontents
-\newpage
+\section{The modeling question and the learning route}
+A network intervention changes a process that is already evolving: infected devices recover, vulnerable devices are patched, competing messages spread, or a campaign produces an immediate change in awareness. A useful control model connects four objects: the state, the intervention mechanism, the information available to the decision maker, and the objective. This note follows that connection from a graph to differential equations, from equations to optimality conditions, and from conditions to executable examples.
 
-% -----------------------------------------------------------------------------
-\section{How to Read This Handout}
-% -----------------------------------------------------------------------------
+The first example allocates recovery effort among degree classes. The same construction then extends to individual nodes, two strategic players, and interventions that cause jumps. Classical optimal-control results are developed using the minimization convention $H=L+\lambda^\top f$ \cite{pontryagin,liberzon,lenhart}. Payoff-maximizing games are identified explicitly when introduced.
 
-This handout follows a layered structure. First, it defines a controlled dynamical system. Second, it formulates an optimal control problem for one decision maker. Third, it extends the same logic to two or more strategic decision makers, producing a differential game. Fourth, it adds discrete state jumps and event decisions, producing impulse and continuous--impulsive hybrid control/game models. Finally, it connects the mathematics to degree-level and node-level propagation models on networks and to runnable Python implementation.
 
-\begin{definitionbox}{Core questions}
-\begin{itemize}
-  \item \textbf{Optimal control}: what should one controller do over time to maximize benefit or minimize cost?
-  \item \textbf{Differential game}: what should each player do when the system state is jointly affected by all players and their objectives may conflict?
-  \item \textbf{Impulse control/game}: when and how should a player apply instantaneous actions that cause state jumps?
-  \item \textbf{Continuous--impulsive hybrid control/game}: how should continuous-time controls and discrete impulse decisions be combined?
-  \item \textbf{Degree-level versus node-level networks}: should we group nodes by type/degree, or track every node and use the full adjacency matrix?
-\end{itemize}
-\end{definitionbox}
+\subsection{Research context: from cyber dynamics to interventions}
+The examples in this tutorial grow out of a line of cyber/network modeling and control research by Lu-Xing Yang and collaborators. Security evaluation under advanced persistent threats provides a starting point: derive the evolving attack--defense state, then connect its long-run behavior to a security measure \cite{security2017}. Introducing strategic intervention leads to patch-injection and repair games \cite{patch2018,repair2019}; introducing recoverable data changes the available defense mechanisms and leads to backup-and-recovery decisions \cite{backup2021}. These are distinct modeling questions even when their optimality systems have the same state--costate form.
 
-\begin{table}[h!]
-\centering
-\caption{A layered view of the guide.}
-\begin{tabularx}{\textwidth}{L{2.9cm}L{3.5cm}Y Y}
+The social-network branch develops objectives for conflicting opinions and rumor refutation \cite{opinions2020,rumor2021}. Hybrid propaganda competition then combines sustained effort with discrete campaigns \cite{war2024}, while awareness-dependent propaganda suppression and coupled malware--opinion dynamics connect behavior with impulse interventions \cite{awareness2025,malware2025}. Impulsive artificial defense and defense outsourcing provide related APT settings in which event timing and the allocation of decision authority matter \cite{impulse2023,outsource2024}. Finally, feedback-loop malware control links parameter learning with model predictive control (MPC) \cite{feedback2024}.
+
+The compact SIS/SIR equations below are teaching models that isolate those mathematical ingredients. The later research examples explain how to move from them to the cited publications and their code. A tutorial illustration is identified separately from a paper's original model or algorithm; changing the physical state, information pattern or cost creates a different problem.
+
+\subsection{Notation and units}
+\par\noindent\begin{tabularx}{\linewidth}{@{}p{0.18\linewidth}Y@{}}
 \toprule
-\textbf{Layer} & \textbf{Mathematical object} & \textbf{Typical question} & \textbf{Network example} \\
+Symbol & Meaning \\
 \midrule
-Continuous dynamics & $\dot{x}=f(x,u,t)$ & How does the state evolve under continuous effort? & Patch rate, recovery effort, attack rate over time \\
-Optimal control & $\max_u J(u)$ subject to dynamics & What is the best control for one decision maker? & Defender allocates patching to reduce malware \\
-Differential game & $\max_{u_i} J_i(u_i,u_{-i})$ for each player & What is a Nash or Stackelberg equilibrium? & Attacker increases spread; defender suppresses spread \\
-Impulse control & $x(t_l^+) = x(t_l^-) + g(x(t_l^-),v_l)$ & When should discrete interventions be applied? & Emergency cleanup, forced password reset, public correction campaign \\
-Continuous--impulsive hybrid control/game & Continuous dynamics plus impulse resets & How should continuous flow controls and impulse decisions be combined? & Routine monitoring plus occasional large-scale response \\
+$n$, $i,j$ & Number of nodes and node indices. \\
+$k$, $\mathcal K$ & An observed degree and the set of observed degree classes. \\
+$P(k)$, $\bar k$ & Fraction of nodes in degree class $k$ and average degree. \\
+$A_{ij}$ & Incoming influence: node $j$ affects node $i$. \\
+$x$, $u$ & State vector and continuous-valued control. Their dimensions depend on the model. \\
+$f$, $L$, $\Phi$ & State dynamics, running cost, and terminal cost. \\
+$\lambda$, $H$ & Costate vector and Hamiltonian. \\
+$t_r$, $\tau_\ell$ & A sampled decision time and an impulse time; these need not coincide. \\
+$G$, $K$ & State-reset map and instantaneous intervention cost. \\
 \bottomrule
-\end{tabularx}
-\end{table}
+\end{tabularx}\par
 
+A state such as $x_i\in[0,1]$ is an infection probability or mean-field fraction, not a binary observation of a particular host. The expected infected population is $\sum_i x_i$. A degree-class state $x_k$ is the infected fraction \emph{within} class $k$, and the population fraction is $\sum_k P(k)x_k$. If time is measured in hours, transmission, natural recovery and recovery-control intensities have units of inverse hours. An impulse fraction is dimensionless; its cost is charged at an event rather than multiplied by the duration of a numerical step.
 
+\subsection{Three model resolutions}
+An aggregate compartment model describes a population by a few states, such as $S,I,R$. A degree-level model keeps a separate state for every observed degree. A node-level model keeps a separate state for every node and uses the adjacency matrix directly. These are distinct approximations. An aggregate SIR system does not become degree-level merely by storing its three compartments in an array.
 
-\begin{definitionbox}{Notation conventions used throughout the note}
-The same mathematical object can be written differently in different communities. This note uses the following convention unless explicitly stated otherwise.
-\begin{center}
-\begin{tabularx}{0.96\textwidth}{L{2.8cm}Y}
-\toprule
-\textbf{Symbol} & \textbf{Meaning} \\
-\midrule
-$T$ & finite time horizon; the control/game runs on $[0,T]$. \\
-$x(t)\in\mathbb{R}^n$ & state vector. In node-level models, $x_i(t)$ is the infection, compromise, belief, or risk level at node $i$. \\
-$u(t),v(t)$ & controls. In games, different symbols usually belong to different players. \\
-$A=[a_{ij}]$ & adjacency matrix. In this note, $(A x)_i=\sum_j a_{ij}x_j$ is the pressure on node $i$ from its neighbors. \\
-$F,L$ & running payoff or running loss. We use maximization with $F$ and minimization with $L$. \\
-$H$ & Hamiltonian. For games there is one Hamiltonian per player. \\
-$\lambda(t)$ & adjoint or costate. It is solved backward in time and acts as a shadow value of the state. \\
-$t_l,v_l$ & impulse time and impulse magnitude at event $l$. \\
-\bottomrule
-\end{tabularx}
-\end{center}
-\end{definitionbox}
+The degree model reduces dimension when the number of observed degrees is much smaller than $n$. The node model retains location, direction and weighted contacts. A degree closure can lose correlations between a node's state and its neighbors; a node mean-field model still approximates stochastic dependencies between individual infection events. Model resolution should therefore follow the scientific question rather than the available array size.
 
-% -----------------------------------------------------------------------------
-\section{Dynamic Systems and Network Propagation Models}
-% -----------------------------------------------------------------------------
-
-A dynamic system describes how a state changes over time. In cybersecurity, information diffusion, epidemiology, and social network analysis, the state may measure infection, compromise, awareness, rumor belief, or defense status. A control modifies the state equation. A game appears when two or more decision makers control the same system with different objectives.
-
-\subsection{State, Control, and Objective}
-
-Let the time horizon be $[0,T]$. Let $x(t)\in\R^n$ be the state vector and $u(t)\in U$ be the control. A deterministic continuous-time controlled system is written as
-\begin{equation}
-  \dot{x}(t)=f(x(t),u(t),t),\qquad x(0)=x_0,\qquad 0\leq t\leq T.
-  \label{eq:basic-dynamics}
-\end{equation}
-The controller usually optimizes a cumulative payoff or cost. A maximization form is
-\begin{equation}
-  J(u)=\Phi(x(T))+\int_0^T F(x(t),u(t),t)\dd t.
-  \label{eq:basic-objective}
-\end{equation}
-Here $F$ is the running payoff and $\Phi$ is the terminal payoff. In a minimization formulation, $F$ is often a running cost such as infection loss plus control cost.
-
-
-\subsection{Degree-Level Models}
-
-\needspace{8\baselineskip}
-\begin{definitionbox}{Degree-level state means degree-indexed state}
-A degree-level model should not be implemented as a single scalar compartmental SIR/SIS model unless the network is being ignored. In a network-aware degree-level model, the first step is to compute the degree classes from the input graph. If $N_k$ is the number of nodes with degree $k$ and $n$ is the total number of nodes, then
-\begin{equation}
-  P(k)=\frac{N_k}{n},
-  \qquad
-  \bar{k}=\frac{1}{n}\sum_{i=1}^n k_i=\sum_k kP(k).
-  \label{eq:degree-distribution}
-\end{equation}
-The state is then arranged as
-\begin{equation}
-\begin{aligned}
-  x(t)&=\bigl(x_k(t)\bigr)_{k\in\mathcal{K}},\qquad
-  \mathcal{K}=\{k:N_k>0\},\\
-  x_k(t)&=\text{infected/compromised fraction among degree-}k\text{ nodes}.
-\end{aligned}
-  \label{eq:degree-state-vector}
-\end{equation}
-\end{definitionbox}
-
-A common heterogeneous mean-field infection pressure is
-\begin{equation}
-  \Theta(t)=\frac{\sum_{k\in\mathcal{K}} kP(k)x_k(t)}{\langle k\rangle},
-  \label{eq:theta-degree}
-\end{equation}
-where $P(k)$ is the degree distribution and $\langle k\rangle=\bar{k}$ is the average degree. A controlled degree-level SIS-style model is
-\begin{equation}
-  \dot{x}_k(t)=\beta k(1-x_k(t))\Theta(t)-\bigl(\delta+u_k(t)\bigr)x_k(t),
-  \qquad k\in\mathcal{K}.
-  \label{eq:degree-sis}
-\end{equation}
-The implementation therefore stores one state and one control trajectory per observed degree value. For example, if the input network has degree classes $\mathcal{K}=\{2,3,4,7\}$, then the model state is $(x_2,x_3,x_4,x_7)$, not $(S,I,R)$.
-
-The code also supports class-specific physical and economic parameters.  With susceptibility $s_k$, infectivity $\iota_k$, recovery $\delta_k$, and row-stochastic mixing $M_{k\ell}$, the heterogeneous pressure is
-\[
-  \lambda_k(t)=s_k k\sum_{\ell\in\mathcal{K}} M_{k\ell}\iota_\ell x_\ell(t),
-  \qquad
-  \dot{x}_k(t)=(1-x_k(t))\lambda_k(t)-(\delta_k+u_k(t))x_k(t).
-\]
-Scalar inputs are explicitly broadcast by \texttt{cybercontrol.heterogeneity}, so the homogeneous model remains a special case.
-
-In the tutorial code, \texttt{compute\_degree\_distribution} returns the observed degree values, counts $N_k$, probabilities $P(k)$, and average degree $\langle k\rangle$. For directed networks, one must also decide what ``degree'' means. The code exposes a \texttt{degree\_mode} option: row degree counts incoming influencers under the convention $\dot{x}=f(Ax)$, column degree counts outgoing influence, total degree adds both, and undirected degree ignores orientation.
-
-Degree-level models are compact and interpretable. They are useful when the network is large or only statistical network information is available. Their limitation is that they lose fine node-level structure: which node is connected to which node, which node is high value, and where attacks or defenses should be targeted.
-
-\subsection{Node-Level Models}
-
-A node-level model tracks each node. Let $A=[a_{ij}]$ be the adjacency matrix. Let $x_i(t)$ be the probability or intensity that node $i$ is infected or compromised. A standard controlled node-level model is
-\begin{equation}
-  \dot{x}_i(t)=\beta(1-x_i(t))\sum_{j=1}^n a_{ij}x_j(t)-\bigl(\delta+u_i(t)\bigr)x_i(t),\qquad i=1,\dots,n.
-  \label{eq:node-sis}
-\end{equation}
-Here $\beta$ is the propagation rate, $\delta$ is the natural recovery/removal rate, and $u_i(t)$ is node-specific defense effort. This model explicitly uses network connectivity and supports targeted control. The cost is computational: the state dimension grows with $n$, and the adjoint or HJB equation becomes harder as the network grows.
-
-\subsection{From a Real Network Dataset to the Adjacency Matrix}
-\label{subsec:real-network-to-adj}
-
-Real network datasets are often not distributed as adjacency matrices. They are usually stored as an \emph{edge list}: each row records a connection such as
-\begin{center}
-\texttt{source target}\qquad or \qquad \texttt{source,target,weight}.
-\end{center}
-To use such a dataset in this tutorial, the code first parses the full input network and computes the empirical degree distribution $N_k$, $P(k)$, and $\langle k\rangle$. It then optionally converts a smaller high-degree induced subgraph into a dense adjacency matrix $A$ for node-level PMP/game examples. Thus, degree-level models can use the full-network degree distribution even when node-level examples use a reduced adjacency matrix for computational clarity. The conversion is conceptually simple but important, because mistakes in node indexing, direction, self-loops, or normalization can change the dynamics substantially.
-
-\begin{examplebox}{Edge list to adjacency matrix: practical workflow}
-\begin{enumerate}
-  \item \textbf{Read edges.} Parse each line as $(\text{source},\text{target})$ or $(\text{source},\text{target},\text{weight})$.
-  \item \textbf{Relabel nodes.} Map arbitrary node labels such as account IDs or IP addresses to integer indices $0,\dots,n-1$.
-  \item \textbf{Choose directed or undirected.} For an undirected contact graph, set both $a_{ij}$ and $a_{ji}$. For a directed influence graph, keep the edge direction.
-  \item \textbf{Remove self-loops and invalid weights.} Most SIS/SIR-style propagation examples assume $a_{ii}=0$ and nonnegative weights.
-  \item \textbf{Normalize if needed.} Divide by maximum degree, row sums, or spectral radius to keep propagation probabilities numerically stable.
-  \item \textbf{Reduce size if needed for node-level computation.} Full node-level PMP uses dense adjoint/Jacobian calculations. For large datasets, first keep a subgraph such as the top-degree 30--200 nodes, a community, or a sampled ego-network. The degree-level distribution $P(k)$ can still be computed from the full input network before this reduction.
-\end{enumerate}
-\end{examplebox}
-
-The tutorial code implements this workflow in the single-file functions \texttt{load\_network}, \texttt{graph\_to\_model\_matrix}, and \texttt{degree\_distribution\_from\_graph}. The convention used by the dynamics is
-\begin{equation}
-  \text{infection pressure on node } i=(Ax)_i=\sum_{j=1}^n a_{ij}x_j.
-\end{equation}
-Thus, for a directed edge ``source influences target'', the code places the edge weight in the matrix row for the target and the matrix column for the source. For an undirected graph, it symmetrizes the matrix.
-
-
-\begin{lstlisting}[caption={Minimal example: load an edge-list dataset, compute the degree distribution, and run degree-level and node-level models.}]
-from network_control_examples import (
-    build_parser,
-    load_network,
-    degree_distribution_from_graph,
-    solve_degree_control,
-    solve_node_control,
-)
-
-args = build_parser().parse_args([
-    "--edge-list", "data/edges.txt",
-    "--max-nodes", "30",        # only reduces the node-level matrix
-    "--degree-mode", "undirected",
-])
-
-network = load_network(args)
-D = degree_distribution_from_graph(network.full_graph, mode=args.degree_mode)
-A = network.A
-
-# Degree-level workflow: columns are observed degree classes k.
-degree_result = solve_degree_control(D)
-
-# Node-level workflow: use the dense simulation adjacency matrix A.
-node_result = solve_node_control(A)
+\section{From external network data to model inputs}
+\subsection{Read the graph and preserve node identities}
+The introductory command accepts a whitespace-separated edge list, a CSV edge list, a numeric adjacency CSV, or a supported NetworkX graph file. For example:
+\begin{lstlisting}[language={},caption={CSV edge-list structure}]
+source,target,weight
+001,002,1.0
+002,003,0.5
+003,001,1.0
 \end{lstlisting}
+Identifiers such as \texttt{001} are labels, not numbers to be rounded or renumbered implicitly. The repository reader stores them as text. Repeated edge records are summed, including reversed records of an undirected edge. Self-loops are removed, zero-weight edges create no contact, and negative or nonfinite weights are rejected. An edge list cannot describe a node that appears nowhere in the data; use GraphML, a numeric adjacency matrix, or an explicit node list when isolates matter.
 
-\begin{cautionbox}{Scaling warning}
-A real network can contain thousands or millions of nodes. The node-level PMP examples in this note intentionally use dense matrices so that the mathematics is transparent. For large datasets, use a subgraph, degree-level aggregation, sparse linear algebra, direct simulation with heuristic controls, or other approximate methods. The full HJB equation is even more expensive because its value function lives on the whole state space.
-\end{cautionbox}
+A graph-to-matrix conversion must use a fixed node order. NetworkX stores a directed edge from source $i$ to target $j$ in position $(i,j)$; the incoming-influence convention used here requires its transpose \cite{networkx}:
+\begin{lstlisting}[caption={Construct an incoming-influence matrix}]
+import networkx as nx
+import numpy as np
 
-
-\begin{table}[h!]
-\centering
-\caption{Degree-level versus node-level models.}
-\begin{tabularx}{\textwidth}{L{3.1cm}YY}
-\toprule
-\textbf{Aspect} & \textbf{Degree-level model} & \textbf{Node-level model} \\
-\midrule
-State dimension & Number of degree classes or compartments & Number of nodes times number of compartments \\
-Network information & Degree distribution or mixing pattern & Full adjacency matrix or contact graph \\
-Best use case & Large networks, aggregate analysis, early theory & Small/medium networks, targeted control, simulation \\
-Main weakness & Less precise for targeted interventions & High dimensionality and possible data requirements \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-% -----------------------------------------------------------------------------
-\section{Optimal Control: Single Decision Maker}
-% -----------------------------------------------------------------------------
-
-Optimal control is the single-player foundation. It asks for a time-dependent control strategy $u^*(t)$ that optimizes an objective while satisfying the system dynamics. This is the natural starting point for differential games.
-
-\subsection{General Model}
-
-\begin{align}
-  \max_{u(\cdot)\in U} \quad & J(u)=\int_0^T F(x(t),u(t),t)\dd t, \label{eq:oc-obj}\\
-  \text{s.t.}\quad & \dot{x}(t)=f(x(t),u(t),t),\qquad x(0)=x_0. \label{eq:oc-state}
-\end{align}
-In a minimization problem, the same structure applies after changing the sign of the objective. For example, minimizing infection and control cost is equivalent to maximizing the negative of that cost.
-
-\subsection{Hamiltonian and Pontryagin Maximum Principle}
-
-The Hamiltonian combines the immediate payoff and the effect of the control on future state evolution. For a maximization problem,
-\begin{equation}
-  H(x,u,\lambda,t)=F(x,u,t)+\lambda^{\T}f(x,u,t).
-  \label{eq:oc-hamiltonian}
-\end{equation}
-The adjoint variable $\lambda(t)$ is a shadow value of the state: it measures how a small change in the state affects future payoff. Under standard regularity assumptions, a candidate optimum must satisfy the following necessary conditions:
-\begin{align}
-  \dot{x}^*(t)&=f(x^*(t),u^*(t),t), \qquad x^*(0)=x_0, \label{eq:oc-pmp-state}\\
-  \dot{\lambda}^*(t)&=-\frac{\partial H}{\partial x}(x^*(t),u^*(t),\lambda^*(t),t), \qquad \lambda^*(T)=0, \label{eq:oc-pmp-adjoint}\\
-  u^*(t)&\in\argmax_{u\in U}H(x^*(t),u,\lambda^*(t),t). \label{eq:oc-pmp-control}
-\end{align}
-These equations form a two-point boundary value problem: the state has an initial condition, while the adjoint has a terminal condition. This is why forward-backward sweep is commonly used.
-
-\begin{cautionbox}{What PMP does and does not prove}
-PMP gives necessary conditions under regularity assumptions. It does not automatically prove that a computed control is globally optimal. In practice, one should compare the computed policy with baselines, test sensitivity, and report convergence residuals.
-\end{cautionbox}
-
-\subsection{Forward-Backward Sweep}
-
-Forward-backward sweep is an iterative numerical method for solving PMP optimality systems. The idea is simple but powerful: guess the control, simulate the state forward, simulate the adjoint backward, update the control from the Hamiltonian condition, and repeat.
-
-\begin{examplebox}{Generic forward-backward sweep}
-\begin{enumerate}
-  \item Initialize $u^{(0)}(t)$, usually zero, constant, or a simple heuristic.
-  \item Forward step: solve $\dot{x}=f(x,u^{(r)},t)$ from $t=0$ to $T$.
-  \item Backward step: solve $\dot{\lambda}=-H_x$ from $t=T$ to $0$ using the state trajectory.
-  \item Control update: compute $u_{\mathrm{new}}(t)=\argmax H$ or $\argmin H$ depending on the formulation.
-  \item Relaxation: set $u^{(r+1)}=\theta u_{\mathrm{new}}+(1-\theta)u^{(r)}$ to improve stability.
-  \item Stop when the control and state changes are below a tolerance, or after a maximum number of iterations.
-\end{enumerate}
-\end{examplebox}
-
-\begin{lstlisting}[caption={Forward-backward sweep pseudocode.}]
-for iteration in range(max_iter):
-    x = forward_simulate(control)
-    lambda_adj = backward_simulate(x, control)
-    candidate_control = pointwise_hamiltonian_optimizer(x, lambda_adj)
-    control = theta * candidate_control + (1 - theta) * control
-    if convergence_is_satisfactory:
-        break
+nodes = list(graph.nodes())
+A = nx.to_scipy_sparse_array(
+    graph, nodelist=nodes, weight="weight", format="csr"
+).T.tocsr()
+x = np.full(len(nodes), 0.05)
+pressure = A @ x
+# Save nodes alongside any node-indexed trajectories.
 \end{lstlisting}
+For an undirected graph the transpose makes no numerical difference. For a directed graph it determines which nodes receive infection pressure. For example, an edge $j\to i$ must contribute $A_{ij}x_j$ to node $i$.
 
-\subsection{Important Practical Cautions}
-
-\begin{itemize}
-  \item Forward-backward sweep may fail to converge if the model is stiff, the horizon is long, the control bounds are sharp, or the initial guess is poor.
-  \item A computed control should be compared with no control, constant control, greedy control, random timing, or heuristic resource allocation.
-  \item For high-dimensional node-level systems, HJB is usually infeasible because the value function depends on every state dimension.
-\end{itemize}
-
-% -----------------------------------------------------------------------------
-\section{Differential Games: Multiple Strategic Decision Makers}
-% -----------------------------------------------------------------------------
-
-A differential game is an optimal control problem with multiple players. The same state is affected by multiple controls, and each player has its own payoff. In cybersecurity, the players may be an attacker and a defender. In opinion or propaganda dynamics, they may be competing campaigns. In malware and patching, one player may inject infection effort while the other allocates repair or backup resources.
-
-\subsection{General Two-Player Nonzero-Sum Open-Loop Nash Game}
-
-Let player 1 choose $u(t)$ and player 2 choose $v(t)$. The system is
+\subsection{Compute the empirical degree distribution first}
+For the full, simple, undirected input graph, compute
 \begin{equation}
-  \dot{x}(t)=f(x(t),u(t),v(t),t),\qquad x(0)=x_0.
-  \label{eq:dg-state}
+N_k=\#\{i:\deg(i)=k\},\qquad P(k)=\frac{N_k}{n},\qquad
+\bar k=\sum_{k\in\mathcal K}kP(k).
+\label{eq:degree-distribution}
 \end{equation}
-Each player has a payoff:
-\begin{align}
-  J_1(u,v)&=\int_0^T F_1(x(t),u(t),v(t),t)\dd t,\label{eq:j1}\\
-  J_2(u,v)&=\int_0^T F_2(x(t),u(t),v(t),t)\dd t.\label{eq:j2}
-\end{align}
-An open-loop Nash equilibrium $(u^*,v^*)$ satisfies
-\begin{align}
-  J_1(u^*,v^*)&\geq J_1(u,v^*) \qquad \text{for all admissible }u,\label{eq:nash1}\\
-  J_2(u^*,v^*)&\geq J_2(u^*,v) \qquad \text{for all admissible }v.\label{eq:nash2}
-\end{align}
-Open-loop means each control is a function of time, usually computed before the game starts. Feedback strategies depend on the current state $x(t)$, but solving feedback differential games often requires HJB or Hamilton-Jacobi-Isaacs equations, which are much harder in high dimensions.
+Only observed classes are stored; $k=0$ is included when isolates exist. A compact calculation is
+\begin{lstlisting}[caption={Degree classes are columns of the state array}]
+degrees = np.fromiter((d for _, d in graph.degree()), dtype=int)
+k, N_k = np.unique(degrees, return_counts=True)
+p = N_k / N_k.sum()
+kbar = float(k @ p)
+# X.shape == (number_of_times, len(k))
+# X[:, j] is the infected fraction for degree k[j].
+\end{lstlisting}
+Here degree counts distinct neighbors. Weighted strength, $\sum_j A_{ij}$, is a different quantity. The repository function \texttt{degree\_distribution\_from\_graph} returns these arrays together in a \texttt{DegreeData} object. Degree statistics are computed before any node-level subgraph is selected, and computing them does not require a dense $n\times n$ matrix.
 
-\subsection{Classification of Differential Games}
-
-\begin{table}[h!]
-\centering
-\caption{Common classifications of differential games.}
-\begin{tabularx}{\textwidth}{L{3.0cm}L{3.2cm}Y}
-\toprule
-\textbf{Dimension} & \textbf{Main types} & \textbf{Meaning for applications} \\
-\midrule
-Payoff relation & Zero-sum; nonzero-sum & Zero-sum is pure conflict; nonzero-sum allows asymmetric or partially aligned objectives. \\
-State evolution & Deterministic; stochastic & Deterministic models are easier; stochastic models handle random disturbances and uncertainty. \\
-Decision order & Nash; Stackelberg & Nash players move simultaneously; Stackelberg has leader-follower structure. \\
-Information structure & Open-loop; feedback; sampled-data & Open-loop uses time plans; feedback observes state; sampled-data updates at discrete observation times. \\
-Action type & Continuous-time; impulse; continuous--impulsive hybrid & Continuous-time control changes derivatives; impulse control causes jumps; continuous--impulsive hybrid control contains both. \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{PMP for an Open-Loop Nash Differential Game}
-
-For each player $i$, define a player-specific Hamiltonian:
+\subsection{Derive the uncorrelated degree closure}
+Choose a random edge endpoint in an undirected network. Class $k$ contributes $kN_k$ endpoints, so its endpoint probability is $kP(k)/\bar k$. Under the uncorrelated degree approximation, the probability that a neighbor is infected is
 \begin{equation}
-  H_i(x,u,v,\lambda_i,t)=F_i(x,u,v,t)+\lambda_i^{\T}f(x,u,v,t),\qquad i=1,2.
-  \label{eq:dgame-ham}
+\Theta(t)=\sum_{k\in\mathcal K}\frac{kP(k)}{\bar k}x_k(t).
+\label{eq:theta}
 \end{equation}
-A candidate open-loop Nash equilibrium must satisfy the state equation, one adjoint system for each player, and one pointwise best-response condition for each player:
-\begin{align}
-  \dot{\lambda}_i(t)&=-\frac{\partial H_i}{\partial x}(x^*(t),u^*(t),v^*(t),\lambda_i(t),t),\qquad \lambda_i(T)=0,\quad i=1,2,\label{eq:dg-adjoint}\\
-  u^*(t)&\in\argmax_u H_1(x^*(t),u,v^*(t),\lambda_1(t),t),\label{eq:dg-u}\\
-  v^*(t)&\in\argmax_v H_2(x^*(t),u^*(t),v,\lambda_2(t),t).\label{eq:dg-v}
-\end{align}
-The structure is almost identical to optimal control, except that each player has its own adjoint variable and its own Hamiltonian. Numerically, forward-backward sweep updates the state, both adjoints, and both controls iteratively.
+Thus a susceptible degree-$k$ node has expected infected-neighbor count $k\Theta$. For an edgeless graph, set $\Theta=0$; the state then evolves through recovery and intervention only. No division by zero is needed.
 
-\subsection{Game-Theoretic Interpretation}
+The closure uses unweighted contacts. Reading and retaining edge weights does not make this particular degree equation weight-aware. Likewise, replacing $k$ by in-degree is not, by itself, a derivation for a directed network. Direction, weight, degree correlation, and neighbor-state correlation require a suitable extension or a node-level model.
 
-\begin{itemize}
-  \item The Nash condition is a mutual best-response condition. No player can improve its own payoff by unilateral deviation, given the other player's strategy.
-  \item For nonzero-sum games, the equilibrium may not be socially optimal. It is strategically stable, not necessarily globally efficient.
-  \item For attacker-defender models, the defender equilibrium effort is often high when infection is high and when the defender adjoint indicates a high future value of reducing infection.
-  \item For propagation games on networks, node centrality and local infection pressure strongly affect the structure of equilibrium controls.
-\end{itemize}
-
-% -----------------------------------------------------------------------------
-\section{Flow, Impulse, and Continuous--Impulsive Models}
-% -----------------------------------------------------------------------------
-
-The key distinction is how an action affects the state. A continuous-time control changes the derivative $\dot{x}$ over an interval of time. An impulse action causes an instantaneous state jump at selected time points. A continuous--impulsive hybrid policy uses both.
-
-\subsection{Continuous-Time Control}
-
-A continuous-time control $u(t)$ is applied over time and changes the vector field $f$. Examples include continuous patching intensity, monitoring rate, misinformation refutation effort, or resource allocation to recovery.
+\subsection{Retain degree correlations when they matter}
+Let $M_{k\ell}$ be the conditional probability that a neighbor of a degree-$k$ node has degree $\ell$. The correlated pressure is
 \begin{equation}
-  \dot{x}(t)=f(x(t),u(t),t),\qquad 0\leq t\leq T.
+\Theta_k(t)=\sum_{\ell\in\mathcal K}M_{k\ell}x_\ell(t).
 \end{equation}
-
-\subsection{Impulse Control}
-
-An impulse control has discrete intervention times $t_1,\dots,t_N$ and impulse magnitudes $v_1,\dots,v_N$. Between impulses, the system follows a continuous differential equation. At an impulse time, the state jumps:
-\begin{align}
-  \dot{x}(t)&=f(x(t),u(t),t),\qquad t\notin\{t_1,\dots,t_N\},\label{eq:imp-flow}\\
-  x(t_l^+)&=x(t_l^-)+g(x(t_l^-),v_l,t_l),\qquad l=1,
-  \dots,N.\label{eq:imp-jump}
-\end{align}
-A typical impulse objective is
+For an empirical undirected graph, let $E_{k\ell}$ count oriented edge endpoints from class $k$ to class $\ell$: every undirected edge contributes both orientations. Then
 \begin{equation}
-  J=\int_0^T F(x(t),u(t),t)\dd t+\sum_{l=1}^N G(x(t_l^-),v_l,t_l).
+M_{k\ell}=\frac{E_{k\ell}}{kN_k}\quad(k>0),\qquad M_{0\ell}=0.
+\label{eq:empirical-mixing}
 \end{equation}
-In minimization form, $G$ can be an intervention cost. In maximization form, $G$ can be the immediate benefit minus impulse cost.
+Non-isolate rows sum to one, and the endpoint counts satisfy
+\begin{equation}
+kP(k)M_{k\ell}=\ell P(\ell)M_{\ell k}.
+\end{equation}
+This balance relation is useful when inventing a mixing matrix: an arbitrary row-stochastic matrix need not correspond to an undirected graph with the stated degree distribution. The uncorrelated approximation sets every non-isolate row to $\ell P(\ell)/\bar k$. Empirical mixing preserves degree correlations, but still replaces individual neighbor states by their class means.
 
-\begin{definitionbox}{Continuous versus impulse action}
-A continuous-time control signal is a function over a time interval and modifies the rate of change. An impulse action is an event action and modifies the state itself. In network security, continuous defense may be monitoring or patching; an impulse may be forced password reset, emergency cleanup, public warning, or manual shutdown of compromised accounts.
-\end{definitionbox}
+\begin{keyidea}{A matrix transformation is a modeling choice}
+Row normalization replaces contact counts by normalized influence. Multiplying the whole matrix by a constant changes the transmission scale unless the rate is adjusted accordingly. Selecting a high-degree induced subgraph removes contacts and defines a different dynamical system. State these choices when interpreting a result; none is merely a formatting operation.
+\end{keyidea}
 
-\subsection{Continuous--Impulsive Hybrid Control}
+\section{Controlled propagation models}
+\subsection{Degree-level and node-level SIS dynamics}
+The first model uses recovery control:
+\begin{equation}
+\dot x_k=\beta k(1-x_k)\Theta-(\delta+u_k)x_k,
+\qquad 0\le u_k\le\bar u_k.
+\label{eq:degree-sis}
+\end{equation}
+Here $\beta$ is the per-contact transmission rate, $\delta$ is natural recovery, and $u_k$ is extra recovery/removal effort. A corresponding node-level model is
+\begin{equation}
+\dot x_i=\beta_i(1-x_i)\sum_j A_{ij}x_j-(\delta_i+u_i)x_i.
+\label{eq:node-sis}
+\end{equation}
+All rates and matrix entries are nonnegative. At $x_i=0$, the derivative is nonnegative; at $x_i=1$, it equals $-(\delta_i+u_i)\le0$. Therefore the vector field points inward on the boundary of $[0,1]^n$. The same argument applies to degree classes. This property belongs to the differential equations. Large numerical clipping corrections would indicate a numerical problem rather than establish the property.
 
-A continuous--impulsive hybrid control combines continuous-time flow controls $u(t)$ and impulse decisions $(N,t_l,v_l)$. In compact form,
+Heterogeneity can be represented by class- or node-specific susceptibility, infectivity, recovery, costs and bounds. A useful degree form is
+\begin{equation}
+\dot x_k=s_k k(1-x_k)\sum_\ell M_{k\ell}b_\ell x_\ell
+ -(\delta_k+u_k)x_k.
+\label{eq:heterogeneous-degree}
+\end{equation}
+The acquisition coefficient $s_k$ includes the transmission-rate scale; $b_\ell$ describes relative infectivity. In \texttt{DegreeSISParams}, these correspond to \texttt{susceptibility} and \texttt{infectivity}. Passing $s_k=\beta$ and $b_\ell=1$ recovers \eqref{eq:degree-sis} under uncorrelated mixing.
+
+\subsection{Patching and cleaning are different transitions}
+To distinguish protection from recovery, use a controlled SIR/SIPS-type model:
 \begin{align}
-  \dot{x}(t)&=f(x(t),u(t),t),\qquad t\notin\{t_1,\dots,t_N\},\label{eq:contimp-flow}\\
-  x(t_l^+)&=x(t_l^-)+g(x(t_l^-),v_l,t_l),\qquad l=1,\dots,N.\label{eq:contimp-jump}
+\dot S&=-\beta SI-u_pS+\omega R,\nonumber\\
+\dot I&=\beta SI-(\gamma+u_c)I,\label{eq:patch-clean}\\
+\dot R&=u_pS+(\gamma+u_c)I-\omega R.\nonumber
 \end{align}
-The continuous--impulsive optimization problem is hard because it mixes continuous function optimization and discrete event optimization:
-\begin{itemize}
-  \item choose the number of impulses $N$;
-  \item choose the impulse times $t_1<\cdots<t_N$;
-  \item choose impulse magnitudes or target sets $v_l$;
-  \item choose continuous controls $u(t)$ between the impulses.
-\end{itemize}
-This naturally leads to nested optimization. The inner layer solves continuous control for fixed impulse schedule. The middle layer optimizes impulse times. The outer layer optimizes the number of impulses. In network propagation models, the exact full solution is often computationally prohibitive. Practical studies may fix impulse times, use heuristics, restrict the number of impulses, or compare several candidate schedules rather than solving the full impulse PMP exactly.
+Patching $u_p$ moves $S\to R$, whereas cleaning $u_c$ moves $I\to R$. The sum of the equations is zero. In the SIS example, recovered devices immediately rejoin susceptibility, so its recovery control should not be described as SIR patching. This distinction also determines the Hamiltonian derivative: patching has a marginal state effect proportional to $S$, while cleaning has one proportional to $I$.
 
-\subsection{Continuous--Impulsive Hybrid Differential Games}
+\subsection{Objectives, population weights and shared resources}
+For degree-level control, use
+\begin{equation}
+J(u)=\int_0^T\sum_k P(k)\left[q_kx_k+\frac{r_k}{2}u_k^2\right]\dd t
++\Phi(x(T)),\qquad r_k>0.
+\label{eq:degree-objective}
+\end{equation}
+This is a per-capita weighted objective. Multiplying the entire objective by $n$ leaves its minimizer unchanged. Multiplying only the state term by $n$ changes the tradeoff. A node-level objective may instead sum host-specific risks and intervention costs, or divide the entire sum by $n$; make that choice consistently in the solver and every baseline.
 
-A continuous--impulsive hybrid differential game appears when at least one player uses continuous-time controls and at least one player can trigger impulses. For example, the defender may continuously patch nodes and occasionally perform emergency cleanup, while the attacker continuously injects effort or occasionally launches bursts. The Nash conditions remain best-response conditions, but the impulse player now has to optimize event count, event timing, targets, and magnitudes.
+Independent bounds model separate capacity limits. A shared budget, such as
+\begin{equation}
+\sum_k c_k u_k(t)\le B(t),\qquad c_k>0,
+\end{equation}
+couples the decisions. The meaning of $c_k$ must specify whether effort is charged per class, per node, or by class population. Independent clipping generally does not enforce this budget.
 
-\begin{table}[h!]
-\centering
-\caption{Continuous-time flow control, impulse/reset control, and continuous--impulsive combinations.}
-\begin{tabularx}{\textwidth}{L{2.6cm}Y L{3.2cm}Y}
-\toprule
-\textbf{Action type} & \textbf{Effect on state} & \textbf{Decision variables} & \textbf{Typical method} \\
-\midrule
-Continuous & Changes $\dot{x}$ over time & $u(t)$ & PMP + forward-backward sweep; direct collocation; approximate dynamic programming \\
-Impulse & Instantaneous jump $x(t^+)\neq x(t^-)$ & $N$, $t_l$, $v_l$ & Impulse PMP; direct search; dynamic programming for small problems \\
-Continuous--impulsive hybrid & Both derivative changes and jumps & $u(t)$, $N$, $t_l$, $v_l$ & Nested optimization; heuristics; mixed-integer/control methods \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\subsection{An optional connection to a propagation threshold}
+For a fixed control $u$ and node dynamics $\dot x=(I-\diag x)Bx-Dx$, define
+$B_{ij}=\beta_i A_{ij}$ and $D=\diag(\delta_i+u_i)$, with all diagonal entries of $D$ positive. Linearization at zero is $\dot z=(B-D)z$.
+\begin{proposition}[A sufficient extinction condition]
+If $\rho(D^{-1}B)<1$, the disease-free state is globally exponentially stable on $[0,1]^n$.
+\end{proposition}
+\begin{proof}
+The matrix $B-D$ is Metzler and Hurwitz under the stated spectral condition. Since $\dot x\le(B-D)x$ componentwise, comparison with the positive linear system gives $0\le x(t)\le e^{(B-D)t}x(0)$, which decays exponentially.
+\end{proof}
+For the homogeneous, uncontrolled degree closure, the rank-one next-generation matrix gives
+\begin{equation}
+\mathcal R_0=\frac{\beta\sum_k k^2P(k)}{\delta\bar k}.
+\end{equation}
+This explains why the second degree moment can matter even at the same average degree. The strict threshold concerns long-run persistence under fixed coefficients. Finite-horizon control also depends on current infections, the remaining time and costs; a spectral ranking and an optimal finite-horizon allocation need not agree. The equality case is not classified by the strict comparison argument above.
 
+\section{Pontryagin's principle: derivation and interpretation}
+\subsection{The continuous-time problem}
+Consider
+\begin{equation}
+\min_{u(\cdot)}J(u)=\Phi(x(T))+\int_0^T L(x,u,t)\dd t,
+\qquad \dot x=f(x,u,t),\quad x(0)=x_0,\quad u(t)\in U.
+\label{eq:generic-control}
+\end{equation}
+Assume a fixed horizon, a fixed initial state, a free terminal state, suitable smoothness in $x$, and admissible measurable controls for which solutions exist. The presentation treats the normal case and no additional active state-path constraints. Endpoint constraints, state constraints and abnormal extremals require their corresponding multipliers and transversality conditions \cite{pontryagin,liberzon}.
 
-% -----------------------------------------------------------------------------
-\section{Theoretical Core: PMP, HJB, Impulse Jumps, and Optimality Conditions}
-% -----------------------------------------------------------------------------
-
-This section adds a more theoretical layer behind the models used in the examples. The main message is that PMP, impulse PMP, and HJB are not competing ideas. They answer different versions of the same question.
-PMP is usually the most convenient route to \emph{open-loop} controls and open-loop Nash equilibria. HJB is the dynamic-programming route to \emph{feedback} controls. Impulse and continuous--impulsive hybrid models add jump conditions and event-time conditions to the continuous PMP system.
-
-\subsection{Necessary Conditions versus Sufficient Conditions}
-
-An optimality condition is \textbf{necessary} if every true optimum must satisfy it, but a point satisfying it may still fail to be optimal. An optimality condition is \textbf{sufficient} if satisfying it guarantees optimality, usually under stronger convexity or concavity assumptions. This distinction is essential when interpreting PMP-based numerical solutions.
-
-\begin{table}[h!]
-\centering
-\caption{Necessary and sufficient conditions in control and game models.}
-\begin{tabularx}{\textwidth}{L{3.1cm}Y Y}
-\toprule
-\textbf{Setting} & \textbf{Typical necessary condition} & \textbf{Typical sufficient/verification condition} \\
-\midrule
-Continuous optimal control & State equation, adjoint equation, Hamiltonian stationarity/maximization, transversality & Concavity for maximization or convexity for minimization; or an HJB verification theorem. \\
-Open-loop Nash differential game & One PMP system per player, with player-specific adjoints and pointwise best responses & Each player's Hamiltonian/objective is concave in its own state-control variables, plus the Nash inequalities hold; for zero-sum games, saddle-point/Isaacs conditions. \\
-Impulse or continuous--impulsive hybrid control & Continuous PMP plus state-jump equation, adjoint-jump equation, impulse-magnitude condition, and sometimes impulse-time condition & Verification inequalities using quasi-variational inequalities (QVIs), or restricted sufficiency for fixed impulse schedules and convex/concave structures. \\
-Numerical forward-backward sweep & Small residual in state, adjoint, and stationarity equations & Not sufficient by itself; should be supported by baseline comparison, sensitivity tests, and unilateral-deviation tests for games. \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\begin{cautionbox}{How to read PMP results in research papers}
-For nonlinear propagation models, PMP usually provides a candidate control or candidate equilibrium, not a global proof. A convincing study should report the derived optimality system, describe numerical convergence, and compare the obtained strategy against strong baselines. In differential games, it is also useful to test whether unilateral deviations improve a player's payoff.
-\end{cautionbox}
-
-\subsection{Continuous-Time PMP: State, Adjoint, Stationarity, and Transversality}
-
-Consider a maximization problem with terminal payoff,
-\begin{align}
-  \max_{u(\cdot)}\quad & J(u)=\Phi(x(T))+\int_0^T F(x(t),u(t),t)\dd t,\\
-  \text{s.t.}\quad & \dot{x}(t)=f(x(t),u(t),t),\qquad x(0)=x_0.
-\end{align}
 Define
 \begin{equation}
-  H(x,u,\lambda,t)=F(x,u,t)+\lambda^{\T} f(x,u,t).
+H(x,u,\lambda,t)=L(x,u,t)+\lambda^\top f(x,u,t).
 \end{equation}
-For an interior normal extremal, PMP gives
+Introduce a multiplier for the differential equation:
+\begin{equation}
+\mathcal A=\Phi(x(T))+\int_0^T\left[H(x,u,\lambda,t)-\lambda^\top\dot x\right]\dd t.
+\end{equation}
+For a state variation $z$ with $z(0)=0$, integration by parts gives
 \begin{align}
-  \dot{x}^*(t)&=H_\lambda(x^*,u^*,\lambda^*,t)=f(x^*,u^*,t),\\
-  \dot{\lambda}^*(t)&=-H_x(x^*,u^*,\lambda^*,t),\\
-  u^*(t)&\in\argmax_{u\in U}H(x^*(t),u,\lambda^*(t),t),\\
-  \lambda^*(T)&=\Phi_x(x^*(T)).
+\delta\mathcal A
+={}&[\Phi_x(x(T))-\lambda(T)]^\top z(T)\nonumber\\
+&+\int_0^T(H_x+\dot\lambda)^\top z\dd t
++\int_0^T H_u^\top\delta u\dd t.
+\label{eq:pmp-variation}
 \end{align}
-If there is no terminal payoff and the terminal state is free, then $\lambda^*(T)=0$. If the problem is written as a minimization problem, one may either minimize the Hamiltonian $L+\lambda^{\T}f$ or convert the cost to a payoff by changing signs. The mathematics is the same, but the sign convention must be used consistently.
+Choosing the costate to cancel state variations yields the adjoint and terminal equations. Needle variations supply the pointwise Hamiltonian minimum condition; an ordinary differentiable variation supplies its first-order form on a convex control set.
 
-When the admissible set is a box, for example $u_j(t)\in[0,u_{j,\max}]$, an unconstrained stationarity equation $H_{u_j}=0$ is replaced by a projected control formula. A common pattern is
-\begin{equation}
-  u_j^*(t)=\Proj_{[0,u_{j,\max}]}\left(\widehat{u}_j(t)\right),
-\end{equation}
-where $\widehat{u}_j$ is obtained from $H_{u_j}=0$ before applying bounds. This is exactly the form used in the network examples and the tutorial Python code.
-
-\subsection{Sufficiency for Continuous Optimal Control}
-
-PMP becomes sufficient under additional structure. For a maximization problem, a standard sufficient condition is:
-\begin{itemize}
-  \item the terminal payoff $\Phi(x)$ is concave in $x$;
-  \item for each $t$, the Hamiltonian $H(x,u,\lambda^*(t),t)$ is concave in $(x,u)$;
-  \item $u^*(t)$ maximizes the Hamiltonian over the admissible set;
-  \item the state and adjoint equations and transversality condition hold.
-\end{itemize}
-Then $u^*$ is a global optimum. For a minimization problem, replace concavity/maximization by convexity/minimization. In many cybersecurity and propagation models, nonlinear infection terms such as $(1-x_i)\sum_j a_{ij}x_j$ make global concavity difficult to prove. Therefore, PMP is often used to derive a principled candidate strategy, and the quality of the strategy is assessed numerically.
-
-\subsection{HJB and the Verification Theorem}
-
-PMP gives trajectories and open-loop controls. HJB gives a value function and feedback controls. For a minimization problem
-\begin{equation}
-  V(x,t)=\inf_{u(\cdot)}\left\{\Phi(x(T))+\int_t^T L(x(s),u(s),s)\dd s\right\},
-\end{equation}
-the HJB equation is
-\begin{equation}
-  -V_t(x,t)=\min_{u\in U}\left\{L(x,u,t)+\nabla_x V(x,t)^{\T}f(x,u,t)\right\},
-  \qquad V(x,T)=\Phi(x).
-  \label{eq:hjb-control}
-\end{equation}
-The feedback policy is
-\begin{equation}
-  u^*(x,t)\in\argmin_{u\in U}\left\{L(x,u,t)+\nabla_x V(x,t)^{\T}f(x,u,t)\right\}.
-\end{equation}
-The verification theorem says that if a sufficiently smooth function $V$ satisfies the HJB equation and the proposed feedback policy attains the pointwise minimum, then the policy is optimal and $V$ is the optimal value function. This is a sufficient condition, not only a necessary condition.
-
-\begin{definitionbox}{PMP versus HJB}
-PMP solves along one trajectory and introduces an adjoint $\lambda(t)$. HJB solves over the state space and introduces a value function $V(x,t)$. Along a smooth optimal trajectory, the two are connected by $\lambda(t)=\nabla_x V(x^*(t),t)$. The advantage of HJB is feedback optimality. The disadvantage is dimensionality: for node-level networks, $V$ depends on all node states.
-\end{definitionbox}
-
-\subsection{HJB/HJI Equations for Games}
-
-For a zero-sum attacker-defender game with payoff to the attacker and loss to the defender, the value function may satisfy a Hamilton-Jacobi-Isaacs (HJI) equation:
-\begin{equation}
-  -V_t(x,t)=\max_{a\in A}\min_{d\in D}\left\{F(x,a,d,t)+\nabla_xV(x,t)^{\T}f(x,a,d,t)\right\}.
-  \label{eq:hji}
-\end{equation}
-If the max-min and min-max values coincide, the Isaacs condition holds and a saddle-point feedback equilibrium can be characterized.
-
-For a nonzero-sum feedback Nash game, there is generally one value function per player. A formal system is
-\begin{equation}
-  -\frac{\partial V_i}{\partial t}(x,t)=
-  F_i(x,u_1^*,\dots,u_m^*,t)+\nabla_xV_i(x,t)^{\T}f(x,u_1^*,\dots,u_m^*,t),
-  \qquad i=1,\dots,m,
-\end{equation}
-where each $u_i^*$ is a best response in the $i$th Hamiltonian. These coupled PDEs are difficult even for low-dimensional systems, and usually infeasible for full node-level network propagation models.
-
-
-
-\subsection{Impulse HJB and Quasi-Variational Inequalities}
-\label{subsec:qvi}
-
-Feedback impulse control has a dynamic-programming form. For a minimization problem, define the intervention operator
-\begin{equation}
-  (\mathcal{M}V)(x,t)=\inf_{v\in V}\left\{K(x,v,t)+V\bigl(x+g(x,v,t),t\bigr)\right\},
-\end{equation}
-where $K$ is the impulse cost and $x+g(x,v,t)$ is the post-impulse state. The value function satisfies a quasi-variational inequality (QVI) of the form
-\begin{equation}
-  \min\left\{
-  -V_t(x,t)-\inf_{u\in U}\left[L(x,u,t)+\nabla_xV(x,t)^\T f(x,u,t)\right],
-  \;V(x,t)-(\mathcal{M}V)(x,t)
-  \right\}=0.
-  \label{eq:qvi}
-\end{equation}
-The first term is the continuation condition: do not impulse, continue with continuous control. The second term compares the value of waiting with the value after immediate intervention. The impulse region is where $V(x,t)=(\mathcal{M}V)(x,t)$; the continuation region is where the HJB part holds. Continuous--impulsive feedback games lead to HJI-QVI systems with one or more value functions. These equations provide strong verification principles, but they are rarely solved directly for high-dimensional node-level networks.
-
-\subsection{PMP with Impulsive State Jumps}
-
-Now consider an impulse or continuous--impulsive hybrid model with fixed impulse times $t_1,\dots,t_N$:
+\begin{theorem}[Normal PMP conditions]
+An optimal pair in the stated setting has a costate satisfying, almost everywhere,
 \begin{align}
-  \dot{x}(t)&=f(x(t),u(t),t),\qquad t\notin\{t_1,\dots,t_N\},\\
-  x(t_l^+)&=x(t_l^-)+g(x(t_l^-),v_l,t_l),\qquad l=1,\dots,N.
+\dot x^*&=f(x^*,u^*,t),\qquad x^*(0)=x_0,\nonumber\\
+\dot\lambda^*&=-H_x(x^*,u^*,\lambda^*,t),\qquad
+\lambda^*(T)=\Phi_x(x^*(T)),\label{eq:pmp-system}\\
+u^*(t)&\in\argmin_{v\in U}H(x^*(t),v,\lambda^*(t),t).\nonumber
 \end{align}
-The payoff is
+These are necessary conditions. The state equation runs forward from $0$; the costate equation runs backward from $T$.
+\end{theorem}
+
+A costate measures first-order sensitivity of future cost along an extremal. Identifying it with the gradient of a value function requires the differentiability and optimality assumptions of the value-function formulation; it is not an automatic interpretation of every numerically generated adjoint.
+
+\subsection{Bounds and projected optimality}
+For a differentiable Hamiltonian and a convex control set, its first-order necessary condition is
 \begin{equation}
-  J=\Phi(x(T))+\int_0^T F(x(t),u(t),t)\dd t
-  +\sum_{l=1}^N G(x(t_l^-),v_l,t_l).
+H_u(u^*)^\top(v-u^*)\ge0\qquad\text{for all }v\in U.
+\label{eq:control-vi}
 \end{equation}
-Define the continuous Hamiltonian and the impulse Hamiltonian by
-\begin{align}
-  H(x,u,\lambda,t)&=F(x,u,t)+\lambda^{\T}f(x,u,t),\\
-  H^I(x,v,\lambda^+,t_l)&=G(x,v,t_l)+(\lambda^+)^{\T}g(x,v,t_l),
-\end{align}
-where $\lambda^+=\lambda(t_l^+)$ is the adjoint just after the jump. The PMP contains the usual continuous equations between impulse times and the following jump and impulse conditions:
-\begin{align}
-  x(t_l^+)&=x(t_l^-)+g(x(t_l^-),v_l,t_l),\\
-  \lambda(t_l^-)&=\lambda(t_l^+)+\frac{\partial H^I}{\partial x}(x(t_l^-),v_l,\lambda(t_l^+),t_l),\\
-  v_l^*&\in\argmax_{v\in V}H^I(x(t_l^-),v,\lambda(t_l^+),t_l).
-  \label{eq:impulse-magnitude}
-\end{align}
-For a minimization problem, the corresponding impulse condition uses an argmin under the minimization sign convention. The adjoint jump condition is the theoretical correction that accounts for the fact that the state does not evolve continuously at $t_l$.
-
-
-
-\begin{examplebox}{Cleanup impulse in a node-level network}
-Suppose an emergency cleanup at time $t_l$ reduces selected node states by a fraction $z_i\in[0,1]$:
+For a scalar interval $[0,\bar u]$, this reads
 \begin{equation}
-  x_i(t_l^+)=(1-z_i)x_i(t_l^-),\qquad g_i(x,z)=-z_i x_i.
+H_u=0\text{ in the interior},\qquad H_u\ge0\text{ at }u=0,
+\qquad H_u\le0\text{ at }u=\bar u.
 \end{equation}
-In a minimization problem with impulse cost $K(z)=c_0+\frac{1}{2}c_z\sum_i z_i^2$, the impulse Hamiltonian is
+Thus penalizing $H_u^2$ at every time would penalize some correct boundary solutions. For any $\eta>0$, the equivalent projected first-order residual is
 \begin{equation}
-  H^I(x,z,\lambda^+,t_l)=K(z)+(\lambda^+)^T g(x,z).
+r_u=u-\proj_U(u-\eta H_u).
+\label{eq:projected-gradient}
 \end{equation}
-The first-order condition balances marginal cleanup benefit, represented by $-\lambda_i^+x_i$, against marginal impulse cost $c_z z_i$, followed by projection to $[0,1]$. This is the jump analogue of the projected continuous-control formula.
-\end{examplebox}
+If $H$ is convex in $u$, a zero residual is sufficient for its pointwise minimum. It still does not establish global optimality of the full nonlinear trajectory problem.
 
-If the impulse times are also decision variables and the model is autonomous or has no explicit time-dependence in the impulse reward, a common first-order condition is continuity of the continuous Hamiltonian across an optimal impulse time:
-\begin{equation}
-  H(x(t_l^-),u(t_l^-),\lambda(t_l^-),t_l)
-  =H(x(t_l^+),u(t_l^+),\lambda(t_l^+),t_l).
-  \label{eq:ham-continuity}
-\end{equation}
-With explicit time-dependence, additional terms involving $\partial H^I/\partial t_l$ may appear. In practice, solving simultaneously for impulse magnitudes, impulse times, and the number of impulses is much harder than solving a continuous PMP system.
+When $H(u)=r u^2/2-bu+\text{constant}$ with $r>0$, its minimizer is
+$u^*=\clip(b/r,0,\bar u)$. Taking $\eta=1/r$ in \eqref{eq:projected-gradient} gives exactly $r_u=u-u^*$.
 
-\subsection{Continuous--Impulsive Hybrid PMP and Nested Optimization}
+\subsection{When necessary conditions become sufficient}
+\begin{theorem}[A convexity sufficiency result]
+Suppose a candidate satisfies \eqref{eq:pmp-system}. Suppose $\Phi$ is convex and, for almost every $t$, $H(x,u,\lambda^*(t),t)$ is jointly convex in $(x,u)$ on a convex domain containing all compared admissible pairs. Then the candidate is globally optimal for \eqref{eq:generic-control}.
+\end{theorem}
+\begin{proof}
+For an admissible comparison pair, write $z=x-x^*$. Integration by parts using the costate equation gives
+\begin{align*}
+J(u)-J(u^*)={}&\Phi(x(T))-\Phi(x^*(T))-\lambda^*(T)^\top z(T)\\
+&+\int_0^T\big[H(x,u,\lambda^*,t)-H(x^*,u^*,\lambda^*,t)-H_x^\top z\big]\dd t.
+\end{align*}
+Terminal convexity makes the first line nonnegative. Joint Hamiltonian convexity bounds the integrand below by $H_u^\top(u-u^*)$, which is nonnegative by \eqref{eq:control-vi}.
+\end{proof}
 
-Continuous--impulsive hybrid control combines two types of first-order conditions:
-\begin{enumerate}
-  \item \textbf{Flow conditions}: state equation, adjoint equation, and continuous-control stationarity between impulses.
-  \item \textbf{Jump conditions}: state jump, adjoint jump, impulse-magnitude stationarity, and possibly impulse-time stationarity.
-  \item \textbf{Discrete-event conditions}: selection of impulse number $N$ and target set, which is usually not handled by classical smooth PMP alone.
-\end{enumerate}
-For a fixed $N$ and fixed impulse schedule, the continuous--impulsive PMP is close to a continuous PMP system with extra jump equations. When $N$, impulse times, and target nodes are also optimized, the problem becomes a nested continuous-discrete optimization problem:
-\begin{equation}
-  \max_N\ \max_{0<t_1<\cdots<t_N<T}\ \max_{u(\cdot),v_1,\dots,v_N}\ J(u,v_1,\dots,v_N,t_1,\dots,t_N,N).
-\end{equation}
-This explains why many network propagation studies use restricted impulse schedules, candidate-time search, greedy target selection, or learning-based parameterized action spaces. These approaches do not replace the PMP; they make the PMP-inspired problem computationally tractable.
+Nonlinear propagation includes products of states and controls. A positive quadratic effort cost makes the Hamiltonian convex in each control, but does not automatically make it jointly convex in states and controls. For these examples, the sweep usually produces a PMP candidate; a separate verification argument would be needed for a global guarantee.
 
-\subsection{Impulse and Continuous--Impulsive Hybrid Differential Games}
-
-In a continuous--impulsive hybrid differential game, each player has its own continuous Hamiltonian and, if that player can trigger jumps, its own impulse Hamiltonian. For a two-player nonzero-sum game, player $i$ has
-\begin{align}
-  H_i(x,u_1,u_2,\lambda_i,t)&=F_i(x,u_1,u_2,t)+\lambda_i^{\T}f(x,u_1,u_2,t),\\
-  H_i^I(x,v_i,\lambda_i^+,t_l)&=G_i(x,v_i,t_l)+(\lambda_i^+)^{\T}g_i(x,v_i,t_l).
-\end{align}
-The equilibrium conditions combine mutual best responses:
-\begin{align}
-  u_i^*(t)&\in\argmax_{u_i}H_i(x^*,u_i,u_{-i}^*,\lambda_i,t),\\
-  v_{i,l}^*&\in\argmax_{v_i}H_i^I(x^*(t_l^-),v_i,\lambda_i(t_l^+),t_l),
-\end{align}
-with state and adjoint flow/jump equations. In nonzero-sum nonlinear network games, these conditions are normally necessary candidate-equilibrium conditions. Full sufficiency is much harder and usually requires restrictive concavity and equilibrium verification assumptions.
-
-\begin{examplebox}{Practical interpretation for network defense}
-A continuous control such as patching modifies the derivative: it slowly changes the rate at which compromise is removed. An impulse such as emergency cleanup modifies the state: it immediately reduces selected node compromise probabilities. The adjoint jump says that an impulse also changes the future shadow value of the state. This is why impulse timing and target selection can be strategically important even when the visible state reduction looks similar.
-\end{examplebox}
-
-\subsection{A Short Theoretical Checklist}
-
-When presenting an optimal control or differential game model, the theoretical part is clearer if it includes the following items:
-\begin{enumerate}
-  \item State clearly whether the problem is maximization or minimization, and keep the Hamiltonian sign convention consistent.
-  \item Specify whether controls are open-loop, feedback, sampled-data, impulse, or continuous--impulsive hybrid.
-  \item Write the Hamiltonian(s). For games, write one Hamiltonian per player.
-  \item Derive state, adjoint, terminal/transversality, and stationarity conditions.
-  \item For impulse or continuous--impulsive hybrid models, include state jump, adjoint jump, impulse Hamiltonian, and event-time condition if times are optimized.
-  \item State whether the conditions are necessary only, or whether extra convexity/concavity/HJB verification arguments make them sufficient.
-  \item In numerical work, report baselines, sensitivity, and convergence or residual checks.
-\end{enumerate}
-
-% -----------------------------------------------------------------------------
-\section{Degree-Level and Node-Level Examples}
-% -----------------------------------------------------------------------------
-
-This section gives concrete model templates. They are not the only possible choices; they are clean starting points for research students to extend toward APT, malware, rumor, propaganda, epidemic, or cyberwar models.
-
-
-\subsection{Degree-Level Optimal Control: Degree-\texorpdfstring{$k$}{k} Controlled SIS Spreading}
-
-For degree class $k\in\mathcal{K}$, let $x_k(t)$ be the infected or compromised fraction among nodes whose network degree is exactly $k$. The degree distribution $P(k)$ and average degree $\langle k\rangle$ are computed from the full input network before the control problem is solved. A defender chooses one control $u_k(t)$ per degree class:
-\begin{equation}
-  \dot{x}_k=\beta k(1-x_k)\Theta(t)-(\delta+u_k)x_k,\qquad
-  \Theta(t)=\frac{\sum_{\ell\in\mathcal{K}}\ell P(\ell)x_\ell(t)}{\langle k\rangle}.
-\end{equation}
-The population-weighted defender objective is
-\begin{equation}
-  \min_{u(\cdot)}\int_0^T\left[q\sum_{k\in\mathcal{K}}P(k)x_k(t)+\frac{r}{2}\sum_{k\in\mathcal{K}}P(k)u_k(t)^2\right]\dd t.
-  \label{eq:degree-oc}
-\end{equation}
-The weights $P(k)$ matter: controlling a rare degree class should not be counted the same as controlling a class containing most of the nodes. With the Hamiltonian convention for minimization, the projected PMP update used in the code is
-\begin{equation}
-  u_k^*(t)=\Proj_{[0,u_{\max}]}
-  \left(\frac{\lambda_k(t)x_k(t)}{rP(k)}\right),
-  \qquad k\in\mathcal{K}.
-\end{equation}
-This is the main adjustment from a compartment-level toy model: arrays are organized by observed degree $k$, and the objective is weighted by the empirical degree distribution.
-
-\subsection{Node-Level Optimal Control: Targeted Patching}
-
-Let $x_i(t)$ be the compromise probability of node $i$. The network adjacency matrix is $A$. A defender chooses node-specific patching $u_i(t)$:
-\begin{equation}
-  \dot{x}_i=\beta(1-x_i)\sum_{j=1}^n a_{ij}x_j-(\delta+u_i)x_i.
-\end{equation}
-The defender minimizes
-\begin{equation}
-  \int_0^T\left[q\sum_i x_i(t)+\frac{1}{2}r\sum_i u_i(t)^2\right]\dd t.
-\end{equation}
-The Hamiltonian minimization yields a projected update
-\begin{equation}
-  u_i^*(t)=\Proj_{[0,u_{\max}]}
-  \left(\frac{\lambda_i(t)x_i(t)}{r}\right).
-\end{equation}
-In practice, high infection pressure and high adjoint value tend to produce larger $u_i$ for a node. This is how PMP naturally generates targeted resource allocation.
-
-
-\subsection{Degree-Level Attacker-Defender Differential Game}
-
-The same degree-indexed structure gives a nonzero-sum differential game. The attacker chooses $a_k(t)$ to increase spreading in degree class $k$, while the defender chooses $d_k(t)$ to increase removal or repair:
-\begin{equation}
-  \dot{x}_k=\beta(1+a_k)k(1-x_k)\Theta(t)-(\delta+d_k)x_k.
-\end{equation}
-A population-weighted open-loop Nash formulation is
-\begin{align}
-  J_A(a,d)&=\int_0^T\left[\rho_A\sum_kP(k)x_k-\frac{c_A}{2}\sum_kP(k)a_k^2\right]\dd t,\\
-  J_D(a,d)&=\int_0^T\left[-\rho_D\sum_kP(k)x_k-\frac{c_D}{2}\sum_kP(k)d_k^2\right]\dd t.
-\end{align}
-The code solves the PMP necessary conditions with one adjoint vector for the attacker and one adjoint vector for the defender. The Hamiltonian stationarity conditions produce projected degree-class updates such as
-\begin{equation}
-  a_k^*=\Proj_{[0,a_{\max}]}\left(\frac{\lambda^A_k\beta k(1-x_k)\Theta}{c_AP(k)}\right),\qquad
-  d_k^*=\Proj_{[0,d_{\max}]}\left(-\frac{\lambda^D_kx_k}{c_DP(k)}\right).
-\end{equation}
-
-\subsection{Node-Level Attacker-Defender Differential Game}
-
-At node level, let $v_i(t)$ be attacker effort around node $i$ and $u_i(t)$ be defender effort. A clean template is
-\begin{equation}
-  \dot{x}_i=\beta(1+v_i)(1-x_i)\sum_{j=1}^n a_{ij}x_j-(\delta+u_i)x_i.
-\end{equation}
-The payoffs are
-\begin{align}
-  J_A(v,u)&=\int_0^T\left[p\sum_i x_i(t)-\frac{1}{2}c_v\sum_i v_i(t)^2\right]\dd t,\\
-  J_D(v,u)&=\int_0^T\left[-q\sum_i x_i(t)-\frac{1}{2}c_u\sum_i u_i(t)^2\right]\dd t.
-\end{align}
-This model is a direct node-level extension of the degree-level attacker-defender game. It is suitable for small to medium networks or for simulation experiments. For large networks, dimension reduction, graph neural networks, mean-field approximations, or learning-based policies may be needed.
-
-\subsection{Continuous--Impulsive Node-Level Control: Continuous Patching plus Emergency Cleanup}
-
-Between impulses, use node-level controlled dynamics. At selected impulse times, clean selected nodes instantaneously:
-\begin{align}
-  \dot{x}_i&=\beta(1-x_i)\sum_{j=1}^n a_{ij}x_j-(\delta+u_i)x_i,\qquad t\notin\{t_l\},\\
-  x_i(t_l^+)&=(1-z_{i,l})x_i(t_l^-),\qquad \text{for nodes receiving an impulse.}
-\end{align}
-A practical objective is
-\begin{equation}
-  \min\ \int_0^T\left[q\sum_i x_i(t)+\frac{1}{2}r\sum_i u_i(t)^2\right]\dd t
-  +\sum_l\left(c_0+\frac{1}{2}c_z\|z_l\|^2\right).
-\end{equation}
-This model captures routine defense plus occasional high-cost intervention. The tutorial code uses a transparent simulation with fixed impulse times applied to high-degree nodes. This is not a full impulse PMP solver; it illustrates how continuous ODE segments and jump maps are combined in a continuous--impulsive computation.
-
-% -----------------------------------------------------------------------------
-\section{Numerical Solution Methods and Practical Cautions}
-% -----------------------------------------------------------------------------
-
-\subsection{Forward-Backward Sweep for Games}
-
-For a two-player open-loop Nash game, forward-backward sweep can be structured as follows.
-
-\begin{lstlisting}[caption={Forward-backward sweep for an open-loop Nash game.}]
-initialize u(t), v(t)
-repeat:
-    # common state trajectory
-    x(t) = forward solve of dx/dt = f(x, u, v)
-
-    # player-specific adjoint systems
-    lambda_1(t) = backward solve of dlambda_1/dt = -dH_1/dx
-    lambda_2(t) = backward solve of dlambda_2/dt = -dH_2/dx
-
-    # pointwise best responses
-    u_new(t) = argmax_u H_1(x, u, v, lambda_1)
-    v_new(t) = argmax_v H_2(x, u, v, lambda_2)
-
-    # damping / relaxation
-    u = theta * u_new + (1 - theta) * u
-    v = theta * v_new + (1 - theta) * v
-until convergence or maximum iterations
-\end{lstlisting}
-
-\subsection{Direct Optimization and Collocation}
-
-Instead of deriving adjoint equations, one can discretize the state and control and solve a nonlinear programming problem. This is often easier to implement for complex models, bounds, and continuous--impulsive constraints. However, it may scale poorly and can still converge to local optima. For impulse times, direct search or mixed-integer formulations may be used for small problems.
-
-\subsection{Why HJB is Difficult in Network Models}
-
-Feedback optimal control and feedback differential games are theoretically attractive because the strategy can adapt to the observed state. The value function $V(x,t)$, however, is defined over the whole state space. For node-level network models with $n$ nodes, $x$ is $n$-dimensional. A grid-based HJB method suffers from the curse of dimensionality: even 20 nodes can be too large for classical gridding. This motivates approximate dynamic programming, reduced-order modeling, and other scalable approximation methods.
-
-\subsection{Model Checking and Baseline Comparison}
-
-\begin{itemize}
-  \item Always compare a computed control/game strategy against no control, constant control, random control, greedy control, and simple degree/centrality-based allocation.
-  \item Check sensitivity to $\beta$, $\delta$, cost weights, horizon $T$, and initial infection.
-  \item For games, test unilateral deviations to see whether the computed pair behaves like a Nash equilibrium numerically.
-  \item For continuous--impulsive policies, separate the value of continuous effort from the value of impulses by running ablation experiments.
-  \item Report convergence curves or final residuals for forward-backward sweep when possible.
-\end{itemize}
-
-
-
-% -----------------------------------------------------------------------------
-
-\section{Python Tutorial Code: Simple First, Then Research-Code-Style Examples}
-% -----------------------------------------------------------------------------
-
-The tutorial code is organized as a reusable package plus thin examples:
+\begin{example}[A transparent sufficient case]
+For $\dot x=u$ and
+$J=\tfrac12 s x(T)^2+\tfrac12\int_0^T(x^2+r u^2)\dd t$ with $s\ge0,r>0$,
+PMP gives $\dot\lambda=-x$, $u=-\lambda/r$, and $\lambda(T)=sx(T)$.
+Set $\lambda=P(t)x$. Then
 \[
-\texttt{cybercontrol} \quad \Longrightarrow \quad \text{minimal example} \quad \Longrightarrow \quad \text{multi-model runner}.
+-\dot P=1-P^2/r,\qquad P(T)=s,\qquad u=-P(t)x/r.
 \]
-The package owns equations, parameter resolution, integration, projections, FBS updates, diagnostics, and plotting. The examples define a model configuration, call those components, and write run artifacts. This separation lets a reader inspect the numerical method without searching through plotting and command-line code.
+The Hamiltonian is jointly convex, so the resulting extremal is optimal. The quadratic value function $V(t,x)=P(t)x^2/2$ also verifies optimality through HJB.
+\end{example}
 
-\subsection{Tutorial Files}
+\section{Derive the network-control equations}
+\subsection{Degree-class costates and controls}
+For \eqref{eq:degree-sis}, set $w_k=kP(k)/\bar k$ when $\bar k>0$ and $w_k=0$ otherwise. The Jacobian entries are
+\begin{equation}
+\frac{\partial f_k}{\partial x_\ell}
+=\beta k(1-x_k)w_\ell
+-\mathbf1_{\{k=\ell\}}\big[\beta k\Theta+\delta+u_k\big].
+\label{eq:degree-jacobian}
+\end{equation}
+For $L=\sum_kP(k)[q_kx_k+r_ku_k^2/2]$, the costate equations become
+\begin{align}
+\dot\lambda_\ell={}&-q_\ell P(\ell)
++\lambda_\ell[\beta\ell\Theta+\delta+u_\ell]\nonumber\\
+&-w_\ell\sum_k\lambda_k\beta k(1-x_k),
+\qquad \lambda(T)=\Phi_x(x(T)).
+\label{eq:degree-adjoint}
+\end{align}
+The sum over all classes is essential: changing one class changes the pressure experienced by every other class. Since $\partial f_k/\partial u_k=-x_k$,
+\begin{equation}
+H_{u_k}=r_kP(k)u_k-\lambda_kx_k,
+\qquad
+u_k^*=\clip\left(\frac{\lambda_kx_k}{r_kP(k)},0,\bar u_k\right).
+\label{eq:degree-update}
+\end{equation}
+All stored observed classes have $P(k)>0$. Isolates have zero infection pressure but can still receive recovery effort if initially infected.
 
-Install the repository once and run commands from its root. The public entry point is \path{python -m cybercontrol}; direct scripts are retained for focused experiments.
+For the heterogeneous model, replace the rank-one transmission matrix by
+$B_{k\ell}=s_k kM_{k\ell}b_\ell$. The same matrix formula applies:
+\begin{equation}
+f=(1-x)\odot(Bx)-(\delta+u)\odot x,
+\quad
+f_x=\diag(1-x)B-\diag(Bx+\delta+u).
+\label{eq:matrix-sis}
+\end{equation}
+Here $\odot$ denotes componentwise multiplication. This form keeps the model, its Jacobian and its adjoint visibly aligned.
 
-\begin{table}[h!]
-\centering
-\caption{Code and guide files in the tutorial package.}
-\begin{tabularx}{\textwidth}{L{4.8cm}Y}
-\toprule
-\textbf{File} & \textbf{Purpose} \\
-\midrule
-\path{examples/foundations/code/simple_degree_k_control.py} & Minimal degree-$k$ optimal-control script. It loads a graph, computes $N_k$, $P(k)$, and $\langle k\rangle$, solves one degree-$k$ PMP problem, and saves diagnostic figures. \\
-\path{examples/foundations/code/network_control_examples.py} & Thin orchestrator for degree-$k$ control/game, node-level control/game, matched homogeneous baselines, and continuous--impulsive simulation. Reusable logic is imported from \path{cybercontrol}. \\
-\path{src/cybercontrol/} & Canonical equations, heterogeneous profiles, FBS solvers, graph operations, metrics, manifests, and plotting used across the repository family. \\
-\path{examples/reference/reference_repository_guide.md} & Explains how the three reference research-code repositories map to the mathematical workflow in this note: graph preprocessing, state dynamics, adjoints, Hamiltonian updates, impulse policies, payoffs, and baselines. \\
-\path{examples/reference/download_reference_repositories.sh} & Optional helper script that downloads the three reference GitHub repositories into \path{examples/reference/reference_repositories_upstream/}. \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\subsection{Node-level costates and controls}
+For \eqref{eq:node-sis}, define $B=\diag(\beta_i)A$ and use the same $f_x$ in \eqref{eq:matrix-sis}. With $L=\sum_i[q_ix_i+r_i u_i^2/2]$,
+\begin{equation}
+\dot\lambda=-q-f_x^\top\lambda,\qquad
+u_i^*=\clip(\lambda_i x_i/r_i,0,\bar u_i).
+\end{equation}
+For large sparse networks, the adjoint only needs a Jacobian-vector product:
+\begin{equation}
+f_x^\top\lambda
+=B^\top[(1-x)\odot\lambda]-(Bx+\delta+u)\odot\lambda.
+\label{eq:jvp}
+\end{equation}
+No dense Jacobian is needed to evaluate this expression. Sparsity reduces computation without changing the model, unlike replacing the full network by a smaller induced subgraph.
 
-\subsection{Run the Simple Degree-$k$ Example}
+\subsection{A shared budget changes the update}
+At a fixed time, suppose the Hamiltonian control terms are
+$\sum_k[r_kP(k)u_k^2/2-b_ku_k]$ and $\sum_k c_ku_k\le B$. A nonnegative multiplier $\mu$ gives
+\begin{equation}
+u_k(\mu)=\clip\left(\frac{b_k-\mu c_k}{r_kP(k)},0,\bar u_k\right).
+\end{equation}
+If the unconstrained allocation is feasible, take $\mu=0$. Otherwise choose $\mu$ so the budget is tight. The total expenditure is nonincreasing in $\mu$, making a scalar bisection sufficient for this particular convex subproblem. More general coupled constraints require their own constrained Hamiltonian minimization.
 
-The simple script demonstrates the central point of degree-level modeling: the state and control arrays are indexed by observed degree class, not by compartment labels.  If the observed degrees are $k_1,\dots,k_q$, then
+\subsection{A different intervention requires a different derivative}
+For transmission reduction,
+\begin{equation}
+f_k=\beta(1-u_k)k(1-x_k)\Theta-\delta x_k,
+\qquad 0\le u_k\le1,
+\end{equation}
+we have $f_{k,u_k}=-\beta k(1-x_k)\Theta$. Therefore
+\begin{equation}
+u_k^*=\clip\left(
+\frac{\lambda_k\beta k(1-x_k)\Theta}{r_kP(k)},0,\bar u_k\right).
+\end{equation}
+Its state Jacobian also changes. Keeping the old $\lambda_kx_k$ update after replacing the state equation would optimize the wrong intervention mechanism.
+
+\section{Numerical solution and the first executable example}
+\subsection{Forward--backward sweep}
+Initialize an admissible control on a time grid. With that control held fixed, solve the state equation forward. Interpolate the state and control consistently, solve the costate equation backward, and form the pointwise Hamiltonian minimizer. Let $U$ denote all control values on the grid and $\mathcal T(U)$ their candidate update. Compute
+\begin{equation}
+\varepsilon=\norm{\mathcal T(U)-U}_\infty.
+\end{equation}
+Stop when this residual is small. Otherwise relax,
+\begin{equation}
+U\leftarrow(1-\alpha)U+\alpha\mathcal T(U),\qquad0<\alpha\le1,
+\end{equation}
+and repeat. A small relaxed step alone is inconclusive when $\alpha$ is small. The returned trajectory and objective must be replayed under the returned control, rather than under the previous iterate.
+
+Forward--backward sweep is a fixed-point method; convergence requires conditions, and is not guaranteed for every nonlinear problem or horizon \cite{mcasey}. Grid refinement, tighter integration tolerances and alternative initial controls help distinguish discretization error from a difficult boundary-value problem. Direct transcription instead optimizes a finite-dimensional state/control parameterization subject to discretized dynamics. It is a useful comparison method, but its nonlinear optimizer may also return a local solution.
+
+\subsection{Install and run}
+Use a separate environment with Python 3.11 or 3.12. Run the following from the repository root:
+\begin{lstlisting}[language={}]
+python -m venv .venv
+# macOS / Linux:
+source .venv/bin/activate
+# Windows PowerShell instead:
+# .venv\Scripts\Activate.ps1
+python -m pip install -e .
+python -m cybercontrol
+\end{lstlisting}
+No external dataset, GPU or LaTeX installation is required for the default example. The command reads a seeded 40-node Barabasi--Albert teaching graph, computes its full degree distribution, and solves the scalar-parameter degree SIS example with $\beta=0.12$, $\delta=0.18$, $q=3$, $r=2.5$, $\bar u=1.2$ and $T=14$. These are illustrative rates and costs, not fitted empirical estimates. The extended solvers have their own heterogeneous profiles; those profiles should not be confused with the introductory CLI settings.
+
+\begin{lstlisting}[language={}]
+python -m cybercontrol --beta 0.15 --control-cost 4
+python -m cybercontrol --edge-list data/edges.txt
+python -m cybercontrol --edge-list data/edges.csv --delimiter , --has-header --source-col source --target-col target --weight-col weight
+python -m cybercontrol --graph-file data/network.graphml
+python -m cybercontrol --adjacency-csv data/adjacency.csv
+\end{lstlisting}
+A numeric adjacency CSV has no row labels or header. The introductory degree closure is undirected; use a properly formulated node model for a directed dataset. The default degree closure uses unweighted topology even when the input carries weights.
+
+\subsection{Follow one code path}
+Start at \texttt{cli.run\_example}. It loads the graph, computes the degree statistics, resolves the class-wise parameters, calls \texttt{solve\_degree\_control}, and evaluates the resulting policies on the same model. The state and Jacobian functions are together in \texttt{heterogeneity.py}; no second sweep implementation is hidden in the entry script.
+
+\begin{lstlisting}[caption={Run the same mathematical building blocks from Python}]
+import networkx as nx
+from cybercontrol.graph_data import degree_distribution_from_graph
+from cybercontrol.heterogeneity import DegreeSISParams
+from cybercontrol.fbs import solve_degree_control
+
+G = nx.barabasi_albert_graph(40, 2, seed=7)
+D = degree_distribution_from_graph(G)
+model = DegreeSISParams(
+    susceptibility=0.12, recovery=0.18,
+    state_weight=3.0, control_weight=2.5, control_bound=1.2
+).resolve(D.k, D.pk)
+result = solve_degree_control(
+    D, steps=80, iterations=80, tol=1e-4, model=model
+)
+print(D.kbar, result.value["cost"])
+print(result.value["final_stationarity_residual"])
+\end{lstlisting}
+The generic solver obtains its horizon from the named profile. Changing a physical horizon therefore requires the corresponding profile or solver interface to be updated; changing \texttt{steps} only changes the numerical grid.
+
+\subsection{Interpret the outputs}
+The first experiment writes five files to \texttt{results/}: \texttt{degree\_distribution.csv}, \texttt{trajectories.csv}, \texttt{comparison.csv}, \texttt{infection.png}, and \texttt{control.png}. The infection plot uses $\sum_kP(k)x_k$. The control plot shows selected degree classes; the trajectory table retains every class with its actual degree label.
+
+The comparison uses no control, the best of nine tested \emph{uniform constant} intensities, and the PMP candidate under the same initial state, model and objective. This constant baseline is not the best arbitrary class-dependent constant vector. Read total cost and infected time together: stronger intervention can lower infection while increasing total cost. A lower cost than these baselines is useful numerical evidence, not a proof of global optimality.
+
+\section{Differential games on the same network}
+\subsection{Specify the players and the information structure}
+An open-loop strategy is a function of time for a specified initial state. A feedback strategy can depend on the currently observed state and time. A Nash profile permits unilateral changes by each player while the others' strategies are fixed. A Stackelberg leader commits first and anticipates a follower's response. These distinctions concern the problem itself, not the order of loops in a numerical solver \cite{basar}.
+
+For two players maximizing payoffs $J_A,J_D$, an open-loop Nash profile satisfies
+\begin{equation}
+J_A(a^*,d^*)\ge J_A(a,d^*),\qquad
+J_D(a^*,d^*)\ge J_D(a^*,d)
+\end{equation}
+for every admissible unilateral deviation. With cost minimization, reverse the inequalities. Opponent controls are held fixed when deriving an open-loop best-response adjoint. Substituting a state-dependent opponent policy changes those derivatives and does not automatically produce a feedback Nash condition.
+
+\subsection{A degree-class attacker--defender game}
+Use
+\begin{equation}
+\dot x_k=\beta(1+a_k)k(1-x_k)\Theta-(\delta+d_k)x_k,
+\end{equation}
+where $a_k\in[0,\bar a_k]$ amplifies acquisition in recipient class $k$ and $d_k\in[0,\bar d_k]$ increases recovery. This placement of $a_k$ is part of the model; donor-targeted amplification would have different derivatives. Let
+\begin{align}
+J_A&=\int_0^T\sum_kP(k)\left[q_Ax_k-\frac{c_A}{2}a_k^2\right]\dd t,\nonumber\\
+J_D&=\int_0^T\sum_kP(k)\left[-q_Dx_k-\frac{c_D}{2}d_k^2\right]\dd t.
+\label{eq:game-payoffs}
+\end{align}
+Both players maximize their own payoff; the two payoffs are generally not negatives of each other. Define $H_A=F_A+\lambda_A^\top f$ and $H_D=F_D+\lambda_D^\top f$, where $F_A,F_D$ are the running payoffs. The necessary conditions are one shared state equation and
+\begin{equation}
+\dot\lambda_A=-q_AP-f_x^\top\lambda_A,\qquad
+\dot\lambda_D=q_DP-f_x^\top\lambda_D,
+\qquad \lambda_A(T)=\lambda_D(T)=0.
+\end{equation}
+Here $P$ denotes the vector of class probabilities. Hamiltonian maximization gives
+\begin{align}
+a_k^*&=\clip\left(\frac{\lambda_{A,k}\beta k(1-x_k)\Theta}{c_AP(k)},0,\bar a_k\right),\nonumber\\
+d_k^*&=\clip\left(-\frac{\lambda_{D,k}x_k}{c_DP(k)},0,\bar d_k\right).
+\label{eq:game-update}
+\end{align}
+The sign difference follows from the state effects, not from changing the adjoint convention arbitrarily. Each Hamiltonian is concave in its own scalar effort in this example, but the coupled nonlinear trajectory problem still requires separate equilibrium justification.
+
+The node-level game replaces class pressure by $\sum_jA_{ij}x_j$ and class weights by the chosen node objective weights. Its dimension is the number of nodes, not the number of degree classes. The repository provides both \texttt{solve\_degree\_game} and \texttt{solve\_node\_game}.
+
+\subsection{What a numerical game iteration establishes}
+A coupled forward--backward iteration advances the shared state, solves both adjoints and updates both effort schedules. Convergence supplies a solution of the numerical necessary-condition system, not automatically a Nash equilibrium. A meaningful unilateral-response comparison fixes the opponent and searches over the same admissible strategies, dynamics and payoff.
+
+For a payoff-maximizing player, define
+\begin{equation}
+\Delta_i=\sup_{v_i}J_i(v_i,u_{-i}^*)-J_i(u_i^*,u_{-i}^*).
+\end{equation}
+A profile is an $\varepsilon$-Nash equilibrium when every $\Delta_i\le\varepsilon$. A finite collection of tested deviations, or an imperfectly optimized learned response, gives a \emph{lower bound} on this supremum. Finding an improvement disproves exact equilibrium; failing to find one does not certify a small global gap.
+
+For a Stackelberg game, the leader optimizes through a follower response mapping. Response multiplicity requires a stated selection rule. Updating the leader first in an ordinary Nash sweep does not implement that commitment problem.
+
+\section{Dynamic programming, HJB and feedback verification}
+\subsection{The value function and Bellman's argument}
+For the minimization problem, define the optimal remaining cost
+\begin{equation}
+V(t,x)=\inf_{u(\cdot)}\left\{\int_t^T L(x(s),u(s),s)\dd s+\Phi(x(T))\right\}.
+\end{equation}
+Over a short first interval, dynamic programming gives
+$V(t,x)=\inf_u\{L\,h+V(t+h,x+hf)+o(h)\}$. If $V$ is differentiable, dividing by $h$ yields
+\begin{equation}
+V_t+\min_{u\in U}\{L(x,u,t)+\nabla_xV^\top f(x,u,t)\}=0,
+\qquad V(T,x)=\Phi(x).
+\label{eq:hjb}
+\end{equation}
+A minimizing selector $u^*(t,x)$ is a feedback law defined over a state domain rather than a schedule for one initial state.
+
+\begin{theorem}[Smooth HJB verification]
+Suppose $V\in C^1$ satisfies \eqref{eq:hjb}, and a measurable minimizing selector generates admissible trajectories. Then $V$ is the value function and that selector is optimal.
+\end{theorem}
+\begin{proof}
+For every admissible control, $L+V_t+\nabla V^\top f\ge0$. Integrating along its trajectory gives $J(u)\ge V(0,x_0)$. Equality holds along the minimizing selector, proving the claim.
+\end{proof}
+The value function can be nonsmooth. In that case the classical derivatives used here must be replaced by the appropriate generalized/viscosity formulation; fitting a smooth neural function does not establish classical differentiability of the true value.
+
+Along a sufficiently smooth optimal trajectory, $\lambda(t)=\nabla_xV(t,x^*(t))$ relates dynamic programming to PMP. PMP describes one extremal trajectory; HJB describes values and decisions throughout the state domain. This explains both the interpretability of trajectory methods and the dimensional challenge of feedback PDEs.
+
+\subsection{Zero-sum and general-sum feedback games}
+For a zero-sum running payoff $\ell$ maximized by an attacker and minimized by a defender, the formal Isaacs Hamiltonian is
+\begin{equation}
+\mathcal H(x,p,t)=\max_a\min_d\{\ell(x,a,d,t)+p^\top f(x,a,d,t)\}.
+\end{equation}
+The opposite order defines the other game value. Equality of the two pointwise orders is the Isaacs condition. A smooth value satisfying $V_t+\mathcal H(x,\nabla V,t)=0$, together with admissible saddle selectors and the requisite game assumptions, supports feedback verification. The order should never be changed without identifying the information and strategy conventions.
+
+For a general-sum payoff-maximizing game, each player has a value $V_i$. A smooth feedback Nash candidate satisfies
+\begin{align}
+0&=(V_i)_t+F_i(x,u_i^*,u_{-i}^*,t)+\nabla V_i^\top f(x,u_i^*,u_{-i}^*,t),\nonumber\\
+u_i^*&\in\argmax_{u_i}\{F_i(x,u_i,u_{-i}^*,t)+\nabla V_i^\top f(x,u_i,u_{-i}^*,t)\}.
+\end{align}
+These coupled equations retain separate objectives. Minimizing the sum of players' costs generally defines a social-planning problem instead.
+
+\section{Impulses, switches and hybrid control}
+\subsection{Describe timing, action values and state effects separately}
+A sampled real-valued action becomes piecewise constant under zero-order hold. A discrete mode selects a vector field. Neither causes a state jump unless a reset map is specified. In a continuous--impulsive model,
+\begin{align}
+\dot x&=f(x,u,t),\qquad t\ne\tau_\ell,\nonumber\\
+x(\tau_\ell^+)&=G_\ell(x(\tau_\ell^-),v_\ell,\tau_\ell),\label{eq:reset}\end{align}
+and the cost includes $\sum_\ell K_\ell(x(\tau_\ell^-),v_\ell,\tau_\ell)$.
+For example, an isolation impulse sends $I^+=(1-v)I^-$ and $R^+=R^-+vI^-$, while leaving $S$ unchanged. A continuous isolation \emph{rate} is a different model.
+
+To simulate a fixed schedule, integrate exactly to the first event, save the left limit, apply the reset, save the right limit and restart the solver. Repeat at every event. Do not interpolate continuously through a jump or apply its cost on every solver substep.
+
+\begin{center}
+\begin{tikzpicture}[>=Latex,node distance=12mm,
+box/.style={draw=rulegray,fill=papergray,rounded corners=1mm,align=center,minimum height=12mm,text width=34mm,font=\small}]
+\node[box] (a) {Continuous flow\\to $\tau^-$};
+\node[box,right=of a] (b) {Reset $x^+=G(x^-,v)$\\and cost $K$};
+\node[box,right=of b] (c) {Restart flow\\from $\tau^+$};
+\draw[->] (a)--(b);\draw[->] (b)--(c);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Costate jump: derive it from the reset}
+Let $x^-=x(\tau^-)$ and $x^+=G(x^-,v,\tau)$. For a fixed event time, a perturbation gives
+$\delta x^+=G_x\delta x^-+G_v\delta v$. The first-order event contribution is
 \[
-X[:,j]=x_{k_j}(t),\qquad U[:,j]=u_{k_j}(t),\qquad j=1,\dots,q.
+K_x^\top\delta x^-+K_v^\top\delta v+(\lambda^+)^\top\delta x^+.
 \]
-The infection pressure is computed from the empirical distribution:
-\[
-\Theta(t)=\frac{\sum_j k_j P(k_j)x_{k_j}(t)}{\langle k\rangle}.
-\]
+Matching the coefficient of $\delta x^-$ to the pre-event costate yields
+\begin{equation}
+\boxed{\lambda^-=G_x^\top\lambda^++K_x.}
+\label{eq:costate-jump}
+\end{equation}
+For a differentiable reset and convex impulse set $\mathcal V$, the necessary first-order magnitude condition is
+\begin{equation}
+\big(K_v+G_v^\top\lambda^+\big)^\top(w-v^*)\ge0
+\quad\text{for all }w\in\mathcal V.
+\label{eq:impulse-vi}
+\end{equation}
+It becomes equality of the gradient to zero for an interior optimum. For payoff maximization, reverse the inequality, using the corresponding instantaneous payoff.
 
-\begin{lstlisting}[language=bash,caption={Run the minimal degree-k optimal-control script.},numbers=none]
-python -m pip install -e ".[graph,torch]"
+\begin{keyidea}{A finite reset is not a needle variation}
+The vector $\lambda^+$ describes the first-order continuation value. It does not generally justify globally minimizing $K+(\lambda^+)^\top G$ over finite impulse changes. The exact dynamic-programming decision minimizes $K+V^+(\tau,G(x^-,v,\tau))$. A global impulse-Hamiltonian rule needs additional structure; the generic necessary condition is \eqref{eq:impulse-vi}.
+\end{keyidea}
+For a scalar recovery reset $x^+=(1-v)x^-$ and $K=cv^2/2$, \eqref{eq:costate-jump} becomes $\lambda^-=(1-v)\lambda^+$, and the interior magnitude equation is $cv-\lambda^+x^-=0$. The post-event costate depends on the entire resulting trajectory; this is a coupled necessary condition, not a closed-form global optimizer independent of the future.
 
-python examples/foundations/code/simple_degree_k_control.py
+\subsection{A freely chosen event time}
+If an event time is a free interior decision, the reset and cost are smooth, and no event guard or timing constraint is active, its necessary condition is
+\begin{equation}
+\boxed{H^- -H^+ +K_t+(\lambda^+)^\top G_t=0.}
+\label{eq:time-jump}
+\end{equation}
+The partial derivatives hold the pre-event state and magnitude fixed. To see the sign, differentiate the pre-event accumulated cost plus $K+V^+(\tau,G)$; use \eqref{eq:costate-jump} and $(V^+)_t=-H^+$. Hamiltonian continuity follows only when both $K$ and $G$ have no explicit time dependence. Guard-triggered switches, minimum spacing, endpoint events and active timing constraints require their corresponding multipliers or one-sided conditions.
 
-python examples/foundations/code/simple_degree_k_control.py \
-  --edge-list sample_data/sample_edges.csv \
-  --delimiter , --has-header \
-  --source-col source --target-col target
+For a hybrid game, every player's costate jumps at every event that changes the shared state. Each uses its own instantaneous payoff derivative. The controlling player also satisfies its impulse decision condition. Deriving only the intervening player's adjoint reset would omit the effect on the other players' future values.
 
-python examples/foundations/code/simple_degree_k_control.py \
-  --adjacency-csv sample_data/sample_adjacency.csv
-\end{lstlisting}
+\subsection{Impulse dynamic programming and the QVI}
+For optional interventions in a minimization problem, define
+\begin{equation}
+(\mathcal MV)(t,x)=\inf_{v\in\mathcal V}\{K(x,v,t)+V(t,G(x,v,t))\}.
+\end{equation}
+Immediate intervention is an available choice, so $V\le\mathcal MV$. Waiting for a short interval is also available, giving
+$V_t+\min_u(L+\nabla V^\top f)\ge0$. At least one choice is locally optimal. Thus the consistent minimization QVI is
+\begin{equation}
+\boxed{\min\left\{V_t+\min_u(L+\nabla V^\top f),\;\mathcal MV-V\right\}=0.}
+\label{eq:qvi}
+\end{equation}
+In the continuation region the differential term is zero and intervention is more expensive. At an intervention point $V=\mathcal MV$. Equivalently, use a maximum with \emph{both} terms negated. Mixing a negated differential term with the unnegated obstacle inside a minimum changes the inequalities.
 
-The core numerical loop is a forward-backward sweep.  Given a current control $u_k(t)$, it solves the state equation forward, the adjoint equation backward, and then applies a projected Hamiltonian update:
+Assume an admissible class excluding infinitely many accumulating interventions and no intervention at $T$, so $V(T,x)=\Phi(x)$. A different terminal intervention convention needs a matching terminal value. For a fixed scheduled event, the boundary relation is instead
+$V^-(\tau,x)=\inf_v[K+V^+(\tau,G)]$; optional-intervention QVI logic should not be imposed on a mandatory schedule without adjustment.
 
-\begin{lstlisting}[caption={Degree-level projected PMP control update.}]
-# k       = observed degree values, e.g. [2, 3, 4, 7]
-# p       = empirical P(k)
-# X, L    = state and adjoint arrays with columns indexed by degree class k
-p_safe = np.maximum(p, 1e-12)
-candidate_U = L * X / (control_weight * p_safe)
-U = damping * clip(candidate_U, 0.0, u_max) + (1.0 - damping) * U_old
-\end{lstlisting}
+\subsection{What is optimized in a hybrid computation?}
+A useful progression fixes event times and optimizes intensities, then considers admissible times for a fixed event count, and finally compares event counts if the application permits it. Each layer needs its own feasibility constraints and cost. Exhaustive or grid search is global only over the finite candidates actually examined. A demonstration that simulates specified impulses is a hybrid simulation, even when its continuous control is sophisticated.
 
-\subsection{Run the Main Examples}
+The repository's \texttt{simulate\_continuous\_impulse} illustrates specified flow and reset decisions. The attributed research implementations explore richer impulse searches and games. Their settings should be read before adopting a numerical routine.
 
-The main tutorial script extends the same workflow to games, node-level models, and continuous-impulse simulations.  The command-line interface makes it possible to run all examples or only one group.
+\section{Extend the model while keeping one mathematical meaning}
+\subsection{Change five connected components together}
+When replacing a model, update its state equation, state derivatives, objective, adjoint terminal/jump conditions and Hamiltonian optimizer together. The common numerical integrator and graph reader can usually be reused. For a two-state node model, state packing is part of this contract: for example $z=[x_1,\ldots,x_n,y_1,\ldots,y_n]$ must be used consistently by the RHS, Jacobian, costates and output labels.
 
-\begin{lstlisting}[language=bash,caption={Run the main tutorial examples.},numbers=none]
-python -m cybercontrol smoke
-python examples/foundations/code/network_control_examples.py --examples degree
-python examples/foundations/code/network_control_examples.py --examples node
-python examples/foundations/code/network_control_examples.py --examples continuous-impulse
-\end{lstlisting}
+For awareness-dependent susceptibility, an illustrative extension is
+\begin{align}
+\dot x_i&=\beta_i(1-y_i)(1-x_i)\sum_jA_{ij}x_j-(\delta_i+u_i)x_i,\nonumber\\
+\dot y_i&=\eta_i(1-y_i)\sum_jC_{ij}y_j-\mu_i y_i+v_i(1-y_i).
+\end{align}
+Here $C$ is the awareness network, $y_i$ is awareness, and $v_i$ increases awareness rather than recovery. Cross-derivatives couple the infection and awareness costates. This is a model-adaptation illustration, not a claim that the default one-state script already solves the two-layer problem.
 
-For realistic network data, the script accepts edge lists, adjacency matrices, and common graph formats:
+A delayed equation needs a history function and a delay-aware solver; ordinary \texttt{solve\_ivp} is an ODE solver, not a general DDE solver \cite{scipy}. A feedback decision problem with delay may also require a history-based state. Adding a lagged array lookup without specifying those objects does not complete the extension.
 
-\begin{lstlisting}[language=bash,caption={Use realistic network data.},numbers=none]
-python examples/foundations/code/network_control_examples.py \
-  --edge-list data/edges.csv \
-  --delimiter , --has-header \
-  --source-col source --target-col target --weight-col weight \
-  --max-nodes 50
-
-python examples/foundations/code/network_control_examples.py --graph-file data/network.graphml
-python examples/foundations/code/network_control_examples.py --graph-file data/network.gexf
-python examples/foundations/code/network_control_examples.py --graph-file data/network.gml
-python examples/foundations/code/network_control_examples.py --graph-file data/network.net
-
-python examples/foundations/code/network_control_examples.py --adjacency-csv data/A.csv
-\end{lstlisting}
-
-\subsection{How the Reference Repositories Fit In}
-
-The three reference repositories correspond to the author's co-authored cyber/network-control publications: two papers in IEEE TIFS and one paper in IEEE TCSS. They follow a common research-code pattern: network preprocessing, forward dynamics, backward adjoints, control or strategy update, payoff evaluation, and comparison/baseline experiments. The tutorial code uses the same pattern with smaller equations and shorter functions.
-
-\begin{table}[h!]
-\centering
-\caption{Mapping from the reference repositories to the tutorial examples.}
-\begin{tabularx}{\textwidth}{L{4.0cm}L{5.4cm}Y}
+\subsection{Research code as a next step}
+The three attributed source snapshots are in \path{examples/reference/reference_repositories} \cite{malware2025,war2024,awareness2025}. Read each network builder before its control routines:
+\par\noindent\begin{tabularx}{\linewidth}{@{}p{0.30\linewidth}Y@{}}
 \toprule
-\textbf{Repository} & \textbf{Representative files/functions} & \textbf{Interpretation in this note} \\
+Research example & Code-reading route \\
 \midrule
-OpinionMalware (IEEE TIFS 2025) & Repository \path{OpinionMalware_TIFS_2025_Code}; \path{network.py}, \path{opinionMalware.py}; network construction, normalization, coupled forward malware/opinion dynamics, backward adjoints, impulse strategy search, payoff. & Node-level coupled dynamics with impulses. The continuous-impulse simulation in the tutorial code is a minimal bridge before reading the full malware-opinion model. \\
-PropagandaWar (IEEE TIFS 2024) & Repository \path{PropagandaWar_TIFS_2024_Code}; \path{demo_network.py}, \path{propWar.py}, \path{comparison.py}; graph loading, degree distribution, forward/backward Nash sweep, continuous-plus-impulse strategy update, random-strategy comparison. & Closest to the degree-$k$ differential-game example. The same blocks appear: $P(k)$ preprocessing, state equations, adjoints, bounded strategy updates, and payoff comparison. \\
-Propaganda (IEEE TCSS 2025) & Repository \path{Propaganda_TCSS_2025_Code}; \path{prop_network.py}, \path{prop_propaganda.py}, \path{prop_cntrlComparison.py}, \path{prop_noAwareness.py}; network loading, impulse policy search, profit/payoff, random and no-awareness baselines. & Impulse-control workflow and ablation studies. The tutorial function \path{simulate_continuous_impulse} gives the basic state-jump structure before the full paper-specific implementation. \\
+Opinion--malware & \texttt{network.py} $\to$ \texttt{opinionMalware.py}: two network layers, forward dynamics, adjoints and impulse choices. \\
+Propaganda war & \texttt{demo\_network.py} $\to$ \texttt{propWar.py} $\to$ \texttt{comparison.py}: degree classes, players, flow and impulse decisions. \\
+Awareness-based propaganda control & \texttt{prop\_network.py} $\to$ \texttt{prop\_propaganda.py} and comparison scripts: awareness mechanisms, intervention costs and policies. \\
 \bottomrule
-\end{tabularx}
-\end{table}
+\end{tabularx}\par
+These are separate research models, with their original licenses and attribution. Their parameters, state meanings and payoffs are not interchangeable. They extend the simple example rather than define extra prerequisites for running it.
 
-The reference code can be downloaded with:
+\subsection{A practical reading order for the tutorial series}
+This foundation establishes the model and its optimality system. Note 1 turns the same timing and intervention semantics into sampled learning environments and explains learned feedback. Note 2 uses observations and physical equations to infer unknown quantities, and then connects those estimates to control. A coherent application may follow observe--estimate--decide--apply, but uncertainty in the estimated model remains relevant to every subsequent decision.
 
-\begin{lstlisting}[language=bash,caption={Download the reference repositories.},numbers=none]
-bash examples/reference/download_reference_repositories.sh
+
+\section{Research examples: connect each method to its modeling purpose}
+\subsection{APT evaluation, patching, repair and recovery}
+Security evaluation begins by asking how a specified attack--defense mechanism evolves and how its equilibrium reflects security \cite{security2017}. A control problem adds an admissible intervention and a cost; a differential game further gives a strategic opponent its own decision and objective. The patch-injection and effective-repair papers illustrate this progression \cite{patch2018,repair2019}. Read the definition of a vulnerable, infected, insecure or repaired state before borrowing a transition: applying recovery control as $-u_i x_i$ and patching susceptible mass as $-u_i S_i$ are different mechanisms.
+
+Backup and recovery introduce an additional operational possibility: information or functionality can be restored from a maintained backup \cite{backup2021}. The choice of state variables must represent the relevant recovery capability, and the objective must distinguish compromise loss from intervention and recovery costs. Simply renaming the recovery rate in an SIS equation does not reproduce a backup model. A useful exercise is to write the state and decision meanings from the paper, identify every controlled transition, and only then form its Hamiltonian.
+
+Impulsive artificial defense studies interventions occurring as events rather than only as continuously applied rates \cite{impulse2023}. The outsourcing study introduces an impulsive differential-game setting with distinct decision makers \cite{outsource2024}. For either extension, first identify who chooses the continuous effort, event schedule and event intensity. The shared mathematical tools are the forward segments, reset map, costate jump and each player's own objective. The state definitions, event constraints and information structure remain those of the application.
+
+\subsection{Conflicting opinions and rumor refutation}
+The conflicting-opinion study formulates simultaneous benefit maximization for competing opinion processes \cite{opinions2020}. The rumor-refuting study links a propagation mechanism to the cost of refutation and strategic interaction \cite{rumor2021}. They motivate the use of two objectives rather than automatically setting $J_A=-J_D$. Expenditure by one party is not necessarily a benefit of equal size to the other.
+
+To adapt the degree-game example, replace infection with explicitly defined opinion/rumor states and derive the transitions governing their interaction. If two exclusive states occupy the same population, their feasible region may be $x_k+y_k\leq1$ rather than two independent intervals. That change affects the RHS and adjoint coupling. The tutorial's one-state attacker--defender example therefore supplies a solution pattern, not the complete opinion or rumor model.
+
+\subsection{Propaganda war: degree classes, two players and hybrid strategies}
+Cheng et al. combine continuous and impulsive interventions in a dynamical propaganda-war game \cite{war2024}. The accompanying implementation organizes the propagation equations by degree classes. Begin with \path{demo_network.py}, which reads the networks and computes degree statistics, and continue to \path{propWar.py}. The forward routines \texttt{forwardRed}/\texttt{forwardBlue}, backward routines and separate payoff functions reveal how the two players share evolving propagation states while retaining their own objectives.
+
+Trace one iteration as follows: choose both strategies, integrate the coupled state, integrate each player's adjoint under those strategies, update continuous/event decisions, and evaluate the corresponding payoff. Compare this with the simpler continuous degree-game loop in this note. Additional states and impulses require additional derivatives and jump conditions; the population weights and player-specific signs must remain aligned.
+
+The accompanying \path{comparison.py} fixes one side and samples alternatives for the other. This gives empirical unilateral-deviation comparisons over the sampled strategies. An equilibrium claim over all admissible deviations additionally requires an appropriate theorem or a sufficiently justified best-response analysis. Its random alternatives should not be interpreted as an exhaustive search.
+
+\subsection{Awareness and coupled malware--opinion dynamics}
+The awareness-based propaganda paper develops impulse interventions for a spreading process influenced by awareness and network topology \cite{awareness2025}. Its \path{prop_network.py} constructs the network matrix; \path{prop_propaganda.py} supplies propagation, adjoints, policy search and payoff evaluation. The \path{prop_noAwareness.py} comparison isolates the role of the awareness mechanism. That ablation answers a model question, whereas random intervention comparisons answer a policy question.
+
+The social-engineering malware paper couples malware and opinion/awareness dynamics on a multiplex network and uses separate patching and awareness-training impulse controls \cite{malware2025}. The code stores infection and awareness states separately: \texttt{forward\_C}, \texttt{forward\_O}, \texttt{backward\_dlamb} and \texttt{backward\_dmu} in \path{opinionMalware.py} are natural reading anchors. \path{network.py} builds the layers. A change to one layer can affect the other through cross-state derivatives, even when the networks have different edges.
+
+When adapting the earlier two-state illustration, define both layers' node order, the coupling functions, each event's target and the instantaneous costs. At an event that changes only awareness, the infection state may be continuous while its subsequent derivative changes. This distinction explains why merely plotting a drop in infection at every awareness event would encode the wrong mechanism. Use the publication's actual equations for reproduction; the compact two-layer illustration above is a separately stated teaching model.
+
+\subsection{Feedback control: update a model as new information arrives}
+Jafar et al. connect reinforcement learning with MPC for malware control, using learning to estimate unknown model parameters within prescribed bounds \cite{feedback2024}. This provides a bridge between the three tutorials: the present note explains the dynamical control subproblem; Note 1 explains sequential learning and information patterns; Note 2 explains alternative inference and residual-learning constructions.
+
+A generic receding-horizon implementation is
+\begin{lstlisting}[caption={An estimation--control loop; the estimator is application-specific}]
+for decision_time in decision_times:
+    observation = observe_system()
+    estimate = update_state_and_parameters(observation, history)
+    plan = solve_finite_horizon_control(estimate, constraints)
+    apply_first_interval(plan)
+    history.append(observation)
 \end{lstlisting}
-
-The file \path{examples/reference/reference_repository_guide.md} gives a reading map from the reference repositories to the mathematical ingredients of PMP, impulse control, and continuous--impulsive hybrid control.
-
-\subsection{Representative Outputs}
-
-The figures below are curated repository assets generated from the tutorial scripts.  Fresh runs write detailed CSV files and additional figures under \path{artifacts/}.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.92\textwidth,height=0.68\textheight,keepaspectratio]{../assets/degree_node_fbs_scalability.png}
-\caption{Degree-level versus sparse node-level FBS on matched synthetic scale-free networks. The runtime panel uses a logarithmic vertical axis; the state-dimension panel distinguishes occupied degree classes from explicit node states.}
-\label{fig:degree-node-scalability}
-\end{figure}
-% -----------------------------------------------------------------------------
-\section{Glossary and References}
-% -----------------------------------------------------------------------------
-
-\subsection{Glossary}
-\begin{longtable}{L{4.0cm}L{11.0cm}}
-\toprule
-\textbf{Term} & \textbf{Meaning} \\
-\midrule
-\endhead
-State $x(t)$ & Variables describing the system at time $t$, such as node infection probabilities. \\
-Control $u(t)$ & Decision variable chosen by a controller over time. \\
-Payoff/cost functional $J$ & Cumulative objective over the time horizon. \\
-Hamiltonian $H$ & Immediate payoff plus adjoint-weighted state dynamics. \\
-Adjoint $\lambda(t)$ & Shadow value of the state; solved backward in time. \\
-PMP & Pontryagin Maximum Principle; necessary conditions for optimal control or open-loop games. \\
-HJB & Hamilton-Jacobi-Bellman equation; dynamic programming equation for feedback optimal control. \\
-Nash equilibrium & Strategy profile where no player benefits from unilateral deviation. \\
-Stackelberg equilibrium & Leader-follower equilibrium with sequential decision structure. \\
-Impulse control & Discrete intervention causing instantaneous state jumps. \\
-Continuous--impulsive hybrid control & Flow controls plus explicit impulse resets. \\
-Degree-level model & Model that groups nodes by degree/type rather than tracking each node. \\
-Node-level model & Model that tracks each node and uses the adjacency matrix. \\
-\bottomrule
-\end{longtable}
-
-\subsection{References and Source Notes}
-
-\begin{enumerate}[label={[\arabic*]},leftmargin=2.1em]
-  \item Isaacs, R. (1965). \emph{Differential Games}. John Wiley and Sons.
-  \item Basar, T., and Zaccour, G. (eds.) (2018). \emph{Handbook of Dynamic Game Theory}. Springer.
-  \item Simaan, M., and Cruz, J. B. (1973). Sampled-data Nash controls in non-zero-sum differential games. \emph{International Journal of Control}, 17(6), 1201-1209.
-  \item Sadana, U., Reddy, P. V., and Zaccour, G. (2021). Nash equilibria in nonzero-sum differential games with impulse control. \emph{European Journal of Operational Research}, 295, 792-805.
-  \item Yang, L.-X., Li, P., Yang, X., Xiang, Y., and Zhou, W. (2018). A differential game approach to patch injection. \emph{IEEE Access}, 6, 58924-58938.
-  \item Yang, L.-X., Li, P., Zhang, Y., Yang, X., Xiang, Y., and Zhou, W. (2019). Effective repair strategy against advanced persistent threat: a differential game approach. \emph{IEEE Transactions on Information Forensics and Security}, 14(7), 1713-1728.
-  \item Yang, L.-X., Huang, K., Yang, X., Zhang, Y., Xiang, Y., and Zhou, Y. Y. (2021). Defense against advanced persistent threat through data backup and recovery. \emph{IEEE Transactions on Network Science and Engineering}, 8(3), 2001-2013.
-  \item Yang, L.-X., Li, P., Yang, X., and Tang, Y. Y. (2020). Simultaneous benefit maximization of conflicting opinions: modeling and analysis. \emph{IEEE Systems Journal}, 14(2), 1623-1634.
-  \item Huang, D. W., Yang, L.-X., Li, P., Yang, X., and Tang, Y. Y. (2021). Developing cost-effective rumor-refuting strategy through game-theoretic approach. \emph{IEEE Systems Journal}, 15(4), 5034-5045.
-
-  \item Cheng, X., Yang, L.-X., Li, G., Ma, Z., Zhu, T., Wang, L., and Duan, S. (2025). Modeling and Mitigating Social Engineering Malware: Integrating Malware-Opinion Dynamics With Optimal Impulse Control Approaches. Code repository: \url{https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code}.
-  \item Cheng, X., Yang, L.-X., Zhu, Q., Gan, C., Yang, X., and Li, G. (2024). Cost-Effective Hybrid Control Strategies for Dynamical Propaganda War Game. Code repository: \url{https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code}.
-  \item Cheng, X., Yang, L.-X., Zhu, Q., Gan, C., and Li, G. (2025). Impulse Strategies for Suppressing Cyber Propaganda With Awareness. Code repository: \url{https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code}.
-\end{enumerate}
-
-\begin{sourcebox}{Source note}
-This English tutorial note was consolidated from two uploaded source tutorial notes: a differential-game tutorial note and an optimal-hybrid-control tutorial note. The source materials cover the origins and classification of differential games, open-loop Nash differential games, Pontryagin-type optimality systems, forward-backward sweep, single-impulse games, continuous--impulsive hybrid control with state jumps, impulse Hamiltonians, and the nested optimization structure for impulse number, impulse times, and impulse magnitudes. The additional implementation sections translate these models into degree-level and node-level network workflows, including edge-list-to-adjacency conversion for realistic datasets, NetworkX/igraph graph support, ODE helper functions, and degree-distribution preprocessing for degree-$k$ models.
-\end{sourcebox}
-
+This listing describes the interface, not the detailed algorithm of the cited paper. Replacing its estimator by a PINN or its controller by a learned policy is a new methodological choice. Evaluate estimation and decision quality separately so that a benefit from better information is not automatically attributed to a new optimizer or policy learner.
 
 \appendix
-\section{Tutorial Code Files}
-\label{app:code}
+\section{Short exercises with worked answers}
+\paragraph{Direction.} A directed dataset contains only \texttt{A,B,2}. With node order $(A,B)$, what is the incoming-influence matrix?\par
+\emph{Answer:} $A=\left[\begin{smallmatrix}0&0\\2&0\end{smallmatrix}\right]$. Node B receives pressure $2x_A$.
 
-The repository contains one installable package and three maintained foundation examples:
+\paragraph{Control weights.} Why does $P(k)$ appear in the denominator of \eqref{eq:degree-update}?\par
+\emph{Answer:} The intervention cost is $P(k)r_ku_k^2/2$, whereas the costate term uses the unweighted state equation. Differentiating gives $P(k)r_ku_k-\lambda_kx_k$. Rescaling costates by class weights changes the adjoint equations as well as the update.
 
-\begin{itemize}
-  \item \path{src/cybercontrol/}: canonical equations, FBS solvers, graph operations, profiles, metrics, and plotting.
-  \item \path{examples/foundations/code/simple_degree_k_control.py}: minimal heterogeneous degree-$k$ optimal-control example.
-  \item \path{examples/foundations/code/network_control_examples.py}: thin runner for degree/node control, games, and continuous--impulsive simulation.
-  \item \path{examples/foundations/code/scalability_analysis.py}: paired degree-HMF and explicit-node FBS scaling.
-  \item \path{README.md}: installation, commands, and usage notes.
-  \item \path{examples/reference/reference_repository_guide.md}: mapping between the reference GitHub repositories and the mathematical workflow in this guide.
-  \item \path{examples/reference/download_reference_repositories.sh}: optional script to download the reference repositories.
-\end{itemize}
+\paragraph{Finite impulse changes.} Let $G(v)=v$, $v\in[-1,1]$, $K(v)=1-v^2+v^4$, and terminal cost $\Phi(x)=x^2$. Does minimizing $K+\lambda^+G$ recover the actual optimum?\par
+\emph{Answer:} The total cost is $1+v^4$, minimized at $v=0$, with $\lambda^+=\Phi'(0)=0$. The surrogate $K+\lambda^+G=1-v^2+v^4$ is minimized at $v=\pm1/\sqrt2$. The first-order condition at zero remains valid; the claimed global surrogate minimum does not.
 
-\begin{lstlisting}[language=bash,caption={Core commands for the tutorial code.},numbers=none]
-python -m pip install -e ".[graph,torch]"
-python -m cybercontrol smoke
+\paragraph{Boundary optimality.} For $H(u)=u^2/2+2u$ and $0\le u\le1$, evaluate the optimum and projected residual.\par
+\emph{Answer:} The optimum is $u=0$ although $H_u(0)=2$. With step size one, $u-\clip(u-H_u,0,1)=0$ at that optimum. The raw derivative penalty would incorrectly prefer moving away from the valid bound.
 
-python examples/foundations/code/simple_degree_k_control.py
-python examples/foundations/code/simple_degree_k_control.py \
-  --edge-list sample_data/sample_edges.csv \
-  --delimiter , --has-header --source-col source --target-col target
-
-python examples/foundations/code/network_control_examples.py
-python examples/foundations/code/network_control_examples.py --examples degree
-python examples/foundations/code/network_control_examples.py \
-  --adjacency-csv sample_data/sample_adjacency.csv
-
-bash examples/reference/download_reference_repositories.sh
+\section{Where to run extensions and numerical checks}
+The ordinary entry point remains \texttt{python -m cybercontrol}. For the existing broader degree, node, game and hybrid examples, run
+\begin{lstlisting}[language={}]
+python -m cybercontrol study --output-dir results/extensions
 \end{lstlisting}
+For development, install \texttt{python -m pip install -e ".[dev]"} and run \texttt{pytest -q}. The public \texttt{check} command runs a small numerical check. Only \texttt{python -m cybercontrol docs} requires LaTeX/\texttt{latexmk}. Numerical correctness checks support the computation; scientific conclusions still depend on the model, data and comparison problem.
 
-The examples contain configuration and reporting code; the mathematical and numerical implementations remain in \texttt{cybercontrol}, where they can be imported and tested independently.
+\clearpage
+\begin{thebibliography}{99}
+\bibitem{pontryagin} L. S. Pontryagin, V. G. Boltyanskii, R. V. Gamkrelidze and E. F. Mishchenko, \emph{The Mathematical Theory of Optimal Processes}. Wiley, 1962.
+\bibitem{liberzon} D. Liberzon, \emph{Calculus of Variations and Optimal Control Theory: A Concise Introduction}. Princeton University Press, 2012. Author's course text: \url{https://liberzon.csl.illinois.edu/teaching/cvoc/}.
+\bibitem{lenhart} S. Lenhart and J. T. Workman, \emph{Optimal Control Applied to Biological Models}. Chapman and Hall/CRC, 2007.
+\bibitem{mcasey} M. McAsey, L. Mou and W. Han, ``Convergence of the forward-backward sweep method in optimal control,'' \emph{Computational Optimization and Applications}, 53, 207--226, 2012.
+\bibitem{basar} T. Ba\c{s}ar and G. J. Olsder, \emph{Dynamic Noncooperative Game Theory}, second edition. SIAM, 1999.
+\bibitem{networkx} NetworkX developers, \emph{Converting to and from other data formats}, official documentation. \url{https://networkx.org/documentation/stable/reference/convert.html}.
+\bibitem{scipy} SciPy developers, \emph{solve\_ivp}, official documentation. \url{https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html}.
 
+\bibitem{security2017} L.-X. Yang, P. Li, X. Yang and Y. Y. Tang, ``Security evaluation of the cyber networks under advanced persistent threats,'' \emph{IEEE Access}, 5, 20111--20123, 2017. \href{https://doi.org/10.1109/ACCESS.2017.2757944}{doi:10.1109/ACCESS.2017.2757944}.
+
+\bibitem{patch2018} L.-X. Yang, P. Li, X. Yang, Y. Xiang and W. Zhou, ``A differential game approach to patch injection,'' \emph{IEEE Access}, 6, 58924--58938, 2018. \href{https://doi.org/10.1109/ACCESS.2018.2874446}{doi:10.1109/ACCESS.2018.2874446}.
+
+\bibitem{repair2019} L.-X. Yang, P. Li, Y. Zhang, X. Yang, Y. Xiang and W. Zhou, ``Effective repair strategy against advanced persistent threat: A differential game approach,'' \emph{IEEE Transactions on Information Forensics and Security}, 14(7), 1713--1728, 2019. \href{https://doi.org/10.1109/TIFS.2018.2885251}{doi:10.1109/TIFS.2018.2885251}.
+
+\bibitem{backup2021} L.-X. Yang, K. Huang, X. Yang, Y. Zhang, Y. Xiang and Y. Y. Tang, ``Defense against advanced persistent threat through data backup and recovery,'' \emph{IEEE Transactions on Network Science and Engineering}, 8(3), 2001--2013, 2021. \href{https://doi.org/10.1109/TNSE.2020.3040247}{doi:10.1109/TNSE.2020.3040247}.
+
+\bibitem{opinions2020} L.-X. Yang, P. Li, X. Yang, Y. Xiang and Y. Y. Tang, ``Simultaneous benefit maximization of conflicting opinions: Modeling and analysis,'' \emph{IEEE Systems Journal}, 14(2), 1623--1634, 2020. \href{https://doi.org/10.1109/JSYST.2020.2964004}{doi:10.1109/JSYST.2020.2964004}.
+
+\bibitem{rumor2021} D.-W. Huang, L.-X. Yang, P. Li, X. Yang and Y. Y. Tang, ``Developing cost-effective rumor-refuting strategy through game-theoretic approach,'' \emph{IEEE Systems Journal}, 15(4), 5034--5045, 2021. \href{https://doi.org/10.1109/JSYST.2020.3020078}{doi:10.1109/JSYST.2020.3020078}.
+
+\bibitem{impulse2023} H. Sun, X. Yang, L.-X. Yang, K. Huang and G. Li, ``Impulsive artificial defense against advanced persistent threat,'' \emph{IEEE Transactions on Information Forensics and Security}, 18, 3506--3516, 2023. \href{https://doi.org/10.1109/TIFS.2023.3284564}{doi:10.1109/TIFS.2023.3284564}.
+
+\bibitem{outsource2024} Y. Qin, X. Yang, L.-X. Yang and K. Huang, ``Modeling and study of defense outsourcing against advanced persistent threat through impulsive differential game approach,'' \emph{Computers \& Security}, 145, 104003, 2024. \href{https://doi.org/10.1016/j.cose.2024.104003}{doi:10.1016/j.cose.2024.104003}.
+
+\bibitem{feedback2024} M. T. Jafar, L.-X. Yang, G. Li, Q. Zhu and C. Gan, ``Minimizing malware propagation in Internet of Things networks: An optimal control using feedback loop approach,'' \emph{IEEE Transactions on Information Forensics and Security}, 19, 9682--9697, 2024. \href{https://doi.org/10.1109/TIFS.2024.3463965}{doi:10.1109/TIFS.2024.3463965}.
+
+\bibitem{war2024} X. Cheng, L.-X. Yang, Q. Zhu, C. Gan, X. Yang and G. Li, ``Cost-effective hybrid control strategies for dynamical propaganda war game,'' \emph{IEEE Transactions on Information Forensics and Security}, 19, 9789--9802, 2024. \href{https://doi.org/10.1109/TIFS.2024.3468903}{doi:10.1109/TIFS.2024.3468903}. Author code: \href{https://github.com/XiaojuanCheng/PropagandaWar_TIFS_2024_Code}{PropagandaWar\_TIFS\_2024\_Code}.
+
+\bibitem{awareness2025} X. Cheng, L.-X. Yang, Q. Zhu, C. Gan and G. Li, ``Impulse strategies for suppressing cyber propaganda with awareness,'' \emph{IEEE Transactions on Computational Social Systems}, 12(5), 2685--2695, 2025. \href{https://doi.org/10.1109/TCSS.2024.3522889}{doi:10.1109/TCSS.2024.3522889}. Author code: \href{https://github.com/XiaojuanCheng/Propaganda_TCSS_2025_Code}{Propaganda\_TCSS\_2025\_Code}.
+
+\bibitem{malware2025} X. Cheng, L.-X. Yang, G. Li, Z. Ma, T. Zhu, L. Wang and S. Duan, ``Modeling and mitigating social engineering malware: Integrating malware-opinion dynamics with optimal impulse control approaches,'' \emph{IEEE Transactions on Information Forensics and Security}, 20, 12231--12244, 2025. \href{https://doi.org/10.1109/TIFS.2025.3630005}{doi:10.1109/TIFS.2025.3630005}. Author code: \href{https://github.com/XiaojuanCheng/OpinionMalware_TIFS_2025_Code}{OpinionMalware\_TIFS\_2025\_Code}.
+\end{thebibliography}
 \end{document}

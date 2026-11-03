@@ -129,3 +129,7 @@ python -m cybercontrol docs
 ```
 
 Only the last command requires a LaTeX installation with `latexmk`. The normal example does not. The `smoke`, `figures` and `medium` command names used in existing teaching materials map to `check`, `example` and `study` respectively. Tests cover the numerical contracts independently of the scientific interpretation of any one plot.
+
+## Research papers behind the examples
+
+The lecture connects the examples to Yang and collaborators’ work on APT evaluation, patch-injection and repair games, backup/recovery, conflicting opinions, rumor refutation, impulsive defense and outsourcing, hybrid propaganda competition, awareness-dependent interventions, coupled malware-opinion dynamics, and feedback-loop malware control. Its Research examples section explains each connection and gives the complete formal references, including the three associated research repositories. Read the paper-specific state definitions before adapting a tutorial model.
