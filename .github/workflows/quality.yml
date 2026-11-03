@@ -9,6 +9,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      MPLBACKEND: Agg
     strategy:
       fail-fast: false
       matrix:
@@ -33,30 +35,18 @@ jobs:
         run: |
           python -m cybercontrol check
           python -m cybercontrol --output-dir artifacts/ci_figures
-  teaching-sources:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          path: foundation
-          persist-credentials: false
-      - uses: actions/checkout@v6
-        with:
-          repository: LYang910920/note1-cyber-control-games
-          ref: main
-          path: note1
-          persist-credentials: false
-      - uses: actions/checkout@v6
-        with:
-          repository: LYang910920/note2-pinn-pidl-cyber-control
-          ref: main
-          path: note2
-          persist-credentials: false
-      - name: Package lecture sources and examples
+      - name: Lecture reference consistency
         run: |
-          tar --exclude=.git -czf teaching-sources.tar.gz foundation note1 note2
-      - uses: actions/upload-artifact@v4
-        with:
-          name: teaching-sources
-          path: teaching-sources.tar.gz
-          retention-days: 3
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('docs/source/network_control_foundations.tex').read_text()
+          body = text.split(r'\begin{thebibliography}')[0]
+          references = set(re.findall(r'\\bibitem\{([^}]+)\}', text))
+          cited = {key.strip() for group in re.findall(r'\\cite\{([^}]+)\}', body) for key in group.split(',')}
+          assert references == cited, (references-cited, cited-references)
+          required = {'security2017', 'patch2018', 'repair2019', 'backup2021', 'opinions2020', 'rumor2021', 'impulse2023', 'outsource2024', 'feedback2024', 'war2024', 'awareness2025', 'malware2025'}
+          assert required <= cited
+          assert Path('docs/network_control_foundations.pdf').is_file()
+          print(f'{len(references)} references are connected to the lecture body.')
+          PY
