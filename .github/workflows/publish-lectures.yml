@@ -2,7 +2,6 @@ name: Publish reviewed lecture
 on:
   push:
     paths: [.github/workflows/publish-lectures.yml]
-  workflow_dispatch:
 permissions:
   contents: write
 jobs:
@@ -12,75 +11,71 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 1
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - name: Apply reviewed source edits
+      - name: Assemble the reviewed lecture
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           python - <<'PY'
-          import base64, gzip, hashlib, json
+          import base64, hashlib, json, os, re, urllib.request
           from pathlib import Path
-          source = Path('.github/lecture_update.json.gz.b64')
-          edits = json.loads(gzip.decompress(base64.b64decode(source.read_text())))
-          for filename, edit in edits.items():
-              path = Path(filename)
-              if path.is_absolute() or '..' in path.parts:
-                  raise ValueError(filename)
-              original = path.read_bytes() if path.exists() else b''
-              expected = edit['sha256']
-              if expected is None:
-                  assert not path.exists(), filename
-              else:
-                  assert hashlib.sha256(original).hexdigest() == expected, filename
-              if edit['parts'] is None:
-                  path.unlink()
-              else:
-                  lines = original.decode().splitlines(keepends=True)
-                  updated = ''.join(part if isinstance(part, str) else ''.join(lines[part[0]:part[1]]) for part in edit['parts'])
-                  path.parent.mkdir(parents=True, exist_ok=True)
-                  path.write_text(updated, encoding='utf-8')
+          parts = ['835ffdfa039e3f1f5d50b5365019fecbf50a066b', '931d12f112ca867bc5e53f96338df537bce6eb44', 'a036d0a3a7596bd782f29a3fb841dfa042ad3f20', '4e3279114fd0aa28d39c3a4e0cf92811e2bd892b']
+          data = b''
+          for sha in parts:
+              url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/git/blobs/{sha}"
+              request = urllib.request.Request(url, headers={'Authorization': 'Bearer '+os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json'})
+              with urllib.request.urlopen(request) as response:
+                  data += base64.b64decode(json.load(response)['content'])
+          assert hashlib.sha256(data).hexdigest() == '9054472bd22a2cfb043ab3fe791426a5c47cf830432a96f26360d7a985b0dba0'
+          path = Path('docs/source/network_control_foundations.tex')
+          path.write_bytes(data)
+          text = data.decode()
+          body = text.split('\\begin{thebibliography}')[0]
+          references = set(re.findall(r'\\bibitem\{([^}]+)\}', text))
+          cited = {key.strip() for group in re.findall(r'\\cite\{([^}]+)\}', body) for key in group.split(',')}
+          assert cited == references, (cited-references, references-cited)
+          papers = {'security2017','patch2018','repair2019','backup2021','opinions2020','rumor2021','impulse2023','outsource2024','feedback2024','war2024','awareness2025','malware2025'}
+          assert papers <= cited
+          print(f'{len(references)} references; all 12 research papers cited in the lecture body.')
+          guide = Path('docs/GUIDE.md')
+          section = '\n## Research papers behind the examples\n\nThe lecture connects the examples to Yang and collaborators\u2019 work on APT evaluation, patch-injection and repair games, backup/recovery, conflicting opinions, rumor refutation, impulsive defense and outsourcing, hybrid propaganda competition, awareness-dependent interventions, coupled malware-opinion dynamics, and feedback-loop malware control. Its Research examples section explains each connection and gives the complete formal references, including the three associated research repositories. Read the paper-specific state definitions before adapting a tutorial model.\n'
+          if '## Research papers behind the examples' not in guide.read_text():
+              guide.write_text(guide.read_text()+section)
           PY
-      - name: Install and test
+      - name: Install, test and run the student example
         env:
           MPLBACKEND: Agg
         run: |
           python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
           python -m pip install -e '.[dev]'
-          ruff format src tests scripts
+          python -m compileall -q src tests scripts
           ruff check .
+          ruff format --check src tests scripts examples/foundations/code
           pytest -q
-          python scripts/generate_figures.py
-      - name: Locate lecture
-        id: lecture
-        run: |
-          file=$(find docs/source -maxdepth 1 -name '*.tex' ! -name tutorial_style.tex | head -1)
-          echo "name=$(basename "$file" .tex)" >> "$GITHUB_OUTPUT"
+          python -m cybercontrol check
+          python -m cybercontrol --output-dir results/lecture
+          python -m cybercontrol --edge-list examples/foundations/sample_data/sample_edges.csv --delimiter , --has-header --source-col source --target-col target --weight-col weight --output-dir results/csv
       - uses: xu-cheng/latex-action@v3
         with:
           working_directory: docs/source
-          root_file: '${{ steps.lecture.outputs.name }}.tex'
+          root_file: network_control_foundations.tex
           args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
-      - name: Publish the compiled source and PDF
-        env:
-          LECTURE: '${{ steps.lecture.outputs.name }}'
+      - name: Publish source and PDF
         run: |
-          cp "docs/source/$LECTURE.pdf" "docs/$LECTURE.pdf"
-          if grep -E 'Overfull|undefined references|undefined citations' "docs/source/$LECTURE.log"; then exit 1; fi
-          rm .github/lecture_update.json.gz.b64 .github/workflows/publish-lectures.yml
+          if grep -E 'Overfull|undefined references|undefined citations' docs/source/network_control_foundations.log; then exit 1; fi
+          cp docs/source/network_control_foundations.pdf docs/network_control_foundations.pdf
           git config user.name 'LYang910920'
           git config user.email '20222003+LYang910920@users.noreply.github.com'
-          git add -A
-          git commit -m 'Revise the lecture, align the mathematics and examples, and publish the PDF'
+          git add docs/source/network_control_foundations.tex docs/network_control_foundations.pdf docs/GUIDE.md
+          git commit -m 'Restore research citations and worked connections; publish the reviewed control lecture'
           git push origin HEAD:main
-          branch=maintenance/student-ready-tutorials
-          if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
-            git merge-base --is-ancestor "refs/remotes/origin/$branch" HEAD
-            git push origin --delete "$branch"
-          fi
-          git archive --format=zip --output=final-tutorial.zip HEAD
       - uses: actions/upload-artifact@v4
         with:
-          name: revised-tutorial
-          path: final-tutorial.zip
+          name: reviewed-lecture
+          path: |
+            docs/network_control_foundations.pdf
+            docs/source/network_control_foundations.tex
           retention-days: 7
