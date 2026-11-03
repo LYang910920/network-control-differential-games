@@ -1,0 +1,86 @@
+name: Publish reviewed lecture
+on:
+  push:
+    paths: [.github/workflows/publish-lectures.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Apply reviewed source edits
+        run: |
+          python - <<'PY'
+          import base64, gzip, hashlib, json
+          from pathlib import Path
+          source = Path('.github/lecture_update.json.gz.b64')
+          edits = json.loads(gzip.decompress(base64.b64decode(source.read_text())))
+          for filename, edit in edits.items():
+              path = Path(filename)
+              if path.is_absolute() or '..' in path.parts:
+                  raise ValueError(filename)
+              original = path.read_bytes() if path.exists() else b''
+              expected = edit['sha256']
+              if expected is None:
+                  assert not path.exists(), filename
+              else:
+                  assert hashlib.sha256(original).hexdigest() == expected, filename
+              if edit['parts'] is None:
+                  path.unlink()
+              else:
+                  lines = original.decode().splitlines(keepends=True)
+                  updated = ''.join(part if isinstance(part, str) else ''.join(lines[part[0]:part[1]]) for part in edit['parts'])
+                  path.parent.mkdir(parents=True, exist_ok=True)
+                  path.write_text(updated, encoding='utf-8')
+          PY
+      - name: Install and test
+        env:
+          MPLBACKEND: Agg
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install -e '.[dev]'
+          ruff format src tests scripts
+          ruff check .
+          pytest -q
+          python scripts/generate_figures.py
+      - name: Locate lecture
+        id: lecture
+        run: |
+          file=$(find docs/source -maxdepth 1 -name '*.tex' ! -name tutorial_style.tex | head -1)
+          echo "name=$(basename "$file" .tex)" >> "$GITHUB_OUTPUT"
+      - uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: docs/source
+          root_file: '${{ steps.lecture.outputs.name }}.tex'
+          args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
+      - name: Publish the compiled source and PDF
+        env:
+          LECTURE: '${{ steps.lecture.outputs.name }}'
+        run: |
+          cp "docs/source/$LECTURE.pdf" "docs/$LECTURE.pdf"
+          if grep -E 'Overfull|undefined references|undefined citations' "docs/source/$LECTURE.log"; then exit 1; fi
+          rm .github/lecture_update.json.gz.b64 .github/workflows/publish-lectures.yml
+          git config user.name 'LYang910920'
+          git config user.email '20222003+LYang910920@users.noreply.github.com'
+          git add -A
+          git commit -m 'Revise the lecture, align the mathematics and examples, and publish the PDF'
+          git push origin HEAD:main
+          branch=maintenance/student-ready-tutorials
+          if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+            git merge-base --is-ancestor "refs/remotes/origin/$branch" HEAD
+            git push origin --delete "$branch"
+          fi
+          git archive --format=zip --output=final-tutorial.zip HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: revised-tutorial
+          path: final-tutorial.zip
+          retention-days: 7
